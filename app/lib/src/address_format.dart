@@ -266,16 +266,3 @@ String railHost(String rowName, String host) {
   }
   return host;
 }
-
-/// A server's name for a one-line summary: [host] (or a node URL) without its port, scheme and
-/// first label when it has three or more, so `node.example.org:<port>` and `epicbox.example.net`
-/// read `example.org` and `example.net`. An IP address or a two-label name stays as it is.
-String shortHost(String host) {
-  var h = host.trim().toLowerCase();
-  if (h.contains('://')) h = Uri.tryParse(h)?.host ?? h;
-  final colon = h.lastIndexOf(':');
-  if (colon > 0 && h.indexOf(':') == colon) h = h.substring(0, colon);
-  final labels = h.split('.');
-  final ip = labels.length == 4 && labels.every((l) => int.tryParse(l) != null);
-  return labels.length >= 3 && !ip ? labels.skip(1).join('.') : h;
-}

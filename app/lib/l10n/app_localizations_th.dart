@@ -5303,25 +5303,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ไม่ได้เปลี่ยนรหัสผ่าน รหัสผ่านปัจจุบันยังใช้เปิดกระเป๋าเงินได้';
 
   @override
-  String get deskTorLineOff => 'ปิด';
-
-  @override
-  String get deskTorLineReady => 'พร้อม';
-
-  @override
-  String deskTorLineSendsWork(String problem) {
-    return '$problem การส่งใช้ได้';
-  }
-
-  @override
-  String get deskTorLinePublishing => 'กำลังเผยแพร่ที่อยู่ onion…';
-
-  @override
-  String deskTorLineConnecting(int percent) {
-    return 'กำลังเชื่อมต่อ Tor… $percent%';
-  }
-
-  @override
   String get deskErrHistOtherWallet => 'ข้อมูลของกระเป๋าเงินอื่น';
 
   @override
@@ -5637,10 +5618,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTorNetworkHint => 'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor';
-
-  @override
-  String get deskTorCoverage =>
-      'ผ่าน Tor: Epicbox, โหนด, สถานะ, ราคา, อัปเดต, ฝ่ายช่วยเหลือ และที่อยู่ Tor';
 
   @override
   String get deskTorNodeOver => 'ผ่าน Tor';

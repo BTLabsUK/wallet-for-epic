@@ -65,7 +65,6 @@
   "deskNodeDurationM": "{minutes} min",
   "deskTorNetworkLabel": "Sieć Tor",
   "deskTorNetworkHint": "Ruch sieciowy przechodzi przez sieć Tor.",
-  "deskTorCoverage": "Przez Tor: Epicbox, węzeł, stan, kurs, aktualizacje, wsparcie i adresy Tor.",
   "deskTorNodeOver": "Przez Tor",
   "deskTorNodeNotEncrypted": "Za Torem bez szyfrowania",
   "deskTorNodeWaits": "Czeka na połączenie z Torem.",

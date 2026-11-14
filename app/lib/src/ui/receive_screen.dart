@@ -76,10 +76,6 @@ class ReceiveTabNotifier extends Notifier<ReceiveTab> {
   void choose(ReceiveTab tab) => state = tab;
 }
 
-/// Opens Receive as a full screen (from Home's Receive button).
-Future<void> openReceive(BuildContext context) =>
-    Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const ReceiveScreen()));
-
 /// The Receive flow screen: close, title and "?" over [ReceiveView].
 class ReceiveScreen extends StatelessWidget {
   const ReceiveScreen({super.key});

@@ -65,7 +65,6 @@
   "deskNodeDurationM": "{minutes} 分钟",
   "deskTorNetworkLabel": "Tor 网络",
   "deskTorNetworkHint": "网络活动经由 Tor 网络。",
-  "deskTorCoverage": "经由 Tor：Epicbox、节点、状态、价格、更新、支持和 Tor 地址。",
   "deskTorNodeOver": "经由 Tor",
   "deskTorNodeNotEncrypted": "Tor 出口之后未加密",
   "deskTorNodeWaits": "等 Tor 连接后再连接。",

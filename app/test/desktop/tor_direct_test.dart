@@ -107,7 +107,6 @@ void main() {
       expect(session().torStarts, isEmpty);
       final st = await wallet.status();
       expect(st.tor, ServiceHealth.off);
-      expect(torStatusLine(englishStrings, st), 'Off');
     });
 
     test('on starts tor from the bundle; unlock starts it again only with Start with the wallet', () async {
@@ -230,7 +229,6 @@ void main() {
       expect(await wallet.unlock(_password), isTrue);
       final st = await wallet.status();
       expect(st.torIncluded, isFalse);
-      expect(torStatusLine(englishStrings, st), _l.deskErrTorMissing);
       await wallet.setTor(true);
       expect(session().torStarts, isEmpty);
       expect((await wallet.status()).torProblem, _l.deskErrTorMissing);
@@ -266,19 +264,17 @@ void main() {
     setUp(() => wallet.setTor(true));
 
     test('progress, connected, publishing, ready', () async {
-      expect(torStatusLine(englishStrings, await wallet.status()), 'Connecting to Tor… 0%');
+      final first = await wallet.status();
+      expect((first.tor, first.torProgress ?? 0, first.torCanSend), (ServiceHealth.checking, 0, false));
       await tor(const core.TorEvent(kind: core.TorEventKind.starting, progress: 45));
       var st = await wallet.status();
       expect((st.tor, st.torProgress, st.torCanSend), (ServiceHealth.checking, 45, false));
-      expect(torStatusLine(englishStrings, st), 'Connecting to Tor… 45%');
       await tor(const core.TorEvent(kind: core.TorEventKind.bootstrapped));
       st = await wallet.status();
-      expect(st.torCanSend, isTrue);
-      expect(torStatusLine(englishStrings, st), _l.deskTorLinePublishing);
+      expect((st.tor, st.torCanSend), (ServiceHealth.checking, true));
       await tor(const core.TorEvent(kind: core.TorEventKind.ready, onion: 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion'));
       st = await wallet.status();
       expect(st.tor, ServiceHealth.ok);
-      expect(torStatusLine(englishStrings, st), _l.deskTorLineReady);
       expect(await wallet.torAddress(), _onion);
     });
 
@@ -300,7 +296,6 @@ void main() {
         final st = await wallet.status();
         expect(st.tor, ServiceHealth.down);
         expect(st.torProblem, text);
-        expect(torStatusLine(englishStrings, st), text);
         await wallet.setTor(true);
         expect(session().torStarts, hasLength(tries + 1));
         expect((await wallet.status()).tor, ServiceHealth.checking);
@@ -313,7 +308,6 @@ void main() {
         await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
         final st = await wallet.status();
         expect(st.torProblem, _l.deskErrOnionNotPublished);
-        expect(torStatusLine(englishStrings, st), startsWith(_l.deskErrOnionNotPublished));
       });
     }
 
@@ -324,7 +318,6 @@ void main() {
       expect(session().torStarts, hasLength(2));
       var st = await wallet.status();
       expect((st.tor, st.torProblem), (ServiceHealth.checking, null));
-      expect(torStatusLine(englishStrings, st), startsWith('Connecting to Tor'));
       expect(TorNet.mode, TorNetMode.waiting);
       await connected();
       await tor(const core.TorEvent(kind: core.TorEventKind.ready, onion: 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion'));
@@ -410,7 +403,6 @@ void main() {
       await tor(const core.TorEvent(kind: core.TorEventKind.failed, failure: core.TorFailure.keys));
       final st = await wallet.status();
       expect((st.tor, st.torCanSend), (ServiceHealth.slow, true));
-      expect(torStatusLine(englishStrings, st), 'Onion address not published. Sends work.');
     });
 
     test('a stop nobody asked for restarts tor; after the tries it reads “Tor stopped”', () async {
@@ -422,7 +414,8 @@ void main() {
         await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
       }
       expect(session().torStarts, hasLength(4));
-      expect(torStatusLine(englishStrings, await wallet.status()), _l.deskErrTorStopped);
+      final st = await wallet.status();
+      expect((st.tor, st.torProblem ?? _l.deskErrTorStopped), (ServiceHealth.down, _l.deskErrTorStopped));
     });
 
     test('a payment over Tor reloads the history', () async {

@@ -8644,36 +8644,6 @@ abstract class AppLocalizations {
   /// **'Password not changed. The current password still opens the wallet.'**
   String get deskErrPasswordNotChanged;
 
-  /// Tor line of the status card and Settings › Receiving when Tor is off. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Off'**
-  String get deskTorLineOff;
-
-  /// Tor line of the status card and Settings › Receiving when Tor is ready. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Ready'**
-  String get deskTorLineReady;
-
-  /// Tor line when the onion address is not published but sending works. {problem} is a short reason such as "Onion address not published".
-  ///
-  /// In en, this message translates to:
-  /// **'{problem}. Sends work.'**
-  String deskTorLineSendsWork(String problem);
-
-  /// Tor line while the onion address is being published.
-  ///
-  /// In en, this message translates to:
-  /// **'Publishing the onion address…'**
-  String get deskTorLinePublishing;
-
-  /// Tor line while Tor connects. {percent} is a number from 0 to 100.
-  ///
-  /// In en, this message translates to:
-  /// **'Connecting to Tor… {percent}%'**
-  String deskTorLineConnecting(int percent);
-
   /// Title of the notice when a history backup file was exported from a different wallet.
   ///
   /// In en, this message translates to:
@@ -9207,12 +9177,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Network activity goes through the Tor network.'**
   String get deskTorNetworkHint;
-
-  /// One sentence listing what goes over Tor while the switch is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.'**
-  String get deskTorCoverage;
 
   /// Node tooltip line: the node is reached over Tor.
   ///

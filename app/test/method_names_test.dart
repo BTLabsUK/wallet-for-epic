@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/recipient.dart';
 import 'package:epic_wallet/src/ui/common.dart' show txRowMethod, txTitle;
-import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/method_icons.dart';
 import 'package:epic_wallet/src/ui/method_names.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -59,8 +58,9 @@ void main() {
 
     test('a contact\'s tag is the method its address is reached by', () {
       final l = lookupAppLocalizations(const Locale('de'));
-      expect(contactTag(l, 'esAbc@epicbox.epiccash.com'), 'Epicbox');
-      expect(contactTag(l, 'https://pay.example.org:3415'), 'Link · HTTP');
+      String tag(String address) => recipientMethodWord(l, parseRecipient(address).kind);
+      expect(tag('esAbc@epicbox.epiccash.com'), 'Epicbox');
+      expect(tag('https://pay.example.org:3415'), 'Link · HTTP');
     });
   });
 
@@ -116,7 +116,6 @@ void main() {
         final t = row(via: Epic1Via.link, kind: kind);
         expect(txRowMethod(_l, t), 'epic1 link');
         expect(txTitle(_l, t), 'epic1 link');
-        expect(txMethodName(_l, t), 'epic1 link');
       }
     });
 
@@ -124,7 +123,6 @@ void main() {
       final t = row(via: Epic1Via.inPerson);
       expect(txRowMethod(_l, t), 'In person');
       expect(txTitle(_l, t), 'In person');
-      expect(txMethodName(_l, t), 'In person');
     });
 
     test('a contact keeps its name as the title', () {

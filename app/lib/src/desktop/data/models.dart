@@ -1073,18 +1073,6 @@ String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p
   HttpProblem.stopped => l.deskErrStoppedWithError,
 };
 
-/// The Tor line of the status card and Settings › Transactions: what tor is doing now.
-String torStatusLine(AppLocalizations l, ServiceStatus s) {
-  if (!s.torIncluded) return l.deskErrTorMissing;
-  return switch (s.tor) {
-    ServiceHealth.off => l.deskTorLineOff,
-    ServiceHealth.ok => l.deskTorLineReady,
-    ServiceHealth.down => s.torProblem ?? l.deskErrTorStopped,
-    ServiceHealth.slow => l.deskTorLineSendsWork(s.torProblem ?? l.deskErrOnionNotPublished),
-    ServiceHealth.checking => s.torCanSend ? l.deskTorLinePublishing : l.deskTorLineConnecting(s.torProgress ?? 0),
-  };
-}
-
 /// New wallet passwords must have at least this many characters (LEPIC refuses shorter ones).
 const int minPasswordLength = 8;
 

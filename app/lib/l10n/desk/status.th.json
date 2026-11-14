@@ -65,7 +65,6 @@
   "deskNodeDurationM": "{minutes} นาที",
   "deskTorNetworkLabel": "เครือข่าย Tor",
   "deskTorNetworkHint": "การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor",
-  "deskTorCoverage": "ผ่าน Tor: Epicbox, โหนด, สถานะ, ราคา, อัปเดต, ฝ่ายช่วยเหลือ และที่อยู่ Tor",
   "deskTorNodeOver": "ผ่าน Tor",
   "deskTorNodeNotEncrypted": "ไม่เข้ารหัสหลังออกจาก Tor",
   "deskTorNodeWaits": "รอจนกว่า Tor จะเชื่อมต่อ",

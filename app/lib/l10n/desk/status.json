@@ -411,10 +411,6 @@
   "@deskTorNetworkHint": {
     "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
   },
-  "deskTorCoverage": "Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.",
-  "@deskTorCoverage": {
-    "description": "One sentence listing what goes over Tor while the switch is on."
-  },
   "deskTorNodeOver": "Over Tor",
   "@deskTorNodeOver": {
     "description": "Node tooltip line: the node is reached over Tor."

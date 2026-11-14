@@ -33,10 +33,6 @@ String torNetworkHint(AppLocalizations l) => l.deskTorNetworkHint;
 /// The state word: Off, Starting…, On, Not connected.
 String torWord(AppLocalizations l, TorState s) => torShownState(s).word(l);
 
-/// What goes over Tor, from [torCovered]: one short sentence. The switch never lists what
-/// does not (the rule); a send that skips Tor says so on that send.
-String torCoverageText(AppLocalizations l) => l.deskTorCoverage;
-
 /// A node on this computer: never over Tor ([torSkipsLocalNode]).
 bool isLocalNodeUrl(String url) {
   final host = Uri.tryParse(url)?.host.toLowerCase() ?? '';

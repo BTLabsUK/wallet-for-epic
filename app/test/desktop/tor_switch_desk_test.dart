@@ -95,13 +95,6 @@ void main() {
       final line = methodStateLine(englishStrings, TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
       expect(line.word, 'Not connected');
     }, skip: _skip);
-
-    test('the coverage text names only what goes over Tor', () {
-      final text = torCoverageText(englishStrings);
-      expect(text, _l.deskTorCoverage);
-      expect(text, isNot(contains('Not over Tor')));
-      expect(text, isNot(contains('Link to http(s)')));
-    });
   });
 
   group('Settings › Network & privacy', () {

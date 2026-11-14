@@ -5112,25 +5112,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskErrPasswordNotChanged => '密码未更改。当前密码仍可打开钱包。';
 
   @override
-  String get deskTorLineOff => '关闭';
-
-  @override
-  String get deskTorLineReady => '就绪';
-
-  @override
-  String deskTorLineSendsWork(String problem) {
-    return '$problem。发送不受影响。';
-  }
-
-  @override
-  String get deskTorLinePublishing => '正在发布 onion 地址…';
-
-  @override
-  String deskTorLineConnecting(int percent) {
-    return '正在连接 Tor… $percent%';
-  }
-
-  @override
   String get deskErrHistOtherWallet => '其他钱包的数据';
 
   @override
@@ -5443,9 +5424,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTorNetworkHint => '网络活动经由 Tor 网络。';
-
-  @override
-  String get deskTorCoverage => '经由 Tor：Epicbox、节点、状态、价格、更新、支持和 Tor 地址。';
 
   @override
   String get deskTorNodeOver => '经由 Tor';

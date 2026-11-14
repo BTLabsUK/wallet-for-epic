@@ -250,12 +250,6 @@ void main() {
         SendTrack.notPosted,
       );
     });
-
-    test('the current step of each place', () {
-      expect(sendTrackerStep(SendTrack.waitingRecipient), 1);
-      expect(sendTrackerStep(SendTrack.confirming), 3);
-      expect(sendTrackerStep(SendTrack.completed), 4);
-    });
   });
 
   group('steps', () {

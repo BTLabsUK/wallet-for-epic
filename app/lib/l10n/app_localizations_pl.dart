@@ -5584,25 +5584,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie zmieniono hasła. Portfel nadal otwiera obecne hasło.';
 
   @override
-  String get deskTorLineOff => 'Wyłączony';
-
-  @override
-  String get deskTorLineReady => 'Gotowy';
-
-  @override
-  String deskTorLineSendsWork(String problem) {
-    return '$problem. Wysyłanie działa.';
-  }
-
-  @override
-  String get deskTorLinePublishing => 'Publikowanie adresu onion…';
-
-  @override
-  String deskTorLineConnecting(int percent) {
-    return 'Łączenie z Tor… $percent %';
-  }
-
-  @override
   String get deskErrHistOtherWallet => 'Dane innego portfela';
 
   @override
@@ -5925,10 +5906,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTorNetworkHint => 'Ruch sieciowy przechodzi przez sieć Tor.';
-
-  @override
-  String get deskTorCoverage =>
-      'Przez Tor: Epicbox, węzeł, stan, kurs, aktualizacje, wsparcie i adresy Tor.';
 
   @override
   String get deskTorNodeOver => 'Przez Tor';

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../l10n.dart';
-import '../models.dart' show TxEntry;
 import '../recipient.dart';
 import 'method_icons.dart';
 
@@ -24,11 +23,6 @@ String txMethodWord(AppLocalizations l, String? transport) {
   final m = methodKindOfTransport(transport);
   return m == null ? l.txMethodUnknown : MethodIcons.fullName(l, m);
 }
-
-/// The name of the method [tx] went by: an epic1 exchange by its own name (epic1 link, In
-/// person), else [txMethodWord] of its transport.
-String txMethodName(AppLocalizations l, TxEntry tx) =>
-    tx.epic1Via == null ? txMethodWord(l, tx.transport) : MethodIcons.epic1Name(l, tx.epic1Via!);
 
 /// The name of the method an address is reached by.
 String recipientMethodWord(AppLocalizations l, RecipientKind kind) => MethodIcons.recipientFullName(l, kind);

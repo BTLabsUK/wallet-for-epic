@@ -507,36 +507,6 @@
   "@deskErrPasswordNotChanged": {
     "description": "An error message the user reads when changing the password failed."
   },
-  "deskTorLineOff": "Off",
-  "@deskTorLineOff": {
-    "description": "Tor line of the status card and Settings › Receiving when Tor is off. Short."
-  },
-  "deskTorLineReady": "Ready",
-  "@deskTorLineReady": {
-    "description": "Tor line of the status card and Settings › Receiving when Tor is ready. Short."
-  },
-  "deskTorLineSendsWork": "{problem}. Sends work.",
-  "@deskTorLineSendsWork": {
-    "description": "Tor line when the onion address is not published but sending works. {problem} is a short reason such as \"Onion address not published\".",
-    "placeholders": {
-      "problem": {
-        "type": "String"
-      }
-    }
-  },
-  "deskTorLinePublishing": "Publishing the onion address…",
-  "@deskTorLinePublishing": {
-    "description": "Tor line while the onion address is being published."
-  },
-  "deskTorLineConnecting": "Connecting to Tor… {percent}%",
-  "@deskTorLineConnecting": {
-    "description": "Tor line while Tor connects. {percent} is a number from 0 to 100.",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "deskErrHistOtherWallet": "Another wallet’s data",
   "@deskErrHistOtherWallet": {
     "description": "Title of the notice when a history backup file was exported from a different wallet."

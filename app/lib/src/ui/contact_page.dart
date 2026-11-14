@@ -93,10 +93,6 @@ String contactInitials(String name) {
   return letters.isEmpty ? '?' : letters;
 }
 
-/// How the app reaches [address]: `Epicbox`, `Link Payment · HTTP` for an http(s) address, `Link ·
-/// Tor` for an onion address.
-String contactTag(AppLocalizations l, String address) => recipientMethodWord(l, parseRecipient(address).kind);
-
 /// How many of the newest payments the conversation shows; the rest are in Activity.
 const int contactBubbleCount = 8;
 

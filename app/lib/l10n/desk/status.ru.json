@@ -65,7 +65,6 @@
   "deskNodeDurationM": "{minutes} мин",
   "deskTorNetworkLabel": "Сеть Tor",
   "deskTorNetworkHint": "Сетевая активность идёт через сеть Tor.",
-  "deskTorCoverage": "Через Tor: Epicbox, узел, статус, курс, обновления, поддержка и адреса Tor.",
   "deskTorNodeOver": "Через Tor",
   "deskTorNodeNotEncrypted": "После Tor без шифрования",
   "deskTorNodeWaits": "Ждёт подключения Tor.",

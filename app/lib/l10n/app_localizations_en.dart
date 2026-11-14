@@ -5408,25 +5408,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Password not changed. The current password still opens the wallet.';
 
   @override
-  String get deskTorLineOff => 'Off';
-
-  @override
-  String get deskTorLineReady => 'Ready';
-
-  @override
-  String deskTorLineSendsWork(String problem) {
-    return '$problem. Sends work.';
-  }
-
-  @override
-  String get deskTorLinePublishing => 'Publishing the onion address…';
-
-  @override
-  String deskTorLineConnecting(int percent) {
-    return 'Connecting to Tor… $percent%';
-  }
-
-  @override
   String get deskErrHistOtherWallet => 'Another wallet’s data';
 
   @override
@@ -5747,10 +5728,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskTorNetworkHint =>
       'Network activity goes through the Tor network.';
-
-  @override
-  String get deskTorCoverage =>
-      'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.';
 
   @override
   String get deskTorNodeOver => 'Over Tor';

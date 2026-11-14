@@ -5559,25 +5559,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пароль не изменён. Кошелёк по-прежнему открывается текущим паролем.';
 
   @override
-  String get deskTorLineOff => 'Выкл.';
-
-  @override
-  String get deskTorLineReady => 'Готов';
-
-  @override
-  String deskTorLineSendsWork(String problem) {
-    return '$problem. Отправка работает.';
-  }
-
-  @override
-  String get deskTorLinePublishing => 'Публикация адреса .onion…';
-
-  @override
-  String deskTorLineConnecting(int percent) {
-    return 'Подключение к Tor… $percent %';
-  }
-
-  @override
   String get deskErrHistOtherWallet => 'Данные другого кошелька';
 
   @override
@@ -5899,10 +5880,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTorNetworkHint => 'Сетевая активность идёт через сеть Tor.';
-
-  @override
-  String get deskTorCoverage =>
-      'Через Tor: Epicbox, узел, статус, курс, обновления, поддержка и адреса Tor.';
 
   @override
   String get deskTorNodeOver => 'Через Tor';

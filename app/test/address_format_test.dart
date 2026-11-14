@@ -202,15 +202,4 @@ void main() {
       expect(hostPort(''), '');
     });
   });
-
-  test('shortHost drops the scheme, the port and the first label', () {
-    expect(shortHost('https://node.btlabs.uk'), 'btlabs.uk');
-    expect(shortHost('https://node.epicnet.us:3413'), 'epicnet.us');
-    expect(shortHost('epicbox.epiccash.com'), 'epiccash.com');
-    expect(shortHost('epicbox.stackwallet.com:443'), 'stackwallet.com');
-    expect(shortHost('node.pool.example.org'), 'pool.example.org');
-    expect(shortHost('stackwallet.com'), 'stackwallet.com');
-    expect(shortHost('http://127.0.0.1:3413'), '127.0.0.1');
-    expect(shortHost('localhost'), 'localhost');
-  });
 }

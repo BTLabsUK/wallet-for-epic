@@ -49,13 +49,6 @@ SendTrack sendTrackerAt(TxEntry tx, BigInt? tip, {required int target}) {
   };
 }
 
-/// The index of the current step for [track] on the four steps, or 4 when all are done.
-int sendTrackerStep(SendTrack track) => switch (track) {
-  SendTrack.waitingRecipient => 1,
-  SendTrack.confirming => 3,
-  SendTrack.completed || SendTrack.notPosted || SendTrack.cancelled => 4,
-};
-
 /// Breaths the current marker's ring takes before it holds still, plain: five, 16 s. A send
 /// can wait on its recipient for hours, and a ring that pulses all that time redraws the screen.
 @visibleForTesting

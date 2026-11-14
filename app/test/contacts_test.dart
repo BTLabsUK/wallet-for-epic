@@ -6,11 +6,13 @@ import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_providers.dart' show pairingRefusalsProvider;
 import 'package:epic_wallet/src/price.dart';
+import 'package:epic_wallet/src/recipient.dart' show parseRecipient;
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
+import 'package:epic_wallet/src/ui/method_names.dart' show recipientMethodWord;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
@@ -145,10 +147,11 @@ void main() {
   });
 
   test('the tag says how the address is reached', () {
-    expect(contactTag(_l, _alice), _l.methodEpicbox);
-    expect(contactTag(_l, _onion), _l.methodDirectTor);
-    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), _l.methodDirectTor);
-    expect(contactTag(_l, _http), 'Link · HTTP');
+    String tag(String address) => recipientMethodWord(_l, parseRecipient(address).kind);
+    expect(tag(_alice), _l.methodEpicbox);
+    expect(tag(_onion), _l.methodDirectTor);
+    expect(tag('http://${'t' * 55}d.onion'), _l.methodDirectTor);
+    expect(tag(_http), 'Link · HTTP');
   });
 
   group('list', () {
