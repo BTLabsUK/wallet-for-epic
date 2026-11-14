@@ -50,27 +50,33 @@ class DeskStatusBar extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // In a window too narrow for them the lights scroll; the mode keeps its place.
+            // In a window too narrow for them the lights scroll; the mode keeps its place. With
+            // something going on now, the lights drop their names first, so its line shows whole.
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    ServiceRows(
-                      builder: (context, items) => Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [for (final i in deskStatusShown(ref, items)) _StatusLight(item: i, words: wide)],
-                      ),
-                    ),
-                    for (final n in now.take(_nowShown)) _NowLight(item: n),
-                    if (now.length > _nowShown)
-                      _BarCell(
-                        child: Padding(
-                          padding: _cellPad,
-                          child: Center(child: Text('+${now.length - _nowShown}', style: context.ts.caption.copyWith(color: c.dim))), // l10n-ok: a count
+              child: LayoutBuilder(
+                builder: (context, box) => SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ServiceRows(
+                        builder: (context, items) => Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (final i in deskStatusShown(ref, items))
+                              _StatusLight(item: i, words: wide && (now.isEmpty || box.maxWidth >= _namedWithNow)),
+                          ],
                         ),
                       ),
-                  ],
+                      for (final n in now.take(_nowShown)) _NowLight(item: n),
+                      if (now.length > _nowShown)
+                        _BarCell(
+                          child: Padding(
+                            padding: _cellPad,
+                            child: Center(child: Text('+${now.length - _nowShown}', style: context.ts.caption.copyWith(color: c.dim))), // l10n-ok: a count
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -85,6 +91,9 @@ class DeskStatusBar extends ConsumerWidget {
 
 /// How many things going on now the bar shows before the rest fold into a count.
 const _nowShown = 2;
+
+/// The width the lights and their names need with a line of what goes on now beside them.
+double get _namedWithNow => 900.u;
 
 /// A cell's side padding.
 EdgeInsets get _cellPad => EdgeInsets.symmetric(horizontal: Sp.x3p5);
