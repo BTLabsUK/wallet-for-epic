@@ -23,6 +23,8 @@ import '../../pairing_text.dart' show pairingName, pairingStrings, unnamedPeerNa
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../trust/policy.dart';
 import 'desk_levels.dart' show deskLevelUiProvider;
+import 'invoice_state.dart' show deskInvoicesProvider;
+import 'invoices.dart' show IssuedRequest, RequestState;
 import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact, Tx, TxDirection, TxState;
 import 'state.dart';
@@ -58,14 +60,21 @@ final deskPairNetProvider = Provider<DeskPairNet>((ref) {
 
 /// The contacts something is in flight with, as the ids the foreground check reads
 /// ([contactsInFlight]): pairings in progress, and payments and requests waiting for the other
-/// wallet through a pairing.
+/// wallet through a pairing, and requests issued and not paid (found through the request's transaction).
 final deskContactsInFlightProvider = Provider<List<String>>((ref) {
   final txs = ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[];
+  final book = ref.watch(deskInvoicesProvider);
+  final pairingOfTx = {for (final t in txs) t.id: t.pairingId};
   return contactsInFlight(
     pairings: ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[],
     sendPairings: [
       for (final t in txs)
         if (t.state == TxState.waitingRecipient) t.pairingId,
+    ],
+    // Requests issued and not yet paid: the request's transaction names the pairing.
+    requestPairings: [
+      for (final r in book?.sent ?? const <IssuedRequest>[])
+        if (r.state == RequestState.waiting) ?pairingOfTx[r.txId],
     ],
   );
 });
