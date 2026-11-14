@@ -2,8 +2,6 @@
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/dist_build.dart' show distStore;
 import 'package:epic_wallet/src/tor_build.dart';
-import 'package:epic_wallet/src/tor_licence.dart' show registerTorLicence;
-import 'package:epic_wallet/src/desktop/screens/settings/licence_texts_dialog.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
@@ -143,8 +141,8 @@ void main() {
     expect(find.text('Telegram'), findsNothing);
   });
 
-  testWidgets('Licences: folded, then one line per component, the tor source note, and View opens the full texts', (tester) async {
-    await pump(tester, (_) async => (404, ''));
+  testWidgets('Licences: folded, then one line per component, the tor source note, and Open goes to the full texts', (tester) async {
+    final (_, opened) = await pump(tester, (_) async => (404, ''));
     expect(find.text(_l.deskSetAboutLicences), findsOneWidget);
     expect(find.byKey(const ValueKey('about-licences')), findsNothing, reason: 'folded by default');
     await tester.tap(find.byKey(const ValueKey('about-licences-fold')));
@@ -156,21 +154,12 @@ void main() {
     await pumpUntil(tester, () => find.textContaining('tor 0.4.9.14, unmodified').evaluate().isNotEmpty);
     expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget, reason: 'the GPL notice with the source');
     expect(find.text('Credits'), findsNothing);
-    registerTorLicence();
-    await tester.ensureVisible(find.widgetWithText(EButton, _l.deskSetAboutView));
-    await tester.tap(find.widgetWithText(EButton, _l.deskSetAboutView));
-    // The licences are read from assets, in real time.
-    await pumpUntil(tester, () => find.byType(LicenceTextsDialog).evaluate().isNotEmpty,
-        step: const Duration(milliseconds: 50));
-    // The app's own dialog (polish #10), not Flutter's stock LicensePage.
-    expect(find.byType(LicenceTextsDialog), findsOneWidget);
-    expect(find.byType(LicensePage), findsNothing);
-    await pumpUntil(tester, () => find.text(_l.sendFactTor).evaluate().isNotEmpty);
-    await tester.ensureVisible(find.text(_l.sendFactTor));
-    await tester.tap(find.text(_l.sendFactTor));
-    await tester.pump();
-    // Tor's licence as written: one block, its first line where the file has it.
-    expect(find.textContaining('This file contains the license for Tor'), findsOneWidget);
+    // The full texts are a link to the web page, opened in the browser.
+    final open = find.descendant(of: find.widgetWithText(ESetRow, _l.licencesFull), matching: find.widgetWithText(EButton, _l.deskSetAboutOpen));
+    await tester.ensureVisible(open);
+    await tester.tap(open);
+    await tester.pumpAndSettle();
+    expect(opened, [hostSettings.linkLicences]);
   }, skip: !torBuilt);
 
   testWidgets('no manifest published: no update and no error; Check now asks again', (tester) async {

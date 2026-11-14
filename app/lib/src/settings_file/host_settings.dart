@@ -334,6 +334,7 @@ class AppConfig {
   String? get linkCommunity => _orNull(_text('links.community'));
   String? get linkSource => _orNull(_text('links.source'));
   String? get linkPrivacy => _orNull(_text('links.privacy'));
+  String? get linkLicences => _orNull(_text('links.licences'));
 
   // [explorer]
 
@@ -509,6 +510,7 @@ class HostSettings {
   String? get linkCommunity => config.linkCommunity;
   String? get linkSource => config.linkSource;
   String? get linkPrivacy => config.linkPrivacy;
+  String? get linkLicences => config.linkLicences;
   String? explorerBlock(int height) => config.explorerBlock(height);
   String? explorerIndexed(int height) => config.explorerIndexed(height);
   String get importGuiNode => config.importGuiNode;
