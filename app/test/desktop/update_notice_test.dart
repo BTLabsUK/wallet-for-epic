@@ -156,6 +156,17 @@ void main() {
     await settle(tester);
   }
 
+  testWidgets('in a 1024 px window the lights drop their names so the line shows whole; at 1600 they keep them', (tester) async {
+    Finder named() => find.descendant(of: find.byKey(const ValueKey('status-bar')), matching: find.text('Epicbox'));
+    await pump(tester, _state(DeskUpdatePhase.available), size: const Size(1024, 700));
+    expect(line(), findsOneWidget);
+    expect(named(), findsNothing);
+    expect(tester.getRect(line()).right, lessThanOrEqualTo(tester.getRect(find.byKey(const ValueKey('bar-net-mode'))).left));
+    await tester.pumpWidget(const SizedBox());
+    await pump(tester, _state(DeskUpdatePhase.available), size: const Size(1600, 900));
+    expect(named(), findsOneWidget);
+  });
+
   testWidgets('no update: no line in the slot', (tester) async {
     for (final phase in [DeskUpdatePhase.idle, DeskUpdatePhase.checking, DeskUpdatePhase.latest, DeskUpdatePhase.failed]) {
       await pump(tester, DeskUpdateState(phase));
