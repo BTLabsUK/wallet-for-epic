@@ -83,7 +83,7 @@ if [ "${OFFLINE_KILL_PROOF:-0}" = 1 ]; then
   ) &
   watcher=$!
   cd "$here"
-  timeout 2400 flutter test --no-uninstall -d "$SER" integration_test/net_modes_phone_test.dart 2>&1 | tee "$OUT/net_modes_phone.log" |
+  timeout 2400 flutter test --no-uninstall --no-enable-impeller -d "$SER" integration_test/net_modes_phone_test.dart 2>&1 | tee "$OUT/net_modes_phone.log" |
     grep --line-buffered -E '^(RC )|[0-9]+:[0-9]+ \+|Error|Exception' | tail -200
   rc="${PIPESTATUS[0]}"
   uid="$(cat "$OUT/app-uid" 2>/dev/null)"
@@ -116,7 +116,7 @@ watcher=$!
 
 cd "$here"
 # Kept installed after the test, so its screenshots can be read out of its folder.
-timeout 2400 flutter test --no-uninstall -d "$SER" integration_test/offline_phone_test.dart 2>&1 | tee "$OUT/offline_phone.log" |
+timeout 2400 flutter test --no-uninstall --no-enable-impeller -d "$SER" integration_test/offline_phone_test.dart 2>&1 | tee "$OUT/offline_phone.log" |
   grep --line-buffered -E '^(RC |VISIT )|[0-9]+:[0-9]+ \+|Error|Exception' | tail -200
 rc="${PIPESTATUS[0]}"
 timeout 60 adb -s "$SER" exec-out run-as "$PKG" tar cf - -C "$EXT" shots 2>/dev/null | tar xf - -C "$OUT/shots/phone" 2>/dev/null

@@ -286,7 +286,10 @@ class AndroidPlatform(Platform):
             return self.surface
         since = self.dev.sh("date '+%m-%d %H:%M:%S.000'").strip()   # the app's log lines of this run start here
         self.dev.sh("am force-stop %s" % PKG)
-        self.dev.run("shell", "monkey -p %s -c android.intent.category.LAUNCHER 1" % PKG, timeout=60)
+        # Impeller off: its GLES shaders crash the emulator's software GPU (host side, not the app)
+        self.dev.run("shell", "am start -n $(cmd package resolve-activity --brief -a android.intent.action.MAIN"
+                     " -c android.intent.category.LAUNCHER %s | tail -n 1) --ez enable-impeller false"
+                     % PKG, timeout=60)
         for _ in range(30):
             if self.dev.sh("pidof %s" % PKG).strip():
                 break

@@ -359,7 +359,10 @@ class Uia:
 
     def foreground(self):
         """The app in front again (Back on its first screen leaves it, as for a user)."""
-        self.dev.run("shell", "monkey -p %s -c android.intent.category.LAUNCHER 1" % self.pkg, timeout=60)
+        # Impeller off, as at the first launch (android_platform.start)
+        self.dev.run("shell", "am start -n $(cmd package resolve-activity --brief -a android.intent.action.MAIN"
+                     " -c android.intent.category.LAUNCHER %s | tail -n 1) --ez enable-impeller false"
+                     % self.pkg, timeout=60)
 
     def in_front(self):
         out = self.dev.sh("dumpsys window | grep -m1 -E 'mCurrentFocus|mFocusedApp'")
