@@ -121,6 +121,18 @@ void main() {
       expect(await rig.api.payloads(), isEmpty, reason: 'acknowledged once stored');
     });
 
+    test('F3: the wait ends at its deadline when no read runs after it', () async {
+      final rig = _Rig(wait: const Duration(seconds: 2));
+      await rig.service.load();
+      final r = rig.paired();
+      expect(await rig.service.beginHello(r.id), HelloStep.waiting);
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      rig.clock.now = rig.clock.now.add(const Duration(seconds: 3));
+      expect(rig.service.stepOf(r.id), HelloStep.waiting);
+      await Future<void>.delayed(const Duration(milliseconds: 2200));
+      expect(rig.service.stepOf(r.id), HelloStep.words);
+    });
+
     test('a hello bound to other words is dropped: the words step follows the wait', () async {
       final rig = _Rig(wait: const Duration(seconds: 3));
       await rig.service.load();

@@ -234,6 +234,9 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
     for (final end in _endBoosts.values) {
       end();
     }
+    for (final t in _deadlineTimers.values) {
+      t.cancel();
+    }
     _changes.close();
   }
 
@@ -438,6 +441,7 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
   final Map<String, HelloStep> _steps = {};
   final Map<String, DateTime> _deadlines = {};
   final Map<String, void Function()> _endBoosts = {};
+  final Map<String, Timer> _deadlineTimers = {};
 
   /// Where the words step of [pairingId] stands, null before [beginHello].
   HelloStep? stepOf(String pairingId) => _steps[pairingId];
@@ -466,6 +470,9 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
     // The regular collect brings the hello: it runs every 10 s for the wait.
     _endBoosts[pairingId] = boostRelays(_host.boosts, const Duration(seconds: 10), window: wait);
     unawaited(sync(NameServiceSyncTrigger.tick));
+    // The end of the wait does not depend on a read: one may be running, stuck, or never come
+    // after the last boosted tick (F3: the dialog outlived its 30 s).
+    _deadlineTimers[pairingId] = Timer(wait, _settleHellos);
     return HelloStep.waiting;
   }
 
@@ -475,6 +482,7 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
     if (step != HelloStep.waiting) {
       _deadlines.remove(pairingId);
       _endBoosts.remove(pairingId)?.call();
+      _deadlineTimers.remove(pairingId)?.cancel();
     }
     _changed();
     return step;
@@ -483,6 +491,7 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
   /// After a read: a wait whose hello came goes on to the check, one past its time to the
   /// ordinary words.
   void _settleHellos() {
+    if (_disposed) return;
     final now = _clock();
     for (final id in _deadlines.keys.toList()) {
       if (_steps[id] != HelloStep.waiting) continue;
