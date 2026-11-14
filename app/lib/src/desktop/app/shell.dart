@@ -705,8 +705,6 @@ Future<void> lockWallet(WidgetRef ref, {Object? then}) async {
   ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, then);
 }
 
-/// Quit (Ctrl+Q, the app menu): the one close rule of close_guard.dart.
-Future<void> quitWallet(WidgetRef ref) => deskClose(ref);
 
 class _PhoneTopBar extends ConsumerWidget {
   const _PhoneTopBar({required this.section});

@@ -15,7 +15,7 @@ import 'theme/tokens.dart';
 /// Epicbox and Link connect.
 enum TransferMethod { epicbox, direct, qr, file }
 
-/// The strip's picture of [method] (the desktop's `HeroArt`, ported): the two people dim, the
+/// The strip's picture of [method]: the two people dim, the
 /// way the payment goes in the accent, a short caption in Montserrat under it. Drawn on a
 /// 160 × 96 grid and scaled to [width] × [height]; one label for screen readers.
 class MethodArt extends StatelessWidget {

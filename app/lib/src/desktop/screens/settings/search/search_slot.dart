@@ -67,12 +67,6 @@ class SettingsSearchCursor extends Notifier<int> {
   void set(int i) => state = i;
 }
 
-/// Ctrl+K from anywhere: Settings opens (Wallet when it is not open) with the search focused.
-void openSettingsSearch(WidgetRef ref) {
-  final nav = ref.read(deskNavProvider);
-  if (nav.route.section != DeskSection.settings) ref.read(deskNavProvider.notifier).go(DeskRoute.settingsAccount);
-  ref.read(settingsSearchFocusProvider.notifier).request();
-}
 
 /// The sections with results while searching (navigation entries outside it are dimmed and
 /// read "No results"); null while not searching.

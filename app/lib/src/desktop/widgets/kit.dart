@@ -19,7 +19,7 @@ export 'dialogs.dart';
 export 'fields.dart';
 export 'frames.dart';
 export 'grid.dart';
-export 'hero_art.dart';
+
 export 'keyboard.dart';
 export 'modal.dart';
 export 'password_hint.dart';

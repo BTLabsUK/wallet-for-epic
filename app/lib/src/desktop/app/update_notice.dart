@@ -167,7 +167,7 @@ Future<void> retryUpdate(BuildContext context, WidgetRef ref) async {
 }
 
 /// The quit after an update was put in place: lock the wallet and close the app, through the
-/// provider container (as [quitWallet] does through the widget's ref).
+/// provider container (as `deskClose` does through the widget's ref).
 Future<void> _quitForUpdate(ProviderContainer container) async {
   try {
     await container.read(deskProvider.notifier).lock();

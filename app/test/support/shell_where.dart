@@ -5,7 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
@@ -61,6 +61,3 @@ Future<void> shellGo(WidgetTester tester, String label, {bool settle = true}) as
   return done();
 }
 
-/// The container behind the shell, for tests that read the providers.
-ProviderContainer shellContainer(WidgetTester tester) =>
-    ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));

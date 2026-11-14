@@ -89,8 +89,6 @@ abstract final class Ctl {
   static double get side => _px(380);
   static double get sideWide => _px(440);
 
-  /// The Contacts list beside its detail pane.
-  static double get sideList => _px(340);
 
   /// Activity's detail pane never takes more than this share of the row, and takes [sideWide]
   /// from this window width (at 100 %).
@@ -144,8 +142,6 @@ abstract final class Max {
   /// Payment steps laid across.
   static double get steps => _px(880);
 
-  /// Send's method selector strip, Receive's method head.
-  static double get selector => _px(720);
 
   /// A form's fields (Send, Add contact, an invoice).
   static double get form => Ctl.narrow;
@@ -155,9 +151,6 @@ abstract final class Max {
 
   /// The card of Unlock and the other single-question screens ([EAuthCard]).
   static double get auth => _px(480);
-
-  /// One tile in a tile row (a balance breakdown, node facts).
-  static double get tile => _px(320);
 }
 
 /// Durations. Motion is short and only ever confirms a change.
