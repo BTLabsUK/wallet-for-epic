@@ -20086,4 +20086,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => '下一个字段，然后导入';
+
+  @override
+  String get deskKitQrEnlarge => '放大二维码';
+
+  @override
+  String get deskKitQrCode => '二维码';
 }

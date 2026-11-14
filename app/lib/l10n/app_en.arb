@@ -28872,5 +28872,13 @@
   "deskOnbKeyNextImport": "Next field, then import",
   "@deskOnbKeyNextImport": {
     "description": "Start steps' key strip: what Enter does on an old wallet's password form in Import wallets."
+  },
+  "deskKitQrEnlarge": "Enlarge QR code",
+  "@deskKitQrEnlarge": {
+    "description": "Tooltip and screen-reader name of a QR code that opens larger on a click."
+  },
+  "deskKitQrCode": "QR code",
+  "@deskKitQrCode": {
+    "description": "Name of an enlarged QR code, shown under it when the caller gives no label."
   }
 }

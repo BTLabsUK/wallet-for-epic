@@ -312,10 +312,10 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           Center(
             child: invite == null
                 ? SizedBox.square(
-                    dimension: 176.u,
+                    dimension: 248.u,
                     child: Center(child: _inviteError != null ? Text(_inviteError!, style: ts.bodyDim, textAlign: TextAlign.center) : const ESpinner()),
                   )
-                : Semantics(label: l.pairCodeLabel, image: true, child: EQr(deskPairingInviteText(invite, invitePage: ref.watch(invitePageProvider)), size: 176.u, epic1: true)),
+                : Semantics(label: l.pairCodeLabel, image: true, child: EQr(deskPairingInviteText(invite, invitePage: ref.watch(invitePageProvider)), size: 248.u, epic1: true, label: l.pairCodeLabel, copyText: deskPairingInviteText(invite, invitePage: ref.watch(invitePageProvider)))),
           ),
           SizedBox(height: Sp.x3),
           Text(contact == null ? l.pairCodeCaption : l.pairCodeCaptionFor(contact.name), style: ts.bodyDim, textAlign: TextAlign.center),

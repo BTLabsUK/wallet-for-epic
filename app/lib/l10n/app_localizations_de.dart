@@ -21507,4 +21507,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Nächstes Feld, dann importieren';
+
+  @override
+  String get deskKitQrEnlarge => 'QR-Code vergrößern';
+
+  @override
+  String get deskKitQrCode => 'QR-Code';
 }

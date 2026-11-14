@@ -20849,4 +20849,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'ช่องถัดไป แล้วนำเข้า';
+
+  @override
+  String get deskKitQrEnlarge => 'ขยายคิวอาร์โค้ด';
+
+  @override
+  String get deskKitQrCode => 'คิวอาร์โค้ด';
 }

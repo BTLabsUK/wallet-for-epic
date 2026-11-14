@@ -104,6 +104,8 @@
   "deskKitQrOfTag": "QR-код: {title}, {tag}",
   "deskKitQrShowOf": "Показать код: {title}",
   "deskKitQrShow": "Показать как код",
+  "deskKitQrEnlarge": "Увеличить QR-код",
+  "deskKitQrCode": "QR-код",
   "deskKitQrHide": "Скрыть код",
   "deskKitQrHideCode": "Скрыть код",
   "deskKitReachTorOff": "Проверка работает только с выключенным Tor.",

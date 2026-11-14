@@ -104,6 +104,8 @@
   "deskKitQrOfTag": "QR Code ของ{title}, {tag}",
   "deskKitQrShowOf": "แสดงโค้ดของ {title}",
   "deskKitQrShow": "แสดงเป็นโค้ด",
+  "deskKitQrEnlarge": "ขยายคิวอาร์โค้ด",
+  "deskKitQrCode": "คิวอาร์โค้ด",
   "deskKitQrHide": "ซ่อนโค้ด",
   "deskKitQrHideCode": "ซ่อนโค้ด",
   "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor",

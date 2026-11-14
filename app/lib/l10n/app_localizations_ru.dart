@@ -21881,4 +21881,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Следующее поле, затем импортировать';
+
+  @override
+  String get deskKitQrEnlarge => 'Увеличить QR-код';
+
+  @override
+  String get deskKitQrCode => 'QR-код';
 }

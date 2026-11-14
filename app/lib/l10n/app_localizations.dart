@@ -33294,6 +33294,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next field, then import'**
   String get deskOnbKeyNextImport;
+
+  /// Tooltip and screen-reader name of a QR code that opens larger on a click.
+  ///
+  /// In en, this message translates to:
+  /// **'Enlarge QR code'**
+  String get deskKitQrEnlarge;
+
+  /// Name of an enlarged QR code, shown under it when the caller gives no label.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code'**
+  String get deskKitQrCode;
 }
 
 class _AppLocalizationsDelegate

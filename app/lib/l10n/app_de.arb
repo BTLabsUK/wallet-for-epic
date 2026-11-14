@@ -5536,5 +5536,7 @@
   "deskOnbKeyNextCreate": "Nächstes Feld, dann erstellen",
   "deskOnbKeyNextRestore": "Nächstes Feld, dann wiederherstellen",
   "deskOnbKeyNextSet": "Nächstes Feld, dann festlegen",
-  "deskOnbKeyNextImport": "Nächstes Feld, dann importieren"
+  "deskOnbKeyNextImport": "Nächstes Feld, dann importieren",
+  "deskKitQrEnlarge": "QR-Code vergrößern",
+  "deskKitQrCode": "QR-Code"
 }

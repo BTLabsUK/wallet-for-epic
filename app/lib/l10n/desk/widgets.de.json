@@ -104,6 +104,8 @@
   "deskKitQrOfTag": "QR-Code: {title}, {tag}",
   "deskKitQrShowOf": "Code von {title} zeigen",
   "deskKitQrShow": "Als Code zeigen",
+  "deskKitQrEnlarge": "QR-Code vergrößern",
+  "deskKitQrCode": "QR-Code",
   "deskKitQrHide": "Code ausblenden",
   "deskKitQrHideCode": "Code ausblenden",
   "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor.",

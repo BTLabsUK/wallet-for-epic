@@ -5536,5 +5536,7 @@
   "deskOnbKeyNextCreate": "Следующее поле, затем создать",
   "deskOnbKeyNextRestore": "Следующее поле, затем восстановить",
   "deskOnbKeyNextSet": "Следующее поле, затем задать",
-  "deskOnbKeyNextImport": "Следующее поле, затем импортировать"
+  "deskOnbKeyNextImport": "Следующее поле, затем импортировать",
+  "deskKitQrEnlarge": "Увеличить QR-код",
+  "deskKitQrCode": "QR-код"
 }

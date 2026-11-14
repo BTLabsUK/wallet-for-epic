@@ -21275,4 +21275,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Next field, then import';
+
+  @override
+  String get deskKitQrEnlarge => 'Enlarge QR code';
+
+  @override
+  String get deskKitQrCode => 'QR code';
 }

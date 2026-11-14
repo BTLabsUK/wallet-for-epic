@@ -53,7 +53,7 @@ class _ShotCamera extends ChangeNotifier implements QrCamera {
     final c = context.dc;
     return ColoredBox(
       color: black ? c.bg : c.s4,
-      child: black ? null : Center(child: Transform.rotate(angle: -0.05, child: EQr('epic:shot-scan-picture', size: 104.u))),
+      child: black ? null : Center(child: Transform.rotate(angle: -0.05, child: EQr('epic:shot-scan-picture', size: 104.u, enlarge: false))),
     );
   }
 

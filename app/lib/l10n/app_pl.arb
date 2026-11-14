@@ -5536,5 +5536,7 @@
   "deskOnbKeyNextCreate": "Następne pole, potem utwórz",
   "deskOnbKeyNextRestore": "Następne pole, potem przywróć",
   "deskOnbKeyNextSet": "Następne pole, potem ustaw",
-  "deskOnbKeyNextImport": "Następne pole, potem importuj"
+  "deskOnbKeyNextImport": "Następne pole, potem importuj",
+  "deskKitQrEnlarge": "Powiększ kod QR",
+  "deskKitQrCode": "Kod QR"
 }

@@ -21887,4 +21887,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Następne pole, potem importuj';
+
+  @override
+  String get deskKitQrEnlarge => 'Powiększ kod QR';
+
+  @override
+  String get deskKitQrCode => 'Kod QR';
 }
