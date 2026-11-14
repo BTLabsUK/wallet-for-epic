@@ -4,6 +4,8 @@
 // hand, the confirmation after an answer taken by hand, the words check without Skip, the
 // contact page's Pairing block in every state, Contacts rows and the Pair requests row, the
 // Way 1 sheet, and the Experimental switch gone.
+import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
+import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, NodeStatus, WalletStatus;
 
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
@@ -57,6 +59,12 @@ class _NoPrice implements PriceSource {
   Future<double?> price(String currency) async => null;
 }
 
+/// The node is up, so the contact check reads.
+class _OnlineStatus extends WalletStatusNotifier {
+  @override
+  WalletStatus build() => (node: const NodeStatus(NodeState.online), epicbox: EpicboxState.online);
+}
+
 class _Harness {
   _Harness({String? seenAs = 'Alex', this.prefs}) {
     if (seenAs != null) store.values['pairing.seen_as'] = seenAs;
@@ -88,6 +96,7 @@ class _Harness {
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
           slateFilesProvider.overrideWithValue(files),
           sessionProvider.overrideWith(() => _OpenSession(session)),
+          walletStatusProvider.overrideWith(_OnlineStatus.new),
           if (net != null) pairNetProvider.overrideWithValue(net),
         ],
         child: MaterialApp(
@@ -419,7 +428,6 @@ void main() {
       await tester.pumpAndSettle();
       final before = h.api.collects.length;
       await tester.pump(const Duration(seconds: 10));
-      await tester.pump(const Duration(seconds: 1));
       expect(h.api.collects.length, greaterThan(before), reason: 'the verdict is collected while the words are open');
       h.api.peerMismatch(r.id);
       await tester.pumpAndSettle();
