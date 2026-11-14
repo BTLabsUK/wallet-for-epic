@@ -166,6 +166,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       inFlight: () => ref.read(contactsInFlightProvider),
       idleChecks: appConfig.contactsIdleChecks,
       inFlightEvery: appConfig.contactsInFlightCheck,
+      // Locked or the node down: the tick reads nothing.
+      paused: () => ref.read(sessionProvider) == null || ref.read(walletStatusProvider).node.state == NodeState.offline,
     );
     _check!.start();
   }
