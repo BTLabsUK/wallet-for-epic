@@ -238,6 +238,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Timer? _timer;
   bool _tipBusy = false;
 
+  /// Ends the node boosts this screen started when it closes.
+  late final BlockWatch _blockWatch = ref.read(blockWatchProvider);
+
   /// The tip check: every [tipCheckInterval], faster while the node is boosted (watch mode).
   /// Off while the app is in the background.
   late final PollDriver _tip = PollDriver(
@@ -282,7 +285,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (data == null || !mounted) return;
       final tip = data.summary.lastConfirmedHeight;
       final now = ref.read(clockProvider)();
-      final watch = ref.read(blockWatchProvider)..saw(data.transactions, tip, now: now);
+      final watch = _blockWatch..saw(data.transactions, tip, now: now);
       watch.boostNode(
         ref.read(sessionProvider)?.boosts,
         data.transactions,
@@ -396,6 +399,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void dispose() {
     _timer?.cancel();
     _tip.stop();
+    _blockWatch.endBoosts();
     _lifecycle.dispose();
     _pages.dispose();
     super.dispose();

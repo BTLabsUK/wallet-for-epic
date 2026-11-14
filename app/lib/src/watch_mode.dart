@@ -80,6 +80,10 @@ class BlockWatch {
   final _stepAt = <String, int>{};
   final _boosted = <String, (bool, int)>{};
 
+  /// The boosts [boostNode] started and [endBoosts] has not ended, with the [Boosts] they run in.
+  final _running = <int>[];
+  Boosts? _runningIn;
+
   /// When the list last showed [key] change, in unix seconds; null when it has not since it was
   /// first seen.
   int? stepAt(String key) => _stepAt[key];
@@ -140,7 +144,22 @@ class BlockWatch {
     _boosted
       ..clear()
       ..addAll(marks);
-    if (longest != null) boosts.boost(Poller.node, longest, boostMinInterval);
+    if (longest != null) {
+      _runningIn = boosts;
+      _running.add(boosts.boost(Poller.node, longest, boostMinInterval));
+    }
+  }
+
+  /// Ends the boosts [boostNode] started, for the screen that watches to call on close. A
+  /// boost that ran out is already gone: ending it again does nothing.
+  void endBoosts() {
+    final boosts = _runningIn;
+    _runningIn = null;
+    if (boosts == null) return;
+    for (final id in _running) {
+      boosts.end(id);
+    }
+    _running.clear();
   }
 
   /// Why [tx] is still not in a block at [now] with the node at [tip], once its window passed.

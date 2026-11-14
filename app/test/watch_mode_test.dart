@@ -52,6 +52,19 @@ void main() {
       expect(pace, boostMinInterval);
     });
 
+    test('endBoosts ends the boosts the watch started, so no window timer is left', () {
+      fakeAsync((async) {
+        final b = MemoryBoosts();
+        final w = BlockWatch();
+        boost(w, b, [waiting('a', const Duration(seconds: 10))]);
+        expect(b.interval(Poller.node, const Duration(seconds: 15)), boostMinInterval);
+        w.endBoosts();
+        expect(b.interval(Poller.node, const Duration(seconds: 15)), const Duration(seconds: 15));
+        expect(async.pendingTimers, isEmpty);
+        w.endBoosts();
+      });
+    });
+
     test('a step the list shows boosts again; a payment past the window does not boost', () {
       final (count, _) = boosted((b) {
         final w = BlockWatch();
