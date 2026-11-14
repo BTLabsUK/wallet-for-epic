@@ -130,45 +130,48 @@ class _HomeFieldState extends ConsumerState<HomeField> {
         ),
       ),
     );
-    if (matches.isEmpty) return field;
     final c = context.dc;
     final ts = context.ts;
-    // The contacts the typing names, under the field: a click opens Send to one.
+    // The contacts the typing names, under the field: a click opens Send to one. The field
+    // stays the Column's first child with or without them: a field moved to another parent is
+    // built anew, and the new one never takes the keyboard back, so typing stopped there.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         field,
-        SizedBox(height: Sp.x1),
-        EPanel(
-          key: const ValueKey('home-field-matches'),
-          padding: EdgeInsets.all(Sp.x1),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final x in matches)
-                EInkWell(
-                  key: ValueKey('home-field-match-${x.id}'),
-                  onTap: () {
-                    _text.clear();
-                    nav.go(DeskRoute.send, SendArgs(contact: x));
-                  },
-                  borderRadius: BorderRadius.circular(Rad.sm),
-                  hoverColor: c.hover,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-                    child: Row(
-                      children: [
-                        EAvatar(x.name, size: 28.u),
-                        SizedBox(width: Sp.x3),
-                        Expanded(child: Text(l.deskOvSendTo(x.name), style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        Icon(EIcons.chevronRight, size: Ctl.iconSm, color: c.faint),
-                      ],
+        if (matches.isNotEmpty) ...[
+          SizedBox(height: Sp.x1),
+          EPanel(
+            key: const ValueKey('home-field-matches'),
+            padding: EdgeInsets.all(Sp.x1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final x in matches)
+                  EInkWell(
+                    key: ValueKey('home-field-match-${x.id}'),
+                    onTap: () {
+                      _text.clear();
+                      nav.go(DeskRoute.send, SendArgs(contact: x));
+                    },
+                    borderRadius: BorderRadius.circular(Rad.sm),
+                    hoverColor: c.hover,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+                      child: Row(
+                        children: [
+                          EAvatar(x.name, size: 28.u),
+                          SizedBox(width: Sp.x3),
+                          Expanded(child: Text(l.deskOvSendTo(x.name), style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          Icon(EIcons.chevronRight, size: Ctl.iconSm, color: c.faint),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
