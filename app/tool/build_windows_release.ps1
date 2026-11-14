@@ -33,10 +33,13 @@ param(
     [string]$OutDir,
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
     [string]$Iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
-    # The built-in node's epic.exe (optional), bundled as bin\epic.exe next to btwallet.exe.
+    # The built-in node's epic.exe, bundled as bin\epic.exe next to btwallet.exe; the build stops
+    # without it (Settings › Node's Local node would say the node program is missing).
     # Default: $env:WFE_NODE_BIN_WIN; unset, with WFE_FETCH_INPUTS=1 (the hosted runner), the pinned
     # one (tools/build-inputs.json) is downloaded by tools/fetch-build-inputs.sh in Git Bash.
     [string]$NodeBin = $env:WFE_NODE_BIN_WIN,
+    # A build without the built-in node, on purpose (no -NodeBin needed; a stale bin\epic.exe goes).
+    [switch]$NoNode,
     # The Tor bundle from tools/fetch-tor.sh win (tor.exe, LICENSE.tor.txt, VERSION), bundled as
     # bin\tor-bundle next to btwallet.exe. Without it the app shows Tor as not included.
     [string]$TorBundle,
@@ -243,10 +246,20 @@ if (-not $NodeBin -and $env:WFE_FETCH_INPUTS -eq '1') {
     $NodeBin = (& $bash.Source -c "cygpath -w '$fetched'") | Select-Object -Last 1
     Write-Output "node binary fetched: $NodeBin"
 }
-if ($NodeBin) {
+if ($NoNode) {
+    if ($NodeBin) { throw '-NoNode and -NodeBin (or WFE_NODE_BIN_WIN) together' }
+    # A Release folder of an earlier build must not lend its node to this one.
+    if (Test-Path "$rel\bin\epic.exe") { Remove-Item -Force "$rel\bin\epic.exe" }
+    Write-Output 'no node: the built-in node is not included in this build'
+} else {
+    if (-not $NodeBin) { throw 'no node binary: pass -NodeBin <epic.exe>, set WFE_NODE_BIN_WIN or WFE_FETCH_INPUTS=1, or -NoNode for a build without the built-in node' }
+    if (-not (Test-Path $NodeBin -PathType Leaf)) { throw "the node binary $NodeBin does not exist" }
     New-Item -ItemType Directory -Force "$rel\bin" | Out-Null
     Copy-Item $NodeBin "$rel\bin\epic.exe" -Force
-    Write-Output "bundled bin\epic.exe $((Get-FileHash "$rel\bin\epic.exe" -Algorithm SHA256).Hash.ToLower())"
+    # Where builtin_node_provider.dart looks for it: bin\epic.exe beside btwallet.exe.
+    $nodeExe = "$rel\bin\epic.exe"
+    if (-not (Test-Path $nodeExe) -or (Get-Item $nodeExe).Length -lt 1000000) { throw "$nodeExe is missing or too small" }
+    Write-Output "bundled bin\epic.exe $((Get-FileHash $nodeExe -Algorithm SHA256).Hash.ToLower())"
 }
 
 if ($TorBundle) {
