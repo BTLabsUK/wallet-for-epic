@@ -55,4 +55,51 @@ void main() {
     expect(c.running, isFalse);
     expect(await c.run(() async => 1), 1);
   });
+
+  test('the rerun is the highest rank given, the latest of equal rank', () async {
+    final c = Coalesced();
+    final gate = Completer<void>();
+    final ran = <String>[];
+    Future<int> Function() named(String name) => () async {
+      ran.add(name);
+      return 0;
+    };
+    final first = c.run(() async {
+      ran.add('first');
+      await gate.future;
+      return 1;
+    });
+    // A full check, then a check of a few: the full check stays the rerun.
+    await c.run(named('full'), rank: 1);
+    await c.run(named('some'));
+    gate.complete();
+    await first;
+    expect(ran, ['first', 'full']);
+
+    // A check of a few, then the full check: the full check wins, and the next round starts clean.
+    ran.clear();
+    final gate2 = Completer<void>();
+    final second = c.run(() async {
+      ran.add('first');
+      await gate2.future;
+      return 1;
+    });
+    await c.run(named('some'));
+    await c.run(named('full'), rank: 1);
+    await c.run(named('full again'), rank: 1);
+    gate2.complete();
+    await second;
+    expect(ran, ['first', 'full again']);
+
+    ran.clear();
+    final gate3 = Completer<void>();
+    final third = c.run(() async {
+      await gate3.future;
+      return 1;
+    });
+    await c.run(named('some'));
+    gate3.complete();
+    await third;
+    expect(ran, ['some'], reason: 'the rank of the last round does not carry over');
+  });
 }

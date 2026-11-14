@@ -117,6 +117,20 @@ void main() {
       }
     });
 
+    test('resume_reconnect_after_s is 60 s as shipped and by default; 5 to 86400 load, 4 and 86401 do not', () {
+      expect(AppConfig.fromText(_configText).resumeReconnectAfter, const Duration(seconds: 60));
+      String after(int n) => _configText.replaceFirst('resume_reconnect_after_s = 60', 'resume_reconnect_after_s = $n');
+      for (final good in [5, 86400]) {
+        expect(AppConfig.fromText(after(good)).resumeReconnectAfter, Duration(seconds: good));
+      }
+      for (final bad in [4, 86401]) {
+        expect(() => AppConfig.fromText(after(bad)), throwsStateError, reason: '$bad');
+      }
+      // A file from before the key: the default.
+      final old = _configText.split('\n').where((l) => !l.startsWith('resume_reconnect_after_s')).join('\n');
+      expect(AppConfig.fromText(old).resumeReconnectAfter, const Duration(seconds: 60));
+    });
+
     test('[local_node] sets the built-in node ports; a port under 1024 or equal text is skipped', () {
       final r = readSettings('[local_node]\napi_port = 13413\np2p_port = 13414\n', shipped: shipped);
       expect(r.issues, isEmpty);

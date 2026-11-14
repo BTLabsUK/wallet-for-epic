@@ -53,6 +53,7 @@ listener_heal_after_s = 30     # a listener down this long is restarted, backing
 listener_heal_max_s = 300
 listener_held_rounds = 8       # a listener with a message held moves to a new connection after this many rounds
 listener_challenge_rounds = 3  # a listener socket is left when no Challenge comes within this many of the relay's intervals (180 s when none was seen)
+resume_reconnect_after_s = 60      # back from the background after this long, the payments drain runs and the listener reconnects even when it says connected
 
 [http]
 # The Link · HTTP listener and HTTP sends.

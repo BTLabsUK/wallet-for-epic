@@ -17,6 +17,7 @@ import 'levels/relay_switch_providers.dart' show relayDrainWatchProvider, relayS
 import 'providers.dart';
 import 'restore_scan.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
+import 'settings_file/host_settings.dart' show appConfig;
 import 'settings.dart';
 import 'ui/settings_file_notices.dart';
 import 'ui/common.dart';
@@ -126,6 +127,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     }
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
+        // Hidden comes before paused: the first one counts.
+        _hiddenAt ??= ref.read(clockProvider)();
         // A download Android's network cut stops meanwhile carries on at the return, and so
         // does a scan.
         ref.read(updateProvider.notifier).paused();
@@ -142,6 +145,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
       case AppLifecycleState.resumed:
         _awayTimer?.cancel();
         _awayTimer = null;
+        final longAway = _awayLong();
         // An update that waited for the install permission carries on, lock or no lock.
         unawaited(ref.read(updateProvider.notifier).resumed());
         _resumeScan();
@@ -150,7 +154,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         if (ref.exists(priceProvider)) ref.read(priceProvider.notifier).resumed();
         if (ref.read(autoLockHoldProvider) > 0) {
           _leftAt = null;
-          _drainPayments();
+          _drainPayments(longAway);
           return;
         }
         if (_timedOut()) {
@@ -161,8 +165,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
             _lock();
           }
         } else {
-          _drainPayments();
-          _wakeListener();
+          _drainPayments(longAway);
+          _wakeListener(longAway);
           // Only after the app was away: a system dialog (inactive) is not an opening.
           if (_leftAt != null) _checkForUpdate();
         }
@@ -188,18 +192,31 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   /// Payments that reached the payments address while the app was away are finalized on
   /// return, unless the listener is connected and took them as they came. The provider also
   /// drains when a wallet opens.
-  void _drainPayments() {
+  void _drainPayments(bool longAway) {
     if (ref.read(sessionProvider) == null) return;
-    unawaited(ref.read(paymentsDrainProvider.notifier).drainOnResume());
+    unawaited(ref.read(paymentsDrainProvider.notifier).drainOnResume(afterLongAway: longAway));
+  }
+
+  /// When the app went to the background, until it comes back.
+  DateTime? _hiddenAt;
+
+  /// Whether the app was in the background for `epicbox.resume_reconnect_after_s` or longer;
+  /// reads and clears [_hiddenAt].
+  bool _awayLong() {
+    final hiddenAt = _hiddenAt;
+    _hiddenAt = null;
+    if (hiddenAt == null) return false;
+    return ref.read(clockProvider)().difference(hiddenAt) >= appConfig.resumeReconnectAfter;
   }
 
   /// An Epicbox listener that dropped while the app was away reconnects now, not after
   /// LEPIC's backoff (`ListenerNotifier.wake`), and a node that read offline is asked again
-  /// now, not at the next minute's refresh.
-  void _wakeListener() {
+  /// now, not at the next minute's refresh. After a long absence ([longAway]) a connected
+  /// listener reconnects too: its socket may be dead without the state saying so.
+  void _wakeListener(bool longAway) {
     unawaited(ref.read(nodeRecheckProvider.notifier).recheck('resume'));
     if (!ref.exists(listenerProvider)) return;
-    unawaited(ref.read(listenerProvider.notifier).wake('resume'));
+    unawaited(ref.read(listenerProvider.notifier).wake('resume', stale: longAway));
   }
 
   /// Opening the app again without an unlock looks for an update, as start and unlock do

@@ -209,6 +209,9 @@ abstract interface class PairingApi {
   /// it before and after a collect to know whether it brought any.
   int get messagesCollected;
 
+  /// True while a [collect] runs: one that starts now joins it (its rerun) and returns 0 at once.
+  bool get collecting;
+
   /// Removes the pairing [id] (C-19). Its contact stays.
   Future<void> removePairing(String id);
 
@@ -457,6 +460,9 @@ class NoPairing implements PairingApi {
 
   @override
   int get messagesCollected => 0;
+
+  @override
+  bool get collecting => false;
 
   @override
   Future<void> removePairing(String id) async => throw pairingUnsupported('removePairing');

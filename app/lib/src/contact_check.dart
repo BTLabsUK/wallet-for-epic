@@ -21,7 +21,12 @@ import 'boosts.dart';
 import 'models.dart';
 import 'pairing_api.dart';
 
-/// Reads the mailboxes of [only] (every contact when null) and returns how many messages it took.
+/// What a [ContactCollect] returns when the call joined a collect already running: it read
+/// nothing itself, so the check has learned nothing about the mailboxes.
+const collectJoined = -1;
+
+/// Reads the mailboxes of [only] (every contact when null) and returns how many messages it took,
+/// or [collectJoined].
 typedef ContactCollect = Future<int> Function(PairingCollectTrigger trigger, {List<String>? only});
 
 /// What a full check reads besides the contacts: the name services' payloads and listing drains.
@@ -39,11 +44,13 @@ List<String> contactsInFlight(Iterable<PairingRecord> pairings) => [
     if (r.state != PairingState.ended && (r.state.isPending || r.state == PairingState.waiting || r.awaiting)) r.id,
 ]..sort();
 
-/// [PairingApi.collect] that returns how many contact messages it took, by the count [api] keeps.
+/// [PairingApi.collect] that returns how many contact messages it took, by the count [api] keeps,
+/// or [collectJoined] when a collect was already running and this call only marked its rerun.
 Future<int> collectCounting(PairingApi api, PairingCollectTrigger trigger, {List<String>? only}) async {
+  final joined = api.collecting;
   final before = api.messagesCollected;
   await api.collect(trigger: trigger, only: only);
-  return api.messagesCollected - before;
+  return joined ? collectJoined : api.messagesCollected - before;
 }
 
 /// The timer behind the contacts' foreground check. Plain Dart: the phone's and the desktop's
@@ -57,6 +64,7 @@ class ContactCheck {
     required this.idleChecks,
     required this.inFlightEvery,
     this.paused,
+    this.idlePaused,
     DateTime Function()? now,
   }) : _boosts = boosts,
        _now = now ?? DateTime.now {
@@ -75,10 +83,14 @@ class ContactCheck {
   final List<Duration> idleChecks;
   final Duration inFlightEvery;
 
-  /// True while the wallet is locked or its node is down: the timer reads nothing then, and
-  /// the check of every contact runs as soon as [wake] says it is over. A pull to refresh or an
-  /// open does not go through it.
+  /// True while the wallet is locked: the timer reads nothing then, and the check of every
+  /// contact runs as soon as [wake] says it is over. A pull to refresh or an open does not go
+  /// through it.
   final bool Function()? paused;
+
+  /// True while the node is down: the check of every contact waits (it needs the node), but the
+  /// reads of the contacts in flight and a boost's ticks go on, as pairing needs no node.
+  final bool Function()? idlePaused;
 
   final Boosts _boosts;
   final DateTime Function() _now;
@@ -131,8 +143,15 @@ class ContactCheck {
   /// The contacts in flight changed: the check of them runs within [inFlightEvery].
   void inFlightChanged() => _retime(shorten: true);
 
-  /// What [paused] reads may have changed: when it is over, the check runs now.
-  void wake() => _retime(shorten: true);
+  /// What [paused] or [idlePaused] read may have changed (an unlock, the node back): the wait
+  /// starts again at the first step and the check of every contact is due now.
+  void wake() {
+    _step = 0;
+    _nextFull = _now();
+    _retime(shorten: true);
+  }
+
+  bool get _idlePaused => idlePaused?.call() ?? false;
 
   /// The check of every contact now, for an open or a resume ([trigger] says which); the wait
   /// starts again at the first step.
@@ -153,7 +172,7 @@ class ContactCheck {
       return true;
     }
     final boosted = _isBoosted;
-    if (boosted || !_now().isBefore(_nextFull)) {
+    if (boosted || (!_now().isBefore(_nextFull) && !_idlePaused)) {
       var messages = 0;
       var ok = false;
       try {
@@ -162,8 +181,13 @@ class ContactCheck {
         ok = true;
       } finally {
         fullChecks++;
-        // Nothing came: the wait moves one step on. A message or a boost keeps the first.
-        _step = messages > 0 || boosted ? 0 : min(_step + 1, idleChecks.length - 1);
+        // Nothing came: the wait moves one step on. A message or a boost keeps the first, and a
+        // call that only joined a collect running read nothing: the step stays.
+        _step = messages > 0 || boosted
+            ? 0
+            : messages == collectJoined
+            ? _step
+            : min(_step + 1, idleChecks.length - 1);
         _nextFull = _now().add(idleChecks[_step]);
         _retime();
       }
@@ -192,6 +216,8 @@ class ContactCheck {
   /// the timer again only when that is shorter than the base now.
   void _retime({bool shorten = false}) {
     var next = _nextFull.difference(_now()).inMilliseconds;
+    // The check of every contact due but held back: look again in [inFlightEvery].
+    if (_idlePaused && !_isBoosted) next = max(next, inFlightEvery.inMilliseconds);
     if (inFlight().isNotEmpty) next = min(next, inFlightEvery.inMilliseconds);
     final wait = Duration(milliseconds: max(next, 1000));
     if (shorten && wait >= _driver.base) return;

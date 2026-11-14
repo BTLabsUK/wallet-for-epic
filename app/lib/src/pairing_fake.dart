@@ -1304,6 +1304,10 @@ class FakePairing implements PairingApi {
   @override
   int messagesCollected = 0;
 
+  /// What [collecting] says; a test sets it.
+  @override
+  bool collecting = false;
+
   /// The pairing and slate inside sealed [text], as [openSlate] reads it.
   ({String id, String slateJson}) _inside(String text) {
     final t = text.trim();

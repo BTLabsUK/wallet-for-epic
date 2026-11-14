@@ -84,6 +84,37 @@ void main() {
     });
   });
 
+  test('after a long absence a listener that says connected is restarted; a short one leaves it', () {
+    fakeAsync((async) {
+      final h = _Harness();
+      h.open(async);
+      h.event(async, ListenerEventKind.connected);
+      expect(h.state.connected, isTrue);
+
+      unawaited(h.container.read(listenerProvider.notifier).wake('resume', stale: false));
+      async.flushMicrotasks();
+      expect(h.session.listenerStops, 0, reason: 'a short absence: the socket is trusted');
+
+      unawaited(h.container.read(listenerProvider.notifier).wake('resume', stale: true));
+      async.flushMicrotasks();
+      expect(h.session.listenerStops, 1, reason: 'a long absence: a fresh socket');
+      h.event(async, ListenerEventKind.stopped);
+      expect(h.session.listenerStarts, 2);
+      h.dispose();
+    });
+  });
+
+  test('a long absence restarts nothing while the first connection is still under way', () {
+    fakeAsync((async) {
+      final h = _Harness();
+      h.open(async);
+      unawaited(h.container.read(listenerProvider.notifier).wake('resume', stale: true));
+      async.flushMicrotasks();
+      expect(h.session.listenerStops, 0);
+      h.dispose();
+    });
+  });
+
   test('the network returning restarts a listener that dropped', () {
     fakeAsync((async) {
       final h = _Harness();

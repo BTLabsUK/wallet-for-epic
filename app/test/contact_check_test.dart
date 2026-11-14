@@ -25,6 +25,8 @@ class _Rig {
       inFlight: () => inFlight,
       idleChecks: _idle,
       inFlightEvery: _inFlightEvery,
+      paused: () => locked,
+      idlePaused: () => nodeDown,
       now: () => start.add(time.elapsed),
     );
   }
@@ -39,6 +41,13 @@ class _Rig {
   /// Messages the next collect returns (once).
   int messages = 0;
 
+  /// The wallet is locked, or its node is down.
+  bool locked = false;
+  bool nodeDown = false;
+
+  /// The next collect only joins a collect running ([collectJoined]).
+  bool joinNext = false;
+
   final calls = <({Duration at, PairingCollectTrigger trigger, List<String>? only})>[];
   int listingDrains = 0;
 
@@ -49,6 +58,10 @@ class _Rig {
 
   Future<int> _collect(PairingCollectTrigger trigger, {List<String>? only}) async {
     calls.add((at: time.elapsed, trigger: trigger, only: only));
+    if (joinNext) {
+      joinNext = false;
+      return collectJoined;
+    }
     final m = messages;
     messages = 0;
     return m;
@@ -207,6 +220,116 @@ void main() {
       time.elapse(const Duration(seconds: 46));
       expect((rig.calls.last.at - eventAt).inSeconds, 45);
       rig.check.stop();
+    });
+  });
+
+  group('pauses', () {
+    test('the node down holds the check of every contact, not the contacts in flight, and a boost ticks on', () {
+      fakeAsync((time) {
+        final rig = _Rig(time, inFlight: ['c3']);
+        rig.nodeDown = true;
+        rig.check.start();
+        time.elapse(const Duration(minutes: 10));
+        expect(rig.fullCollects, 0, reason: 'the node is down: no check of every contact');
+        // c3 read about every 45 s all along.
+        expect(rig.inFlightCollects, inInclusiveRange(12, 14));
+        expect(rig.calls.every((c) => c.only!.length == 1 && c.only!.single == 'c3'), isTrue);
+
+        // A boost (a pairing screen) reads every contact at its interval, node or none.
+        final before = rig.calls.length;
+        final id = rig.boosts.boost(Poller.relays, const Duration(minutes: 1), const Duration(seconds: 10));
+        time.elapse(const Duration(minutes: 1));
+        expect(rig.calls.skip(before).where((c) => c.only == null).length, greaterThanOrEqualTo(5));
+        rig.boosts.end(id);
+
+        // The node is back: the check of every contact runs within a second or two.
+        rig.nodeDown = false;
+        final back = rig.fullCollects;
+        rig.check.wake();
+        time.elapse(const Duration(seconds: 2));
+        expect(rig.fullCollects, back + 1);
+        rig.check.stop();
+      });
+    });
+
+    test('the node down with nothing in flight reads nothing, and looks again every 45 s', () {
+      fakeAsync((time) {
+        final rig = _Rig(time);
+        rig.nodeDown = true;
+        rig.check.start();
+        time.elapse(const Duration(minutes: 10));
+        expect(rig.calls, isEmpty);
+        rig.nodeDown = false;
+        time.elapse(_inFlightEvery + _s);
+        expect(rig.fullCollects, 1, reason: 'the held check runs within one look of the node coming back');
+        rig.check.stop();
+      });
+    });
+
+    test('locked stops everything: contacts in flight and a boost too', () {
+      fakeAsync((time) {
+        final rig = _Rig(time, inFlight: ['c3']);
+        rig.locked = true;
+        rig.check.start();
+        final id = rig.boosts.boost(Poller.relays, const Duration(minutes: 2), const Duration(seconds: 10));
+        time.elapse(const Duration(minutes: 5));
+        expect(rig.calls, isEmpty);
+        rig.boosts.end(id);
+        rig.locked = false;
+        rig.check.wake();
+        time.elapse(const Duration(seconds: 2));
+        expect(rig.fullCollects, 1, reason: 'unlocked: the check of every contact runs at once');
+        rig.check.stop();
+      });
+    });
+  });
+
+  group('wake', () {
+    test('resets the step and runs the check of every contact now', () {
+      fakeAsync((time) {
+        final rig = _Rig(time);
+        rig.check.start();
+        // Past the backoff: the wait is 300 s.
+        time.elapse(const Duration(minutes: 20));
+        final n = rig.calls.length;
+        while (rig.calls.length == n) {
+          time.elapse(_s);
+        }
+        final last = rig.calls.last.at;
+        time.elapse(const Duration(seconds: 100));
+        expect(rig.calls.last.at, last, reason: 'in the middle of a 300 s wait');
+        rig.check.wake();
+        time.elapse(const Duration(seconds: 2));
+        expect(rig.calls.last.at, greaterThan(last));
+        expect(rig.calls.last.only, isNull);
+        // The first step again: the next check comes after 90 s, not 300.
+        final at = rig.calls.last.at;
+        time.elapse(const Duration(seconds: 95));
+        expect(rig.calls.last.at - at, lessThanOrEqualTo(const Duration(seconds: 90)));
+        expect(rig.calls.last.at, greaterThan(at));
+        rig.check.stop();
+      });
+    });
+  });
+
+  group('a collect that only joined one running', () {
+    test('does not move the idle wait on', () {
+      fakeAsync((time) {
+        final rig = _Rig(time);
+        rig.check.start();
+        // First full check at 45 s: nothing came and the wait is now 90 s.
+        time.elapse(const Duration(seconds: 50));
+        expect(rig.fullCollects, 1);
+        // The next one at 135 s joins another collect: the wait stays 90 s, not 180 s.
+        rig.joinNext = true;
+        time.elapse(const Duration(seconds: 90));
+        expect(rig.fullCollects, 2);
+        final joined = rig.calls.last.at;
+        time.elapse(const Duration(seconds: 92));
+        expect(rig.fullCollects, 3);
+        expect(rig.calls.last.at - joined, lessThanOrEqualTo(const Duration(seconds: 92)));
+        rig.check.stop();
+      });
     });
   });
 

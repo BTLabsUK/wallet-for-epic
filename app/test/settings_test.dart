@@ -864,6 +864,33 @@ void main() {
       await tester.pump(const Duration(minutes: 2));
     });
 
+    testWidgets('a resume after 60 s or more away drains and reconnects a listener that says connected', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
+      final drains = h.session.drainPaymentCalls;
+      final stops = h.session.listenerStops;
+
+      // 59 s away: the connected listener is trusted.
+      await _leave(tester);
+      h.now = h.now.add(const Duration(seconds: 59));
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, drains);
+      expect(h.session.listenerStops, stops);
+
+      // 60 s away: drained, and the socket is replaced.
+      await _leave(tester);
+      h.now = h.now.add(const Duration(seconds: 60));
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, drains + 1);
+      expect(h.session.listenerStops, stops + 1);
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(minutes: 2));
+    });
+
     testWidgets('closes the wallet in the background once the time passes', (tester) async {
       final h = _Harness();
       h.store.values['app.auto_lock'] = '1';

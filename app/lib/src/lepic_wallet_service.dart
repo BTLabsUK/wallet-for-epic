@@ -4865,6 +4865,9 @@ class _LepicPairing implements PairingApi {
 
   final Coalesced _collects = Coalesced();
 
+  @override
+  bool get collecting => _collects.running;
+
   /// The mailboxes held for later at the last look, and how many mailboxes it read. Nothing
   /// says which: only a look as wide can clear them.
   ({int count, int read}) _held = (count: 0, read: 0);
@@ -4877,7 +4880,11 @@ class _LepicPairing implements PairingApi {
       try {
         // A trigger during a running collect marks one rerun; the later ones add none.
         // The tick stays quiet whatever it reads: the user asked for no look.
-        return await _collects.run(() => collectOrFail(trigger, only: only, quiet: trigger == PairingCollectTrigger.foreground));
+        // The rerun reads every contact when any of the requests did.
+        return await _collects.run(
+          () => collectOrFail(trigger, only: only, quiet: trigger == PairingCollectTrigger.foreground),
+          rank: only == null ? 1 : 0,
+        );
       } on lepic.WalletError catch (error) {
         logWarn('pairing', 'collect failed: ${error.kind.name}');
         return 0;

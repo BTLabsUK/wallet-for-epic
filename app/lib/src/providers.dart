@@ -1123,10 +1123,14 @@ class ListenerNotifier extends Notifier<ListenerState> {
   /// which grows to 60 s and does not count the time the phone slept. Called when the app
   /// comes back to the foreground and when the network returns. A listener still making its
   /// first connection and a stopped one are left alone; a connected one only when the network
-  /// changed under it (its socket went with the old network, though LEPIC has not noticed).
-  Future<void> wake(String why) async {
-    if (!_down || state.stopped || state.offline) return;
-    if (state.connected && why != 'network') return;
+  /// changed under it (its socket went with the old network, though LEPIC has not noticed), or
+  /// after a long absence ([stale]: the app was in the background long enough for the socket to
+  /// be dead while the state still says connected).
+  Future<void> wake(String why, {bool stale = false}) async {
+    if (state.stopped || state.offline) return;
+    final staleSocket = stale && state.connected;
+    if (!_down && !staleSocket) return;
+    if (state.connected && why != 'network' && !staleSocket) return;
     // Blocked here stays blocked on a resume; another network may not block it.
     if (state.blocked && why != 'network') return;
     logInfo('listener', 'reconnect on $why');
@@ -1711,9 +1715,11 @@ class PaymentsDrainNotifier extends Notifier<PaymentsDrainReport?> {
 
   /// The drain on a resume: skipped while the Epicbox listener is connected, because it takes
   /// every payment that reaches the payments address as it comes. With the listener down,
-  /// reconnecting or not running, the drain runs as on open.
-  Future<void> drainOnResume() async {
-    if (ref.exists(listenerProvider) && ref.read(listenerProvider).connected) return;
+  /// reconnecting or not running, the drain runs as on open. After a long absence
+  /// ([afterLongAway]) the listener's state is not trusted: its socket may have died unnoticed,
+  /// so the drain runs whatever it says.
+  Future<void> drainOnResume({bool afterLongAway = false}) async {
+    if (!afterLongAway && ref.exists(listenerProvider) && ref.read(listenerProvider).connected) return;
     await drain();
   }
 

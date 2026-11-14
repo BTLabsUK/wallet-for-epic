@@ -247,8 +247,12 @@ class AppConfig {
   Duration get listenerHealAfter => _s('epicbox.listener_heal_after_s');
   Duration get listenerHealMax => _s('epicbox.listener_heal_max_s');
 
-  /// A listener socket is left when no Challenge comes within this many of the relay's intervals; 0 is off.
+  /// A listener socket is left when no Challenge comes within this many of the relay's intervals; 2 to 10.
   int get listenerChallengeRounds => _int('epicbox.listener_challenge_rounds');
+
+  /// Back from the background after this long, the payments drain runs and the listener
+  /// reconnects even when it says connected: its socket may have died meanwhile.
+  Duration get resumeReconnectAfter => _s('epicbox.resume_reconnect_after_s');
 
   // [http]
   int get httpListenPort => _int('http.listen_port');
