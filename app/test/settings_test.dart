@@ -861,6 +861,7 @@ void main() {
       // Connected again: the heal timer of a down listener ends with the test.
       h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
       await tester.pumpAndSettle();
+      await tester.pump(const Duration(minutes: 2));
     });
 
     testWidgets('closes the wallet in the background once the time passes', (tester) async {
