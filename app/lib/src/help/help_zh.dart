@@ -39,6 +39,23 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final filesPlace = '[[设置 › 文件与日志|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 安全 › 助记词|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
+    if (!phone)
+      HelpTopic(
+        'start',
+        '首页',
+        '余额、发送／接收／扫描按钮、进行中的付款和最近活动。',
+        [
+          const HelpBlock.ul([
+            '**余额**：这个钱包持有的金额。下方是现在可花费的金额，以及仍在途中的部分：确认中、等待发送方、锁定在正在发送的付款中。标题栏中的 **隐藏金额** 会隐藏所有金额。',
+            '**发送**、**接收** 和 **扫描**：三种开始方式。扫描用摄像头读取二维码，或接受粘贴的代码。',
+            '**输入名称、金额、地址或付款码**：余额下方的输入框。联系人名称、地址或粘贴的代码会打开已填好的发送页。Ctrl K 跳到这里。',
+            '**进行中**：正在进行的付款，每笔都显示其步骤，从开始到完成。',
+            '**最近活动**：最新的付款；**查看全部** 打开活动标签页。',
+          ]),
+          const HelpBlock.p('余额旁的刷新会再次询问节点。余额需要已同步的节点；节点同步期间，发送会等待。'),
+        ],
+        id: HelpId.home,
+      ),
     HelpTopic(
       'start',
       '接收你的第一笔 EPIC',
@@ -59,7 +76,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '向他人发送',
       '打开“发送”，粘贴对方的 Epicbox 地址，输入金额，核对手续费后发送。',
       [
-        HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', phone ? '点 **继续**，检查无误后点 **发送 … EPIC**。' : '点 **确认**。**确认并发送** 会显示这笔付款：输入钱包密码，然后点 **发送 … EPIC**。浅水视图没有确认：它的按钮是 **发送 … EPIC**。']),
+        HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', phone ? '点 **继续**，检查无误后点 **发送 … EPIC**。' : '点 **确认**。**确认并发送** 会显示这笔付款：输入钱包密码，然后点 **发送 … EPIC**。']),
         const HelpBlock.p('已配对的联系人在“发送”中有两个选项，详见“配对后的付款”；用配对选项付款会被密封。其他联系人则收到发往其公开 Epicbox 地址的付款。'),
         const HelpBlock.p('此时需要收款方钱包回复（见“为什么交易需要双方参与？”）。通过 Epicbox 时，对方不必此刻在线：付款会一直等到对方钱包打开。在此期间，所用的币会被锁定，因此无法被花费两次。'),
         HelpBlock.p('收到对方回复后，钱包会自动完成付款并广播到网络。经过 $confirmations 个确认后交易即为最终。'),
@@ -80,7 +97,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.ol(['**发送方：** 在“发送”中选择 **直接 · 文件传输**，输入金额并分享文件（以 .tx 结尾）。从此刻起币被锁定。', '**收款方：** 在[[接收 › 直接 · 文件|Receive › Direct · File]]中打开该文件。其钱包签名后分享一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 直接 · 文件|Receive › Direct · File]]中打开回复文件。钱包完成付款并广播。'])
         else
-          const HelpBlock.ol(['**发送方：** 在[[发送|Send]]的“接收方”下选择 **用文件付款**，输入金额并保存文件（以 .tx 结尾）。从此刻起币被锁定。', '**收款方：** 在[[接收|Receive]]的 **付款文件** 下点 **打开** 并选择该文件。钱包签名后保存一个回复文件（以 .response 结尾），用来发回。', '**发送方：** 以同样方式打开回复文件。在 **完成付款** 中也可以扫描二维码或粘贴文本。钱包完成付款并广播。']),
+          const HelpBlock.ol(['**发送方：** 在[[发送|Send]]的“接收方”下选择 **用文件付款**（或在接收页点 **创建付款文件**），输入金额并保存文件（以 .tx 结尾）。从此刻起币被锁定。', '**收款方：** 在[[接收|Receive]]的 **付款文件** 下点 **打开** 并选择该文件。钱包签名后保存一个回复文件（以 .response 结尾），用来发回。', '**发送方：** 以同样方式打开回复文件。在 **完成付款** 中也可以扫描二维码或粘贴文本。钱包完成付款并广播。']),
         HelpBlock.p('其他 Epic Cash 钱包对这些步骤有各自的叫法。如果一直收不到回复文件，请在 $cancelPlace 取消付款以解锁币。'),
       ],
       id: HelpId.file,
@@ -106,7 +123,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         HelpBlock.ul([
           '${phone ? '**付款方式。**' : '**方式。**'} 每种一个开关。**Epicbox** 默认开启；关闭后，钱包不连接任何服务器，因此没有 Epicbox 付款或账单，“接收”也不显示 Epicbox 地址（发到该地址的付款会在服务器上等待）。${tor ? "**链接 · HTTP**（向网址付款）、**链接 · Tor**（向 .onion 地址付款，以及用${phone ? '这部手机' : '这台电脑'}的 Tor 地址收款）和${phone ? '**直接 · 二维码付款**、' : ''}**直接 · 文件传输**" : "**链接 · HTTP**（向网址付款）${phone ? '、**直接 · 二维码付款**' : ''}和**直接 · 文件传输**"}不需要 Epicbox 服务器。关闭的方式不会出现在“发送”和“接收”中。${phone ? '在手机上，**链接 · HTTP** 没有开关：它只用于发送，发往你粘贴的任何 http(s) 地址。' : ''}',
           if (phone) '**发送从哪种方式开始。** “发送”页面打开时使用的方式。在“发送”中仍可选择其他方式。' else '**默认方式**，在**发送**下：“发送”页面打开时使用的方式。在“发送”中仍可选择其他方式。',
-          if (phone) '**发送默认设置。** 一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。只有在“高级”中开启**发送选项**时才会显示。' else '**发送策略**和**拆分找零**，在**发送**下：一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。在“高级”中开启**发送选项**时，它们会显示在“深水区”视图中。',
+          if (phone) '**发送默认设置。** 一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。只有在“高级”中开启**发送选项**时才会显示。' else '**发送策略**和**拆分找零**，在**发送**下：一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。在“高级”中开启**发送选项**时，它们会显示出来。',
         ]),
       ],
       id: HelpId.methods,
@@ -181,7 +198,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('**最小** 按金额对可用输出排序，从最小的开始取，直到覆盖金额和手续费。发送确认期间只锁定这些输出；其余可以立即发送。'),
         HelpBlock.p('**全部** 花掉每一个可用输出，并退回一个找零输出。所有资金锁定 $confirmations 个区块，钱包最终的输出更少、更大，手续费也略高，因为每个输入都有成本。发送全部余额时总是使用“全部”。'),
-        HelpBlock.p('默认方式在$payPlace中设置，需要在“高级”中开启“发送选项”${phone ? '' : '，在“深水区”视图中'}。'),
+        HelpBlock.p('默认方式在$payPlace中设置，需要在“高级”中开启“发送选项”。'),
       ],
       id: HelpId.strategy,
     ),
@@ -261,6 +278,18 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.importWarning,
     ),
+    if (!phone)
+      const HelpTopic(
+        'network',
+        '状态栏',
+        '窗口底部的指示灯：节点、Epicbox 和其他接收方式，各自显示状态。',
+        [
+          HelpBlock.p('每个指示灯代表一项服务：**节点**、**Epicbox**，以及开启时的 **链接 · HTTP** 和 **Tor**。颜色表示状态；鼠标指向时会以文字显示名称和状态。'),
+          HelpBlock.p('点击指示灯可查看其状态、正在使用的服务器，以及前往其设置的按钮。当前服务器停止响应时，Epicbox 指示灯还会推荐另一台服务器。'),
+          HelpBlock.p('指示灯旁边：当前正在进行的事，例如正在发送的付款，然后是 EPIC 价格和连接模式。窄窗口会保留指示灯，省略名称和价格。'),
+        ],
+        id: HelpId.statusBar,
+      ),
     HelpTopic(
       'network',
       phone ? '节点' : '节点：公共节点或本地节点',
@@ -276,7 +305,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           HelpBlock.p('点“钱包”标签页上的节点图标，查看节点状态并切换到其他节点。发送需要已同步的节点；出现 **落后 12** 或 **无响应** 这类状态时，钱包会自动改用列表里的其他节点；若节点故障切换已关闭，则请自己换一个。要按地址添加节点，请打开$nodePlace，在列表上方的字段中输入地址。')
         else
-          HelpBlock.p('在$nodePlace中更换：节点会连同状态一起列出。点击一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。状态栏中的 **节点** 显示它的状态（浅水视图中为 **网络**）。'),
+          HelpBlock.p('在$nodePlace中更换：节点会连同状态一起列出。点击一个即可立即切换到它，也可以输入地址来筛选列表或添加节点。发送需要已同步的节点；如果节点落后，钱包会推荐另一个。状态栏中的 **节点** 显示它的状态。'),
       ],
       id: HelpId.node,
     ),

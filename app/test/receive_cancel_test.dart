@@ -200,7 +200,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(txDetailsCancelHoldKey), findsOneWidget);
-      expect(find.text(_l.lvPayArriving), findsOneWidget, reason: 'the steps stay on the first one');
+      expect(find.text(_l.payArriving), findsOneWidget, reason: 'the steps stay on the first one');
       expect(find.textContaining(_l.phoneProgSenderPending.replaceAll(RegExp(r'\.$'), '')), findsWidgets);
     });
 

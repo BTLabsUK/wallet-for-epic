@@ -2,15 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../advanced.dart';
-import '../../l10n.dart';
-import '../../phone_tor.dart';
-import '../../settings.dart';
-import '../../tor_build.dart';
-import '../common.dart';
-import '../theme/brand.dart';
-import '../theme/tokens.dart';
-import 'level_art.dart';
+import '../advanced.dart';
+import '../l10n.dart';
+import '../phone_tor.dart';
+import '../settings.dart';
+import '../tor_build.dart';
+import 'common.dart';
+import 'theme/brand.dart';
+import 'theme/tokens.dart';
+import 'undercover_art.dart';
 
 /// The wait screen's "Turn Undercover off" button, for tests.
 const Key torWaitOffKey = ValueKey('tor-wait-off');
@@ -58,7 +58,7 @@ class _TorWaitScreenState extends ConsumerState<TorWaitScreen> {
     try {
       final settings = await ref.read(appSettingsProvider.future);
       await ref.read(appSettingsProvider.notifier).setAdvanced(settings.advanced.withMode(NetworkMode.standard));
-      ref.read(noticeProvider.notifier).show(l.lvPickTorOffDone, level: NoticeLevel.info);
+      ref.read(noticeProvider.notifier).show(l.torWaitOffDone, level: NoticeLevel.info);
       _home();
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -86,7 +86,7 @@ class _TorWaitScreenState extends ConsumerState<TorWaitScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                l.lvPickTorBlocked,
+                l.torWaitBlocked,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(color: t.dim, height: 1.45),
               ),
@@ -95,21 +95,21 @@ class _TorWaitScreenState extends ConsumerState<TorWaitScreen> {
                 key: torWaitOffKey,
                 style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 onPressed: _busy ? null : _turnOff,
-                child: Text(l.lvPickTorOff),
+                child: Text(l.torWaitOff),
               ),
             ],
           ),
           children: [
             const SizedBox(height: 48),
-            const Center(child: GlyphTile(child: LevelArt(LevelArtKind.agent, size: 40))),
+            const Center(child: GlyphTile(child: UndercoverArt(size: 40))),
             const SizedBox(height: 20),
             Semantics(
               header: true,
-              child: Text(l.lvPickTorTitle, textAlign: TextAlign.center, style: theme.textTheme.headlineSmall),
+              child: Text(l.torWaitTitle, textAlign: TextAlign.center, style: theme.textTheme.headlineSmall),
             ),
             const SizedBox(height: 8),
             Text(
-              l.lvPickTorLead,
+              l.torWaitLead,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(color: t.dim, height: 1.45),
             ),
@@ -123,7 +123,7 @@ class _TorWaitScreenState extends ConsumerState<TorWaitScreen> {
                   const SizedBox(width: 10),
                   Flexible(
                     child: Text(
-                      progress == null ? l.lvPickTorBusy : '${l.lvPickTorBusy} ${percentText(l, progress)}',
+                      progress == null ? l.torWaitBusy : '${l.torWaitBusy} ${percentText(l, progress)}',
                       style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
                     ),
                   ),

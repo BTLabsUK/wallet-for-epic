@@ -39,6 +39,23 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final filesPlace = '[[Einstellungen › Dateien & Protokolle|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Einstellungen › Sicherheit › Wiederherstellungsphrase sichern|Settings › Security › Back up recovery phrase]]' : '[[Einstellungen › Sicherheit › Seed-Phrase|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
+    if (!phone)
+      HelpTopic(
+        'start',
+        'Start',
+        'Das Guthaben, die Schaltflächen zum Senden, Empfangen und Scannen, die laufenden Zahlungen und die letzten Aktivitäten.',
+        [
+          const HelpBlock.ul([
+            '**Guthaben**: was diese Wallet hält. Darunter, was jetzt ausgegeben werden kann, und die Teile, die noch unterwegs sind: in Bestätigung, wartend auf den Absender, gesperrt in einer Zahlung, die gerade gesendet wird. **Beträge verbergen** in der Titelleiste verbirgt jeden Betrag.',
+            '**Senden**, **Empfangen** und **Scannen**: die drei Wege, anzufangen. Scannen liest einen Code mit der Kamera oder nimmt einen eingefügten an.',
+            '**Name, Betrag, Adresse oder Zahlungscode eingeben**: das Feld unter dem Guthaben. Der Name eines Kontakts, eine Adresse oder ein eingefügter Code öffnet Senden mit diesen Angaben. Strg K springt dorthin.',
+            '**In Bewegung**: die laufenden Zahlungen, jede mit ihren Schritten, vom Start bis zum Abschluss.',
+            '**Letzte Aktivitäten**: die neuesten Zahlungen; **Alle anzeigen** öffnet den Tab Aktivität.',
+          ]),
+          const HelpBlock.p('Aktualisieren neben dem Guthaben fragt den Node erneut. Das Guthaben braucht einen synchronisierten Node; solange er synchronisiert, wartet das Senden.'),
+        ],
+        id: HelpId.home,
+      ),
     HelpTopic(
       'start',
       'Die ersten EPIC empfangen',
@@ -59,7 +76,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'An jemanden senden',
       'Öffnen Sie Senden, fügen Sie die Epicbox-Adresse ein, geben Sie den Betrag ein, prüfen Sie die Gebühr und senden Sie.',
       [
-        HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', phone ? 'Tippen Sie auf **Weiter**, kontrollieren Sie alles und tippen Sie dann auf **… EPIC senden**.' : 'Drücken Sie **Prüfen**. **Prüfen und senden** zeigt die Zahlung: Geben Sie das Wallet-Passwort ein und drücken Sie dann **… EPIC senden**. Die Ansicht Flach hat kein Prüfen: ihre Schaltfläche ist **… EPIC senden**.']),
+        HelpBlock.ol(['Öffnen Sie [[Senden|Send]] und fügen Sie die Adresse des Empfängers ein oder wählen Sie einen Kontakt.', 'Geben Sie den Betrag ein. Die Gebühr wird vor dem Senden angezeigt.', phone ? 'Tippen Sie auf **Weiter**, kontrollieren Sie alles und tippen Sie dann auf **… EPIC senden**.' : 'Drücken Sie **Prüfen**. **Prüfen und senden** zeigt die Zahlung: Geben Sie das Wallet-Passwort ein und drücken Sie dann **… EPIC senden**.']),
         const HelpBlock.p('Ein gekoppelter Kontakt hat unter Senden zwei Optionen, erklärt unter „Zahlungen nach dem Koppeln“; eine Zahlung mit der gekoppelten Option wird versiegelt. Jeder andere Kontakt erhält die Zahlung an seiner öffentlichen Epicbox-Adresse.'),
         const HelpBlock.p('Jetzt muss die Wallet des Empfängers antworten (siehe „Warum braucht eine Transaktion beide Seiten?“). Über Epicbox muss der Empfänger nicht gerade online sein: Die Zahlung wartet, bis seine Wallet geöffnet wird. Bis dahin sind die verwendeten Coins gesperrt, damit sie nicht doppelt ausgegeben werden.'),
         HelpBlock.p('Kommt die Antwort zurück, schließt die Wallet die Zahlung ab und stellt sie von selbst ins Netzwerk. Ab der $confirmations. Bestätigung ist sie endgültig.'),
@@ -80,7 +97,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.ol(['**Absender:** wählt unter Senden **Direkt · Dateiübertragung**, gibt den Betrag ein und teilt die Datei (sie endet auf .tx). Ab jetzt sind die Coins gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Direkt · Datei|Receive › Direct · File]]. Seine Wallet signiert sie und teilt eine Antwortdatei (sie endet auf .response). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Direkt · Datei|Receive › Direct · File]]. Die Wallet schließt die Zahlung ab und sendet sie.'])
         else
-          const HelpBlock.ol(['**Absender:** wählt auf [[Senden|Send]] unter An **Per Datei bezahlen**, gibt den Betrag ein und speichert die Datei (sie endet auf .tx). Ab jetzt sind die Coins gesperrt.', '**Empfänger:** drückt auf [[Empfangen|Receive]] unter **Zahlungsdateien** auf **Öffnen** und wählt die Datei. Die Wallet signiert sie und speichert eine Antwortdatei (sie endet auf .response) zum Zurückschicken.', '**Absender:** öffnet die Antwortdatei auf dieselbe Weise. In **Zahlung abschließen** lässt sie sich auch als Code scannen oder als Text einfügen. Die Wallet schließt die Zahlung ab und sendet sie.']),
+          const HelpBlock.ol(['**Absender:** wählt auf [[Senden|Send]] unter An **Per Datei bezahlen** (oder drückt unter Empfangen **Zahlungsdatei erstellen**), gibt den Betrag ein und speichert die Datei (sie endet auf .tx). Ab jetzt sind die Coins gesperrt.', '**Empfänger:** drückt auf [[Empfangen|Receive]] unter **Zahlungsdateien** auf **Öffnen** und wählt die Datei. Die Wallet signiert sie und speichert eine Antwortdatei (sie endet auf .response) zum Zurückschicken.', '**Absender:** öffnet die Antwortdatei auf dieselbe Weise. In **Zahlung abschließen** lässt sie sich auch als Code scannen oder als Text einfügen. Die Wallet schließt die Zahlung ab und sendet sie.']),
         HelpBlock.p('Andere Epic-Cash-Wallets nennen diese Schritte anders. Kommt die Antwortdatei nie, stornieren Sie die Zahlung unter $cancelPlace, um die Coins freizugeben.'),
       ],
       id: HelpId.file,
@@ -106,7 +123,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         HelpBlock.ul([
           '${phone ? '**Zahlungsmethoden.**' : '**Methoden.**'} Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Server, also gibt es keine Epicbox-Zahlungen oder Rechnungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten auf dem Server). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen und mit einer Tor-Adresse ${phone ? 'dieses Smartphones' : 'dieses Computers'}, unter der Sie bezahlt werden) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen keinen Epicbox-Server. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.${phone ? ' Auf einem Smartphone hat **Link · HTTP** keinen Schalter: es sendet nur, an jede eingefügte http(s)-Adresse.' : ''}',
           if (phone) '**Standardmethode.** Die Methode, mit der sich der Bildschirm Senden öffnet; auf Senden lässt sich eine andere wählen.' else '**Standardmethode**, unter **Senden**: die Methode, mit der sich der Bildschirm Senden öffnet; auf Senden lässt sich eine andere wählen.',
-          if (phone) '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.' else '**Strategie für Zahlungen** und **Wechselgeld aufteilen**, unter **Senden**: welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen in der Ansicht Ganz tief, solange **Zahlungsoptionen** unter Erweitert an ist.',
+          if (phone) '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.' else '**Strategie für Zahlungen** und **Wechselgeld aufteilen**, unter **Senden**: welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen, solange **Zahlungsoptionen** unter Erweitert an ist.',
         ]),
       ],
       id: HelpId.methods,
@@ -181,7 +198,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('**Kleinste** sortiert die verfügbaren Outputs nach Wert und nimmt die kleinsten, bis Betrag und Gebühr gedeckt sind. Nur diese sind gesperrt, solange die Zahlung bestätigt wird; der Rest kann sofort gesendet werden.'),
         HelpBlock.p('**Alle** gibt jeden verfügbaren Output aus und gibt einen einzigen Wechselgeld-Output zurück. Alles ist bis zur $confirmations. Bestätigung gesperrt, die Wallet hat danach weniger, größere Outputs, und die Gebühr ist etwas höher, weil jeder Input kostet. Wird das ganze Guthaben gesendet, gilt immer Alle.'),
-        HelpBlock.p('Die Standardeinstellung legen Sie unter $payPlace fest, mit eingeschalteten Zahlungsoptionen unter Erweitert${phone ? '' : ', in der Ansicht Ganz tief'}.'),
+        HelpBlock.p('Die Standardeinstellung legen Sie unter $payPlace fest, mit eingeschalteten Zahlungsoptionen unter Erweitert.'),
       ],
       id: HelpId.strategy,
     ),
@@ -261,6 +278,18 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.importWarning,
     ),
+    if (!phone)
+      const HelpTopic(
+        'network',
+        'Die Statusleiste',
+        'Die Lichter am unteren Fensterrand: der Node, Epicbox und die anderen Empfangswege, jeweils mit ihrem Zustand.',
+        [
+          HelpBlock.p('Jedes Licht ist ein Dienst: **Node**, **Epicbox** und, solange sie an sind, **Link · HTTP** und **Tor**. Die Farbe zeigt den Zustand; zeigt der Mauszeiger darauf, stehen Name und Zustand in Worten da.'),
+          HelpBlock.p('Ein Klick auf ein Licht zeigt seinen Zustand, den verwendeten Server und eine Schaltfläche zu seinen Einstellungen. Das Epicbox-Licht bietet außerdem einen anderen Server an, wenn der verwendete nicht mehr antwortet.'),
+          HelpBlock.p('Neben den Lichtern: was gerade läuft, etwa eine Zahlung, die gesendet wird, dann der EPIC-Kurs und der Verbindungsmodus. Ein schmales Fenster behält die Lichter und lässt die Namen und den Kurs weg.'),
+        ],
+        id: HelpId.statusBar,
+      ),
     HelpTopic(
       'network',
       phone ? 'Nodes' : 'Nodes: ein öffentlicher oder ein lokaler',
@@ -276,7 +305,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           HelpBlock.p('Tippen Sie im Tab Wallet auf das Node-Symbol, um den Zustand des Nodes zu sehen und zu einem anderen zu wechseln. Zum Senden braucht es einen synchronisierten Node; bei einem Zustand wie **12 zurück** oder **Antwortet nicht** wechselt die Wallet von selbst zu einem anderen Node Ihrer Liste, außer der automatische Node-Wechsel ist aus: dann einen anderen wählen. Um einen Node mit seiner Adresse hinzuzufügen, öffnen Sie $nodePlace und geben Sie die Adresse in das Feld über der Liste ein.')
         else
-          HelpBlock.p('Ändern Sie ihn unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Klicken Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; fällt der Node zurück, bietet die Wallet einen anderen an. **Node** in der Statusleiste zeigt seinen Zustand (**Netzwerk** in der Ansicht Flach).'),
+          HelpBlock.p('Ändern Sie ihn unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Klicken Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; fällt der Node zurück, bietet die Wallet einen anderen an. **Node** in der Statusleiste zeigt seinen Zustand.'),
       ],
       id: HelpId.node,
     ),

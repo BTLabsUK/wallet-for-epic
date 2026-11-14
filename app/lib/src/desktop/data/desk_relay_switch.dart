@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The Epicbox server offer on the desktop (wallet levels, Shallow only): the phone's rules
-/// (`levels/relay_switch.dart`) on the desktop's state. The status [DeskState.status] reads the
+/// The Epicbox server offer on the desktop: the phone's rules (`relay_switch.dart`) on the
+/// desktop's state. The status [DeskState.status] reads the
 /// server in use down; once that has lasted [relaySwitchAfter] and another server of the
 /// Epicbox list (`settings.toml`, [deskServerListProvider]) is listed healthy by the status site
 /// ([DeskWalletApi.epicboxes]), [deskRelayOfferProvider] holds the offer. Nothing moves until the
@@ -22,12 +22,11 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../connection_grace.dart' show connectionGraceProvider;
-import '../../levels/relay_switch.dart';
-import '../../levels/relay_switch_providers.dart' show RelaySwitchResult;
+import '../../relay_switch.dart';
+import '../../relay_switch_providers.dart' show RelaySwitchResult;
 import '../../log.dart';
 import '../../network.dart' show EpicboxRelay;
 import 'clock.dart';
-import 'desk_levels.dart';
 import 'models.dart';
 import 'net_mode_view.dart';
 import 'server_lists.dart';
@@ -55,10 +54,9 @@ final deskRelayMovedProvider = NotifierProvider<DeskRelayMoved, RelaySwitchResul
 /// Show new address ([DeskRelayMovedNotice.close]); the move itself stays for Receive.
 final deskRelayMovedNoticeProvider = NotifierProvider<DeskRelayMovedNotice, bool>(DeskRelayMovedNotice.new);
 
-/// Whether the relay notice has anything to show: an offer at Shallow, or an open "Now on".
+/// Whether the relay notice has anything to show: an offer, or an open "Now on".
 final deskRelayNoticeShownProvider = Provider<bool>(
   (ref) =>
-      ref.watch(deskLevelFeaturesProvider.select((f) => f.relaySwitchPrompt)) &&
       // No server offer during the connection grace (item 11); a move just made still says so.
       (!ref.watch(connectionGraceProvider) || (ref.watch(deskRelayMovedNoticeProvider) && ref.watch(deskRelayMovedProvider) != null)) &&
       (ref.watch(deskRelayOfferProvider) != null || (ref.watch(deskRelayMovedNoticeProvider) && ref.watch(deskRelayMovedProvider) != null)),
@@ -109,15 +107,12 @@ class DeskRelaySwitch extends Notifier<RelaySwitchOffer?> {
   RelaySwitchOffer? build() {
     ref.watch(deskProvider.select(_walletOf));
     ++_build;
-    // Shallow only ([LevelFeatures.relaySwitchPrompt]): the other levels pick servers by hand.
-    final prompt = ref.watch(deskLevelFeaturesProvider.select((f) => f.relaySwitchPrompt));
     _since = null;
     _keptWaitingAt = null;
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
     });
-    if (!prompt) return null;
     ref.listen(deskProvider.select(deskEpicboxDown), (_, down) => _follow(down));
     // A server already down when the wallet opened counts from now.
     final gen = _build;
@@ -222,8 +217,8 @@ class DeskRelaySwitch extends Notifier<RelaySwitchOffer?> {
     return moveTo(RelayCandidate(relay: offer.to, name: offer.name));
   }
 
-  /// The wallet moves to [to] (the node stays): the offer's move, also the user's own pick in
-  /// the Shallow status popover. [deskRelayMovedProvider] holds the new address. Null when a
+  /// The wallet moves to [to] (the node stays): the offer's move. [deskRelayMovedProvider]
+  /// holds the new address. Null when a
   /// move is running or the wallet is already there; a refused move throws and nothing changes.
   Future<RelaySwitchResult?> moveTo(RelayCandidate to) async {
     if (_moving) return null;

@@ -44,7 +44,7 @@ import '../amount.dart' show displayEpic, minusSign;
 import 'phone_tx_row.dart' show paymentInProgress;
 import 'tx_details_screen.dart' show TxDetailsScreen;
 import '../trust_ids.dart';
-import 'levels/payment_steps.dart' show paymentStepWord;
+import 'payment_steps.dart' show paymentStepWord;
 import 'epic1/epic1_sealed.dart' show phoneShowsSealed;
 import '../contact_label.dart' show ContactLabelListMark;
 import 'contact_label_mark.dart' show AvatarLabelMark, ContactLabelGlyph;

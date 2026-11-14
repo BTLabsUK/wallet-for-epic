@@ -47,8 +47,7 @@ import 'tx_details_screen.dart';
 import 'via.dart';
 import 'tx_label.dart';
 import 'tip.dart';
-import 'levels/payment_steps.dart' show paymentStepWord;
-import '../levels/level_providers.dart' show effectiveAdvancedProvider;
+import 'payment_steps.dart' show paymentStepWord;
 
 export '../models.dart' show txAmount;
 export '../text_join.dart';
@@ -1926,7 +1925,7 @@ class TxTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final name = txPartyName(ref, tx);
     // A row names no server unless Server details is on: an address is its key alone.
-    final relay = ref.watch(effectiveAdvancedProvider.select((a) => a.has(AdvancedFeature.serverDetails)));
+    final relay = ref.watch(advancedPrefsProvider.select((a) => a.has(AdvancedFeature.serverDetails)));
     final title = txTitle(
       l,
       tx,
@@ -1974,7 +1973,7 @@ class TxTile extends ConsumerWidget {
                           relay: relay,
                         )),
               date: date,
-              // Said as the row shows it: the level's step word (today's label at level 3).
+              // Said as the row shows it: the step word.
               status: paymentStepWord(
                 l,
                 tx,

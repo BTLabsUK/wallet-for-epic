@@ -30,7 +30,7 @@ ID_RX = re.compile(r"^(g4|pair|link|tx|inv)(\.[A-Za-z0-9_*-]+)+$")
 KINDS = ("control", "copy", "group", "template")
 PHONE_FILES = ("core/phone.py", "core/phone_lane.py")
 # TrustIds helpers: a use of one places every id under its prefix; hand-kept in step with HELPERS below
-PLACED_BY = (("shellNav", "g4.nav."), ("settingsSection", "g4.settings.section."), ("levelStop", "g4.level.stop."),
+PLACED_BY = (("shellNav", "g4.nav."), ("settingsSection", "g4.settings.section."),
              ("nodeList", "g4.server.node"), ("epicboxList", "g4.server.epicbox"), ("nodeList", "g4.server.search"))
 HELPERS = """
   static const nodeList = TrustServerIds(picker: serverNode, field: serverSearch, row: serverNodeRow, add: serverNodeAdd);
@@ -45,9 +45,6 @@ HELPERS = """
     final bare = name.startsWith('settings') && name.length > 8 ? name.substring(8) : name;
     return 'g4.settings.section.${bare[0].toLowerCase()}${bare.substring(1)}';
   }
-
-  /// A level's stop on the dial: `g4.level.stop.<1-3>`.
-  static String levelStop(int level) => 'g4.level.stop.$level';
 """
 
 

@@ -5,7 +5,7 @@ part of 'title_bar.dart';
 const double deskStatusBarHeight = 32;
 
 /// The status bar at the window's foot, under every page of an open wallet: one light per
-/// service of the level (a click opens its popover, status_popover.dart), then what goes on
+/// service (a click opens its popover, status_popover.dart), then what goes on
 /// now (now_slot.dart, the first two and a `+N`), and at the end the EPIC price and the network
 /// mode. A window narrower than [Bp.desktop] keeps the lights and drops the names and the price.
 class DeskStatusBar extends ConsumerWidget {
@@ -196,8 +196,7 @@ class _StatusLight extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final level = ref.watch(deskLevelProvider);
-    final tip = deskStatusTip(l, level, item);
+    final tip = deskStatusTip(l, item);
     final node = item.jump == SettingsJump.node;
     final height = node && item.state == EState.ok ? ref.watch(deskProvider.select((s) => s.status?.nodeHeight)) : null;
     final detail = node ? (item.marker ?? (height == null ? null : digits(l, height))) : null;
@@ -220,7 +219,7 @@ class _StatusLight extends ConsumerWidget {
             children: [
               EStateDot(item.state, size: 8.u),
               if (!node) Icon(item.icon, size: 14.u, color: item.state == EState.off ? c.faint : c.dim),
-              if (words || node) Text(deskStatusName(l, level, item), maxLines: 1, style: ts.caption.copyWith(height: 1, fontWeight: FontWeight.w600, color: item.state == EState.off ? c.faint : c.text)),
+              if (words || node) Text(item.name, maxLines: 1, style: ts.caption.copyWith(height: 1, fontWeight: FontWeight.w600, color: item.state == EState.off ? c.faint : c.text)),
               if (detail != null) Text(detail, maxLines: 1, style: ts.mono(size: Fs.xs, color: c.dim)),
             ],
           ),

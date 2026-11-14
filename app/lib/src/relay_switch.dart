@@ -16,10 +16,10 @@ library;
 
 import 'dart:convert';
 
-import '../advanced.dart';
-import '../network.dart' show EpicboxRelay;
-import '../network_gate.dart';
-import '../tor_routes.dart';
+import 'advanced.dart';
+import 'network.dart' show EpicboxRelay;
+import 'network_gate.dart';
+import 'tor_routes.dart';
 
 /// How long the relay in use must have stopped answering before another one is offered.
 const Duration relaySwitchAfter = Duration(minutes: 2);

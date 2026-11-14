@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/advanced.dart';
-import 'package:epic_wallet/src/levels/relay_switch.dart';
+import 'package:epic_wallet/src/relay_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/wallet_service.dart';

@@ -17,15 +17,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../connection_grace.dart';
-import '../../errors.dart';
-import '../../l10n.dart';
-import '../../levels/relay_switch.dart';
-import '../../levels/relay_switch_providers.dart';
-import '../../models.dart' show WalletError;
-import '../../providers.dart';
-import '../notices.dart';
-import '../receive_screen.dart' show ReceiveTab, receiveTabProvider;
+import '../connection_grace.dart';
+import '../errors.dart';
+import '../l10n.dart';
+import '../relay_switch.dart';
+import '../relay_switch_providers.dart';
+import '../models.dart' show WalletError;
+import '../providers.dart';
+import 'notices.dart';
+import 'receive_screen.dart' show ReceiveTab, receiveTabProvider;
 
 /// The tag of the offer's notice, and of the move's, so each replaces itself.
 const String relayOfferNoticeTag = 'relay-offer';
@@ -43,10 +43,10 @@ Future<bool> acceptRelaySwitch(BuildContext context, WidgetRef ref, {RelayCandid
     final result = await (to == null ? relays.accept(ref) : relays.moveTo(ref, to));
     if (result == null) return false;
     notices.show(
-      l.lvShellSwitchedNotice(result.name),
+      l.statusSwitchedNotice(result.name),
       level: NoticeLevel.success,
       tag: relayMovedNoticeTag,
-      action: NoticeAction(l.lvShellShowNewAddress, () => showNewAddress(ref)),
+      action: NoticeAction(l.statusShowNewAddress, () => showNewAddress(ref)),
     );
     return true;
   } on WalletError catch (e) {
@@ -129,11 +129,11 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
     final l = context.l10n;
     // Compact: a title, one line and Switch; it hides by itself, and swiping it away is Not now.
     notices.show(
-      l.lvShellRelayDownShort(offer.name),
-      title: l.lvShellRelayDownTitle,
+      l.statusRelayDownShort(offer.name),
+      title: l.statusRelayDownTitle,
       level: NoticeLevel.warning,
       tag: relayOfferNoticeTag,
-      action: NoticeAction(l.lvShellSwitch, () {
+      action: NoticeAction(l.statusSwitch, () {
         if (mounted) acceptRelaySwitch(context, ref);
       }),
       onClose: () => ref.read(relaySwitchProvider.notifier).keepWaiting(),

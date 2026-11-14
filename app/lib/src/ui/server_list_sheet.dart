@@ -51,7 +51,7 @@ import 'kit/kit_settings.dart' show KitTag;
 import 'pairing/pair_flow.dart' show confirmPairSheet;
 import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
-import 'levels/relay_down.dart' show relayMovedNoticeTag, showNewAddress;
+import 'relay_down.dart' show relayMovedNoticeTag, showNewAddress;
 import 'notices.dart';
 import 'server_picker.dart'
     show localNodeStatusProvider, networkStatusProvider, publicNodeStatusProvider, relaunchAfterSwitch;
@@ -609,11 +609,11 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           ref
               .read(noticeProvider.notifier)
               .show(
-                l.lvShellSwitchedNotice(serverHost(value)),
+                l.statusSwitchedNotice(serverHost(value)),
                 level: NoticeLevel.success,
                 tag: relayMovedNoticeTag,
                 action: NoticeAction(
-                  l.lvShellShowNewAddress,
+                  l.statusShowNewAddress,
                   () => showNewAddress(ref),
                 ),
               );

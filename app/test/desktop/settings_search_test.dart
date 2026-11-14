@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Settings search's engine: Help's word-start rule, synonyms, ranking (name over synonym over
-// explanation), the split into shown here and hidden by the view or an Advanced switch, Help
+// explanation), the split into shown here and hidden by an Advanced switch, Help
 // topics, and the other languages. Run both ways; the build without Tor finds no Tor:
 //   flutter test [--dart-define=WFE_TOR=false] test/desktop/settings_search_test.dart
 import 'package:epic_wallet/src/advanced.dart';
@@ -22,9 +22,9 @@ final _torWord = RegExp(r'(?<!\p{L})tor(?:a|em|u|ze)?(?!\p{L})|onion', unicode: 
 
 void main() {
   final en = lookupAppLocalizations(const Locale('en'));
-  // Deep end with every switch on: everything shows.
-  final all = SetView(3, AdvancedFeature.values.toSet());
-  const shallow = SetView(1, {});
+  // Every switch on: everything shows.
+  final all = SetView(AdvancedFeature.values.toSet());
+  const none = SetView({});
   SetSearch find(String q, {SetView? view, List<HelpTopic> topics = const [], AppLocalizations? l}) =>
       searchSettings(q, l: l ?? en, view: view ?? all, topics: topics);
   List<String> ids(List<SetHit> hits) => [for (final h in hits) h.entry.id];
@@ -75,26 +75,21 @@ void main() {
     expect(ids(r.shown).indexOf(SetId.torPay), lessThan(ids(r.shown).indexOf(SetId.netMode)));
   }, skip: _withTor);
 
-  test('hidden by the view or a switch: listed apart, with what shows them', () {
-    // Shallow: Transactions and Network & privacy show at every view; Advanced's Outputs row is Deeper's.
-    final r = find('tor', view: shallow);
+  test('hidden by a switch: listed apart, with what shows them', () {
+    // With every switch off: Transactions, Network & privacy and Advanced's own rows show.
+    final r = find('tor', view: none);
     expect(ids(r.shown), containsAll([SetId.netMode, SetId.torPay]));
-    final out = find('outputs', view: shallow);
-    expect(ids(out.shown), isNot(contains(SetId.advOutputs)));
-    final adv = out.hidden.firstWhere((h) => h.entry.id == SetId.advOutputs);
-    expect(adv.reasons, ['Deeper view']);
-    expect(adv.level, 2);
-    expect(adv.features, isEmpty);
-    // Deeper without the Logs switch: the logs rows want Advanced › Logs.
-    final logs = find('log level', view: const SetView(2, {})).hidden.single;
+    expect(ids(find('outputs', view: none).shown), contains(SetId.advOutputs));
+    // Without the Logs switch: the logs rows want Advanced › Logs.
+    final logs = find('log level', view: none).hidden.single;
     expect(logs.entry.id, SetId.logLevel);
-    expect(logs.level, isNull);
     expect(logs.features, [AdvancedFeature.logs]);
     expect(logs.reasons, ['Advanced › Logs']);
-    // Both at once, every one named (review 13).
-    final strategy = find('coin selection', view: const SetView(2, {})).hidden.single;
-    expect(strategy.reasons, ['Deep end view', 'Advanced › Send options']);
-    expect(setJoinReasons(en, strategy.reasons), 'Deep end view and Advanced › Send options');
+    final strategy = find('coin selection', view: none).hidden.single;
+    expect(strategy.features, [AdvancedFeature.sendOptions]);
+    expect(strategy.reasons, ['Advanced › Send options']);
+    // Every reason named (review 13).
+    expect(setJoinReasons(en, ['Advanced › Logs', 'Advanced › Send options']), 'Advanced › Logs and Advanced › Send options');
     // The count counts everything listed (review 12), never 0 above results.
     expect(r.count, r.shown.length + r.hidden.length + r.help.length);
     expect(r.count, greaterThan(0));
@@ -148,14 +143,10 @@ void main() {
     expect(find(settingsEntry(SetId.theme)!.label(th), l: th).shown, isNotEmpty);
   });
 
-  test('fallback: a page the view hides opens its group’s first page, saying which view shows it', () {
-    final f = settingsFallback(en, shallow, DeskRoute.settingsNode);
-    expect(f.route, DeskRoute.settingsAppearance);
-    expect(f.notice, 'Node shows in the Deeper view.');
-    final inv = settingsFallback(en, const SetView(2, {}), DeskRoute.settingsInvoices);
-    expect(inv.route, DeskRoute.settingsAccount);
-    expect(inv.notice, 'Invoices shows in the Deep end view.');
-    expect(settingsFallback(en, const SetView(3, {}), DeskRoute.settingsInvoices), (route: DeskRoute.settingsInvoices, notice: null));
+  test('fallback: every Settings page opens as it is, with no notice', () {
+    for (final s in settingsSections) {
+      expect(settingsFallback(en, none, s.route), (route: s.route, notice: null), reason: s.route.name);
+    }
     expect(settingsFallback(en, all, DeskRoute.settingsNode), (route: DeskRoute.settingsNode, notice: null));
   });
 }

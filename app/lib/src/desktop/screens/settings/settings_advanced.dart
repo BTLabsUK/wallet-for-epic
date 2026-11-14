@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Advanced: the view (Shallow, Deeper, Deep end), the switches that show more of
-/// the wallet, each explained behind its ⓘ. What a switch turns
-/// on appears where it belongs (the sidebar, Send, a transaction's details). The network mode
-/// is on Network & privacy (`settings_privacy.dart`).
+/// Settings › Advanced: the switches that show more of the wallet, each explained behind its
+/// ⓘ. What a switch turns on appears where it belongs (a tab, Send, a transaction's details).
+/// The network mode is on Network & privacy (`settings_privacy.dart`).
 library;
 
 import 'package:flutter/material.dart';
@@ -12,13 +11,8 @@ import '../../../advanced.dart';
 import '../../../trust_ids.dart';
 import '../../../ui/network_mode_text.dart';
 import '../../app/tour.dart' show TourTarget;
-import '../../../levels/wallet_level.dart';
-import '../../../log.dart';
-import '../../data/desk_levels.dart' show deskLevelControlProvider, deskLevelProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
-import '../onboarding/depth_dial.dart' show DeskDepthPicker, showDepthHelp;
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 
@@ -64,86 +58,15 @@ class SettingsAdvancedScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // The tour lights the top of the page: the view and the switches.
-          TourTarget(
-            id: 'advanced-top',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: const [_ViewGroup(), _ShowsGroup()],
-            ),
-          ),
+          // The tour lights the top of the page: the switches.
+          const TourTarget(id: 'advanced-top', child: _ShowsGroup()),
         ],
       ),
     );
   }
 }
 
-/// A view's one line: what it shows, in facts.
-String viewLine(AppLocalizations l, WalletLevel level) => switch (level) {
-  WalletLevel.justSendReceive => l.deskSetAdvViewLineOne,
-  WalletLevel.casual => l.deskSetAdvViewLineTwo,
-  WalletLevel.everything => l.deskSetAdvViewLineThree,
-};
-
-/// Advanced › View: the depth dial with the Overview picture (Welcome's old first step, now
-/// here only); a pick applies at once (the level's preset with it), and the line under the dial
-/// says what the view shows, in facts.
-class _ViewGroup extends ConsumerStatefulWidget {
-  const _ViewGroup();
-
-  @override
-  ConsumerState<_ViewGroup> createState() => _ViewGroupState();
-}
-
-class _ViewGroupState extends ConsumerState<_ViewGroup> {
-  bool _busy = false;
-
-  Future<void> _pick(WalletLevel level) async {
-    if (_busy || level == ref.read(deskLevelProvider)) return;
-    setState(() => _busy = true);
-    try {
-      await ref.read(deskLevelControlProvider).setLevel(level);
-      // A new view: every "more options" folds again.
-      ref.read(moreOptionsRevealProvider.notifier).clear();
-    } on Object catch (e) {
-      logWarn('levels', 'level not saved: ${e.runtimeType}');
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final level = ref.watch(deskLevelProvider);
-    return ESetGroup(
-      key: const ValueKey('adv-depth'),
-      title: l.lvPickDepth,
-      rows: [
-        SetAnchor(
-          id: SetId.view,
-          child: DeskDepthPicker(
-            framed: false,
-            level: level,
-            onLevel: _pick,
-            caption: l.deskLvStartPreviewCaption,
-            foot: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(viewLine(l, level), key: const ValueKey('adv-view-note'), style: context.ts.small),
-                SizedBox(height: Sp.x2),
-                ELink(label: l.lvPickHelpTitle, onPressed: () => showDepthHelp(context)),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Advanced › Shows more: one row per feature, title, ⓘ, a switch; Deeper and up. At Shallow
-/// the rows wait behind the group's ⇕ (shown with the Deeper view); Local node is Deep end's.
+/// Advanced › Shows more: one row per feature, title, ⓘ, a switch.
 class _ShowsGroup extends ConsumerWidget {
   const _ShowsGroup();
 
@@ -151,15 +74,13 @@ class _ShowsGroup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final s = ref.watch(deskProvider.select((s) => s.settings));
-    final level = ref.watch(deskLevelProvider).number;
     final adv = s.advanced;
     final n = ref.read(deskProvider.notifier);
     void set(AdvancedFeature f, bool on) =>
         n.saveSettings(s.copyWith(advanced: adv.withFeature(f, on)));
-    ESetRow row(AdvancedFeature f, String hint, {required String anchor, int minLevel = 2}) => ESetRow(
+    ESetRow row(AdvancedFeature f, String hint, {required String anchor}) => ESetRow(
       key: ValueKey('adv-${f.name}'),
       anchor: anchor,
-      advancedBy: level >= minLevel ? null : advancedByView(l, minLevel),
       title: advancedFeatureName(l, f),
       hint: hint,
       hintTitle: advancedFeatureName(l, f),
@@ -174,19 +95,8 @@ class _ShowsGroup extends ConsumerWidget {
         onChanged: (v) => set(f, v),
       ),
     );
-    final all = [
-      (row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint, anchor: SetId.advOutputs), 2),
-      (row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint, anchor: SetId.advTech), 2),
-      (row(AdvancedFeature.sendOptions, l.deskSetAdvSendOptionsHint, anchor: SetId.advSendopts), 2),
-      (row(AdvancedFeature.serverDetails, l.deskSetAdvServerDetailsHint, anchor: SetId.advServers), 2),
-      (row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint, anchor: SetId.advHeight), 2),
-      (row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint, anchor: SetId.advLocal, minLevel: 3), 3),
-      (row(AdvancedFeature.logs, l.deskSetAdvLogsHint, anchor: SetId.advLogs), 2),
-    ];
     final on = adv.shownFeatures.length;
-    final trailing = level < 2
-        ? null
-        : Row(
+    final trailing = Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (on > 0) Text(l.deskSetAdvOn(on), style: context.ts.small),
@@ -204,9 +114,15 @@ class _ShowsGroup extends ConsumerWidget {
       key: const ValueKey('adv-shows'),
       title: l.deskSetAdvShows,
       trailing: trailing,
-      rows: [for (final (r, min) in all) if (level >= min) r],
-      hidden: [for (final (r, min) in all) if (level < min) r],
-      revealKey: 'adv-shows',
+      rows: [
+        row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint, anchor: SetId.advOutputs),
+        row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint, anchor: SetId.advTech),
+        row(AdvancedFeature.sendOptions, l.deskSetAdvSendOptionsHint, anchor: SetId.advSendopts),
+        row(AdvancedFeature.serverDetails, l.deskSetAdvServerDetailsHint, anchor: SetId.advServers),
+        row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint, anchor: SetId.advHeight),
+        row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint, anchor: SetId.advLocal),
+        row(AdvancedFeature.logs, l.deskSetAdvLogsHint, anchor: SetId.advLogs),
+      ],
     );
   }
 }

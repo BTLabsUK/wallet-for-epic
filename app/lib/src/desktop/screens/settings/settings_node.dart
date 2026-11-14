@@ -12,7 +12,6 @@ import '../../../net/tor_switch.dart' show TorSwitch;
 import '../../../node_failover.dart' show nodeProbeBudget;
 import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings, hostSettings, localNodePortValues;
 import '../../../settings_file/settings_providers.dart' show writeHostSettings;
-import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/desk_node.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -373,8 +372,8 @@ typedef _NodePick = ({
   Widget row,
 });
 
-/// The node picker's pick, test and switch, shared by Settings › Node and the Shallow
-/// Network & privacy page ([NodeServerPicker]). While on screen it asks every listed node
+/// The node picker's pick, test and switch on Settings › Node. While on screen it asks every
+/// listed node
 /// ([DeskController.showNodes]).
 mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   bool _saving = false;
@@ -626,7 +625,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
           }),
           source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
           // Advanced › Built-in node; the node in use stays listed.
-          local: (ref.watch(deskLevelUiProvider).builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
+          local: advancedHas(ref, AdvancedFeature.builtInNode) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
           listNote: nodeListNoteText(l),
           busy: switching != null,
           pickWhileBusy: true,
@@ -642,20 +641,6 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       ),
     );
   }
-}
-
-/// Settings › Node's server picker alone (the Node server row): the Shallow Network & privacy
-/// page's. Nothing while the node list or the status loads.
-class NodeServerPicker extends ConsumerStatefulWidget {
-  const NodeServerPicker({super.key});
-
-  @override
-  ConsumerState<NodeServerPicker> createState() => _NodeServerPickerState();
-}
-
-class _NodeServerPickerState extends ConsumerState<NodeServerPicker> with _NodePicker<NodeServerPicker> {
-  @override
-  Widget build(BuildContext context) => _nodePick()?.row ?? const SizedBox.shrink();
 }
 
 /// Node failover: on by default, the one switch that keeps the simple app working.

@@ -4441,9 +4441,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvActBilledBy => 'Выставил';
 
   @override
-  String get deskInvActOverviewTitle => 'Счета';
-
-  @override
   String deskInvActOverviewToPay(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -7832,18 +7829,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvBreakTotal => 'Всего';
-
-  @override
-  String get deskOvBreakConfirming => 'Подтверждается';
-
-  @override
-  String get deskOvBreakImmature => 'Награды за майнинг';
-
-  @override
-  String get deskOvBreakAwaiting => 'Ждёт отправителя';
-
-  @override
-  String get deskOvBreakLocked => 'Заблокировано в отправках';
 
   @override
   String get deskOvUpdating => 'Обновление';
@@ -17140,438 +17125,235 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get levelThreeTitle => 'Хочу изучить всё';
+  String get undercoverTitle => 'Только Tor';
 
   @override
-  String get levelUndercoverTitle => 'Только Tor';
-
-  @override
-  String get levelRowTitle => 'Вид кошелька';
-
-  @override
-  String get lvPickStopOne => 'Мелко';
-
-  @override
-  String get lvPickStopTwo => 'Глубже';
-
-  @override
-  String get lvPickStopThree => 'В самую глубь';
-
-  @override
-  String get lvPickLineOne =>
-      'Отправили, получили, готово. Об остальном позаботится кошелёк.';
-
-  @override
-  String get lvPickLineTwo => 'Видно, что он делает, простыми словами.';
-
-  @override
-  String get lvPickLineThree => 'Каждый переключатель, каждая цифра. Всё ваше.';
-
-  @override
-  String get lvPickNone => 'Выберите уровень';
-
-  @override
-  String get lvPickNoneLine => 'Превью следует за переключателем.';
-
-  @override
-  String get lvPickDepth => 'Вид';
-
-  @override
-  String get lvPickHelpTitle => 'На что это влияет';
-
-  @override
-  String get lvPickHelpText =>
-      'Только то, сколько показывает приложение. В любом виде отправка и получение одинаковы: те же ключи и те же монеты.';
-
-  @override
-  String get lvPickUndercoverHelpNet =>
+  String get undercoverHelp =>
       'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим соединения › Только Tor; позже можно выключить в Настройки › Сеть и приватность.';
 
   @override
-  String get lvPickUndercover => 'Инкогнито';
+  String get torWaitTitle => 'Подключение через Tor';
 
   @override
-  String get lvPickUndercoverLaterHelp =>
-      'Только Tor. Каждое подключение идёт через Tor; запуск дольше. Там, где Tor заблокирован, кошелёк не подключится, пока это не выключить.';
+  String get torWaitLead => 'Первое подключение через Tor может занять минуту.';
 
   @override
-  String get lvPickTorTitle => 'Подключение через Tor';
+  String get torWaitBusy => 'Строится цепочка…';
 
   @override
-  String get lvPickTorLead =>
-      'Первое подключение через Tor может занять минуту.';
-
-  @override
-  String get lvPickTorBusy => 'Строится цепочка…';
-
-  @override
-  String get lvPickTorBlocked =>
+  String get torWaitBlocked =>
       'Если у вас Tor заблокирован, кошелёк не подключится, пока не выключить Инкогнито.';
 
   @override
-  String get lvPickTorOff => 'Выключить Инкогнито';
+  String get torWaitOff => 'Выключить Инкогнито';
 
   @override
-  String get lvPickTorOffDone => 'Инкогнито выключено. Подключение напрямую.';
+  String get torWaitOffDone => 'Инкогнито выключено. Подключение напрямую.';
 
   @override
-  String get lvPayArriving => 'Поступает';
+  String get payArriving => 'Поступает';
 
   @override
-  String lvPayConfirming(int count, int target) {
+  String payConfirming(int count, int target) {
     return 'Подтверждение $count из $target';
   }
 
   @override
-  String lvPayConfirmingOf(int count, int target) {
+  String payConfirmingOf(int count, int target) {
     return 'Подтверждение $count из $target';
   }
 
   @override
-  String lvPaySigned(String name) {
+  String paySigned(String name) {
     return '$name подписал(а)';
   }
 
   @override
-  String get lvPayOnItsWay => 'В пути';
+  String get payOnItsWay => 'В пути';
 
   @override
-  String get lvPayCloseNote =>
+  String get payCloseNote =>
       'Можно закрыть. Платёж виден в «Активности», пока не завершится.';
 
   @override
-  String lvPayArrivalFrom(String amount, String name) {
+  String payArrivalFrom(String amount, String name) {
     return '$amount от $name';
   }
 
   @override
-  String get lvPayOpen => 'Открыть';
+  String get payOpen => 'Открыть';
 
   @override
-  String get lvPayNewToday => 'Новый сегодня';
+  String get payNewToday => 'Новый сегодня';
 
   @override
-  String get lvPayNewAddress => 'Ваш новый адрес';
+  String get payNewAddress => 'Ваш новый адрес';
 
   @override
-  String lvPayServerLine(String name) {
+  String payServerLine(String name) {
     return 'Сервер Epicbox: $name.';
   }
 
   @override
-  String get lvPayOldAddressLine => 'Тем, у кого старый адрес, нужен новый.';
+  String get payOldAddressLine => 'Тем, у кого старый адрес, нужен новый.';
 
   @override
-  String get lvPayStarted => 'Начато';
+  String get payStarted => 'Начато';
 
   @override
-  String get lvPayPaymentId => 'ID платежа';
+  String get payPaymentId => 'ID платежа';
 
   @override
-  String get lvPayConfirmations => 'Подтверждения';
+  String get payCopyDetails => 'Скопировать данные';
 
   @override
-  String get lvPayCopyDetails => 'Скопировать данные';
-
-  @override
-  String lvShellStatusTip(String name, String state) {
+  String statusTip(String name, String state) {
     return '$name · $state';
   }
 
   @override
-  String get lvShellStateBehind => 'Отстаёт';
+  String get statusStateBehind => 'Отстаёт';
 
   @override
-  String get lvShellStateCatchingUp => 'Догоняет';
+  String get statusOpensDetails => 'Показывает подробности';
 
   @override
-  String get lvShellStateConnecting => 'Подключение';
+  String get statusNotChecked => 'Ещё не проверен';
 
   @override
-  String get lvShellOpensDetails => 'Показывает подробности';
+  String get statusBoxListening => 'Подключено · ждёт платежей';
 
   @override
-  String get lvShellLatestBlock => 'Последний блок';
+  String get statusBoxNotReachable => 'Недоступен · продолжает попытки';
 
   @override
-  String get lvShellThisWallet => 'Этот кошелёк';
-
-  @override
-  String get lvShellUpToDate => 'Актуален';
-
-  @override
-  String get lvShellNotChecked => 'Ещё не проверен';
-
-  @override
-  String get lvShellLastChange => 'Последнее изменение';
-
-  @override
-  String get lvShellBoxListening => 'Подключено · ждёт платежей';
-
-  @override
-  String get lvShellBoxNotReachable => 'Недоступен · продолжает попытки';
-
-  @override
-  String get lvShellBoxDownBody =>
-      'Платежи вам ждут и придут, когда сервер вернётся. Ничего не меняется, пока вы не переключитесь.';
-
-  @override
-  String lvShellOfferReady(String name) {
+  String statusOfferReady(String name) {
     return '$name готов';
   }
 
   @override
-  String lvShellOfferBody(String name) {
+  String statusOfferBody(String name) {
     return 'При переключении вы получите новый адрес на $name. Всем, у кого ваш старый адрес, нужен новый.';
   }
 
   @override
-  String lvShellSwitchTo(String name) {
+  String statusSwitchTo(String name) {
     return 'Переключиться на $name';
   }
 
   @override
-  String get lvShellKeepWaiting => 'Подождать';
+  String get statusKeepWaiting => 'Подождать';
 
   @override
-  String get lvShellRelayDownTitle => 'Ваш сервер Epicbox недоступен.';
+  String get statusRelayDownTitle => 'Ваш сервер Epicbox недоступен.';
 
   @override
-  String lvShellRelayDownShort(String name) {
+  String statusRelayDownShort(String name) {
     return '$name может заменить его; ваш адрес при этом изменится.';
   }
 
   @override
-  String get lvShellSwitch => 'Переключить';
+  String get statusSwitch => 'Переключить';
 
   @override
-  String lvShellSwitchedNotice(String name) {
+  String statusSwitchedNotice(String name) {
     return 'Теперь на $name. Ваш новый адрес готов.';
   }
 
   @override
-  String get lvShellShowNewAddress => 'Показать новый адрес';
+  String get statusShowNewAddress => 'Показать новый адрес';
 
   @override
-  String get lvShellAddress => 'Адрес';
+  String get statusAddress => 'Адрес';
 
   @override
-  String lvShellPairNotice(String name) {
+  String statusPairNotice(String name) {
     return '$name хочет связаться с этим кошельком.';
   }
 
   @override
-  String lvShellQuietArriving(String amount) {
+  String statusQuietArriving(String amount) {
     return '+$amount поступает';
   }
 
   @override
-  String get lvPolPosted => 'Отправлен';
+  String get payPosted => 'Отправлен';
 
   @override
-  String get deskLvStartPreviewLabel =>
-      'Превью обзора. Чем глубже уровень, тем больше на нём видно.';
+  String get deskUndercoverAbout => 'О режиме «Только Tor»';
 
   @override
-  String get deskLvStartPreviewCaption =>
-      'Главная в этом виде. Сохранённые данные не меняются.';
-
-  @override
-  String get deskLvStartCover => 'Выберите положение, чтобы увидеть превью';
-
-  @override
-  String get deskLvStartUndercoverAbout => 'О режиме «Только Tor»';
-
-  @override
-  String get deskLvStartHelpShallow =>
-      'Мелко · один адрес, без имён серверов, без переключателей.';
-
-  @override
-  String get deskLvStartHelpDeeper =>
-      'Глубже · тот же кошелёк, плюс что он делает, простыми словами.';
-
-  @override
-  String get deskLvStartHelpDeep =>
-      'В самую глубь · каждый переключатель, каждая цифра: приложение как сейчас.';
-
-  @override
-  String get deskLvStartMiniWallet => 'Основной кошелёк';
-
-  @override
-  String get deskLvStartMiniLine => '+12,5 поступает · 25,0 удерживается';
-
-  @override
-  String get deskLvStartMiniFresh => 'Свежие с майнинга';
-
-  @override
-  String get deskLvSendHowTo => 'Как отправить';
-
-  @override
-  String get deskLvSendButton => 'Отправить';
-
-  @override
-  String deskLvSendButtonAmount(String amount) {
-    return 'Отправить $amount EPIC';
-  }
-
-  @override
-  String deskLvSendButtonTo(String amount, String name) {
-    return 'Отправить $amount EPIC — $name';
-  }
-
-  @override
-  String get deskLvSendNothingLeaves =>
+  String get deskSendNothingLeaves =>
       'Ничего не уходит, пока вы не нажмёте «Отправить». После этого вернуть нельзя.';
 
   @override
-  String get deskLvSendPasswordTitle => 'Ваш пароль';
-
-  @override
-  String get deskLvSendConfirm => 'Отправить';
-
-  @override
-  String deskLvSendLiveTo(String name) {
+  String deskSendLiveTo(String name) {
     return 'Идёт к $name';
   }
 
   @override
-  String deskLvSendLiveAmountTo(String amount, String name) {
+  String deskSendLiveAmountTo(String amount, String name) {
     return '$amount EPIC — $name';
   }
 
   @override
-  String deskLvSendLiveAmount(String amount) {
+  String deskSendLiveAmount(String amount) {
     return '$amount EPIC';
   }
 
   @override
-  String get deskLvSendYourAddress => 'Ваш адрес';
-
-  @override
-  String get deskLvSendReady => 'Готов к приёму';
-
-  @override
-  String get deskLvSendClosedInfo =>
-      'Платежи, отправленные при закрытом кошельке, придут, когда он откроется.';
-
-  @override
-  String get deskLvSendPayFiles => 'Файлы платежей';
-
-  @override
-  String get deskLvSendPrevAddress => 'Прежний адрес';
-
-  @override
-  String deskLvSendPrevText(String server) {
-    return 'Старый адрес был на $server. Всем, у кого он есть, нужен новый.';
-  }
-
-  @override
-  String deskLvPayConfirmingComma(int count, int target) {
+  String deskPayConfirmingComma(int count, int target) {
     return 'Подтверждение, $count из $target';
   }
 
   @override
-  String deskLvPayOnItsWayTo(String name) {
+  String deskPayOnItsWayTo(String name) {
     return 'Идёт к $name';
   }
 
   @override
-  String deskLvPaySendingTo(String name) {
-    return 'Отправка: $name';
-  }
-
-  @override
-  String deskLvPayArrivingFrom(String name) {
+  String deskPayArrivingFrom(String name) {
     return 'Поступает от $name';
   }
 
   @override
-  String deskLvPayStartedAt(String amount, String time) {
+  String deskPayStartedAt(String amount, String time) {
     return '$amount EPIC · начато $time';
   }
 
   @override
-  String deskLvPayHeroArriving(String amount, String name) {
-    return '+$amount поступает от $name';
-  }
+  String get deskPayTileConfirming => 'Ещё подтверждается';
 
   @override
-  String deskLvPayHeroArrivingMany(String amount) {
-    return '+$amount поступает';
-  }
+  String get deskPayTileMining => 'Свежие с майнинга';
 
   @override
-  String deskLvPayHeroHold(String amount, String name) {
-    return '$amount удерживается, пока $name не подпишет';
-  }
+  String get deskPayTileAwaiting => 'Ждёт ответа';
 
   @override
-  String deskLvPayHeroHoldMany(String amount) {
-    return '$amount удерживается до подписи';
-  }
+  String get deskPayTileLocked => 'Отложено для отправок';
 
   @override
-  String get deskLvPayHeroNothing => 'Пока ничего не поступает.';
+  String get deskPayMaturing => 'Свежие с майнинга, пока недоступны';
 
   @override
-  String get deskLvPayReadyHead => 'Кошелёк готов';
+  String get deskStatusFailover => 'Переключение узла';
 
   @override
-  String get deskLvPayReadyText =>
-      'Поделитесь адресом, чтобы получить первые EPIC.';
+  String get deskStatusOn => 'Вкл.';
 
   @override
-  String get deskLvPayTileConfirming => 'Ещё подтверждается';
+  String get deskStatusHeight => 'Высота';
 
   @override
-  String get deskLvPayTileMining => 'Свежие с майнинга';
+  String get deskStatusVersion => 'Версия';
 
   @override
-  String get deskLvPayTileAwaiting => 'Ждёт ответа';
-
-  @override
-  String get deskLvPayTileLocked => 'Отложено для отправок';
-
-  @override
-  String get deskLvPayImmatureCasual => 'Свежие с майнинга, пока недоступны';
-
-  @override
-  String get deskLvPayKind => 'Платёж';
-
-  @override
-  String get deskLvShellNewsTitle => 'Новое: вид кошелька';
-
-  @override
-  String get deskLvShellNewsText =>
-      'Эта установка показывает всё, как и раньше. «Мелко» и «Глубже» показывают меньше.';
-
-  @override
-  String get deskLvShellNewsLook => 'Посмотреть';
-
-  @override
-  String get deskLvShellFailover => 'Переключение узла';
-
-  @override
-  String get deskLvShellOn => 'Вкл.';
-
-  @override
-  String get deskLvShellHeight => 'Высота';
-
-  @override
-  String get deskLvShellVersion => 'Версия';
-
-  @override
-  String get deskLvShellRecheckHint =>
+  String get deskStatusRecheckHint =>
       'Если сумма выглядит неверно, кошелёк заново читает цепочку.';
 
   @override
-  String get lvShellSwitchServer => 'Сменить сервер';
-
-  @override
-  String get deskLvShellSwitchServer => 'Сменить сервер';
-
-  @override
-  String get deskLvShellNoOtherServer => 'В списке нет другого сервера.';
+  String get statusSwitchServer => 'Сменить сервер';
 
   @override
   String get deskLastSessionFroze =>
@@ -17645,7 +17427,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskLvPayOnEpicbox => 'На Epicbox';
+  String get deskPayOnEpicbox => 'На Epicbox';
 
   @override
   String get deskRailReceivingInternet => 'Принимает · интернет';
@@ -18294,11 +18076,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Их показывает другой вид или переключатель в Дополнительно';
 
   @override
-  String deskSetSearchShowIn(String view) {
-    return 'Показать в виде «$view»';
-  }
-
-  @override
   String get deskSetSearchTurnOn => 'Включить';
 
   @override
@@ -18324,11 +18101,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSearchResults => 'Результаты поиска';
-
-  @override
-  String deskSetSearchViewGate(String view) {
-    return 'вид «$view»';
-  }
 
   @override
   String deskSetSearchFeatGate(String feature) {
@@ -18367,18 +18139,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String deskSetSearchViewApplied(String view) {
-    return 'Вид: $view';
-  }
-
-  @override
   String deskSetSearchFeatApplied(String feature) {
     return 'Дополнительно › $feature: вкл.';
-  }
-
-  @override
-  String deskSetSearchFallbackView(String page, String view) {
-    return '$page есть в виде «$view».';
   }
 
   @override
@@ -18442,9 +18204,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetGrpServerStatus => 'Состояние серверов';
-
-  @override
-  String get deskSetGrpView => 'Вид';
 
   @override
   String get deskSetGrpShowsMore => 'Показывает больше';
@@ -18774,17 +18533,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'статус, состояние, доступность, мониторинг';
 
   @override
-  String get deskSetRowView => 'Вид';
-
-  @override
-  String get deskSetRowViewHint =>
-      'Мелко, Глубже или В самую глубь: сколько кошелька видно.';
-
-  @override
-  String get deskSetSynView =>
-      'уровень, глубина, мелко, глубже, в самую глубь, просто, эксперт, новичок, расширенный режим';
-
-  @override
   String get deskSetRowAdvOutputsHint =>
       'Страница Выходы: монеты, из которых состоит баланс.';
 
@@ -18943,18 +18691,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAcctRemove => 'Удаление';
-
-  @override
-  String get deskSetAdvViewLineOne =>
-      'Отправка, получение и резервные копии. Узел и сервер Epicbox выбираются автоматически.';
-
-  @override
-  String get deskSetAdvViewLineTwo =>
-      'Добавляет способы оплаты, узел, режимы сети и другие кошельки.';
-
-  @override
-  String get deskSetAdvViewLineThree =>
-      'Добавляет выходы, счета, локальный узел и все переключатели раздела «Дополнительно».';
 
   @override
   String get deskSetFrameBack => 'Кошелёк';
@@ -20503,7 +20239,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskLvPaySendingInPerson => 'Отправка лично';
+  String get deskPaySendingInPerson => 'Отправка лично';
 
   @override
   String get deskInvIssuerWaitingInPerson =>
@@ -20578,12 +20314,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskIpOnlineDetails => 'Подробности';
 
   @override
-  String deskLvPaySendingVia(String via) {
+  String deskPaySendingVia(String via) {
     return 'Отправка $via';
   }
 
   @override
-  String deskLvPayArrivingVia(String via) {
+  String deskPayArrivingVia(String via) {
     return 'Поступает $via';
   }
 
@@ -20633,12 +20369,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String deskLvSendLiveVia(String via) {
+  String deskSendLiveVia(String via) {
     return 'Идёт $via';
   }
 
   @override
-  String deskLvSendLiveAmountVia(String amount, String via) {
+  String deskSendLiveAmountVia(String amount, String via) {
     return '$amount EPIC $via';
   }
 

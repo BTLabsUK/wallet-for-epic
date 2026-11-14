@@ -1,12 +1,7 @@
 {
-  "deskLvShellNewsTitle": "Neu: Wallet-Ansicht",
-  "deskLvShellNewsText": "Diese Installation zeigt wie bisher alles. Flach und Tiefer zeigen weniger.",
-  "deskLvShellNewsLook": "Ansehen",
-  "deskLvShellFailover": "Node-Wechsel",
-  "deskLvShellOn": "Ein",
-  "deskLvShellHeight": "Höhe",
-  "deskLvShellVersion": "Version",
-  "deskLvShellRecheckHint": "Wirkt der Betrag falsch, liest die Wallet die Chain erneut.",
-  "deskLvShellSwitchServer": "Server wechseln",
-  "deskLvShellNoOtherServer": "Keine anderen Server in der Liste."
+  "deskStatusFailover": "Node-Wechsel",
+  "deskStatusOn": "Ein",
+  "deskStatusHeight": "Höhe",
+  "deskStatusVersion": "Version",
+  "deskStatusRecheckHint": "Wirkt der Betrag falsch, liest die Wallet die Chain erneut."
 }

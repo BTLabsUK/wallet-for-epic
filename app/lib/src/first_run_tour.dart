@@ -4,22 +4,22 @@
 /// (`main_desktop.dart`) the `tourSeen` of its settings.
 ///
 /// The seen flag is written only when the tour opens, so a missing flag alone does not mean a
-/// fresh install: an install from before the tour, or one where it never got to open (Level 1,
-/// the user left Home first, a dialog over it), would get it on a later launch, an update's
+/// fresh install: an install from before the tour, or one where it never got to open (the
+/// user left Home first, a dialog over it), would get it on a later launch, an update's
 /// included. Here an install that already holds any of the [markers] keys, or whose [hasData]
 /// says so, ran before: its flag is saved as seen and the tour never opens by itself (Help still
 /// offers it). A fresh install keeps it due for its first run only: by the next launch its own
 /// keys are markers.
 library;
 
-import 'levels/wallet_level.dart' show existingInstallMarkers, levelKey;
+import 'first_start.dart' show existingInstallMarkers, firstStartKey;
 import 'log.dart';
 import 'secret_store_api.dart';
 import 'settings.dart' show AppSettingsNotifier;
 
-/// The phone's markers: the keys an earlier run leaves ([existingInstallMarkers], and the level
-/// every launch settles).
-const List<String> phoneTourMarkers = [...existingInstallMarkers, levelKey];
+/// The phone's markers: the keys an earlier run leaves ([existingInstallMarkers], and the
+/// first-start answer every launch settles).
+const List<String> phoneTourMarkers = [...existingInstallMarkers, firstStartKey];
 
 /// Saves the tour as seen when this install ran before. Returns whether the tour is still due.
 /// A store that can't be read leaves everything as it is.

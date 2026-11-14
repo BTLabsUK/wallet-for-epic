@@ -77,7 +77,7 @@ void main() {
     expect(_more, findsNothing);
     // A row says the step it is at, as the card does, and opens its payment in Activity.
     expect(find.descendant(of: _row(2), matching: find.textContaining('Sending via Epicbox')), findsOneWidget);
-    expect(find.descendant(of: _row(2), matching: find.text(_l.deskLvPayOnEpicbox)), findsOneWidget);
+    expect(find.descendant(of: _row(2), matching: find.text(_l.deskPayOnEpicbox)), findsOneWidget);
     // A file names no one: the row says how it goes, not "to file".
     expect(find.descendant(of: _row(3), matching: find.text('Sending via file')), findsOneWidget);
     await tester.tap(_row(3));

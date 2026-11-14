@@ -36,9 +36,6 @@ abstract final class TrustIds {
   static const settingsSectionContacts = 'g4.settings.section.contacts';
   static const settingsSectionAdvanced = 'g4.settings.section.advanced';
   static const settingsSectionAbout = 'g4.settings.section.about';
-  static const levelStop1 = 'g4.level.stop.1';
-  static const levelStop2 = 'g4.level.stop.2';
-  static const levelStop3 = 'g4.level.stop.3';
   static const appearanceThemeSystem = 'g4.appearance.theme.system';
   static const appearanceThemeDark = 'g4.appearance.theme.dark';
   static const appearanceThemeLight = 'g4.appearance.theme.light';
@@ -585,9 +582,6 @@ abstract final class TrustIds {
     return 'g4.settings.section.${bare[0].toLowerCase()}${bare.substring(1)}';
   }
 
-  /// A level's stop on the dial: `g4.level.stop.<1-3>`.
-  static String levelStop(int level) => 'g4.level.stop.$level';
-
   /// Every id above, spelled out.
   static const all = <String>[
     'g4.welcome.create',
@@ -615,9 +609,6 @@ abstract final class TrustIds {
     'g4.settings.section.contacts',
     'g4.settings.section.advanced',
     'g4.settings.section.about',
-    'g4.level.stop.1',
-    'g4.level.stop.2',
-    'g4.level.stop.3',
     'g4.appearance.theme.system',
     'g4.appearance.theme.dark',
     'g4.appearance.theme.light',

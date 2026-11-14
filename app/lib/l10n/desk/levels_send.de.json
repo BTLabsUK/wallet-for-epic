@@ -1,20 +1,8 @@
 {
-  "deskLvSendHowTo": "So senden",
-  "deskLvSendButton": "Senden",
-  "deskLvSendButtonAmount": "{amount} EPIC senden",
-  "deskLvSendButtonTo": "{amount} EPIC an {name} senden",
-  "deskLvSendNothingLeaves": "Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen.",
-  "deskLvSendPasswordTitle": "Ihr Passwort",
-  "deskLvSendConfirm": "Senden",
-  "deskLvSendLiveTo": "Unterwegs zu {name}",
-  "deskLvSendLiveAmountTo": "{amount} EPIC an {name}",
-  "deskLvSendLiveAmount": "{amount} EPIC",
-  "deskLvSendYourAddress": "Ihre Adresse",
-  "deskLvSendReady": "Bereit zum Empfangen",
-  "deskLvSendClosedInfo": "Zahlungen, die gesendet wurden, während die Wallet geschlossen war, kommen an, sobald sie sich öffnet.",
-  "deskLvSendPayFiles": "Zahlungsdateien",
-  "deskLvSendPrevAddress": "Frühere Adresse",
-  "deskLvSendPrevText": "Die alte Adresse lag auf {server}. Wer sie hat, braucht die neue.",
-  "deskLvSendLiveVia": "Unterwegs {via}",
-  "deskLvSendLiveAmountVia": "{amount} EPIC {via}"
+  "deskSendNothingLeaves": "Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen.",
+  "deskSendLiveTo": "Unterwegs zu {name}",
+  "deskSendLiveAmountTo": "{amount} EPIC an {name}",
+  "deskSendLiveAmount": "{amount} EPIC",
+  "deskSendLiveVia": "Unterwegs {via}",
+  "deskSendLiveAmountVia": "{amount} EPIC {via}"
 }

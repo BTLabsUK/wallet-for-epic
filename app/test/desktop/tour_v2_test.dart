@@ -180,10 +180,6 @@ void main() {
     expect(receive.targets, ['e1-receive-link']);
     expect(receive.text, englishStrings.deskE1TourReceiveText);
     expect(steps.any((s) => s.title == 'Invoices'), isFalse);
-    // Shallow keeps epic1's Send: its form shows at every view.
-    final shallow = deskTourStepsFor(supportsInvoices: false, shallow: true, epic1: true);
-    expect(shallow.any((s) => s.route == DeskRoute.send), isTrue);
-    expect(deskTourStepsFor(supportsInvoices: false, shallow: true).any((s) => s.route == DeskRoute.send), isFalse);
   });
 
   testWidgets('a wallet without invoices: no Invoices step even when the page is in the app', (tester) async {

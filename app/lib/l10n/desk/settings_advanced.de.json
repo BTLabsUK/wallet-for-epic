@@ -33,8 +33,5 @@
   "deskSetAdvConfirmationsMore": "Mehr Bestätigungen",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} Bestätigung} other{{count} Bestätigungen}}",
   "deskSetAdvConfirmationsLowNote": "Weniger Bestätigungen sind schneller, aber weniger sicher.",
-  "deskSetAdvConfirmationsNotSaved": "Bestätigungen nicht geändert",
-  "deskSetAdvViewLineOne": "Senden, Empfangen und Sicherungen. Node und Epicbox-Server werden automatisch gewählt.",
-  "deskSetAdvViewLineTwo": "Dazu Zahlungsmethoden, der Node, Netzwerkmodi und weitere Wallets.",
-  "deskSetAdvViewLineThree": "Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert."
+  "deskSetAdvConfirmationsNotSaved": "Bestätigungen nicht geändert"
 }

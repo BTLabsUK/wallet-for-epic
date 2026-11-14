@@ -9,7 +9,7 @@ import '../app_log.dart';
 import '../errors.dart';
 import '../help/help_content.dart' show HelpId;
 import '../bip39_words.dart';
-import '../levels/first_run_servers_phone.dart';
+import '../first_run_servers_phone.dart';
 import '../l10n.dart';
 import '../phrase_problem.dart';
 import '../providers.dart';

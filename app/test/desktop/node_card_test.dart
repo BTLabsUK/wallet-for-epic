@@ -95,7 +95,7 @@ void main() {
     expect(find.textContaining('status.lab.invalid, checked 14:02\u00A0· latency measured from this computer'), findsOneWidget);
 
     await _pump(tester, _card(mockNodeInfo(_url, behind: 12, state: NodeHealthState.degraded)));
-    expect(find.textContaining(_l.lvShellStateBehind, findRichText: true), findsOneWidget);
+    expect(find.textContaining(_l.statusStateBehind, findRichText: true), findsOneWidget);
     expect(find.text('12 behind'), findsOneWidget);
 
     await _pump(tester, _card(mockNodeInfo(_url, version: '4.1.0')));

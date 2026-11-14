@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../trust_ids.dart';
-import '../../app/relay_offer.dart' show deskRelayMovedProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
-import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
-import '../../../levels/relay_switch_providers.dart' show RelaySwitchResult;
 import '../../data/method_names.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
@@ -238,25 +235,19 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         ),
       );
     }
-    // Wallet levels: Shallow has the address card alone (no host, no switch, no files, no Link
-    // tabs); Deeper adds the host, the switch and the payment files; Deep end is the full page.
-    final feat = ref.watch(deskLevelFeaturesProvider);
-    final ui = ref.watch(deskLevelUiProvider);
-    final shallow = ui.shallow;
-    final moved = shallow ? ref.watch(deskRelayMovedProvider) : null;
     // The Epicbox switch off (Settings › Transactions): no address to hand out; a notice says
     // where it is turned on and that senders' payments wait at the relay meanwhile.
     final epicbox = TourTarget(
       id: 'receive-epicbox',
-      child: st.settings.payments.epicbox ? (shallow ? _shallowPanel(st, status, moved) : _epicboxPanel(st, status)) : _epicboxOffNotice(nav),
+      child: st.settings.payments.epicbox ? _epicboxPanel(st, status) : _epicboxOffNotice(nav),
     );
     // Settings › Transactions: Link · Tor's panel while its switch is on: it starts tor for payments
     // by itself (item 2), or the Tor switch runs it; Link · HTTP's while the Tor switch is off
     // (it stops the clearnet listener), or while its listener still runs. Off, Link · HTTP's
     // panel is one line with its switch, so it is turned on again here.
     final p = st.settings.payments;
-    final torPanel = feat.linkPayments && DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
-    final httpPanel = feat.linkPayments && (!st.settings.tor || status?.httpListener == ServiceHealth.ok);
+    final torPanel = DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
+    final httpPanel = (!st.settings.tor || status?.httpListener == ServiceHealth.ok);
     final others = [
       if (torPanel) _torPanel(st, status),
       if (httpPanel) _httpPanel(st, status),
@@ -266,10 +257,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final torRx = torProcessState(st.settings, status);
     final net = deskNetBlock(st);
     // Settings › Transactions › File; a file send waiting for its response keeps the panel (Finalize).
-    final files = feat.fileTransfer && (st.settings.payments.directFile || st.pendingFiles > 0)
-        ? TourTarget(id: 'receive-files', child: _filesPanel(nav, offlineNode: deskOfflineUsesNode(st), casual: ui.casualWords))
+    final files = st.settings.payments.directFile || st.pendingFiles > 0
+        ? TourTarget(id: 'receive-files', child: TxFilesCard(offlineNode: deskOfflineUsesNode(st)))
         : null;
-    final arriving = shallow || ui.casualWords ? _arriving(st) : null;
+    final arriving = _arriving(st);
     final head = ESectionHead(
       l.deskRecvOtherWays,
       top: 0,
@@ -282,11 +273,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       title: l.deskRecvTitle,
       // How receiving connects while the Tor switch is on (tor_routes.dart). Nothing with it
       // off: the switch names only what goes over Tor.
-      titleTrailing: !shallow && DeskFeatures.tor && torWay(TorRoute.epicbox, tor) != TorWay.clearnet
+      titleTrailing: DeskFeatures.tor && torWay(TorRoute.epicbox, tor) != TorWay.clearnet
           ? TorChip(torWay(TorRoute.epicbox, tor), quiet: _torBanner(st, status))
           : null,
       width: EPageWidth.full,
-      actions: [if (!shallow) _indicator(st, status)],
+      actions: [_indicator(st, status)],
       child: ConstrainedBox(
         // Wide enough at large windows for the QR beside the Epicbox address and room for
         // Other ways (UI-063).
@@ -375,7 +366,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   /// neutral look (D-04).
   bool _torBanner(DeskState st, ServiceStatus? status) {
     final p = st.settings.payments;
-    final torPanel = ref.read(deskLevelFeaturesProvider).linkPayments && DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
+    final torPanel = DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
     return torPanel && deskNetBlock(st) == NetBlock.none && torProcessState(st.settings, status) == TorState.failed;
   }
 
@@ -597,111 +588,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 child: Semantics(
                   header: true,
                   liveRegion: true,
-                  child: Text(name == null ? l.lvShellQuietArriving(amount) : l.lvPayArrivalFrom('+$amount', name), style: ts.strong),
+                  child: Text(name == null ? l.statusQuietArriving(amount) : l.payArrivalFrom('+$amount', name), style: ts.strong),
                 ),
               ),
-              EButton.ghost(label: l.lvPayOpen, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.activity, tx.id)),
+              EButton.ghost(label: l.payOpen, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.activity, tx.id)),
             ],
           ),
           SizedBox(height: Sp.x3),
           DeskPaymentSteps(tx: tx, dense: true),
         ],
-      ),
-    );
-  }
-
-  /// Shallow's address card: "Your address" without the Epicbox server, Copy, Show QR (covered
-  /// as on the other levels) and "Ready to receive". After a move to another server: "Your new
-  /// address", the server once, and the old address folded away.
-  Widget _shallowPanel(DeskState st, ServiceStatus? status, RelaySwitchResult? moved) {
-    final ts = context.ts;
-    final l = context.l10n;
-    final c = context.dc;
-    final addr = (moved?.address ?? st.epicboxAddress);
-    final net = deskNetBlock(st);
-    final noServer = ref.read(hostSettingsProvider).epicboxServers.isEmpty;
-    final health = net.byMode ? null : status?.epicboxHealth;
-    final ready = !net.byMode && health == ServiceHealth.ok;
-    final line = status == null
-        ? null
-        : net.byMode
-        ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off, detail: l.statusOffByModeDetailNet)
-        : ready
-        ? MethodLine(l.deskLvSendReady, EState.ok)
-        : methodStateLine(l, TxMethod.epicbox, status, st.settings);
-    final Widget addressBox = noServer
-        ? ENotice(
-            key: const ValueKey('rx-no-epicbox'),
-            title: l.deskSlNoEpicboxTitle,
-            text: l.deskSlNoEpicboxText,
-            tone: ETone.warn,
-            icon: EIcons.epicbox,
-            actions: [EButton(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
-          )
-        : addr == null
-        ? Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
-        : addr.isEmpty
-        ? Text(l.deskRecvAddressUnreadable, style: ts.small)
-        : EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox, semanticsId: TrustIds.receiveAddress);
-    final info = Column(
-      key: const ValueKey('rx-shallow-address'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Flexible(child: Semantics(header: true, child: Text(moved != null ? l.lvPayNewAddress : l.deskLvSendYourAddress, style: ts.h3))),
-            if (moved != null) ...[SizedBox(width: Sp.x2), EBadge(l.lvPayNewToday, tone: BadgeTone.info)],
-          ],
-        ),
-        SizedBox(height: Sp.x2),
-        if (moved != null) ...[
-          Text(l.lvPayServerLine(moved.name), key: const ValueKey('rx-server-line'), style: ts.bodyDim),
-          Text(l.lvPayOldAddressLine, style: ts.bodyDim),
-        ] else
-          Row(
-            children: [
-              Flexible(child: Text(l.deskRecvEpicboxIntro, style: ts.bodyDim)),
-              SizedBox(width: Sp.x1),
-              EInfoHint(l.deskLvSendClosedInfo, title: l.deskLvSendYourAddress, size: Ctl.inline),
-            ],
-          ),
-        SizedBox(height: Sp.x4),
-        addressBox,
-        if (!noServer) ...[
-          SizedBox(height: Sp.x2),
-          Text(l.deskRecvCheckSix, style: ts.caption),
-          SizedBox(height: Sp.x4),
-          if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
-          if (moved != null) ...[
-            SizedBox(height: Sp.x3),
-            EDetails(
-              key: const ValueKey('rx-previous-address'),
-              title: l.deskLvSendPrevAddress,
-              child: Padding(
-                padding: EdgeInsets.only(top: Sp.x1),
-                child: Text(l.deskLvSendPrevText(moved.from.label), style: ts.small.copyWith(color: c.dim)),
-              ),
-            ),
-          ],
-        ],
-      ],
-    );
-    final qr = addr == null || addr.isEmpty || noServer
-        ? SizedBox(width: 184.u, height: 184.u)
-        : EQrReveal(
-            address: addr,
-            form: QrRevealForm.covered,
-            title: l.deskLvSendYourAddress,
-            method: 'epicbox',
-            // Shown from the start: no blur, no Show QR (item 17).
-            fixed: true,
-          );
-    return EPanel(
-      key: ValueKey('rx-panel-${TxMethod.epicbox.name}'),
-      child: LayoutBuilder(
-        builder: (context, box) => box.maxWidth < Lay.lg
-            ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Align(alignment: Alignment.centerLeft, child: qr)])
-            : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: info), SizedBox(width: Sp.x6), qr]),
       ),
     );
   }
@@ -808,8 +703,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   }
 
   /// [offlineNode]: Offline on a node that is not local; the files still run, through it.
-  Widget _filesPanel(DeskNav nav, {required bool offlineNode, bool casual = false}) =>
-      TxFilesCard(offlineNode: offlineNode, casual: casual);
 }
 
 /// One receiving method: the title row with its switch, then the state line alone

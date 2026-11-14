@@ -169,17 +169,5 @@
   "deskSetAdvConfirmationsNotSaved": "Confirmations not changed",
   "@deskSetAdvConfirmationsNotSaved": {
     "description": "Title of the toast when the wallet refused the new Confirmations count; the reason follows. The row goes back to the previous count."
-  },
-  "deskSetAdvViewLineOne": "Sending, receiving and backups. The node and the Epicbox server are chosen automatically.",
-  "@deskSetAdvViewLineOne": {
-    "description": "Advanced › View: the Shallow view’s one line. Facts only."
-  },
-  "deskSetAdvViewLineTwo": "Adds payment methods, the node, network modes and more wallets.",
-  "@deskSetAdvViewLineTwo": {
-    "description": "Advanced › View: the Deeper view’s one line. Facts only."
-  },
-  "deskSetAdvViewLineThree": "Adds outputs, invoices, the local node and every Advanced switch.",
-  "@deskSetAdvViewLineThree": {
-    "description": "Advanced › View: the Deep end view’s one line. Facts only."
   }
 }

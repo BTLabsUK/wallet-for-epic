@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The one "more options" control (⇕): a quiet 28 px icon in a 44 px hit area at the end of a
 /// heading (a page title, a group's heading, a navigation group's heading). It says how many
-/// options the view or an Advanced switch hides there and what shows them ("2 more options ·
-/// shown with Deep end view and Advanced › Invoices"); pressed, they show in place, marked, for
+/// options an Advanced switch hides there and what shows them ("2 more options · shown with
+/// Advanced › Logs"); pressed, they show in place, marked, for
 /// this session only (nothing is stored). Its reveal state is keyed by [EMoreOptions.revealKey]
 /// in [moreOptionsRevealProvider].
 library;
@@ -39,8 +39,8 @@ class MoreOptionsReveal extends Notifier<Set<String>> {
 /// Whether the hidden options under [key] are shown.
 bool moreOptionsOpen(WidgetRef ref, String? key) => key != null && ref.watch(moreOptionsRevealProvider.select((s) => s.contains(key)));
 
-/// The ⇕ control for [count] hidden options; [reasons] names what shows each ("Deep end view",
-/// "Advanced › Invoices"), repeats allowed: every distinct one is named.
+/// The ⇕ control for [count] hidden options; [reasons] names what shows each ("Advanced ›
+/// Logs"), repeats allowed: every distinct one is named.
 class EMoreOptions extends ConsumerStatefulWidget {
   const EMoreOptions({super.key, required this.revealKey, required this.count, required this.reasons});
 

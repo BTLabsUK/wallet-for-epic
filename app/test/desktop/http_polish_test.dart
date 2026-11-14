@@ -87,7 +87,7 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    // The result is the payment's live steps (wallet levels), not a line per method.
+    // The result is the payment's live steps, not a line per method.
     TxState stepsState(WidgetTester tester) => tester.widget<DeskPaymentSteps>(find.byType(DeskPaymentSteps)).tx.state;
 
     testWidgets('an HTTP send shows its steps at posted', (tester) async {

@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
-import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../data/remember.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -409,8 +408,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
           // The wallet's phrase sets a new password.
           if (selected != null && !selected.missing)
             ELink(key: const ValueKey('unlock-forgot'), label: l.deskOnbForgotLink, dim: true, onPressed: () => nav.go(DeskRoute.resetPassword, ResetPasswordArg(selected.id))),
-          // Shallow: one wallet, no Add a wallet.
-          if (ref.watch(deskLevelUiProvider).addWallet) ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
+          ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

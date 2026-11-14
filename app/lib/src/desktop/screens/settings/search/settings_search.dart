@@ -43,7 +43,7 @@ double _fit(String low, String w) {
 
 /// One matching row.
 class SetHit {
-  const SetHit({required this.entry, required this.score, this.via, this.reasons = const [], this.level, this.features = const []});
+  const SetHit({required this.entry, required this.score, this.via, this.reasons = const [], this.features = const []});
 
   final SetEntry entry;
   final double score;
@@ -51,12 +51,10 @@ class SetHit {
   /// The synonym that found the row when its name alone does not ("Matches “seed”").
   final String? via;
 
-  /// Empty for a row shown here; else what shows it ("Deep end view", "Advanced › Logs").
+  /// Empty for a row shown here; else what shows it ("Advanced › Logs").
   final List<String> reasons;
 
-  /// For a hidden row: the view to change to (null when the view shows it) and the switches to
-  /// turn on.
-  final int? level;
+  /// For a hidden row: the switches to turn on.
   final List<AdvancedFeature> features;
 
   bool get hidden => reasons.isNotEmpty;
@@ -151,7 +149,6 @@ SetSearch searchSettings(String query, {required AppLocalizations l, required Se
         score: m.score,
         via: m.via,
         reasons: setGateReasons(l, gate, view),
-        level: gate.levelOpen(view) ? null : gate.minLevel,
         features: gate.featuresOff(view),
       ));
     }

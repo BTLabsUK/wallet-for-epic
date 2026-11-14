@@ -28,7 +28,7 @@ import 'common.dart';
 import 'epic1/epic1_receive.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
-import '../levels/relay_switch_providers.dart' show relaySwitchResultProvider;
+import '../relay_switch_providers.dart' show relaySwitchResultProvider;
 import 'kit/kit_button.dart';
 import 'kit/kit_corner_marks.dart';
 import 'kit/kit_group.dart';
@@ -37,7 +37,7 @@ import 'kit/kit_help_sheet.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_row.dart';
 import 'kit/kit_tokens.dart';
-import 'levels/pay_arrival.dart' show NewAddressBadge, NewAddressLines, arrivingPayment;
+import 'pay_arrival.dart' show NewAddressBadge, NewAddressLines, arrivingPayment;
 import 'net_block.dart';
 import 'tor_ui.dart';
 import 'network_mode_phone.dart' show openNetworkSection;
@@ -195,7 +195,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
                 const SizedBox(height: 18),
                 ReceiveAddressBlock(
                   address: value,
-                  label: relayMove != null ? l.lvPayNewAddress : l.receiveAddressLabel,
+                  label: relayMove != null ? l.payNewAddress : l.receiveAddressLabel,
                   cardKey: receiveAddressKey,
                 ),
               ],

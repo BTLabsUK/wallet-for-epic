@@ -91,12 +91,12 @@ class Goal:
 
 # A scan or sync covering the page. Waited out, then closed.
 # "Scanning from January 2025" and "Scanning starts ..." are lines on the restore page, no overlay.
-OVERLAY_KEYS = ("deskSlotScanning", "scanProgress", "netStatusSyncing", "lvShellStateCatchingUp", "workRestoring",
+OVERLAY_KEYS = ("deskSlotScanning", "scanProgress", "netStatusSyncing", "workRestoring",
                 "deskOnbRestoreRestoring", "deskNodeLineKernelsBare")
 OVERLAY_ROLES = ("dialog", "other", "text")
 OVERLAY_CLOSE_KEYS = ("commonClose", "deskOvHide")
 # A folded section's control, by its first line (or an expandable state the platform reports)
-FOLD_KEYS = ("deskTxMore", "deskSetFrameAdvanced", "deskSetRowView", "msgCheckShowDetails")
+FOLD_KEYS = ("deskTxMore", "deskSetFrameAdvanced", "msgCheckShowDetails")
 
 
 class _Watched:

@@ -6,8 +6,6 @@ import 'dart:convert';
 
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/backup_settings.dart';
-import 'package:epic_wallet/src/levels/level_features.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/tor_build.dart' show torBuilt;
 import 'package:flutter_test/flutter_test.dart';
@@ -54,15 +52,12 @@ void main() {
     expect(AdvancedPrefs.fromJson(jsonDecode('{"features":["invoices","later"],"nodeFailover":true,"later":1}')).shownFeatures, isEmpty);
   });
 
-  test('the saved value changes nothing: the same Advanced state, views and gates with or without it', () {
+  test('the saved value changes nothing: the same Advanced state with or without it', () {
     final withValue = AdvancedPrefs.decode('outputs,invoices|standard');
     final without = AdvancedPrefs.decode('outputs|standard');
     expect(withValue.shownFeatures, without.shownFeatures);
     expect(withValue.any, without.any);
     expect(AdvancedPrefs.decode('invoices|standard').any, isFalse);
-    for (final level in WalletLevel.values) {
-      expect(LevelFeatures.of(level, withValue, torBuilt: false).invoices, LevelFeatures.of(level, without, torBuilt: false).invoices, reason: '$level');
-    }
   });
 
   test('a later save keeps the value, and Hide all leaves it', () {

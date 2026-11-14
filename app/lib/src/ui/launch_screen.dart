@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
-import '../levels/first_start.dart';
+import '../first_start.dart';
 import '../providers.dart';
 import '../vault.dart';
 import '../wallet_service.dart' show WalletConfig;

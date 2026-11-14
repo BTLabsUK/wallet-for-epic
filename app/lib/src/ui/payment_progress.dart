@@ -96,7 +96,7 @@ PaymentProgress? paymentProgress(
       l.txStepConfirmed,
     ];
   } else {
-    labels = [l.lvPayArriving, '', l.phoneProgNetwork, l.txStepConfirmed];
+    labels = [l.payArriving, '', l.phoneProgNetwork, l.txStepConfirmed];
   }
 
   // The current step and its reason.
@@ -157,7 +157,7 @@ PaymentProgress? paymentProgress(
         };
       } else {
         at = 3;
-        reason = incoming ? l.phoneProgFinishesByItself : l.lvPayConfirming(confirmations, goal);
+        reason = incoming ? l.phoneProgFinishesByItself : l.payConfirming(confirmations, goal);
       }
   }
 
@@ -185,9 +185,9 @@ PaymentProgress? paymentProgress(
       for (final s in stages)
         KitStep(
           title: switch (s) {
-            0 => stage > 0 ? l.phoneProgArrived : l.lvPayArriving,
+            0 => stage > 0 ? l.phoneProgArrived : l.payArriving,
             2 => l.phoneProgNetwork,
-            3 => stage >= 4 ? l.txStepConfirmed : l.lvPayConfirming(confirmations, goal),
+            3 => stage >= 4 ? l.txStepConfirmed : l.payConfirming(confirmations, goal),
             _ => l.phoneProgReadyToSpend,
           },
           state: s < stage || stage >= 4 ? KitStepState.done : (s == stage ? KitStepState.now : KitStepState.later),
@@ -255,11 +255,11 @@ String paymentRowWord(
     TxPhase.waitingRecipient => who == null ? l.txStatusWaitingRecipient : l.txStatusWaitingFor(who),
     TxPhase.waitingSender when senderCancelled(tx) || pairedWith != null => today,
     TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) => today,
-    TxPhase.waitingSender => l.lvPayArriving,
+    TxPhase.waitingSender => l.payArriving,
     TxPhase.confirming when isPostElsewhere(tx) || tx.repostable || tx.posting || NetGate.killSwitch => today,
     TxPhase.confirming => switch (txConfirmations(tx, tip) ?? 0) {
-      0 => l.lvPolPosted,
-      final n => l.lvPayConfirming(n, target ?? confirmationsTarget),
+      0 => l.payPosted,
+      final n => l.payConfirming(n, target ?? confirmationsTarget),
     },
     _ => today,
   };

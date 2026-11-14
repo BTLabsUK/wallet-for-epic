@@ -87,7 +87,7 @@ String messageCheckHeadline(AppLocalizations l, MessageCheckView view, DateTime 
   CheckHead.checking => l.msgChecking,
   CheckHead.failed => l.msgCheckFailed,
   CheckHead.checked => messageCheckedAgo(l, now.difference(view.checkedAt!)),
-  CheckHead.never => l.lvShellNotChecked,
+  CheckHead.never => l.statusNotChecked,
 };
 
 /// "Checked just now" under a minute, then minutes to 89, hours under two days, else days.

@@ -546,7 +546,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       feeLoading: n > 0 && _fee == null,
       spendable: st.balance?.spendable,
       updating: st.status?.syncProgress != null,
-      hint: error != null || _amountError != null ? l.deskSendHintFix : (info == null ? l.deskE1SendFieldHint : l.deskLvSendNothingLeaves),
+      hint: error != null || _amountError != null ? l.deskSendHintFix : (info == null ? l.deskE1SendFieldHint : l.deskSendNothingLeaves),
       reviewing: _reading || _busy,
       onReview: empty || _reading || _busy ? null : _review,
       reviewLabel: l.deskE1Review,

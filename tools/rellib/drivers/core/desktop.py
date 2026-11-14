@@ -29,7 +29,10 @@ T = tg.T
 
 WELCOME_CREATE = T("g4.welcome.create")
 WELCOME_RESTORE = T("g4.welcome.restore")
-DEEP_END = T("g4.level.stop.3")
+# The view picker is gone; the previous release, which the update lanes start from, may still have it:
+# found by the names that build has.
+DEEP_END = tg.Target("g4.level.stop.3", role="checkbox", keys=("lvPickStopThree",), names=("Deep end",), screen="level",
+                     family=("desktop",))
 CREATE_TITLE = T("g4.create.title")
 PASSWORD = T("g4.account.password")
 REVEAL = T("g4.create.reveal")
@@ -67,7 +70,7 @@ TOUR_SKIP = T("g4.tour.skip")
 # would start a download mid-lane, and a Tab walk may land on it; × hides it for that version.
 UPDATE_STRIP_HIDE = T("g4.updatestrip.hide")
 RESTORED_NOT_NOW = replace(T("g4.restore.notnow"), kind="named")   # the desktop offer's button has no id
-LEVEL_PICK = T("g4.level.stop.3")
+LEVEL_PICK = DEEP_END
 MAIN_NAV = T("g4.nav")
 
 

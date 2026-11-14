@@ -4,11 +4,11 @@
 // and the close button for Not now).
 import 'package:epic_wallet/src/connection_grace.dart';
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/levels/relay_switch.dart';
-import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
+import 'package:epic_wallet/src/relay_switch.dart';
+import 'package:epic_wallet/src/relay_switch_providers.dart';
 import 'package:epic_wallet/src/network.dart' show EpicboxRelay;
 import 'package:epic_wallet/src/ui/common.dart' show SlotScaffold;
-import 'package:epic_wallet/src/ui/levels/relay_down.dart';
+import 'package:epic_wallet/src/ui/relay_down.dart';
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,7 +58,7 @@ Future<ProviderContainer> _pump(WidgetTester tester, {required bool grace}) asyn
   return ProviderScope.containerOf(tester.element(find.byType(RelayDownNotices)));
 }
 
-Finder get _title => find.text(_l.lvShellRelayDownTitle);
+Finder get _title => find.text(_l.statusRelayDownTitle);
 
 void main() {
   testWidgets('no offer during the grace; it shows once the grace is over', (tester) async {
@@ -79,8 +79,8 @@ void main() {
     offer.show();
     await tester.pumpAndSettle();
     expect(_title, findsOneWidget);
-    expect(find.text(_l.lvShellRelayDownShort(_to)), findsOneWidget);
-    expect(find.widgetWithText(TextButton, _l.lvShellSwitch), findsOneWidget);
+    expect(find.text(_l.statusRelayDownShort(_to)), findsOneWidget);
+    expect(find.widgetWithText(TextButton, _l.statusSwitch), findsOneWidget);
     expect(find.text(_l.pairNotNow), findsNothing);
     // A toast has no close button; swiping it away is Not now.
     await tester.drag(find.byKey(noticeKey), const Offset(0, -80));

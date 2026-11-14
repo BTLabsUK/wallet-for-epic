@@ -4,8 +4,6 @@ import 'dart:math' as math;
 
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/levels/level_providers.dart' show currentLevelProvider;
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/message_checks.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:epic_wallet/src/net/http.dart';
@@ -204,8 +202,6 @@ Future<void> _pump(
         networkModeProvider.overrideWithValue(advanced.networkMode),
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         priceSourceProvider.overrideWithValue(_Price()),
-        // Deep end: the footer is on the connections sheet (Shallow has it on the Epicbox sheet).
-        if (checks != null) currentLevelProvider.overrideWithValue(WalletLevel.everything),
         if (checks != null) messageCheckProvider.overrideWith((ref) => messageCheckStream(checks)),
       ],
       child: MaterialApp(

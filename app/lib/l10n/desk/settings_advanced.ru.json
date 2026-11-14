@@ -33,8 +33,5 @@
   "deskSetAdvConfirmationsMore": "Больше подтверждений",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} подтверждение} few{{count} подтверждения} many{{count} подтверждений} other{{count} подтверждения}}",
   "deskSetAdvConfirmationsLowNote": "Меньше подтверждений — быстрее, но менее надёжно.",
-  "deskSetAdvConfirmationsNotSaved": "Подтверждения не изменены",
-  "deskSetAdvViewLineOne": "Отправка, получение и резервные копии. Узел и сервер Epicbox выбираются автоматически.",
-  "deskSetAdvViewLineTwo": "Добавляет способы оплаты, узел, режимы сети и другие кошельки.",
-  "deskSetAdvViewLineThree": "Добавляет выходы, счета, локальный узел и все переключатели раздела «Дополнительно»."
+  "deskSetAdvConfirmationsNotSaved": "Подтверждения не изменены"
 }

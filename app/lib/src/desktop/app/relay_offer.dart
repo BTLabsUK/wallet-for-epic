@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The Epicbox server offer on the desktop (wallet levels, Shallow): the rules are the phone's
-/// (`levels/relay_switch.dart`), the wiring `data/desk_relay_switch.dart`. The server in use has
-/// not answered for a while and another of the list is seen healthy: a toast on Overview names it
+/// The Epicbox server offer on the desktop: the rules are the phone's (`relay_switch.dart`), the
+/// wiring `data/desk_relay_switch.dart`. The server in use has not answered for a while and
+/// another of the list is seen healthy: a toast on Home names it
 /// (Switch), the Epicbox popover carries the same offer, nothing moves until the user confirms
 /// in a dialog. After the move a toast "Now on" with the domain offers Show new address, and
 /// Receive shows the new address for the open wallet.
@@ -13,9 +13,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../levels/relay_switch.dart' show RelaySwitchOffer;
+import '../../relay_switch.dart' show RelaySwitchOffer;
 import '../data/desk_errors.dart' show deskErrorText;
-import '../data/desk_levels.dart';
 import '../data/desk_relay_switch.dart';
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
@@ -39,12 +38,12 @@ Future<bool> confirmDeskRelaySwitch(BuildContext context, WidgetRef ref) async {
       key: const ValueKey('relay-dialog'),
       title: l.deskSendEpicboxSwitchTo(offer.name),
       icon: EIcons.epicbox,
-      body: Text(l.lvShellOfferBody(offer.name), style: context.ts.body),
+      body: Text(l.statusOfferBody(offer.name), style: context.ts.body),
       actions: [
-        EButton(key: const ValueKey('relay-dialog-wait'), label: l.lvShellKeepWaiting, onPressed: () => Navigator.pop(context, false)),
+        EButton(key: const ValueKey('relay-dialog-wait'), label: l.statusKeepWaiting, onPressed: () => Navigator.pop(context, false)),
         EButton.primary(
           key: const ValueKey('relay-dialog-switch'),
-          label: l.lvShellSwitchTo(offer.name),
+          label: l.statusSwitchTo(offer.name),
           autofocus: true,
           onPressed: () => Navigator.pop(context, true),
         ),
@@ -108,9 +107,9 @@ class _DeskRelayNoticeState extends ConsumerState<DeskRelayNotice> {
       showEToast(
         context,
         l.deskErrEpicboxUnreachable,
-        text: l.lvShellRelayDownShort(offer.name),
+        text: l.statusRelayDownShort(offer.name),
         tone: ETone.warn,
-        action: (label: l.lvShellSwitch, run: () {
+        action: (label: l.statusSwitch, run: () {
           if (mounted) confirmDeskRelaySwitch(context, ref);
         }),
       );
@@ -121,9 +120,9 @@ class _DeskRelayNoticeState extends ConsumerState<DeskRelayNotice> {
       ref.read(deskRelayMovedNoticeProvider.notifier).close();
       showEToast(
         context,
-        l.lvShellSwitchedNotice(moved.name),
+        l.statusSwitchedNotice(moved.name),
         tone: ETone.ok,
-        action: (label: l.lvShellShowNewAddress, run: () {
+        action: (label: l.statusShowNewAddress, run: () {
           if (mounted) ref.read(deskNavProvider.notifier).go(DeskRoute.receive);
         }),
       );
@@ -143,9 +142,8 @@ class DeskRelayOfferPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final prompt = ref.watch(deskLevelFeaturesProvider.select((f) => f.relaySwitchPrompt));
     final offer = ref.watch(deskRelayOfferProvider);
-    if (!prompt || offer == null) return const SizedBox.shrink();
+    if (offer == null) return const SizedBox.shrink();
     final l = context.l10n;
     return Padding(
       padding: EdgeInsets.only(top: Sp.x3),
@@ -153,13 +151,13 @@ class DeskRelayOfferPanel extends ConsumerWidget {
         key: const ValueKey('relay-pop-offer'),
         tone: ETone.warn,
         icon: EIcons.epicbox,
-        title: l.lvShellOfferReady(offer.name),
-        text: l.lvShellOfferBody(offer.name),
+        title: l.statusOfferReady(offer.name),
+        text: l.statusOfferBody(offer.name),
         actionsBelow: true,
         actions: [
           EButton.primary(
             key: const ValueKey('relay-pop-switch'),
-            label: l.lvShellSwitchTo(offer.name),
+            label: l.statusSwitchTo(offer.name),
             size: EBtnSize.sm,
             onPressed: () {
               close?.call();

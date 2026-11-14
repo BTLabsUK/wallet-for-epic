@@ -38,7 +38,7 @@ import 'src/desktop/data/desk_node.dart';
 import 'src/desktop/data/desk_update.dart' show deskUpdateAutoProvider;
 import 'src/desktop/keyring_check.dart';
 import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
-import 'src/desktop/data/desk_levels.dart';
+import 'src/desktop/data/desk_first_start.dart';
 import 'src/desktop/data/name_service_state.dart' show deskNameServices, deskLinkPayments;
 import 'src/desktop/data/pairing_state.dart' show deskPairingRefusalsProvider;
 import 'src/name_service/membership.dart' show nameServiceMembershipProvider;
@@ -177,7 +177,7 @@ Future<List<Override>> deskOverrides() async {
   final secrets = container.read(secretStoreProvider);
   final store = DeskStore(secrets);
   // Before the settings open and before any request: a fresh install opens no connection until
-  // Welcome's depth dial is answered (levels/first_start.dart, desk_levels.dart).
+  // Welcome is answered (first_start.dart, desk_first_start.dart).
   // First, before this run writes a key: an install that ran before never gets the first-run
   // tour by itself (first_run_tour.dart).
   await deskSettleFirstRunTour(store, walletsOnDisk: _walletsOnDisk);

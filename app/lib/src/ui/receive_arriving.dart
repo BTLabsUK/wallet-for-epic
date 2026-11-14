@@ -108,7 +108,7 @@ class ReceiveArrivalSheet extends ConsumerWidget {
                   Semantics(
                     container: true,
                     liveRegion: true,
-                    label: who == null ? amount : l.lvPayArrivalFrom(amount, who),
+                    label: who == null ? amount : l.payArrivalFrom(amount, who),
                     excludeSemantics: true,
                     child: FittedBox(
                       fit: BoxFit.scaleDown,

@@ -975,7 +975,7 @@ void main() {
         await h.pump(tester);
         await _tap(tester, find.byKey(ValueKey('tx-s:$slate')));
         // The page's steps carry the count; a finished payment folds them into one line.
-        expect(find.text(_l.lvPayConfirming(1, 3)), findsOneWidget);
+        expect(find.text(_l.payConfirming(1, 3)), findsOneWidget);
 
         // The core confirms it and the chain grows two blocks, all while the details are open.
         h.session
@@ -996,7 +996,7 @@ void main() {
           );
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
-        expect(find.text(_l.lvPayConfirming(1, 3)), findsNothing);
+        expect(find.text(_l.payConfirming(1, 3)), findsNothing);
         expect(find.text('Completed'), findsOneWidget);
       });
     }

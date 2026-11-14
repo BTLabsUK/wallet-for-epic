@@ -272,6 +272,11 @@ final appSettingsProvider =
       AppSettingsNotifier.new,
     );
 
+/// The Advanced switches as stored (none while the settings load).
+final advancedPrefsProvider = Provider<AdvancedPrefs>(
+  (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced)) ?? AdvancedPrefs.none,
+);
+
 /// Whether any inline guide is hidden; Show tips again is off while this is false.
 final tipsHiddenProvider = Provider<bool>(
   (ref) => ref.watch(appSettingsProvider).value?.tipsHidden ?? false,

@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../amount.dart' as shared show formatEpic;
 
-import '../../../levels/level_features.dart' show ActivityChips;
-import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../data/net_mode_view.dart' show deskLastKnownProvider;
 import '../../desk_l10n.dart';
 
@@ -33,7 +31,7 @@ class ActivityArgs {
   final bool waitingNode;
   final String? query;
 
-  /// Open on the Pending filter (All when the level hides it).
+  /// Open on the Pending filter.
   final bool pending;
 }
 
@@ -86,18 +84,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     }
   }
 
-  /// The chosen filter; All when a level change took the chosen chip away.
-  _Filter get _shownFilter {
-    final full = ref.watch(deskLevelFeaturesProvider.select((f) => f.activityChips)) == ActivityChips.full;
-    return !full && (_filter == _Filter.pending || _filter == _Filter.cancelled) ? _Filter.all : _filter;
-  }
-
   List<Tx> _filtered(List<Tx> all) {
     final q = _query.text.trim().toLowerCase();
     final l = context.l10n;
     return [
       for (final t in all)
-        if (_matches(t, _shownFilter) &&
+        if (_matches(t, _filter) &&
             (q.isEmpty ||
                 whoOf(l, t).toLowerCase().contains(q) ||
                 (t.labelText ?? '').toLowerCase().contains(q) ||
@@ -286,22 +278,18 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       );
     }
     // The filter sits in the list's header band, level with the detail pane's title.
-    final fullChips = ref.watch(deskLevelFeaturesProvider.select((f) => f.activityChips)) == ActivityChips.full;
     final tabs = ESegmented<_Filter>(
         shrink: true,
         segments: [
           ESegment(_Filter.all, l.deskActFilterAll, count: count(_Filter.all)),
           ESegment(_Filter.sent, l.deskActFilterSent, count: count(_Filter.sent)),
           ESegment(_Filter.received, l.deskActFilterReceived, count: count(_Filter.received)),
-          // Shallow: All, Sent, Received.
-          if (fullChips) ...[
-            ESegment(_Filter.pending, l.historyFilterPending, count: count(_Filter.pending)),
-            ESegment(_Filter.cancelled, l.historyFilterCancelled, count: count(_Filter.cancelled)),
-          ],
+          ESegment(_Filter.pending, l.historyFilterPending, count: count(_Filter.pending)),
+          ESegment(_Filter.cancelled, l.historyFilterCancelled, count: count(_Filter.cancelled)),
           if (ref.watch(deskInvoicesShownProvider))
             ESegment(_Filter.requests, l.deskInvActFilter, icon: EIcons.request, count: all.where((t) => t.isInvoice).length),
         ],
-        value: _shownFilter,
+        value: _filter,
         onChanged: (v) => setState(() {
           _filter = v;
           _page = 0;
@@ -403,8 +391,6 @@ class ActivityListHead extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Shallow's rows say who, how far and how much: no column heads.
-    if (ref.watch(deskLevelUiProvider.select((f) => f.shallow))) return const SizedBox.shrink();
     final c = context.dc;
     final style = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
     final l = context.l10n;

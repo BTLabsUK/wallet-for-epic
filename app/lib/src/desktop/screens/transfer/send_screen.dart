@@ -21,7 +21,6 @@ import '../../../trust_ids.dart';
 import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesOnProvider;
 import '../devices/link_flow.dart' show showDeskLinkDevice;
 import '../../data/desk_errors.dart' show deskErrorText;
-import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, SealMode, epicboxKey, slateMessageMaxBytes;
@@ -356,11 +355,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   // The failed payment's message, worded when shown.
   String Function(AppLocalizations l)? _failure;
 
-  /// Wallet levels: Shallow sends from the page itself (no Review step) and by Epicbox alone,
-  /// unnamed (no method strip); Deeper and Deep end keep the method strip and Review.
-  bool get _reviewStep => ref.read(deskLevelUiProvider).sendReviewStep;
-  bool get _strip => ref.read(deskLevelFeaturesProvider).methodStrip;
-
   /// The failed payment may exist (waiting in Activity): no Review again.
   bool _failureInActivity = false;
 
@@ -430,10 +424,10 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   }
 
   /// The method this send goes by: File for the file form, Epicbox for a pairing, else the
-  /// address's. Shallow sends by Epicbox alone. Epicbox while To holds no address.
+  /// address's. Epicbox while To holds no address.
   TxMethod get _method {
     if (_file) return TxMethod.file;
-    if (_viaPairing || !_strip) return TxMethod.epicbox;
+    if (_viaPairing) return TxMethod.epicbox;
     return _methodOf(_read) ?? TxMethod.epicbox;
   }
 
@@ -649,10 +643,10 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
   /// What the network mode holds the address in To with ([sendHoldFor]); null when it may go,
   /// for the file form and a pairing (their own notices say what holds them).
-  SendHold? _hold(DeskState st) => _file || _viaPairing || !_strip ? null : sendHoldFor(_read, mode: deskNetMode(st), torOn: _torOn(st));
+  SendHold? _hold(DeskState st) => _file || _viaPairing ? null : sendHoldFor(_read, mode: deskNetMode(st), torOn: _torOn(st));
 
   /// The switch (Settings › Transactions) the address in To needs; null for none yet.
-  MethodKind? get _needs => !_strip ? (_read.kind == RecipientInputKind.epicbox ? MethodKind.epicbox : null) : sendMethodKind(_read);
+  MethodKind? get _needs => sendMethodKind(_read);
 
   /// What else holds this send: the mode with no address in To yet (an address's hold is
   /// [_hold]), Tor only waiting for tor, and the method's switch (Settings › Transactions:
@@ -797,11 +791,11 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   /// What the mode holds an address [r] with now.
   SendHold? _heldOf(RecipientInput r, DeskState st) => sendHoldFor(r, mode: deskNetMode(st), torOn: _torOn(st));
 
-  /// [r] can be sent to by this build, at this level, with its method switched on (http(s)
+  /// [r] can be sent to by this build, with its method switched on (http(s)
   /// needs no switch).
   bool _sendable(RecipientInput r, DeskState st) {
     final k = sendMethodKind(r);
-    if (k == null || (k == MethodKind.linkTor && !DeskFeatures.tor) || (!_strip && k != MethodKind.epicbox)) return false;
+    if (k == null || (k == MethodKind.linkTor && !DeskFeatures.tor)) return false;
     // Link · HTTP's switch turns the listener on and off, never a send.
     return k == MethodKind.linkHttp || st.settings.payments.offers(k);
   }
@@ -839,7 +833,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   void _askReach(DeskState st) {
     final r = _read;
     final mode = deskNetMode(st);
-    if (!_strip || _file || !reachCheckApplies(r, mode: mode) || _heldOf(r, st) != null) return;
+    if (_file || !reachCheckApplies(r, mode: mode) || _heldOf(r, st) != null) return;
     final key = r.address;
     if (!_reachAsked.add(key)) return;
     _reachSlow = false;
@@ -1519,8 +1513,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     }
     // The build without Tor reaches no onion, by any method.
     if (!DeskFeatures.tor && r.kind == RecipientInputKind.onion) return l.sendTorNotInVersion;
-    // Shallow sends by Epicbox alone.
-    if (!_strip && r.kind != RecipientInputKind.epicbox) return l.deskSendErrEpicbox;
     if (_ownAddressError(st) case final own?) return own;
     if (r.kind == RecipientInputKind.epicbox) {
       if (_noPaymentsProblem(address: r.address) case final stop?) return stop;
@@ -1660,7 +1652,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       dismissible: false,
       builder: (_) => _ReviewDialog(
         draft: draft,
-        compact: !_reviewStep,
         startBusy: startBusy,
         checkPassword: api.checkPassword,
         // The core chooses the inputs again when it sends: an output that finished confirming
@@ -1789,9 +1780,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     final st = ref.watch(deskProvider);
     final nav = ref.read(deskNavProvider.notifier);
     final res = _result;
-    // A level change redraws the page.
-    ref.watch(deskLevelUiProvider);
-    ref.watch(deskLevelFeaturesProvider);
     // The Outputs defaults and the balance feed the estimate: a change estimates again.
     ref.watch(deskOutputPrefsProvider);
     ref.listen(deskOutputPrefsProvider, (_, _) => _replan());
@@ -1816,7 +1804,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       child: EPage(
       title: context.l10n.deskSendTitle,
       footer: narrow && form ? _reviewBar(st) : null,
-      titleTrailing: res is SendFileReady || !_strip || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
+      titleTrailing: res is SendFileReady || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
@@ -1892,7 +1880,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     );
   }
 
-  /// After a send: the payment's live steps ([DeskPaymentSteps], in the level's words), the way
+  /// After a send: the payment's live steps ([DeskPaymentSteps]), the way
   /// to a new send and to Activity. A mailbox payment queued while Epicbox is off keeps the
   /// plain result card: nothing has gone out yet. One that ends cancelled meanwhile (its
   /// receiver declined it) says so in the row's words.
@@ -1943,7 +1931,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           key: const ValueKey('send-cancelled'),
           glyph: const ResultGlyph(icon: EIcons.cancel, tone: ETone.neutral),
           title: word,
-          text: name != null ? l.deskLvSendLiveAmountTo(amount, name) : (via != null ? l.deskLvSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskLvSendLiveAmount(amount)),
+          text: name != null ? l.deskSendLiveAmountTo(amount, name) : (via != null ? l.deskSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskSendLiveAmount(amount)),
           body: live.receiverDeclined ? Text(l.txDetailsReceiverDeclined, style: context.ts.body) : null,
           actions: actions,
         ),
@@ -1955,14 +1943,14 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         key: const ValueKey('send-done'),
         // On its way: the steps under it say how far; the tile says it is under way.
         glyph: const ResultGlyph(icon: EIcons.send, tone: ETone.info),
-        title: name != null ? l.deskLvSendLiveTo(name) : (via != null ? l.deskLvSendLiveVia(viaPhrase(l, via)) : l.lvPayOnItsWay),
-        text: name != null ? l.deskLvSendLiveAmountTo(amount, name) : (via != null ? l.deskLvSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskLvSendLiveAmount(amount)),
+        title: name != null ? l.deskSendLiveTo(name) : (via != null ? l.deskSendLiveVia(viaPhrase(l, via)) : l.payOnItsWay),
+        text: name != null ? l.deskSendLiveAmountTo(amount, name) : (via != null ? l.deskSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskSendLiveAmount(amount)),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             DeskPaymentSteps(tx: live),
             SizedBox(height: Sp.x4),
-            Text(l.lvPayCloseNote, style: context.ts.small),
+            Text(l.payCloseNote, style: context.ts.small),
           ],
         ),
         actions: actions,
@@ -2325,7 +2313,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     final matches = file || picked != null ? const <Contact>[] : _matches(st);
     final pairing = _pairingTo == null ? null : ref.watch(deskPairingByIdProvider(_pairingTo!));
     final pairingName = _pairingTo == null ? '' : ref.watch(deskPairingNameProvider(_pairingTo!));
-    final shallow = ref.read(deskLevelUiProvider).shallow;
     final empty = _to.text.trim().isEmpty;
     final missing = file ? null : _noteWarning(l, code);
     final minimum = code?.minimum;
@@ -2509,7 +2496,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         ],
         ]),
         // Advanced › Send options; open when a link brought the user here for it.
-        if (!shallow && advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
+        if (advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
         SizedBox(height: Sp.x5),
         SendAdvanced(
           strategy: _strategy,
@@ -2528,7 +2515,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           onOutputs: outputsShown(ref) ? () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs) : null,
         ),
         ],
-        if (!shallow && DeskFeatures.dandelion && !file) ...[
+        if (DeskFeatures.dandelion && !file) ...[
           SizedBox(height: Sp.x5),
           EDetails(
             title: _dandelion ? l.deskSendPrivacyOn : l.deskSendPrivacyOff,
@@ -2572,11 +2559,11 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       return out;
     }
     // An http(s) address still being typed: its method from the scheme on, nothing more yet.
-    if (r.typing != null && _strip) {
+    if (r.typing != null) {
       add(_RouteLine(key: ValueKey('send-route-${r.typing!.name}'), to: r));
       return out;
     }
-    if (_methodOf(r) == null || _onionNoTor || (!_strip && r.kind != RecipientInputKind.epicbox)) return out;
+    if (_methodOf(r) == null || _onionNoTor) return out;
     final hold = _hold(st);
     final mode = deskNetMode(st);
     final others = picked == null ? const <String>[] : picked.addresses;
@@ -2757,15 +2744,13 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       _ when gate.notEnough => (l.deskSendHintFix, true),
       _ when _messageTooLong => (l.deskSendHintFix, true),
       _ when _reviewing || gate.checking => (l.deskSendHintChecking, false),
-      _ when !_reviewStep => (l.deskLvSendNothingLeaves, false),
       _ => (l.deskSendHintDefault, false),
     };
     final plan = _plan?.estimate.amount == n && n > 0 ? _plan : null;
     final balance = st.balance;
     // Via: the method's name, and under it the relay, the short onion or the host as contacted.
     final r = _read;
-    final (String? via, String? viaSub) = switch (null) {
-      _ when !_strip => (null, null),
+    final (String via, String? viaSub) = switch (null) {
       _ when _file => (MethodIcons.fullName(l, MethodKind.directFile), null),
       _ when _viaPairing => (l.methodEpicbox, ref.watch(deskPairingNameProvider(_pairingId!))),
       _ when _methodOf(r) == null || _onionNoTor => ('—', null), // l10n-ok: nothing yet
@@ -2795,14 +2780,11 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       reviewTip: blocker ? switch (_torWay(st)) { TorWay.wait => l.deskSendReviewWaitTor, TorWay.blocked => l.deskSendReviewTorOff, _ => null } : null,
       reviewLabel: switch (_torWay(st)) {
         _ when _viaPairing && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff => l.sendQueue,
-        // Shallow: the button is the Send itself, naming the amount and whom it goes to.
-        _ when !_reviewStep => n <= 0 ? l.deskLvSendButton : keepNumbersWithUnits(l.deskLvSendButtonAmount(formatEpicL(l, n))),
         _ => l.deskSendReview,
       },
       reviewing: _reviewing,
       onReview: _canSend(st) && !_reviewing && !blocker && !gate.holds ? _review : null,
       review: review,
-      lockRows: _reviewStep,
     );
   }
 }
@@ -2840,15 +2822,14 @@ class SendSummaryPanel extends StatelessWidget {
   final Key? reviewKey;
   final String reviewId;
 
-  /// The method this send goes by, and under it where it goes; null hides the row (Shallow).
+  /// The method this send goes by, and under it where it goes; null hides the row.
   final String? via;
   final String? viaSub;
 
   /// Whom it goes to, when a contact or a pairing names it: under the amount.
   final String? to;
 
-  /// Balance after, the lock rows and the split line: Deeper and Deep end. Shallow keeps
-  /// Amount, Network fee and Total.
+  /// Balance after, the lock rows and the split line; epic1 mode's Send leaves them out.
   final bool lockRows;
 
   /// The Review button sits in the panel; false when the narrow page pins it to the bottom.
@@ -2881,7 +2862,7 @@ class SendSummaryPanel extends StatelessWidget {
   final bool reviewing;
   final VoidCallback? onReview;
 
-  /// "Review", or the shallow level's "Send 1.5 EPIC to …"; never what holds it.
+  /// "Review", or "Send" in epic1 mode; never what holds it.
   final String reviewLabel;
 
   /// The short reason the button is off ("Waiting for Tor"), on hover; the line under it says it.
@@ -3375,11 +3356,7 @@ class _Suggestions extends StatelessWidget {
 }
 
 class _ReviewDialog extends StatefulWidget {
-  const _ReviewDialog({required this.draft, required this.onConfirm, this.compact = false, this.startBusy = false, this.checkPassword, this.recheck});
-
-  /// Shallow: the page was the review, so the dialog only asks the password (and still says a
-  /// fee that moved or a server the app does not know).
-  final bool compact;
+  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false, this.checkPassword, this.recheck});
 
   final _Draft draft;
   final Future<SendResult> Function(_Draft draft) onConfirm;
@@ -3515,9 +3492,9 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, blocks: d.confirmations, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
       size: DialogWidth.wide,
-      title: widget.compact ? l.deskLvSendPasswordTitle : l.deskSendReviewTitle,
+      title: l.deskSendReviewTitle,
       icon: EIcons.send,
-      description: widget.compact ? l.deskLvSendNothingLeaves : l.deskSendReviewDesc,
+      description: l.deskSendReviewDesc,
       dismissible: !_busy,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -3538,20 +3515,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             Row(children: [EBadge(originText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
             SizedBox(height: Sp.x3),
           ],
-          if (widget.compact) ...[
-            Text(
-              keepNumbersWithUnits(d.contactName == null ? l.deskLvSendButtonAmount(formatEpicL(l, d.amount, decimals: exactDecimals)) : l.deskLvSendButtonTo(formatEpicL(l, d.amount, decimals: exactDecimals), d.contactName!)),
-              key: const ValueKey('send-compact-line'),
-              style: ts.strong,
-            ),
-            // An address with no name behind it: the characters to check stay in view.
-            if (d.contactName == null && d.to != null) ...[
-              SizedBox(height: Sp.x2),
-              _address(context, d.to!),
-              SizedBox(height: Sp.x1),
-              Text(l.deskSendCheckChars, style: ts.caption),
-            ],
-          ] else ...[
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -3622,7 +3585,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
-          ],
           if (d.queued && !_busy) ...[
             SizedBox(height: Sp.x4),
             ENotice(key: const ValueKey('send-review-queued'), tone: ETone.info, title: l.sendQueuedEpicboxOff),
@@ -3686,7 +3648,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           : null,
       actions: [
         EButton(label: l.deskSendBack, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(semanticsId: TrustIds.sendConfirm, label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : keepNumbersWithUnits(l.deskSendConfirm(formatEpicL(l, d.amount, decimals: exactDecimals))))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton.primary(semanticsId: TrustIds.sendConfirm, label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : keepNumbersWithUnits(l.deskSendConfirm(formatEpicL(l, d.amount, decimals: exactDecimals)))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }

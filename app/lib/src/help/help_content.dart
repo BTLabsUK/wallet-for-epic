@@ -137,6 +137,8 @@ List<HelpTopic> helpTopicsShown(List<HelpTopic> topics, AdvancedPrefs prefs) => 
 ];
 
 abstract final class HelpId {
+  static const home = 'home';
+  static const statusBar = 'status-bar';
   static const receive = 'receive';
   static const send = 'send';
   static const file = 'file';
@@ -228,6 +230,23 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final filesPlace = '[[Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
+    if (!phone)
+      HelpTopic(
+        'start',
+        'Home',
+        'The balance, the buttons to send, receive and scan, the payments under way and the latest activity.',
+        [
+          const HelpBlock.ul([
+            '**Balance**: what this wallet holds. Under it, what can be spent now and the parts still on their way: confirming, waiting for the sender, locked in a payment being sent. **Hide amounts** in the title bar hides every amount.',
+            '**Send**, **Receive** and **Scan**: the three ways to start. Scan reads a code with the camera, or takes one pasted.',
+            '**Type a name, an amount, an address or a payment code**: the field under the balance. A contact’s name, an address or a pasted code opens Send with it filled in. Ctrl K jumps to it.',
+            '**In motion**: the payments under way, each with its steps, from started to completed.',
+            '**Recent activity**: the latest payments; **View all** opens the Activity tab.',
+          ]),
+          HelpBlock.p('Refresh, beside the balance, asks the node again. The balance needs a synced node; while the node syncs, sending waits.'),
+        ],
+        id: HelpId.home,
+      ),
     HelpTopic(
       'start',
       'Receive EPIC',
@@ -248,7 +267,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Send to someone',
       'Open Send, paste the recipient’s Epicbox address, enter the amount, check the fee and send.',
       [
-        HelpBlock.ol(['Open [[Send]] and paste the recipient’s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', phone ? 'Tap **Continue**, check, then **Send … EPIC**.' : 'Press **Review**. **Check and send** shows the payment: enter the wallet password, then press **Send … EPIC**. The Shallow view has no Review: its button is **Send … EPIC**.']),
+        HelpBlock.ol(['Open [[Send]] and paste the recipient’s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', phone ? 'Tap **Continue**, check, then **Send … EPIC**.' : 'Press **Review**. **Check and send** shows the payment: enter the wallet password, then press **Send … EPIC**.']),
         const HelpBlock.p('A paired contact has two options on Send, explained in “Payments after pairing”; a payment to the paired option is sealed. Any other contact is paid at the public Epicbox address.'),
         const HelpBlock.p('Now the recipient’s wallet has to answer (see “Why does a payment need both wallets?”). Over Epicbox the recipient need not be online: the payment waits until the recipient’s wallet opens. Meanwhile the coins it uses are locked, so they cannot be spent twice.'),
         HelpBlock.p('When the answer comes back, the wallet finishes the payment and posts it to the network by itself. It is final after $confirmations confirmations.'),
@@ -269,7 +288,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and share the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** opens the file under [[Receive › Direct · File]]. The wallet signs it and shares a response file (it ends in .response) to send back.', '**Sender:** opens the response file under [[Receive › Direct · File]]. The wallet finishes the payment and posts it.'])
         else
-          const HelpBlock.ol(['**Sender:** on [[Send]], choose **Pay with a file** under To, enter the amount and save the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** on [[Receive]], under **Payment files**, presses **Open** and picks the file. The wallet signs it and saves a response file (it ends in .response) to send back.', '**Sender:** opens the response file the same way. In **Finish the payment** it can also be scanned as a code or pasted as text. The wallet finishes the payment and posts it.']),
+          const HelpBlock.ol(['**Sender:** on [[Send]], choose **Pay with a file** under To (or press **Create a payment file** on Receive), enter the amount and save the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** on [[Receive]], under **Payment files**, presses **Open** and picks the file. The wallet signs it and saves a response file (it ends in .response) to send back.', '**Sender:** opens the response file the same way. In **Finish the payment** it can also be scanned as a code or pasted as text. The wallet finishes the payment and posts it.']),
         HelpBlock.p('Other Epic Cash wallets have their own names for these steps. If the response file never comes, cancel the payment in $cancelPlace to unlock the coins.'),
       ],
       id: HelpId.file,
@@ -295,7 +314,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.ul([
           '${phone ? '**Payment methods.**' : '**Methods.**'} One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments or invoices, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses, and a Tor address of this ${phone ? 'phone' : 'computer'} to be paid at) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.${phone ? ' On a phone, **Link · HTTP** has no switch: it only sends, to any pasted http(s) address.' : ''}',
           if (phone) '**Default method.** The method the Send screen opens with; another can be picked on Send.' else '**Default method**, under **Sending**: the method the Send screen opens with; another can be picked on Send.',
-          if (phone) '**Send defaults.** Which outputs a payment spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.' else '**Strategy for sends** and **Split change**, under **Sending**: which outputs a payment spends, Smallest or All, and whether its change is split. They show in the Deep end view while **Send options** is on in Advanced.',
+          if (phone) '**Send defaults.** Which outputs a payment spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.' else '**Strategy for sends** and **Split change**, under **Sending**: which outputs a payment spends, Smallest or All, and whether its change is split. They show while **Send options** is on in Advanced.',
         ]),
       ],
       id: HelpId.methods,
@@ -372,7 +391,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the payment confirms; the rest can be sent right away.'),
         HelpBlock.p('**All** spends every spendable output and returns one change output. Everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All.'),
-        HelpBlock.p('The default is set under $payPlace, with Send options switched on in Advanced${phone ? '' : ', in the Deep end view'}.'),
+        HelpBlock.p('The default is set under $payPlace, with Send options switched on in Advanced.'),
       ],
       id: HelpId.strategy,
     ),
@@ -452,6 +471,18 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ],
       id: HelpId.importWarning,
     ),
+    if (!phone)
+      const HelpTopic(
+        'network',
+        'The status bar',
+        'The lights at the foot of the window: the node, Epicbox and the other ways to receive, each with its state.',
+        [
+          HelpBlock.p('Each light is one service: **Node**, **Epicbox**, and while they are on, **Link · HTTP** and **Tor**. Its colour shows the state; pointing at it shows the name and the state in words.'),
+          HelpBlock.p('Click a light for its state, the server in use and a button to its settings. The Epicbox one also offers another server when the one in use stops answering.'),
+          HelpBlock.p('Beside the lights: what is going on now, such as a payment being sent, then the EPIC price and the connection mode. A narrow window keeps the lights and leaves out the names and the price.'),
+        ],
+        id: HelpId.statusBar,
+      ),
     HelpTopic(
       'network',
       phone ? 'Nodes' : 'Nodes: a public one or a local one',
@@ -467,7 +498,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           HelpBlock.p('Tap the node icon on the Wallet tab to see the node’s state and switch to another. Sending needs a synced node; in a state such as **12 behind** or **Not answering** the wallet moves to another node in the list by itself, unless Switch node automatically is off: then pick another. To add a node by its address, open $nodePlace and type the address in the field above the list.')
         else
-          HelpBlock.p('Change it in $nodePlace: the nodes are listed with their state. Click one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; if the node falls behind, the wallet offers another one. **Node** in the status bar shows its state (**Network** in the Shallow view).'),
+          HelpBlock.p('Change it in $nodePlace: the nodes are listed with their state. Click one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; if the node falls behind, the wallet offers another one. **Node** in the status bar shows its state.'),
       ],
       id: HelpId.node,
     ),

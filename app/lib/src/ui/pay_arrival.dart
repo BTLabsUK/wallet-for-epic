@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Level 1 Receive: the arrival card for a payment coming in, and the notice that follows a
+/// Receive: the arrival card for a payment coming in, and the notice that follows an
 /// Epicbox server move (the "New today" badge, the server's name, who needs the new address).
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../l10n.dart';
-import '../../levels/relay_switch_providers.dart';
-import '../../wallet_service.dart';
-import '../common.dart';
-import '../theme/tokens.dart';
-import '../tx_details_screen.dart';
+import '../l10n.dart';
+import '../relay_switch_providers.dart';
+import '../wallet_service.dart';
+import 'common.dart';
+import 'theme/tokens.dart';
+import 'tx_details_screen.dart';
 import 'payment_steps.dart';
 
 /// Key of the arrival card, for tests.
@@ -57,7 +57,7 @@ class ArrivalCard extends ConsumerWidget {
               container: true,
               liveRegion: true,
               child: Text(
-                who == null ? amount : l.lvPayArrivalFrom(amount, who),
+                who == null ? amount : l.payArrivalFrom(amount, who),
                 style: theme.textTheme.titleMedium,
               ),
             ),
@@ -72,7 +72,7 @@ class ArrivalCard extends ConsumerWidget {
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
                 ),
-                child: Text(l.lvPayOpen),
+                child: Text(l.payOpen),
               ),
             ),
           ],
@@ -91,7 +91,7 @@ class NewAddressBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Align(
     alignment: AlignmentDirectional.centerStart,
-    child: EBadge(context.l10n.lvPayNewToday, tone: BadgeTone.info),
+    child: EBadge(context.l10n.payNewToday, tone: BadgeTone.info),
   );
 }
 
@@ -108,9 +108,9 @@ class NewAddressLines extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l.lvPayServerLine(result.name), key: const ValueKey('pay-server-line'), style: style),
+        Text(l.payServerLine(result.name), key: const ValueKey('pay-server-line'), style: style),
         const SizedBox(height: 2),
-        Text(l.lvPayOldAddressLine, style: style),
+        Text(l.payOldAddressLine, style: style),
       ],
     );
   }

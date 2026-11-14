@@ -39,13 +39,12 @@ final bool _dropsHere = !kIsWeb &&
         defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS);
 
-/// The Transaction files card. [offlineNode]: Offline on a node that is not local; the files
-/// still run, through it. [casual]: the level's plainer heading.
+/// The Payment files card. [offlineNode]: Offline on a node that is not local; the files still
+/// run, through it.
 class TxFilesCard extends ConsumerStatefulWidget {
-  const TxFilesCard({super.key, required this.offlineNode, this.casual = false});
+  const TxFilesCard({super.key, required this.offlineNode});
 
   final bool offlineNode;
-  final bool casual;
 
   @override
   ConsumerState<TxFilesCard> createState() => _TxFilesCardState();
@@ -272,7 +271,7 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
                   children: [
                     Icon(EIcons.file, size: 20.u, color: c.dim),
                     SizedBox(width: 10.u),
-                    Semantics(header: true, child: Text(widget.casual ? l.deskLvSendPayFiles : l.deskRecvFiles, style: ts.h3)),
+                    Semantics(header: true, child: Text(l.deskRecvFiles, style: ts.h3)),
                   ],
                 ),
                 if (canCreate)

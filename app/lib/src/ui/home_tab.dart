@@ -4,7 +4,7 @@
 /// chips for money on its way, Send and Receive, the slot card, and the five latest payments.
 ///
 /// Home shows things by state: it reads no level. Where a switch is meant (what the Advanced
-/// setting shows) it reads [effectiveAdvancedProvider]. The shell ([HomeScreen]) owns the timers
+/// setting shows) it reads [advancedPrefsProvider]. The shell ([HomeScreen]) owns the timers
 /// and notices; this widget only draws.
 library;
 

@@ -21,7 +21,7 @@ import 'device_providers.dart';
 import 'device_service.dart';
 import 'device_store.dart';
 
-/// Linked devices is on: always, for everyone at every level (item 10); kept as a provider so
+/// Linked devices is on: always, for everyone (item 10); kept as a provider so
 /// its readers stay one place to change.
 final linkedDevicesOnProvider = Provider<bool>(
   (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.linkedDevicesOn)) ?? true,

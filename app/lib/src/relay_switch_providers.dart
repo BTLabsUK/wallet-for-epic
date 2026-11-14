@@ -10,9 +10,6 @@
 /// After a move the old relay is drained for [relayDrainWindow] ([relayDrainWatchProvider]),
 /// so payments sent to the old address still arrive.
 ///
-/// It runs at every wallet level, level 1 included: the phone has no levels, and moving relays
-/// automatically was allowed by the owner on 2026-11-02 (see levels/level_providers.dart).
-///
 /// Both notifiers run while something listens: `app.dart` keeps them alive beside node
 /// failover and calls [RelaySwitchNotifier.paused] / [RelaySwitchNotifier.resumed].
 library;
@@ -21,24 +18,24 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../btlabs_onions.dart';
-import '../connection_state.dart';
-import '../log.dart';
-import '../net/tor_switch.dart';
-import '../network.dart';
-import '../network_gate.dart';
-import '../phone_tor.dart';
-import '../providers.dart';
-import '../relay_directory.dart' show RelayStatus, relayStatusProvider;
-import '../server_switch.dart';
-import '../settings.dart';
-import '../secret_store_api.dart' show SecretStore;
-import '../settings_file/host_settings.dart' show EpicboxServer, appConfig;
-import '../settings_file/settings_providers.dart' show hostSettingsProvider;
-import '../tor_phone.dart';
-import '../tor_routes.dart';
-import '../ui/status.dart' show EpicboxState;
-import '../wallet_service.dart';
+import 'btlabs_onions.dart';
+import 'connection_state.dart';
+import 'log.dart';
+import 'net/tor_switch.dart';
+import 'network.dart';
+import 'network_gate.dart';
+import 'phone_tor.dart';
+import 'providers.dart';
+import 'relay_directory.dart' show RelayStatus, relayStatusProvider;
+import 'server_switch.dart';
+import 'settings.dart';
+import 'secret_store_api.dart' show SecretStore;
+import 'settings_file/host_settings.dart' show EpicboxServer, appConfig;
+import 'settings_file/settings_providers.dart' show hostSettingsProvider;
+import 'tor_phone.dart';
+import 'tor_routes.dart';
+import 'ui/status.dart' show EpicboxState;
+import 'wallet_service.dart';
 import 'relay_switch.dart';
 
 /// How often the offer is looked at again while the relay stays down (the other relays' health

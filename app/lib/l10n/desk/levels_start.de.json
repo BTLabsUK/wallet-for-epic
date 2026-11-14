@@ -1,12 +1,3 @@
 {
-  "deskLvStartPreviewLabel": "Vorschau der Übersicht. Sie zeigt mehr, je tiefer der Regler steht.",
-  "deskLvStartPreviewCaption": "Start in dieser Ansicht. Gespeichert wird nichts anders.",
-  "deskLvStartCover": "Stufe wählen, um die Vorschau zu sehen",
-  "deskLvStartUndercoverAbout": "Über Nur Tor",
-  "deskLvStartHelpShallow": "Flach · eine Adresse, keine Servernamen, keine Schalter.",
-  "deskLvStartHelpDeeper": "Tiefer · dieselbe Wallet, dazu, was sie gerade tut, in einfachen Worten.",
-  "deskLvStartHelpDeep": "Ganz tief · jeder Schalter, jede Zahl: die App von heute.",
-  "deskLvStartMiniWallet": "Hauptwallet",
-  "deskLvStartMiniLine": "+12,5 kommen an · 25,0 gehalten",
-  "deskLvStartMiniFresh": "Frisch vom Mining"
+  "deskUndercoverAbout": "Über Nur Tor"
 }

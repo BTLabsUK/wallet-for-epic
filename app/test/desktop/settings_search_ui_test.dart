@@ -5,14 +5,12 @@
 // 44 px info hit area too. The pages here are stand-ins that list the registry's rows with
 // their anchors; the real pages carry the same anchors.
 import 'package:epic_wallet/src/advanced.dart';
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/settings_registry.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/search/search_slot.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/desktop/widgets/more_options.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/desktop/desk_l10n.dart';
 import 'package:epic_wallet/src/l10n.dart' show lookupAppLocalizations;
 import 'package:epic_wallet/src/tor_build.dart';
@@ -65,13 +63,12 @@ class _Takeover extends ConsumerWidget {
   }
 }
 
-Future<ProviderContainer> _pump(WidgetTester tester, {WalletLevel level = WalletLevel.everything, VoidCallback? onLeave}) async {
+Future<ProviderContainer> _pump(WidgetTester tester, {VoidCallback? onLeave}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: [
     deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero)),
-    deskLevelProvider.overrideWithValue(level),
   ]);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
@@ -169,15 +166,20 @@ void main() {
     expect(_focusIn(tester, SetId.logLevel), isTrue);
   });
 
-  testWidgets('a hidden-here result names the view that shows it', (tester) async {
-    final c = await _pump(tester, level: WalletLevel.justSendReceive);
+  testWidgets('a hidden-here result names the switch that shows it', (tester) async {
+    final c = await _pump(tester);
+    final adv = c.read(deskProvider).settings.advanced;
+    if (adv.has(AdvancedFeature.sendOptions)) {
+      await tester.runAsync(() => c.read(deskProvider.notifier).saveSettings(c.read(deskProvider).settings.copyWith(advanced: adv.withFeature(AdvancedFeature.sendOptions, false))));
+      await tester.pump();
+    }
     final field = find.descendant(of: find.byKey(SettingsSearchSlot.fieldKey), matching: find.byType(EditableText));
-    await tester.enterText(field, 'node server');
+    await tester.enterText(field, 'coin selection');
     await tester.pumpAndSettle();
     expect(find.text(_l.deskSetSearchHidden), findsOneWidget);
-    expect(find.text('Deeper view'), findsWidgets);
-    expect(find.widgetWithText(EButton, 'Show in Deeper'), findsWidgets);
-    expect(c.read(settingsSearchRoutesProvider), contains(DeskRoute.settingsNode));
+    expect(find.text('Advanced › Send options'), findsWidgets);
+    expect(find.widgetWithText(EButton, _l.deskSetSearchTurnOn), findsWidgets);
+    expect(c.read(settingsSearchRoutesProvider), contains(DeskRoute.settingsReceiving));
     expect(find.text('0 results'), findsNothing);
   });
 
@@ -195,7 +197,7 @@ void main() {
             revealKey: 'g:send',
             rows: const [ESetRow(title: 'Default method')],
             hidden: [
-              ESetRow(title: 'Outputs a send spends', advancedBy: l.deskSetSearchViewGate('Deep end')),
+              ESetRow(title: 'Log level', advancedBy: l.deskSetSearchFeatGate('Logs')),
               ESetRow(title: 'Split change', advancedBy: l.deskSetSearchFeatGate('Send options')),
             ],
           ),
@@ -206,7 +208,7 @@ void main() {
     expect(find.text('Split change'), findsNothing);
     expect(tester.getSize(more).width, greaterThanOrEqualTo(44));
     expect(tester.getSize(more).height, greaterThanOrEqualTo(44));
-    expect(find.bySemanticsLabel('2 more options · shown with Deep end view and Advanced › Send options'), findsOneWidget);
+    expect(find.bySemanticsLabel('2 more options · shown with Advanced › Logs and Advanced › Send options'), findsOneWidget);
     await tester.tap(more);
     await tester.pump();
     expect(find.text('Split change'), findsOneWidget);

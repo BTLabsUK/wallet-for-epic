@@ -49,7 +49,6 @@ void main() {
     expect(TrustIds.settingsSection('settingsNode'), 'g4.settings.section.node');
     expect(TrustIds.settingsSection('security'), 'g4.settings.section.security');
     expect(TrustIds.settingsSection('privacyNetwork'), 'g4.settings.section.privacyNetwork');
-    expect(TrustIds.levelStop(2), 'g4.level.stop.2');
     for (final c in _registry.cast<Map<String, dynamic>>()) {
       for (final key in ((c['keys'] ?? const []) as List).cast<String>()) {
         expect(_arb.containsKey(key), isTrue, reason: '${c['id']}: no ARB key $key');
@@ -164,7 +163,7 @@ void main() {
     // Theme is a dropdown on desktop too: the row's one id, as on the phone.
     '24-settings-appearance': ['g4.appearance.theme'],
     '25-settings-account': ['g4.wallet.label'],
-    '43-advanced': ['g4.advanced.technical', 'g4.level.stop.1', 'g4.level.stop.2', 'g4.level.stop.3'],
+    '43-advanced': ['g4.advanced.technical'],
     '23b-epicbox-combobox-open': ['g4.server.epicbox', 'g4.server.search'],
     '23j-epicbox-picked': ['g4.server.epicbox.switch'],
   };

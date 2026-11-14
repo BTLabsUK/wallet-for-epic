@@ -1,12 +1,3 @@
 {
-  "deskLvStartPreviewLabel": "概览预览。档位越深，显示越多。",
-  "deskLvStartPreviewCaption": "此视图下的首页。已保存的内容不会改变。",
-  "deskLvStartCover": "选择一个档位以查看预览",
-  "deskLvStartUndercoverAbout": "关于仅 Tor",
-  "deskLvStartHelpShallow": "浅水 · 一个地址，不显示服务器名称，没有开关。",
-  "deskLvStartHelpDeeper": "再深些 · 同一个钱包，并用简单的话显示它在做什么。",
-  "deskLvStartHelpDeep": "深水区 · 每个开关、每个数字：现在的应用。",
-  "deskLvStartMiniWallet": "主钱包",
-  "deskLvStartMiniLine": "+12.5 即将到账 · 25.0 已冻结",
-  "deskLvStartMiniFresh": "刚挖出的币"
+  "deskUndercoverAbout": "关于仅 Tor"
 }

@@ -4239,9 +4239,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvActBilledBy => 'เรียกเก็บโดย';
 
   @override
-  String get deskInvActOverviewTitle => 'ใบแจ้งหนี้';
-
-  @override
   String deskInvActOverviewToPay(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -7344,18 +7341,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvBreakTotal => 'รวม';
-
-  @override
-  String get deskOvBreakConfirming => 'กำลังยืนยัน';
-
-  @override
-  String get deskOvBreakImmature => 'รางวัลการขุด';
-
-  @override
-  String get deskOvBreakAwaiting => 'รอผู้ส่ง';
-
-  @override
-  String get deskOvBreakLocked => 'ล็อกในการส่ง';
 
   @override
   String get deskOvUpdating => 'กำลังอัปเดต';
@@ -16199,436 +16184,235 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get levelThreeTitle => 'ขอสำรวจทุกอย่าง';
+  String get undercoverTitle => 'Tor เท่านั้น';
 
   @override
-  String get levelUndercoverTitle => 'Tor เท่านั้น';
-
-  @override
-  String get levelRowTitle => 'มุมมองกระเป๋าเงิน';
-
-  @override
-  String get lvPickStopOne => 'น้ำตื้น';
-
-  @override
-  String get lvPickStopTwo => 'ลึกขึ้น';
-
-  @override
-  String get lvPickStopThree => 'น้ำลึก';
-
-  @override
-  String get lvPickLineOne => 'ส่ง รับ จบ ที่เหลือกระเป๋าเงินจัดการเอง';
-
-  @override
-  String get lvPickLineTwo => 'เห็นว่ากำลังทำอะไร ด้วยคำง่าย ๆ';
-
-  @override
-  String get lvPickLineThree => 'ทุกสวิตช์ ทุกตัวเลข เป็นของคุณทั้งหมด';
-
-  @override
-  String get lvPickNone => 'เลือกระดับ';
-
-  @override
-  String get lvPickNoneLine => 'ภาพตัวอย่างจะเปลี่ยนตามตัวเลือก';
-
-  @override
-  String get lvPickDepth => 'มุมมอง';
-
-  @override
-  String get lvPickHelpTitle => 'ตัวเลือกนี้กำหนดอะไร';
-
-  @override
-  String get lvPickHelpText =>
-      'กำหนดแค่ว่าแอปแสดงมากแค่ไหน ทุกมุมมองส่งและรับเหมือนกัน ด้วยคีย์เดียวกันและเหรียญเดียวกัน';
-
-  @override
-  String get lvPickUndercoverHelpNet =>
+  String get undercoverHelp =>
       'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดการเชื่อมต่อ › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
 
   @override
-  String get lvPickUndercover => 'ปกปิดตัวตน';
+  String get torWaitTitle => 'กำลังเชื่อมต่อผ่าน Tor';
 
   @override
-  String get lvPickUndercoverLaterHelp =>
-      'Tor เท่านั้น ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น ในที่ที่ Tor ถูกบล็อก กระเป๋าเงินจะเชื่อมต่อไม่ได้จนกว่าจะปิดตัวเลือกนี้';
-
-  @override
-  String get lvPickTorTitle => 'กำลังเชื่อมต่อผ่าน Tor';
-
-  @override
-  String get lvPickTorLead =>
+  String get torWaitLead =>
       'การเชื่อมต่อผ่าน Tor ครั้งแรกอาจใช้เวลาราวหนึ่งนาที';
 
   @override
-  String get lvPickTorBusy => 'กำลังสร้างเส้นทาง…';
+  String get torWaitBusy => 'กำลังสร้างเส้นทาง…';
 
   @override
-  String get lvPickTorBlocked =>
+  String get torWaitBlocked =>
       'ถ้า Tor ถูกบล็อกในที่ที่คุณอยู่ กระเป๋าเงินจะเชื่อมต่อไม่ได้จนกว่าจะปิดการปกปิดตัวตน';
 
   @override
-  String get lvPickTorOff => 'ปิดการปกปิดตัวตน';
+  String get torWaitOff => 'ปิดการปกปิดตัวตน';
 
   @override
-  String get lvPickTorOffDone => 'ปิดการปกปิดตัวตนแล้ว กำลังเชื่อมต่อโดยตรง';
+  String get torWaitOffDone => 'ปิดการปกปิดตัวตนแล้ว กำลังเชื่อมต่อโดยตรง';
 
   @override
-  String get lvPayArriving => 'กำลังมาถึง';
+  String get payArriving => 'กำลังมาถึง';
 
   @override
-  String lvPayConfirming(int count, int target) {
+  String payConfirming(int count, int target) {
     return 'กำลังยืนยัน $count จาก $target';
   }
 
   @override
-  String lvPayConfirmingOf(int count, int target) {
+  String payConfirmingOf(int count, int target) {
     return 'กำลังยืนยัน $count จาก $target';
   }
 
   @override
-  String lvPaySigned(String name) {
+  String paySigned(String name) {
     return '$name เซ็นแล้ว';
   }
 
   @override
-  String get lvPayOnItsWay => 'กำลังไป';
+  String get payOnItsWay => 'กำลังไป';
 
   @override
-  String get lvPayCloseNote =>
-      'ปิดหน้านี้ได้ รายการจะอยู่ในกิจกรรมจนกว่าจะเสร็จ';
+  String get payCloseNote => 'ปิดหน้านี้ได้ รายการจะอยู่ในกิจกรรมจนกว่าจะเสร็จ';
 
   @override
-  String lvPayArrivalFrom(String amount, String name) {
+  String payArrivalFrom(String amount, String name) {
     return '$amount จาก $name';
   }
 
   @override
-  String get lvPayOpen => 'เปิด';
+  String get payOpen => 'เปิด';
 
   @override
-  String get lvPayNewToday => 'ใหม่วันนี้';
+  String get payNewToday => 'ใหม่วันนี้';
 
   @override
-  String get lvPayNewAddress => 'ที่อยู่ใหม่ของคุณ';
+  String get payNewAddress => 'ที่อยู่ใหม่ของคุณ';
 
   @override
-  String lvPayServerLine(String name) {
+  String payServerLine(String name) {
     return 'เซิร์ฟเวอร์ Epicbox: $name.';
   }
 
   @override
-  String get lvPayOldAddressLine => 'ผู้ที่มีที่อยู่เดิมต้องใช้ที่อยู่ใหม่';
+  String get payOldAddressLine => 'ผู้ที่มีที่อยู่เดิมต้องใช้ที่อยู่ใหม่';
 
   @override
-  String get lvPayStarted => 'เริ่มเมื่อ';
+  String get payStarted => 'เริ่มเมื่อ';
 
   @override
-  String get lvPayPaymentId => 'รหัสการชำระเงิน';
+  String get payPaymentId => 'รหัสการชำระเงิน';
 
   @override
-  String get lvPayConfirmations => 'การยืนยัน';
+  String get payCopyDetails => 'คัดลอกรายละเอียด';
 
   @override
-  String get lvPayCopyDetails => 'คัดลอกรายละเอียด';
-
-  @override
-  String lvShellStatusTip(String name, String state) {
+  String statusTip(String name, String state) {
     return '$name · $state';
   }
 
   @override
-  String get lvShellStateBehind => 'ตามหลัง';
+  String get statusStateBehind => 'ตามหลัง';
 
   @override
-  String get lvShellStateCatchingUp => 'กำลังตามให้ทัน';
+  String get statusOpensDetails => 'แสดงรายละเอียด';
 
   @override
-  String get lvShellStateConnecting => 'กำลังเชื่อมต่อ';
+  String get statusNotChecked => 'ยังไม่ได้ตรวจสอบ';
 
   @override
-  String get lvShellOpensDetails => 'แสดงรายละเอียด';
+  String get statusBoxListening => 'เชื่อมต่อแล้ว · รอรับการชำระเงิน';
 
   @override
-  String get lvShellLatestBlock => 'บล็อกล่าสุด';
+  String get statusBoxNotReachable => 'เข้าถึงไม่ได้ · กำลังลองต่อ';
 
   @override
-  String get lvShellThisWallet => 'กระเป๋าเงินนี้';
-
-  @override
-  String get lvShellUpToDate => 'เป็นปัจจุบัน';
-
-  @override
-  String get lvShellNotChecked => 'ยังไม่ได้ตรวจสอบ';
-
-  @override
-  String get lvShellLastChange => 'การเปลี่ยนแปลงล่าสุด';
-
-  @override
-  String get lvShellBoxListening => 'เชื่อมต่อแล้ว · รอรับการชำระเงิน';
-
-  @override
-  String get lvShellBoxNotReachable => 'เข้าถึงไม่ได้ · กำลังลองต่อ';
-
-  @override
-  String get lvShellBoxDownBody =>
-      'การชำระเงินถึงคุณจะรออยู่และเข้ามาเมื่อเซิร์ฟเวอร์กลับมา ไม่มีอะไรเปลี่ยนจนกว่าคุณจะสลับ';
-
-  @override
-  String lvShellOfferReady(String name) {
+  String statusOfferReady(String name) {
     return '$name พร้อมแล้ว';
   }
 
   @override
-  String lvShellOfferBody(String name) {
+  String statusOfferBody(String name) {
     return 'การสลับจะให้ที่อยู่ใหม่บน $name ทุกคนที่มีที่อยู่เดิมของคุณต้องใช้ที่อยู่ใหม่';
   }
 
   @override
-  String lvShellSwitchTo(String name) {
+  String statusSwitchTo(String name) {
     return 'สลับไปที่ $name';
   }
 
   @override
-  String get lvShellKeepWaiting => 'รอต่อ';
+  String get statusKeepWaiting => 'รอต่อ';
 
   @override
-  String get lvShellRelayDownTitle => 'เข้าถึงเซิร์ฟเวอร์ Epicbox ของคุณไม่ได้';
+  String get statusRelayDownTitle => 'เข้าถึงเซิร์ฟเวอร์ Epicbox ของคุณไม่ได้';
 
   @override
-  String lvShellRelayDownShort(String name) {
+  String statusRelayDownShort(String name) {
     return '$name รับช่วงต่อได้ โดยที่อยู่ของคุณจะเปลี่ยนไปด้วย';
   }
 
   @override
-  String get lvShellSwitch => 'สลับ';
+  String get statusSwitch => 'สลับ';
 
   @override
-  String lvShellSwitchedNotice(String name) {
+  String statusSwitchedNotice(String name) {
     return 'ตอนนี้ใช้ $name แล้ว ที่อยู่ใหม่ของคุณพร้อมแล้ว';
   }
 
   @override
-  String get lvShellShowNewAddress => 'แสดงที่อยู่ใหม่';
+  String get statusShowNewAddress => 'แสดงที่อยู่ใหม่';
 
   @override
-  String get lvShellAddress => 'ที่อยู่';
+  String get statusAddress => 'ที่อยู่';
 
   @override
-  String lvShellPairNotice(String name) {
+  String statusPairNotice(String name) {
     return '$name ต้องการจับคู่กับกระเป๋าเงินนี้';
   }
 
   @override
-  String lvShellQuietArriving(String amount) {
+  String statusQuietArriving(String amount) {
     return '+$amount กำลังเข้า';
   }
 
   @override
-  String get lvPolPosted => 'ส่งแล้ว';
+  String get payPosted => 'ส่งแล้ว';
 
   @override
-  String get deskLvStartPreviewLabel =>
-      'ภาพตัวอย่างภาพรวม ยิ่งเลือกลึก ยิ่งแสดงมาก';
+  String get deskUndercoverAbout => 'เกี่ยวกับ Tor เท่านั้น';
 
   @override
-  String get deskLvStartPreviewCaption =>
-      'หน้าแรกในมุมมองนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
-
-  @override
-  String get deskLvStartCover => 'เลือกระดับเพื่อดูภาพตัวอย่าง';
-
-  @override
-  String get deskLvStartUndercoverAbout => 'เกี่ยวกับ Tor เท่านั้น';
-
-  @override
-  String get deskLvStartHelpShallow =>
-      'น้ำตื้น · ที่อยู่เดียว ไม่มีชื่อเซิร์ฟเวอร์ ไม่มีสวิตช์';
-
-  @override
-  String get deskLvStartHelpDeeper =>
-      'ลึกขึ้น · กระเป๋าเงินเดิม พร้อมแสดงว่ากำลังทำอะไร ด้วยคำง่าย ๆ';
-
-  @override
-  String get deskLvStartHelpDeep =>
-      'น้ำลึก · ทุกสวิตช์ ทุกตัวเลข: แอปอย่างที่เป็นอยู่ตอนนี้';
-
-  @override
-  String get deskLvStartMiniWallet => 'กระเป๋าเงินหลัก';
-
-  @override
-  String get deskLvStartMiniLine => '+12.5 กำลังเข้า · 25.0 ถูกพักไว้';
-
-  @override
-  String get deskLvStartMiniFresh => 'ใหม่จากการขุด';
-
-  @override
-  String get deskLvSendHowTo => 'วิธีส่ง';
-
-  @override
-  String get deskLvSendButton => 'ส่ง';
-
-  @override
-  String deskLvSendButtonAmount(String amount) {
-    return 'ส่ง $amount EPIC';
-  }
-
-  @override
-  String deskLvSendButtonTo(String amount, String name) {
-    return 'ส่ง $amount EPIC ให้ $name';
-  }
-
-  @override
-  String get deskLvSendNothingLeaves =>
+  String get deskSendNothingLeaves =>
       'จะไม่มีอะไรออกไปจนกว่าจะกดส่ง หลังจากนั้นเรียกคืนไม่ได้';
 
   @override
-  String get deskLvSendPasswordTitle => 'รหัสผ่านของคุณ';
-
-  @override
-  String get deskLvSendConfirm => 'ส่ง';
-
-  @override
-  String deskLvSendLiveTo(String name) {
+  String deskSendLiveTo(String name) {
     return 'กำลังไปหา $name';
   }
 
   @override
-  String deskLvSendLiveAmountTo(String amount, String name) {
+  String deskSendLiveAmountTo(String amount, String name) {
     return '$amount EPIC ให้ $name';
   }
 
   @override
-  String deskLvSendLiveAmount(String amount) {
+  String deskSendLiveAmount(String amount) {
     return '$amount EPIC';
   }
 
   @override
-  String get deskLvSendYourAddress => 'ที่อยู่ของคุณ';
-
-  @override
-  String get deskLvSendReady => 'พร้อมรับเงิน';
-
-  @override
-  String get deskLvSendClosedInfo =>
-      'การชำระที่ส่งมาตอนกระเป๋าเงินปิดอยู่ จะมาถึงเมื่อเปิดกระเป๋า';
-
-  @override
-  String get deskLvSendPayFiles => 'ไฟล์การชำระเงิน';
-
-  @override
-  String get deskLvSendPrevAddress => 'ที่อยู่เดิม';
-
-  @override
-  String deskLvSendPrevText(String server) {
-    return 'ที่อยู่เดิมอยู่บน $server ใครที่มีที่อยู่นั้นต้องใช้ที่อยู่ใหม่';
-  }
-
-  @override
-  String deskLvPayConfirmingComma(int count, int target) {
+  String deskPayConfirmingComma(int count, int target) {
     return 'กำลังยืนยัน $count จาก $target';
   }
 
   @override
-  String deskLvPayOnItsWayTo(String name) {
+  String deskPayOnItsWayTo(String name) {
     return 'กำลังไปหา $name';
   }
 
   @override
-  String deskLvPaySendingTo(String name) {
-    return 'กำลังส่งให้ $name';
-  }
-
-  @override
-  String deskLvPayArrivingFrom(String name) {
+  String deskPayArrivingFrom(String name) {
     return 'กำลังเข้ามาจาก $name';
   }
 
   @override
-  String deskLvPayStartedAt(String amount, String time) {
+  String deskPayStartedAt(String amount, String time) {
     return '$amount EPIC · เริ่มเมื่อ $time';
   }
 
   @override
-  String deskLvPayHeroArriving(String amount, String name) {
-    return '+$amount กำลังเข้ามาจาก $name';
-  }
+  String get deskPayTileConfirming => 'ยังกำลังยืนยัน';
 
   @override
-  String deskLvPayHeroArrivingMany(String amount) {
-    return '+$amount กำลังเข้ามา';
-  }
+  String get deskPayTileMining => 'ใหม่จากการขุด';
 
   @override
-  String deskLvPayHeroHold(String amount, String name) {
-    return '$amount ถูกพักไว้จนกว่า $name จะลงนาม';
-  }
+  String get deskPayTileAwaiting => 'รอการตอบกลับ';
 
   @override
-  String deskLvPayHeroHoldMany(String amount) {
-    return '$amount ถูกพักไว้จนกว่าจะลงนาม';
-  }
+  String get deskPayTileLocked => 'กันไว้สำหรับการส่ง';
 
   @override
-  String get deskLvPayHeroNothing => 'ยังไม่มีอะไรกำลังเข้ามา';
+  String get deskPayMaturing => 'ใหม่จากการขุด ยังใช้ไม่ได้';
 
   @override
-  String get deskLvPayReadyHead => 'กระเป๋าเงินพร้อมแล้ว';
+  String get deskStatusFailover => 'สลับโหนดอัตโนมัติ';
 
   @override
-  String get deskLvPayReadyText => 'แชร์ที่อยู่เพื่อรับ EPIC แรก';
+  String get deskStatusOn => 'เปิด';
 
   @override
-  String get deskLvPayTileConfirming => 'ยังกำลังยืนยัน';
+  String get deskStatusHeight => 'ความสูง';
 
   @override
-  String get deskLvPayTileMining => 'ใหม่จากการขุด';
+  String get deskStatusVersion => 'เวอร์ชัน';
 
   @override
-  String get deskLvPayTileAwaiting => 'รอการตอบกลับ';
-
-  @override
-  String get deskLvPayTileLocked => 'กันไว้สำหรับการส่ง';
-
-  @override
-  String get deskLvPayImmatureCasual => 'ใหม่จากการขุด ยังใช้ไม่ได้';
-
-  @override
-  String get deskLvPayKind => 'การชำระเงิน';
-
-  @override
-  String get deskLvShellNewsTitle => 'ใหม่: มุมมองของกระเป๋าเงิน';
-
-  @override
-  String get deskLvShellNewsText =>
-      'การติดตั้งนี้แสดงทุกอย่างเหมือนเดิม น้ำตื้นและลึกขึ้นแสดงน้อยกว่า';
-
-  @override
-  String get deskLvShellNewsLook => 'ไปดู';
-
-  @override
-  String get deskLvShellFailover => 'สลับโหนดอัตโนมัติ';
-
-  @override
-  String get deskLvShellOn => 'เปิด';
-
-  @override
-  String get deskLvShellHeight => 'ความสูง';
-
-  @override
-  String get deskLvShellVersion => 'เวอร์ชัน';
-
-  @override
-  String get deskLvShellRecheckHint =>
+  String get deskStatusRecheckHint =>
       'ถ้าจำนวนเงินดูไม่ถูกต้อง กระเป๋าเงินจะอ่านเชนใหม่อีกครั้ง';
 
   @override
-  String get lvShellSwitchServer => 'เปลี่ยนเซิร์ฟเวอร์';
-
-  @override
-  String get deskLvShellSwitchServer => 'เปลี่ยนเซิร์ฟเวอร์';
-
-  @override
-  String get deskLvShellNoOtherServer => 'ไม่มีเซิร์ฟเวอร์อื่นในรายการ';
+  String get statusSwitchServer => 'เปลี่ยนเซิร์ฟเวอร์';
 
   @override
   String get deskLastSessionFroze => 'ครั้งที่แล้วแอปไม่ตอบสนอง ส่งบันทึกไหม';
@@ -16701,7 +16485,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskLvPayOnEpicbox => 'อยู่บน Epicbox';
+  String get deskPayOnEpicbox => 'อยู่บน Epicbox';
 
   @override
   String get deskRailReceivingInternet => 'กำลังรับ · อินเทอร์เน็ต';
@@ -17338,11 +17122,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'มุมมองอื่นหรือสวิตช์ในขั้นสูงจะแสดงรายการเหล่านี้';
 
   @override
-  String deskSetSearchShowIn(String view) {
-    return 'แสดงใน $view';
-  }
-
-  @override
   String get deskSetSearchTurnOn => 'เปิด';
 
   @override
@@ -17368,11 +17147,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSearchResults => 'ผลการค้นหา';
-
-  @override
-  String deskSetSearchViewGate(String view) {
-    return 'มุมมอง $view';
-  }
 
   @override
   String deskSetSearchFeatGate(String feature) {
@@ -17406,18 +17180,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskSetSearchViewApplied(String view) {
-    return 'มุมมอง: $view';
-  }
-
-  @override
   String deskSetSearchFeatApplied(String feature) {
     return 'ขั้นสูง › $feature: เปิด';
-  }
-
-  @override
-  String deskSetSearchFallbackView(String page, String view) {
-    return '$page แสดงในมุมมอง $view';
   }
 
   @override
@@ -17481,9 +17245,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetGrpServerStatus => 'สถานะเซิร์ฟเวอร์';
-
-  @override
-  String get deskSetGrpView => 'มุมมอง';
 
   @override
   String get deskSetGrpShowsMore => 'แสดงเพิ่มเติม';
@@ -17802,17 +17563,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetSynStatusSite => 'สถานะ, สุขภาพ, ออนไลน์, ตรวจสอบ';
 
   @override
-  String get deskSetRowView => 'มุมมอง';
-
-  @override
-  String get deskSetRowViewHint =>
-      'น้ำตื้น ลึกขึ้น หรือน้ำลึก: แสดงวอลเล็ตมากแค่ไหน';
-
-  @override
-  String get deskSetSynView =>
-      'ระดับ, ความลึก, น้ำตื้น, ลึกขึ้น, น้ำลึก, ง่าย, ผู้เชี่ยวชาญ, มือใหม่, โหมดขั้นสูง';
-
-  @override
   String get deskSetRowAdvOutputsHint =>
       'หน้าเอาต์พุต: เหรียญที่รวมเป็นยอดเงิน';
 
@@ -17968,18 +17718,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAcctRemove => 'ลบ';
-
-  @override
-  String get deskSetAdvViewLineOne =>
-      'ส่ง รับ และสำรองข้อมูล เลือกโหนดและเซิร์ฟเวอร์ Epicbox ให้อัตโนมัติ';
-
-  @override
-  String get deskSetAdvViewLineTwo =>
-      'เพิ่มวิธีชำระเงิน โหนด โหมดเครือข่าย และกระเป๋าอื่น';
-
-  @override
-  String get deskSetAdvViewLineThree =>
-      'เพิ่มเอาต์พุต ใบแจ้งหนี้ โหนดในเครื่อง และทุกสวิตช์ขั้นสูง';
 
   @override
   String get deskSetFrameBack => 'กระเป๋า';
@@ -19507,7 +19245,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskLvPaySendingInPerson => 'กำลังส่งด้วยตนเอง';
+  String get deskPaySendingInPerson => 'กำลังส่งด้วยตนเอง';
 
   @override
   String get deskInvIssuerWaitingInPerson =>
@@ -19580,12 +19318,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskIpOnlineDetails => 'รายละเอียด';
 
   @override
-  String deskLvPaySendingVia(String via) {
+  String deskPaySendingVia(String via) {
     return 'กำลังส่ง $via';
   }
 
   @override
-  String deskLvPayArrivingVia(String via) {
+  String deskPayArrivingVia(String via) {
     return 'กำลังเข้ามา $via';
   }
 
@@ -19635,12 +19373,12 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskLvSendLiveVia(String via) {
+  String deskSendLiveVia(String via) {
     return 'กำลังไป $via';
   }
 
   @override
-  String deskLvSendLiveAmountVia(String amount, String via) {
+  String deskSendLiveAmountVia(String amount, String via) {
     return '$amount EPIC $via';
   }
 

@@ -1,12 +1,7 @@
 {
-  "deskLvShellNewsTitle": "Nowość: widok portfela",
-  "deskLvShellNewsText": "Ta instalacja pokazuje wszystko, jak dotąd. Płytko i Głębiej pokazują mniej.",
-  "deskLvShellNewsLook": "Zobacz",
-  "deskLvShellFailover": "Przełączanie węzła",
-  "deskLvShellOn": "Włączone",
-  "deskLvShellHeight": "Wysokość",
-  "deskLvShellVersion": "Wersja",
-  "deskLvShellRecheckHint": "Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie.",
-  "deskLvShellSwitchServer": "Zmień serwer",
-  "deskLvShellNoOtherServer": "Na liście nie ma innego serwera."
+  "deskStatusFailover": "Przełączanie węzła",
+  "deskStatusOn": "Włączone",
+  "deskStatusHeight": "Wysokość",
+  "deskStatusVersion": "Wersja",
+  "deskStatusRecheckHint": "Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie."
 }

@@ -6,12 +6,10 @@ import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../devices/device_ending.dart' show deviceEndingLabel;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
-import '../../../levels/level_features.dart' show LevelWording;
 import '../../../epic1.dart' show PaymentMode;
 import '../../../models.dart' show DeviceEnding, Epic1Via;
 import '../../../ui/via.dart';
 import '../../../ui/epic1/epic1_sealed.dart' show Epic1SealedBadge;
-import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
@@ -140,11 +138,10 @@ String? deskLinkPayee(WidgetRef ref, Tx t) {
   return (l.deskTxStatusWaitingFor(mailbox), ETone.info);
 }
 
-/// [statusWithMailbox] in the words of [wording]: Shallow and Deeper read an ordinary payment
-/// in plain words (Waiting for Alice, Arriving, Confirming, 2 of 3); the Deep end and every
-/// case with a word of its own (not delivered, posting, not posted, a backup, an invoice, another
-/// device, the sender's cancel) keep today's.
-(String, ETone) levelStatusWithMailbox(AppLocalizations l, Tx t, LevelWording wording, String? mailbox, {bool paused = false, DateTime? now}) {
+/// [statusWithMailbox] in plain words for an ordinary payment (Waiting for Alice, Maturing,
+/// Confirming, 2 of 3); every case with a word of its own (not delivered, posting, not posted, a
+/// backup, an invoice, another device, the sender's cancel) keeps [statusWithMailbox]'s.
+(String, ETone) payStatusWithMailbox(AppLocalizations l, Tx t, String? mailbox, {bool paused = false, DateTime? now}) {
   final today = statusWithMailbox(l, t, mailbox, paused: paused, now: now);
   final own = t.deviceEnding != null ||
       (mailbox != null && !t.incoming && t.state == TxState.waitingRecipient && now != null && mailboxStageWord(l, t.created, now) != null) ||
@@ -157,22 +154,20 @@ String? deskLinkPayee(WidgetRef ref, Tx t) {
       paused ||
       (t.incoming && t.senderCancelled) ||
       (t.method == TxMethod.file && t.state == TxState.waitingRecipient);
-  if (wording == LevelWording.technical || own) return today;
-  final plain = wording == LevelWording.plain;
+  if (own) return today;
   final name = mailbox == null || mailbox == linkPayeeUnnamed ? t.contactName : mailbox;
   // A maturing reward is on the chain already: Maturing, as the Outputs screen says, not Arriving.
-  if (t.immature) return (plain ? l.deskTxStatusImmature : l.deskLvPayImmatureCasual, ETone.info);
+  if (t.immature) return (l.deskPayMaturing, ETone.info);
   switch (t.state) {
     case TxState.waitingRecipient:
-      if (t.incoming) return plain ? (l.lvPayArriving, ETone.info) : today;
+      if (t.incoming) return today;
       if (name == null) return today;
-      return (plain ? l.txStatusWaitingFor(name) : l.deskTxStatusWaitingFor(name), ETone.info);
+      return (l.deskTxStatusWaitingFor(name), ETone.info);
     case TxState.posted:
-      return (l.lvPolPosted, ETone.info);
+      return (l.payPosted, ETone.info);
     case TxState.confirming:
       if (NetGate.killSwitch) return today;
-      if (plain) return (t.incoming ? l.lvPayArriving : l.lvPayConfirming(t.confirmations, t.confirmationsNeeded), ETone.info);
-      return (l.deskLvPayConfirmingComma(t.confirmations, t.confirmationsNeeded), ETone.info);
+      return (l.deskPayConfirmingComma(t.confirmations, t.confirmationsNeeded), ETone.info);
     case TxState.confirmed:
     case TxState.cancelled:
       return today;
@@ -541,11 +536,9 @@ class _TxRowState extends ConsumerState<TxRow> {
     final ts = context.ts;
     final t = widget.tx;
     final mailbox = deskTxMailboxName(ref, t);
-    final wording = ref.watch(deskLevelFeaturesProvider.select((f) => f.wording));
-    final shallow = ref.watch(deskLevelUiProvider.select((f) => f.shallow));
     final (word, tone) =
         invoiceStatusOf(context, ref, t) ??
-        levelStatusWithMailbox(context.l10n, t, wording, mailbox ?? deskLinkPayee(ref, t), paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff, now: ref.watch(deskClockProvider)());
+        payStatusWithMailbox(context.l10n, t, mailbox ?? deskLinkPayee(ref, t), paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff, now: ref.watch(deskClockProvider)());
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,
@@ -560,12 +553,9 @@ class _TxRowState extends ConsumerState<TxRow> {
     final labelEditable = widget.labelEditable && t.deviceName == null;
     final editing = labelEditable && ref.watch(txLabelEditingProvider) == _site;
     final labelled = t.labelText != null && widget.title == null;
-    final restoredMethod = shallow ? null : restoredMethodOf(l, t, short: true);
+    final restoredMethod = restoredMethodOf(l, t, short: true);
     // Through a pairing's mailbox: Epicbox, though LEPIC keeps it as an export.
-    // Shallow names no method: the row says who and how far, nothing else.
-    final method = shallow
-        ? null
-        : t.foundByScan
+    final method = t.foundByScan
         ? foundTexts(l, t).line
         : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodShortLabel(l, TxMethod.epicbox) : methodOf(l, t)));
     final extra = t.message;
@@ -573,13 +563,11 @@ class _TxRowState extends ConsumerState<TxRow> {
     final file = fileNameOf(t);
     final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? file ?? shortAddress(t.counterparty!, compact: true)) : null;
     final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
-    if (shallow && parts.isEmpty && !t.isInvoice) parts.add(l.deskLvPayKind);
     // One joiner on both apps ([metaSpans]): " · ", a quieter dot, a break only after it.
     final meta = metaSpans([for (final p in parts) TextSpan(text: p)], dot: TextStyle(color: c.lineField));
     // The sender, method or note the user typed on a scan find carries the tag.
     final typed = t.manualFields.any((f) => f != ManualField.label);
-    // Shallow names no method, so no seal either.
-    final sealed = !shallow && deskShowsSealed(ref, t);
+    final sealed = deskShowsSealed(ref, t);
     final TextStyle titleStyle = ts.strong;
     final Widget name;
     if (labelled) {
@@ -723,7 +711,7 @@ class _TxRowState extends ConsumerState<TxRow> {
               ? TxAmount(t, sub: compactTime(l, t))
               : SizedBox(
                   width: txAmountWidth,
-                  child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t, showFee: !shallow))),
+                  child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t))),
                 ),
         ),
       ],

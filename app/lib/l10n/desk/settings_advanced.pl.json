@@ -33,8 +33,5 @@
   "deskSetAdvConfirmationsMore": "Więcej potwierdzeń",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} potwierdzenie} few{{count} potwierdzenia} many{{count} potwierdzeń} other{{count} potwierdzenia}}",
   "deskSetAdvConfirmationsLowNote": "Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.",
-  "deskSetAdvConfirmationsNotSaved": "Nie zmieniono potwierdzeń",
-  "deskSetAdvViewLineOne": "Wysyłanie, odbieranie i kopie zapasowe. Węzeł i serwer Epicbox są wybierane automatycznie.",
-  "deskSetAdvViewLineTwo": "Dodaje metody płatności, węzeł, tryby sieci i kolejne portfele.",
-  "deskSetAdvViewLineThree": "Dodaje wyjścia, faktury, lokalny węzeł i każdy przełącznik Zaawansowanych."
+  "deskSetAdvConfirmationsNotSaved": "Nie zmieniono potwierdzeń"
 }

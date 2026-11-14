@@ -72,16 +72,6 @@
   "@deskSetSearchHiddenLine": {
     "description": "Settings search: line beside the Hidden here heading."
   },
-  "deskSetSearchShowIn": "Show in {view}",
-  "@deskSetSearchShowIn": {
-    "description": "Settings search, hidden result: button that changes to the view that shows the setting, then goes to it. view is Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "view": {
-        "type": "String",
-        "example": "Deep end"
-      }
-    }
-  },
   "deskSetSearchTurnOn": "Turn on",
   "@deskSetSearchTurnOn": {
     "description": "Settings search, hidden result: button that turns on the Advanced switch that shows the setting, then goes to it."
@@ -119,16 +109,6 @@
   "deskSetSearchResults": "Search results",
   "@deskSetSearchResults": {
     "description": "Settings search: the results list's name for screen readers."
-  },
-  "deskSetSearchViewGate": "{view} view",
-  "@deskSetSearchViewGate": {
-    "description": "What shows a hidden setting: a view. view is Shallow, Deeper or Deep end, e.g. \"Deep end view\".",
-    "placeholders": {
-      "view": {
-        "type": "String",
-        "example": "Deep end"
-      }
-    }
   },
   "deskSetSearchFeatGate": "Advanced › {feature}",
   "@deskSetSearchFeatGate": {
@@ -173,32 +153,11 @@
       }
     }
   },
-  "deskSetSearchViewApplied": "View: {view}",
-  "@deskSetSearchViewApplied": {
-    "description": "Notice after a search result changed the view. view is Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "view": {
-        "type": "String"
-      }
-    }
-  },
   "deskSetSearchFeatApplied": "Advanced › {feature}: on",
   "@deskSetSearchFeatApplied": {
     "description": "Notice after a search result turned on an Advanced switch.",
     "placeholders": {
       "feature": {
-        "type": "String"
-      }
-    }
-  },
-  "deskSetSearchFallbackView": "{page} shows in the {view} view.",
-  "@deskSetSearchFallbackView": {
-    "description": "Notice when a link opens a Settings page the current view hides; the first page of its group opens instead. view is Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "page": {
-        "type": "String"
-      },
-      "view": {
         "type": "String"
       }
     }
@@ -290,10 +249,6 @@
   "deskSetGrpServerStatus": "Server status",
   "@deskSetGrpServerStatus": {
     "description": "Settings: heading of the “Server status” group of rows (on its page and over search results)."
-  },
-  "deskSetGrpView": "View",
-  "@deskSetGrpView": {
-    "description": "Settings: heading of the “View” group of rows (on its page and over search results)."
   },
   "deskSetGrpShowsMore": "Shows more",
   "@deskSetGrpShowsMore": {
@@ -654,18 +609,6 @@
   "deskSetSynStatusSite": "status, health, uptime, monitor",
   "@deskSetSynStatusSite": {
     "description": "Settings search: other words that find the “Use status.btlabs.uk” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
-  "deskSetRowView": "View",
-  "@deskSetRowView": {
-    "description": "Settings row title: View (section advanced)."
-  },
-  "deskSetRowViewHint": "Shallow, Deeper or Deep end: how much of the wallet shows.",
-  "@deskSetRowViewHint": {
-    "description": "Settings row “View”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
-  },
-  "deskSetSynView": "level, depth, shallow, deeper, deep end, simple, expert, beginner, advanced mode",
-  "@deskSetSynView": {
-    "description": "Settings search: other words that find the “View” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
   "deskSetRowAdvOutputsHint": "The Outputs page: the coins the balance is made of.",
   "@deskSetRowAdvOutputsHint": {

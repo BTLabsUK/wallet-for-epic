@@ -6,14 +6,13 @@ import '../../../data_folder_io.dart' show desktopDataFolderName;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../levels/first_start.dart' show firstStartProvider;
-import '../../../levels/wallet_level.dart';
+import '../../../first_start.dart' show firstStartProvider;
 import '../../../tor_build.dart' show torBuilt;
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../../ui/theme/epic1_mark.dart' show Epic1Text;
-import '../../data/desk_levels.dart';
+import '../../data/desk_first_start.dart' show deskFirstStartProvider;
 import '../../widgets/kit.dart';
-import 'depth_dial.dart';
+import 'undercover_row.dart';
 import 'import_warning.dart';
 import 'onboarding_parts.dart';
 
@@ -32,8 +31,7 @@ const _folders = {
 
 /// First run, and "add a wallet" later: create, add an existing one, or restore. [arg] `'add'`
 /// is the later visit (wallets exist), `'advanced'` starts with Advanced open, `'tor-only'` with
-/// Tor only on (the screenshot tour's first start). A fresh install
-/// starts in the basic view ([firstStartLevel]); Settings › Advanced › View changes it.
+/// Tor only on (the screenshot tour's first start).
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key, this.arg});
 
@@ -52,14 +50,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   /// The first-start step is still to answer: the gate is held, nothing connects.
   bool get _held => ref.read(firstStartProvider);
 
-  /// A door was pressed: on a fresh install, answer the first-start step (the basic view, Tor
-  /// only) and only then [go]. Nothing connects before this on a fresh install.
+  /// A door was pressed: on a fresh install, answer the first-start step (with Tor only when
+  /// it is on) and only then [go]. Nothing connects before this on a fresh install.
   Future<void> _enter(VoidCallback go) async {
     if (_busy) return;
     if (_held) {
       setState(() => _busy = true);
       try {
-        await ref.read(deskLevelControlProvider).completeFirstStart(firstStartLevel, undercover: _undercover);
+        await ref.read(deskFirstStartProvider).complete(undercover: _undercover);
       } finally {
         if (mounted) setState(() => _busy = false);
       }
@@ -83,8 +81,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     final l = context.l10n;
     final hasWallets = widget.arg == 'add' || nav.canBack;
     final held = ref.watch(firstStartProvider);
-    // Watched even while held, so the stored level is loaded before a door stores one over it.
-    ref.watch(deskLevelProvider);
     void toCreate() => nav.go(DeskRoute.create);
     // The warning comes first: cancelling it answers nothing.
     void toImport() => importAfterWarning(context, ref, () {

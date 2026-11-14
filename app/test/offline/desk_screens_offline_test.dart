@@ -9,10 +9,8 @@ import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelProvider;
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -151,10 +149,9 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final api = _DownWallet(down);
-      // Deep end with Invoices on (Advanced › Experimental) and Outputs on, so every page is
-      // there to visit: a lower level shows Overview in place of the pages it hides.
+      // Outputs on, so every page is there to visit.
       final container = ProviderContainer(
-        overrides: [deskApiProvider.overrideWithValue(api), deskLevelProvider.overrideWithValue(WalletLevel.everything)],
+        overrides: [deskApiProvider.overrideWithValue(api)],
         retry: (_, _) => null,
       );
       addTearDown(container.dispose);

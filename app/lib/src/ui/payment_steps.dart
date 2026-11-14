@@ -11,16 +11,16 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../l10n.dart';
-import '../../network_gate.dart' show NetGate;
-import '../../pairing_providers.dart' show PairNet, pairNetProvider;
-import '../../settings.dart' show clockProvider;
-import '../../stall_retry.dart' show invoicePaymentStalled;
-import '../../wallet_service.dart';
-import '../common.dart';
-import '../finished_not_posted.dart' show isPostElsewhere;
-import '../send_tracker.dart' show RoundSteps;
-import '../theme/protocol.dart' show TimelineState, TimelineStep;
+import '../l10n.dart';
+import '../network_gate.dart' show NetGate;
+import '../pairing_providers.dart' show PairNet, pairNetProvider;
+import '../settings.dart' show clockProvider;
+import '../stall_retry.dart' show invoicePaymentStalled;
+import '../wallet_service.dart';
+import 'common.dart';
+import 'finished_not_posted.dart' show isPostElsewhere;
+import 'send_tracker.dart' show RoundSteps;
+import 'theme/protocol.dart' show TimelineState, TimelineStep;
 
 /// The step word of [tx] for a row's sub-line: "Waiting for Alice", "Arriving",
 /// "Confirming 1 of 3", "Received", "Sent". [who] is the other side's name when known.
@@ -43,12 +43,12 @@ String paymentStepWord(
     // The sender's word and cancel notes keep theirs; otherwise the payment is on its way in.
     TxPhase.waitingSender when senderCancelled(tx) || pairedWith != null => today,
     TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) => today,
-    TxPhase.waitingSender => l.lvPayArriving,
+    TxPhase.waitingSender => l.payArriving,
     TxPhase.confirming when isPostElsewhere(tx) || tx.repostable || tx.posting || NetGate.killSwitch => today,
     // Taken by the network but in no block yet: "Posted", never "Confirming 0 of 3".
     TxPhase.confirming => switch (txConfirmations(tx, tip) ?? 0) {
-      0 => l.lvPolPosted,
-      final n => l.lvPayConfirming(n, target ?? confirmationsTarget),
+      0 => l.payPosted,
+      final n => l.payConfirming(n, target ?? confirmationsTarget),
     },
     _ => today,
   };
@@ -98,7 +98,7 @@ List<TimelineStep>? paymentSteps(
     for (final (i, s) in steps.indexed)
       () {
         var label = s.label;
-        if (outgoing && i == 1 && who != null && s.label == l.txStepAccepted) label = l.lvPaySigned(who);
+        if (outgoing && i == 1 && who != null && s.label == l.txStepAccepted) label = l.paySigned(who);
         final at = times[i];
         // A step reached (done, or the one under way) shows its time; one not reached has none.
         final known = s.state != TimelineState.todo && at != null && at > 0;
@@ -109,7 +109,7 @@ List<TimelineStep>? paymentSteps(
   ];
 }
 
-/// [steps] with the Confirming step in the levels' one format: "Confirming 2 of 3" while blocks
+/// [steps] with the Confirming step in one format: "Confirming 2 of 3" while blocks
 /// come in; with none yet the step before it (Posted to the network, or Paid) is the one under
 /// way and Confirming is still to come, so no step ever reads "Confirming 0 of 3".
 List<TimelineStep> _plainConfirming(AppLocalizations l, List<TimelineStep> steps, TxEntry tx, BigInt? tip, {int? target}) {
@@ -120,7 +120,7 @@ List<TimelineStep> _plainConfirming(AppLocalizations l, List<TimelineStep> steps
   if (i < 0) return steps;
   final out = [...steps];
   if (n > 0) {
-    out[i] = TimelineStep(l.lvPayConfirming(n, t), TimelineState.current, detail: steps[i].detail);
+    out[i] = TimelineStep(l.payConfirming(n, t), TimelineState.current, detail: steps[i].detail);
     return out;
   }
   out[i] = TimelineStep(l.txStepConfirming, TimelineState.todo);

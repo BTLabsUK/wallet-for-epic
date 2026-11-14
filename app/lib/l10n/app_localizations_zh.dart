@@ -4086,9 +4086,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvActBilledBy => '开单方';
 
   @override
-  String get deskInvActOverviewTitle => '账单';
-
-  @override
   String deskInvActOverviewToPay(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -7102,18 +7099,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvBreakTotal => '总额';
-
-  @override
-  String get deskOvBreakConfirming => '确认中';
-
-  @override
-  String get deskOvBreakImmature => '挖矿奖励';
-
-  @override
-  String get deskOvBreakAwaiting => '等待发送方';
-
-  @override
-  String get deskOvBreakLocked => '发送中锁定';
 
   @override
   String get deskOvUpdating => '正在更新';
@@ -15639,422 +15624,231 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get levelThreeTitle => '让我探索全部';
+  String get undercoverTitle => '仅 Tor';
 
   @override
-  String get levelUndercoverTitle => '仅 Tor';
-
-  @override
-  String get levelRowTitle => '钱包视图';
-
-  @override
-  String get lvPickStopOne => '浅水';
-
-  @override
-  String get lvPickStopTwo => '再深些';
-
-  @override
-  String get lvPickStopThree => '深水区';
-
-  @override
-  String get lvPickLineOne => '收款、付款，就这样。其余交给钱包。';
-
-  @override
-  String get lvPickLineTwo => '用简单的话看到它在做什么。';
-
-  @override
-  String get lvPickLineThree => '每个开关、每个数字，全归你。';
-
-  @override
-  String get lvPickNone => '选一个档位';
-
-  @override
-  String get lvPickNoneLine => '预览随档位变化。';
-
-  @override
-  String get lvPickDepth => '视图';
-
-  @override
-  String get lvPickHelpTitle => '这决定什么';
-
-  @override
-  String get lvPickHelpText => '只决定应用显示多少。每个视图收付款的方式都一样，密钥和币也一样。';
-
-  @override
-  String get lvPickUndercoverHelpNet =>
+  String get undercoverHelp =>
       '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 连接模式 › 仅 Tor 相同；之后可在 设置 › 网络与隐私 中关闭。';
 
   @override
-  String get lvPickUndercover => '隐身';
+  String get torWaitTitle => '正在通过 Tor 连接';
 
   @override
-  String get lvPickUndercoverLaterHelp =>
-      '仅 Tor。所有连接都经过 Tor；启动会慢一些。在 Tor 被封锁的地方，关闭此项之前钱包无法连接。';
+  String get torWaitLead => '第一次通过 Tor 连接可能需要一分钟。';
 
   @override
-  String get lvPickTorTitle => '正在通过 Tor 连接';
+  String get torWaitBusy => '正在建立线路…';
 
   @override
-  String get lvPickTorLead => '第一次通过 Tor 连接可能需要一分钟。';
+  String get torWaitBlocked => '如果你所在的地方封锁了 Tor，关闭隐身之前钱包无法连接。';
 
   @override
-  String get lvPickTorBusy => '正在建立线路…';
+  String get torWaitOff => '关闭隐身';
 
   @override
-  String get lvPickTorBlocked => '如果你所在的地方封锁了 Tor，关闭隐身之前钱包无法连接。';
+  String get torWaitOffDone => '隐身已关闭。正在直接连接。';
 
   @override
-  String get lvPickTorOff => '关闭隐身';
+  String get payArriving => '即将到账';
 
   @override
-  String get lvPickTorOffDone => '隐身已关闭。正在直接连接。';
-
-  @override
-  String get lvPayArriving => '即将到账';
-
-  @override
-  String lvPayConfirming(int count, int target) {
+  String payConfirming(int count, int target) {
     return '确认中 $count/$target';
   }
 
   @override
-  String lvPayConfirmingOf(int count, int target) {
+  String payConfirmingOf(int count, int target) {
     return '确认中 $count/$target';
   }
 
   @override
-  String lvPaySigned(String name) {
+  String paySigned(String name) {
     return '$name 已签名';
   }
 
   @override
-  String get lvPayOnItsWay => '已发出';
+  String get payOnItsWay => '已发出';
 
   @override
-  String get lvPayCloseNote => '可以关闭此页。完成前会显示在“活动”中。';
+  String get payCloseNote => '可以关闭此页。完成前会显示在“活动”中。';
 
   @override
-  String lvPayArrivalFrom(String amount, String name) {
+  String payArrivalFrom(String amount, String name) {
     return '$amount 来自 $name';
   }
 
   @override
-  String get lvPayOpen => '打开';
+  String get payOpen => '打开';
 
   @override
-  String get lvPayNewToday => '今日新增';
+  String get payNewToday => '今日新增';
 
   @override
-  String get lvPayNewAddress => '您的新地址';
+  String get payNewAddress => '您的新地址';
 
   @override
-  String lvPayServerLine(String name) {
+  String payServerLine(String name) {
     return 'Epicbox 服务器：$name。';
   }
 
   @override
-  String get lvPayOldAddressLine => '持有旧地址的人需要使用新地址。';
+  String get payOldAddressLine => '持有旧地址的人需要使用新地址。';
 
   @override
-  String get lvPayStarted => '开始于';
+  String get payStarted => '开始于';
 
   @override
-  String get lvPayPaymentId => '付款编号';
+  String get payPaymentId => '付款编号';
 
   @override
-  String get lvPayConfirmations => '确认数';
+  String get payCopyDetails => '复制详情';
 
   @override
-  String get lvPayCopyDetails => '复制详情';
-
-  @override
-  String lvShellStatusTip(String name, String state) {
+  String statusTip(String name, String state) {
     return '$name · $state';
   }
 
   @override
-  String get lvShellStateBehind => '落后';
+  String get statusStateBehind => '落后';
 
   @override
-  String get lvShellStateCatchingUp => '正在同步';
+  String get statusOpensDetails => '显示详情';
 
   @override
-  String get lvShellStateConnecting => '正在连接';
+  String get statusNotChecked => '尚未检查';
 
   @override
-  String get lvShellOpensDetails => '显示详情';
+  String get statusBoxListening => '已连接 · 正在等待付款';
 
   @override
-  String get lvShellLatestBlock => '最新区块';
+  String get statusBoxNotReachable => '无法连接 · 正在继续尝试';
 
   @override
-  String get lvShellThisWallet => '本钱包';
-
-  @override
-  String get lvShellUpToDate => '已是最新';
-
-  @override
-  String get lvShellNotChecked => '尚未检查';
-
-  @override
-  String get lvShellLastChange => '最近变更';
-
-  @override
-  String get lvShellBoxListening => '已连接 · 正在等待付款';
-
-  @override
-  String get lvShellBoxNotReachable => '无法连接 · 正在继续尝试';
-
-  @override
-  String get lvShellBoxDownBody => '发给你的付款会等待，服务器恢复后到账。除非你切换，否则什么都不会改变。';
-
-  @override
-  String lvShellOfferReady(String name) {
+  String statusOfferReady(String name) {
     return '$name 已就绪';
   }
 
   @override
-  String lvShellOfferBody(String name) {
+  String statusOfferBody(String name) {
     return '切换后你会在 $name 上获得新地址。持有你旧地址的人需要新地址。';
   }
 
   @override
-  String lvShellSwitchTo(String name) {
+  String statusSwitchTo(String name) {
     return '切换到 $name';
   }
 
   @override
-  String get lvShellKeepWaiting => '继续等待';
+  String get statusKeepWaiting => '继续等待';
 
   @override
-  String get lvShellRelayDownTitle => '你的 Epicbox 服务器无法连接。';
+  String get statusRelayDownTitle => '你的 Epicbox 服务器无法连接。';
 
   @override
-  String lvShellRelayDownShort(String name) {
+  String statusRelayDownShort(String name) {
     return '$name 可以接替；你的地址会随之改变。';
   }
 
   @override
-  String get lvShellSwitch => '切换';
+  String get statusSwitch => '切换';
 
   @override
-  String lvShellSwitchedNotice(String name) {
+  String statusSwitchedNotice(String name) {
     return '已切换到 $name。你的新地址已就绪。';
   }
 
   @override
-  String get lvShellShowNewAddress => '显示新地址';
+  String get statusShowNewAddress => '显示新地址';
 
   @override
-  String get lvShellAddress => '地址';
+  String get statusAddress => '地址';
 
   @override
-  String lvShellPairNotice(String name) {
+  String statusPairNotice(String name) {
     return '$name 想与此钱包配对。';
   }
 
   @override
-  String lvShellQuietArriving(String amount) {
+  String statusQuietArriving(String amount) {
     return '+$amount 即将到账';
   }
 
   @override
-  String get lvPolPosted => '已广播';
+  String get payPosted => '已广播';
 
   @override
-  String get deskLvStartPreviewLabel => '概览预览。档位越深，显示越多。';
+  String get deskUndercoverAbout => '关于仅 Tor';
 
   @override
-  String get deskLvStartPreviewCaption => '此视图下的首页。已保存的内容不会改变。';
+  String get deskSendNothingLeaves => '按下“发送”之前不会发出任何内容。发出后无法撤回。';
 
   @override
-  String get deskLvStartCover => '选择一个档位以查看预览';
-
-  @override
-  String get deskLvStartUndercoverAbout => '关于仅 Tor';
-
-  @override
-  String get deskLvStartHelpShallow => '浅水 · 一个地址，不显示服务器名称，没有开关。';
-
-  @override
-  String get deskLvStartHelpDeeper => '再深些 · 同一个钱包，并用简单的话显示它在做什么。';
-
-  @override
-  String get deskLvStartHelpDeep => '深水区 · 每个开关、每个数字：现在的应用。';
-
-  @override
-  String get deskLvStartMiniWallet => '主钱包';
-
-  @override
-  String get deskLvStartMiniLine => '+12.5 即将到账 · 25.0 已冻结';
-
-  @override
-  String get deskLvStartMiniFresh => '刚挖出的币';
-
-  @override
-  String get deskLvSendHowTo => '发送方式';
-
-  @override
-  String get deskLvSendButton => '发送';
-
-  @override
-  String deskLvSendButtonAmount(String amount) {
-    return '发送 $amount EPIC';
-  }
-
-  @override
-  String deskLvSendButtonTo(String amount, String name) {
-    return '向 $name 发送 $amount EPIC';
-  }
-
-  @override
-  String get deskLvSendNothingLeaves => '按下“发送”之前不会发出任何内容。发出后无法撤回。';
-
-  @override
-  String get deskLvSendPasswordTitle => '你的密码';
-
-  @override
-  String get deskLvSendConfirm => '发送';
-
-  @override
-  String deskLvSendLiveTo(String name) {
+  String deskSendLiveTo(String name) {
     return '正在发往 $name';
   }
 
   @override
-  String deskLvSendLiveAmountTo(String amount, String name) {
+  String deskSendLiveAmountTo(String amount, String name) {
     return '$amount EPIC 给 $name';
   }
 
   @override
-  String deskLvSendLiveAmount(String amount) {
+  String deskSendLiveAmount(String amount) {
     return '$amount EPIC';
   }
 
   @override
-  String get deskLvSendYourAddress => '你的地址';
-
-  @override
-  String get deskLvSendReady => '可以接收';
-
-  @override
-  String get deskLvSendClosedInfo => '钱包关闭期间发出的付款，会在钱包打开后到账。';
-
-  @override
-  String get deskLvSendPayFiles => '付款文件';
-
-  @override
-  String get deskLvSendPrevAddress => '旧地址';
-
-  @override
-  String deskLvSendPrevText(String server) {
-    return '旧地址在 $server 上。拥有旧地址的人需要新地址。';
-  }
-
-  @override
-  String deskLvPayConfirmingComma(int count, int target) {
+  String deskPayConfirmingComma(int count, int target) {
     return '确认中，$count/$target';
   }
 
   @override
-  String deskLvPayOnItsWayTo(String name) {
+  String deskPayOnItsWayTo(String name) {
     return '正在发往 $name';
   }
 
   @override
-  String deskLvPaySendingTo(String name) {
-    return '正在发送给 $name';
-  }
-
-  @override
-  String deskLvPayArrivingFrom(String name) {
+  String deskPayArrivingFrom(String name) {
     return '正在收取来自 $name 的付款';
   }
 
   @override
-  String deskLvPayStartedAt(String amount, String time) {
+  String deskPayStartedAt(String amount, String time) {
     return '$amount EPIC · 开始于 $time';
   }
 
   @override
-  String deskLvPayHeroArriving(String amount, String name) {
-    return '+$amount 来自 $name，即将到账';
-  }
+  String get deskPayTileConfirming => '仍在确认';
 
   @override
-  String deskLvPayHeroArrivingMany(String amount) {
-    return '+$amount 即将到账';
-  }
+  String get deskPayTileMining => '刚挖出的币';
 
   @override
-  String deskLvPayHeroHold(String amount, String name) {
-    return '$amount 已冻结，等待 $name 签署';
-  }
+  String get deskPayTileAwaiting => '等待回复';
 
   @override
-  String deskLvPayHeroHoldMany(String amount) {
-    return '$amount 已冻结，等待签署';
-  }
+  String get deskPayTileLocked => '为付款预留';
 
   @override
-  String get deskLvPayHeroNothing => '暂时没有即将到账的付款。';
+  String get deskPayMaturing => '刚挖出的币，暂不可用';
 
   @override
-  String get deskLvPayReadyHead => '钱包已就绪';
+  String get deskStatusFailover => '故障切换';
 
   @override
-  String get deskLvPayReadyText => '分享地址即可收到第一笔 EPIC。';
+  String get deskStatusOn => '开';
 
   @override
-  String get deskLvPayTileConfirming => '仍在确认';
+  String get deskStatusHeight => '高度';
 
   @override
-  String get deskLvPayTileMining => '刚挖出的币';
+  String get deskStatusVersion => '版本';
 
   @override
-  String get deskLvPayTileAwaiting => '等待回复';
+  String get deskStatusRecheckHint => '如果金额看起来不对，钱包会重新读取区块链。';
 
   @override
-  String get deskLvPayTileLocked => '为付款预留';
-
-  @override
-  String get deskLvPayImmatureCasual => '刚挖出的币，暂不可用';
-
-  @override
-  String get deskLvPayKind => '付款';
-
-  @override
-  String get deskLvShellNewsTitle => '新功能：钱包视图';
-
-  @override
-  String get deskLvShellNewsText => '此安装显示全部内容，与以往相同。浅水和再深些显示得更少。';
-
-  @override
-  String get deskLvShellNewsLook => '去看看';
-
-  @override
-  String get deskLvShellFailover => '故障切换';
-
-  @override
-  String get deskLvShellOn => '开';
-
-  @override
-  String get deskLvShellHeight => '高度';
-
-  @override
-  String get deskLvShellVersion => '版本';
-
-  @override
-  String get deskLvShellRecheckHint => '如果金额看起来不对，钱包会重新读取区块链。';
-
-  @override
-  String get lvShellSwitchServer => '切换服务器';
-
-  @override
-  String get deskLvShellSwitchServer => '切换服务器';
-
-  @override
-  String get deskLvShellNoOtherServer => '列表里没有其他服务器。';
+  String get statusSwitchServer => '切换服务器';
 
   @override
   String get deskLastSessionFroze => '上次应用停止了响应。要发送日志吗？';
@@ -16126,7 +15920,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskLvPayOnEpicbox => '在 Epicbox 上';
+  String get deskPayOnEpicbox => '在 Epicbox 上';
 
   @override
   String get deskRailReceivingInternet => '接收中 · 互联网';
@@ -16744,11 +16538,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetSearchHiddenLine => '其他视图或“高级”中的开关会显示它们';
 
   @override
-  String deskSetSearchShowIn(String view) {
-    return '在$view中显示';
-  }
-
-  @override
   String get deskSetSearchTurnOn => '开启';
 
   @override
@@ -16773,11 +16562,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSearchResults => '搜索结果';
-
-  @override
-  String deskSetSearchViewGate(String view) {
-    return '$view视图';
-  }
 
   @override
   String deskSetSearchFeatGate(String feature) {
@@ -16811,18 +16595,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskSetSearchViewApplied(String view) {
-    return '视图：$view';
-  }
-
-  @override
   String deskSetSearchFeatApplied(String feature) {
     return '高级 › $feature：已开启';
-  }
-
-  @override
-  String deskSetSearchFallbackView(String page, String view) {
-    return '$page在$view视图中显示。';
   }
 
   @override
@@ -16886,9 +16660,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetGrpServerStatus => '服务器状态';
-
-  @override
-  String get deskSetGrpView => '视图';
 
   @override
   String get deskSetGrpShowsMore => '显示更多';
@@ -17165,15 +16936,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetSynStatusSite => '状态, 健康, 在线时间, 监控';
 
   @override
-  String get deskSetRowView => '视图';
-
-  @override
-  String get deskSetRowViewHint => '浅水、再深些或深水区：钱包显示多少内容。';
-
-  @override
-  String get deskSetSynView => '级别, 深度, 浅水, 再深些, 深水区, 简单, 专家, 新手, 高级模式';
-
-  @override
   String get deskSetRowAdvOutputsHint => '“输出”页：组成余额的币。';
 
   @override
@@ -17310,15 +17072,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAcctRemove => '删除';
-
-  @override
-  String get deskSetAdvViewLineOne => '发送、收款和备份。节点和 Epicbox 服务器自动选择。';
-
-  @override
-  String get deskSetAdvViewLineTwo => '增加付款方式、节点、网络模式和更多钱包。';
-
-  @override
-  String get deskSetAdvViewLineThree => '增加输出、发票、本地节点和所有高级开关。';
 
   @override
   String get deskSetFrameBack => '钱包';
@@ -18807,7 +18560,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskLvPaySendingInPerson => '正在当面发送';
+  String get deskPaySendingInPerson => '正在当面发送';
 
   @override
   String get deskInvIssuerWaitingInPerson => '正在等待对方钱包的回复。在对方批准之前不会付款。';
@@ -18876,12 +18629,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskIpOnlineDetails => '详情';
 
   @override
-  String deskLvPaySendingVia(String via) {
+  String deskPaySendingVia(String via) {
     return '正在$via发送';
   }
 
   @override
-  String deskLvPayArrivingVia(String via) {
+  String deskPayArrivingVia(String via) {
     return '正在$via收取';
   }
 
@@ -18931,12 +18684,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskLvSendLiveVia(String via) {
+  String deskSendLiveVia(String via) {
     return '正在$via发送';
   }
 
   @override
-  String deskLvSendLiveAmountVia(String amount, String via) {
+  String deskSendLiveAmountVia(String amount, String via) {
     return '$amount EPIC（$via）';
   }
 

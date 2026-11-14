@@ -4379,9 +4379,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskInvActBilledBy => 'Gestellt von';
 
   @override
-  String get deskInvActOverviewTitle => 'Rechnungen';
-
-  @override
   String deskInvActOverviewToPay(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -7651,18 +7648,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOvBreakTotal => 'Gesamt';
-
-  @override
-  String get deskOvBreakConfirming => 'Wird bestätigt';
-
-  @override
-  String get deskOvBreakImmature => 'Mining-Belohnungen';
-
-  @override
-  String get deskOvBreakAwaiting => 'Wartet auf Absender';
-
-  @override
-  String get deskOvBreakLocked => 'In Zahlungen gesperrt';
 
   @override
   String get deskOvUpdating => 'Aktualisierung';
@@ -16755,443 +16740,236 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get levelThreeTitle => 'Ich will alles erkunden';
+  String get undercoverTitle => 'Nur Tor';
 
   @override
-  String get levelUndercoverTitle => 'Nur Tor';
-
-  @override
-  String get levelRowTitle => 'Wallet-Ansicht';
-
-  @override
-  String get lvPickStopOne => 'Flach';
-
-  @override
-  String get lvPickStopTwo => 'Tiefer';
-
-  @override
-  String get lvPickStopThree => 'Ganz tief';
-
-  @override
-  String get lvPickLineOne =>
-      'Senden, empfangen, fertig. Den Rest erledigt die Wallet.';
-
-  @override
-  String get lvPickLineTwo =>
-      'Sehen Sie, was sie gerade tut, in einfachen Worten.';
-
-  @override
-  String get lvPickLineThree =>
-      'Jeder Schalter, jede Zahl. Alles gehört Ihnen.';
-
-  @override
-  String get lvPickNone => 'Wählen Sie eine Stufe';
-
-  @override
-  String get lvPickNoneLine => 'Die Vorschau folgt dem Regler.';
-
-  @override
-  String get lvPickDepth => 'Ansicht';
-
-  @override
-  String get lvPickHelpTitle => 'Was das bestimmt';
-
-  @override
-  String get lvPickHelpText =>
-      'Nur, wie viel die App zeigt. Jede Ansicht sendet und empfängt gleich, mit denselben Schlüsseln und denselben Coins.';
-
-  @override
-  String get lvPickUndercoverHelpNet =>
+  String get undercoverHelp =>
       'Nur Tor, ab der ersten Verbindung. Jede Verbindung läuft über Tor; der Start dauert länger.\n\nBisher wurde nichts verbunden. Wie Verbindungsmodus › Nur Tor; lässt sich später unter Einstellungen › Netzwerk & Datenschutz ausschalten.';
 
   @override
-  String get lvPickUndercover => 'Inkognito';
+  String get torWaitTitle => 'Verbindung über Tor';
 
   @override
-  String get lvPickUndercoverLaterHelp =>
-      'Nur Tor. Jede Verbindung läuft über Tor; der Start dauert länger. Wo Tor gesperrt ist, kann die Wallet sich erst verbinden, wenn das aus ist.';
-
-  @override
-  String get lvPickTorTitle => 'Verbindung über Tor';
-
-  @override
-  String get lvPickTorLead =>
+  String get torWaitLead =>
       'Die erste Verbindung über Tor kann eine Minute dauern.';
 
   @override
-  String get lvPickTorBusy => 'Verbindung wird aufgebaut…';
+  String get torWaitBusy => 'Verbindung wird aufgebaut…';
 
   @override
-  String get lvPickTorBlocked =>
+  String get torWaitBlocked =>
       'Ist Tor bei Ihnen gesperrt, kann die Wallet sich erst verbinden, wenn Inkognito aus ist.';
 
   @override
-  String get lvPickTorOff => 'Inkognito ausschalten';
+  String get torWaitOff => 'Inkognito ausschalten';
 
   @override
-  String get lvPickTorOffDone => 'Inkognito ist aus. Direkte Verbindung.';
+  String get torWaitOffDone => 'Inkognito ist aus. Direkte Verbindung.';
 
   @override
-  String get lvPayArriving => 'Unterwegs';
+  String get payArriving => 'Unterwegs';
 
   @override
-  String lvPayConfirming(int count, int target) {
+  String payConfirming(int count, int target) {
     return 'Bestätigung $count von $target';
   }
 
   @override
-  String lvPayConfirmingOf(int count, int target) {
+  String payConfirmingOf(int count, int target) {
     return 'Bestätigung $count von $target';
   }
 
   @override
-  String lvPaySigned(String name) {
+  String paySigned(String name) {
     return '$name hat signiert';
   }
 
   @override
-  String get lvPayOnItsWay => 'Unterwegs';
+  String get payOnItsWay => 'Unterwegs';
 
   @override
-  String get lvPayCloseNote =>
+  String get payCloseNote =>
       'Sie können das schließen. Die Zahlung steht unter Aktivität, bis sie fertig ist.';
 
   @override
-  String lvPayArrivalFrom(String amount, String name) {
+  String payArrivalFrom(String amount, String name) {
     return '$amount von $name';
   }
 
   @override
-  String get lvPayOpen => 'Öffnen';
+  String get payOpen => 'Öffnen';
 
   @override
-  String get lvPayNewToday => 'Neu heute';
+  String get payNewToday => 'Neu heute';
 
   @override
-  String get lvPayNewAddress => 'Ihre neue Adresse';
+  String get payNewAddress => 'Ihre neue Adresse';
 
   @override
-  String lvPayServerLine(String name) {
+  String payServerLine(String name) {
     return 'Epicbox-Server: $name.';
   }
 
   @override
-  String get lvPayOldAddressLine =>
-      'Wer die alte Adresse hat, braucht die neue.';
+  String get payOldAddressLine => 'Wer die alte Adresse hat, braucht die neue.';
 
   @override
-  String get lvPayStarted => 'Gestartet';
+  String get payStarted => 'Gestartet';
 
   @override
-  String get lvPayPaymentId => 'Zahlungs-ID';
+  String get payPaymentId => 'Zahlungs-ID';
 
   @override
-  String get lvPayConfirmations => 'Bestätigungen';
+  String get payCopyDetails => 'Details kopieren';
 
   @override
-  String get lvPayCopyDetails => 'Details kopieren';
-
-  @override
-  String lvShellStatusTip(String name, String state) {
+  String statusTip(String name, String state) {
     return '$name · $state';
   }
 
   @override
-  String get lvShellStateBehind => 'Im Rückstand';
+  String get statusStateBehind => 'Im Rückstand';
 
   @override
-  String get lvShellStateCatchingUp => 'Holt auf';
+  String get statusOpensDetails => 'Zeigt Details';
 
   @override
-  String get lvShellStateConnecting => 'Verbindet';
+  String get statusNotChecked => 'Noch nicht geprüft';
 
   @override
-  String get lvShellOpensDetails => 'Zeigt Details';
+  String get statusBoxListening => 'Verbunden · wartet auf Zahlungen';
 
   @override
-  String get lvShellLatestBlock => 'Neuester Block';
+  String get statusBoxNotReachable => 'Nicht erreichbar · versucht es weiter';
 
   @override
-  String get lvShellThisWallet => 'Diese Wallet';
-
-  @override
-  String get lvShellUpToDate => 'Aktuell';
-
-  @override
-  String get lvShellNotChecked => 'Noch nicht geprüft';
-
-  @override
-  String get lvShellLastChange => 'Letzte Änderung';
-
-  @override
-  String get lvShellBoxListening => 'Verbunden · wartet auf Zahlungen';
-
-  @override
-  String get lvShellBoxNotReachable => 'Nicht erreichbar · versucht es weiter';
-
-  @override
-  String get lvShellBoxDownBody =>
-      'Zahlungen an Sie warten und kommen an, sobald der Server zurück ist. Nichts ändert sich, solange Sie nicht wechseln.';
-
-  @override
-  String lvShellOfferReady(String name) {
+  String statusOfferReady(String name) {
     return '$name ist bereit';
   }
 
   @override
-  String lvShellOfferBody(String name) {
+  String statusOfferBody(String name) {
     return 'Ein Wechsel gibt Ihnen eine neue Adresse bei $name. Wer Ihre alte Adresse hat, braucht die neue.';
   }
 
   @override
-  String lvShellSwitchTo(String name) {
+  String statusSwitchTo(String name) {
     return 'Zu $name wechseln';
   }
 
   @override
-  String get lvShellKeepWaiting => 'Weiter warten';
+  String get statusKeepWaiting => 'Weiter warten';
 
   @override
-  String get lvShellRelayDownTitle =>
-      'Ihr Epicbox-Server ist nicht erreichbar.';
+  String get statusRelayDownTitle => 'Ihr Epicbox-Server ist nicht erreichbar.';
 
   @override
-  String lvShellRelayDownShort(String name) {
+  String statusRelayDownShort(String name) {
     return '$name kann übernehmen; Ihre Adresse ändert sich damit.';
   }
 
   @override
-  String get lvShellSwitch => 'Wechseln';
+  String get statusSwitch => 'Wechseln';
 
   @override
-  String lvShellSwitchedNotice(String name) {
+  String statusSwitchedNotice(String name) {
     return 'Jetzt bei $name. Ihre neue Adresse ist bereit.';
   }
 
   @override
-  String get lvShellShowNewAddress => 'Neue Adresse zeigen';
+  String get statusShowNewAddress => 'Neue Adresse zeigen';
 
   @override
-  String get lvShellAddress => 'Adresse';
+  String get statusAddress => 'Adresse';
 
   @override
-  String lvShellPairNotice(String name) {
+  String statusPairNotice(String name) {
     return '$name möchte sich mit dieser Wallet koppeln.';
   }
 
   @override
-  String lvShellQuietArriving(String amount) {
+  String statusQuietArriving(String amount) {
     return '+$amount unterwegs';
   }
 
   @override
-  String get lvPolPosted => 'Gesendet';
+  String get payPosted => 'Gesendet';
 
   @override
-  String get deskLvStartPreviewLabel =>
-      'Vorschau der Übersicht. Sie zeigt mehr, je tiefer der Regler steht.';
+  String get deskUndercoverAbout => 'Über Nur Tor';
 
   @override
-  String get deskLvStartPreviewCaption =>
-      'Start in dieser Ansicht. Gespeichert wird nichts anders.';
-
-  @override
-  String get deskLvStartCover => 'Stufe wählen, um die Vorschau zu sehen';
-
-  @override
-  String get deskLvStartUndercoverAbout => 'Über Nur Tor';
-
-  @override
-  String get deskLvStartHelpShallow =>
-      'Flach · eine Adresse, keine Servernamen, keine Schalter.';
-
-  @override
-  String get deskLvStartHelpDeeper =>
-      'Tiefer · dieselbe Wallet, dazu, was sie gerade tut, in einfachen Worten.';
-
-  @override
-  String get deskLvStartHelpDeep =>
-      'Ganz tief · jeder Schalter, jede Zahl: die App von heute.';
-
-  @override
-  String get deskLvStartMiniWallet => 'Hauptwallet';
-
-  @override
-  String get deskLvStartMiniLine => '+12,5 kommen an · 25,0 gehalten';
-
-  @override
-  String get deskLvStartMiniFresh => 'Frisch vom Mining';
-
-  @override
-  String get deskLvSendHowTo => 'So senden';
-
-  @override
-  String get deskLvSendButton => 'Senden';
-
-  @override
-  String deskLvSendButtonAmount(String amount) {
-    return '$amount EPIC senden';
-  }
-
-  @override
-  String deskLvSendButtonTo(String amount, String name) {
-    return '$amount EPIC an $name senden';
-  }
-
-  @override
-  String get deskLvSendNothingLeaves =>
+  String get deskSendNothingLeaves =>
       'Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen.';
 
   @override
-  String get deskLvSendPasswordTitle => 'Ihr Passwort';
-
-  @override
-  String get deskLvSendConfirm => 'Senden';
-
-  @override
-  String deskLvSendLiveTo(String name) {
+  String deskSendLiveTo(String name) {
     return 'Unterwegs zu $name';
   }
 
   @override
-  String deskLvSendLiveAmountTo(String amount, String name) {
+  String deskSendLiveAmountTo(String amount, String name) {
     return '$amount EPIC an $name';
   }
 
   @override
-  String deskLvSendLiveAmount(String amount) {
+  String deskSendLiveAmount(String amount) {
     return '$amount EPIC';
   }
 
   @override
-  String get deskLvSendYourAddress => 'Ihre Adresse';
-
-  @override
-  String get deskLvSendReady => 'Bereit zum Empfangen';
-
-  @override
-  String get deskLvSendClosedInfo =>
-      'Zahlungen, die gesendet wurden, während die Wallet geschlossen war, kommen an, sobald sie sich öffnet.';
-
-  @override
-  String get deskLvSendPayFiles => 'Zahlungsdateien';
-
-  @override
-  String get deskLvSendPrevAddress => 'Frühere Adresse';
-
-  @override
-  String deskLvSendPrevText(String server) {
-    return 'Die alte Adresse lag auf $server. Wer sie hat, braucht die neue.';
-  }
-
-  @override
-  String deskLvPayConfirmingComma(int count, int target) {
+  String deskPayConfirmingComma(int count, int target) {
     return 'Wird bestätigt, $count von $target';
   }
 
   @override
-  String deskLvPayOnItsWayTo(String name) {
+  String deskPayOnItsWayTo(String name) {
     return 'Unterwegs zu $name';
   }
 
   @override
-  String deskLvPaySendingTo(String name) {
-    return 'Senden an $name';
-  }
-
-  @override
-  String deskLvPayArrivingFrom(String name) {
+  String deskPayArrivingFrom(String name) {
     return 'Kommt von $name';
   }
 
   @override
-  String deskLvPayStartedAt(String amount, String time) {
+  String deskPayStartedAt(String amount, String time) {
     return '$amount EPIC · gestartet $time';
   }
 
   @override
-  String deskLvPayHeroArriving(String amount, String name) {
-    return '+$amount kommen von $name';
-  }
+  String get deskPayTileConfirming => 'Wird noch bestätigt';
 
   @override
-  String deskLvPayHeroArrivingMany(String amount) {
-    return '+$amount kommen an';
-  }
+  String get deskPayTileMining => 'Frisch vom Mining';
 
   @override
-  String deskLvPayHeroHold(String amount, String name) {
-    return '$amount gehalten, bis $name signiert';
-  }
+  String get deskPayTileAwaiting => 'Wartet auf Antwort';
 
   @override
-  String deskLvPayHeroHoldMany(String amount) {
-    return '$amount gehalten, bis signiert wird';
-  }
+  String get deskPayTileLocked => 'Für Sendungen reserviert';
 
   @override
-  String get deskLvPayHeroNothing => 'Noch nichts unterwegs.';
+  String get deskPayMaturing => 'Frisch vom Mining, noch nicht verfügbar';
 
   @override
-  String get deskLvPayReadyHead => 'Wallet bereit';
+  String get deskStatusFailover => 'Node-Wechsel';
 
   @override
-  String get deskLvPayReadyText =>
-      'Adresse teilen, um die ersten EPIC zu erhalten.';
+  String get deskStatusOn => 'Ein';
 
   @override
-  String get deskLvPayTileConfirming => 'Wird noch bestätigt';
+  String get deskStatusHeight => 'Höhe';
 
   @override
-  String get deskLvPayTileMining => 'Frisch vom Mining';
+  String get deskStatusVersion => 'Version';
 
   @override
-  String get deskLvPayTileAwaiting => 'Wartet auf Antwort';
-
-  @override
-  String get deskLvPayTileLocked => 'Für Sendungen reserviert';
-
-  @override
-  String get deskLvPayImmatureCasual =>
-      'Frisch vom Mining, noch nicht verfügbar';
-
-  @override
-  String get deskLvPayKind => 'Zahlung';
-
-  @override
-  String get deskLvShellNewsTitle => 'Neu: Wallet-Ansicht';
-
-  @override
-  String get deskLvShellNewsText =>
-      'Diese Installation zeigt wie bisher alles. Flach und Tiefer zeigen weniger.';
-
-  @override
-  String get deskLvShellNewsLook => 'Ansehen';
-
-  @override
-  String get deskLvShellFailover => 'Node-Wechsel';
-
-  @override
-  String get deskLvShellOn => 'Ein';
-
-  @override
-  String get deskLvShellHeight => 'Höhe';
-
-  @override
-  String get deskLvShellVersion => 'Version';
-
-  @override
-  String get deskLvShellRecheckHint =>
+  String get deskStatusRecheckHint =>
       'Wirkt der Betrag falsch, liest die Wallet die Chain erneut.';
 
   @override
-  String get lvShellSwitchServer => 'Server wechseln';
-
-  @override
-  String get deskLvShellSwitchServer => 'Server wechseln';
-
-  @override
-  String get deskLvShellNoOtherServer => 'Keine anderen Server in der Liste.';
+  String get statusSwitchServer => 'Server wechseln';
 
   @override
   String get deskLastSessionFroze =>
@@ -17266,7 +17044,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskLvPayOnEpicbox => 'Auf Epicbox';
+  String get deskPayOnEpicbox => 'Auf Epicbox';
 
   @override
   String get deskRailReceivingInternet => 'Empfängt · Internet';
@@ -17917,11 +17695,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Eine andere Ansicht oder ein Schalter unter Erweitert zeigt sie';
 
   @override
-  String deskSetSearchShowIn(String view) {
-    return 'In $view zeigen';
-  }
-
-  @override
   String get deskSetSearchTurnOn => 'Einschalten';
 
   @override
@@ -17947,11 +17720,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSearchResults => 'Suchergebnisse';
-
-  @override
-  String deskSetSearchViewGate(String view) {
-    return 'Ansicht $view';
-  }
 
   @override
   String deskSetSearchFeatGate(String feature) {
@@ -17986,18 +17754,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String deskSetSearchViewApplied(String view) {
-    return 'Ansicht: $view';
-  }
-
-  @override
   String deskSetSearchFeatApplied(String feature) {
     return 'Erweitert › $feature: an';
-  }
-
-  @override
-  String deskSetSearchFallbackView(String page, String view) {
-    return '$page gibt es in der Ansicht $view.';
   }
 
   @override
@@ -18061,9 +17819,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetGrpServerStatus => 'Serverstatus';
-
-  @override
-  String get deskSetGrpView => 'Ansicht';
 
   @override
   String get deskSetGrpShowsMore => 'Zeigt mehr';
@@ -18396,17 +18151,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'status, zustand, verfügbarkeit, überwachung';
 
   @override
-  String get deskSetRowView => 'Ansicht';
-
-  @override
-  String get deskSetRowViewHint =>
-      'Flach, Tiefer oder Ganz tief: wie viel der Wallet zu sehen ist.';
-
-  @override
-  String get deskSetSynView =>
-      'stufe, tiefe, flach, tiefer, ganz tief, einfach, experte, anfänger, erweiterter modus';
-
-  @override
   String get deskSetRowAdvOutputsHint =>
       'Die Seite Outputs: die Coins, aus denen das Guthaben besteht.';
 
@@ -18567,18 +18311,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAcctRemove => 'Entfernen';
-
-  @override
-  String get deskSetAdvViewLineOne =>
-      'Senden, Empfangen und Sicherungen. Node und Epicbox-Server werden automatisch gewählt.';
-
-  @override
-  String get deskSetAdvViewLineTwo =>
-      'Dazu Zahlungsmethoden, der Node, Netzwerkmodi und weitere Wallets.';
-
-  @override
-  String get deskSetAdvViewLineThree =>
-      'Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert.';
 
   @override
   String get deskSetFrameBack => 'Wallet';
@@ -20129,7 +19861,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskLvPaySendingInPerson => 'Persönlich senden';
+  String get deskPaySendingInPerson => 'Persönlich senden';
 
   @override
   String get deskInvIssuerWaitingInPerson =>
@@ -20203,12 +19935,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskIpOnlineDetails => 'Details';
 
   @override
-  String deskLvPaySendingVia(String via) {
+  String deskPaySendingVia(String via) {
     return 'Senden $via';
   }
 
   @override
-  String deskLvPayArrivingVia(String via) {
+  String deskPayArrivingVia(String via) {
     return 'Kommt $via';
   }
 
@@ -20258,12 +19990,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String deskLvSendLiveVia(String via) {
+  String deskSendLiveVia(String via) {
     return 'Unterwegs $via';
   }
 
   @override
-  String deskLvSendLiveAmountVia(String amount, String via) {
+  String deskSendLiveAmountVia(String amount, String via) {
     return '$amount EPIC $via';
   }
 

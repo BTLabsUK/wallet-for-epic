@@ -1,12 +1,3 @@
 {
-  "deskLvStartPreviewLabel": "Превью обзора. Чем глубже уровень, тем больше на нём видно.",
-  "deskLvStartPreviewCaption": "Главная в этом виде. Сохранённые данные не меняются.",
-  "deskLvStartCover": "Выберите положение, чтобы увидеть превью",
-  "deskLvStartUndercoverAbout": "О режиме «Только Tor»",
-  "deskLvStartHelpShallow": "Мелко · один адрес, без имён серверов, без переключателей.",
-  "deskLvStartHelpDeeper": "Глубже · тот же кошелёк, плюс что он делает, простыми словами.",
-  "deskLvStartHelpDeep": "В самую глубь · каждый переключатель, каждая цифра: приложение как сейчас.",
-  "deskLvStartMiniWallet": "Основной кошелёк",
-  "deskLvStartMiniLine": "+12,5 поступает · 25,0 удерживается",
-  "deskLvStartMiniFresh": "Свежие с майнинга"
+  "deskUndercoverAbout": "О режиме «Только Tor»"
 }

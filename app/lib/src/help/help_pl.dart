@@ -39,6 +39,23 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   final filesPlace = '[[Ustawienia › Pliki i logi|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Bezpieczeństwo › Fraza odzyskiwania|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
+    if (!phone)
+      HelpTopic(
+        'start',
+        'Start',
+        'Saldo, przyciski do wysyłania, odbierania i skanowania, płatności w toku i ostatnia aktywność.',
+        [
+          const HelpBlock.ul([
+            '**Saldo**: to, co ma ten portfel. Pod nim to, co można wydać teraz, i części jeszcze w drodze: potwierdzane, czekające na nadawcę, zablokowane w wysyłanej płatności. **Ukryj kwoty** na pasku tytułu ukrywa każdą kwotę.',
+            '**Wyślij**, **Odbierz** i **Skanuj**: trzy sposoby na początek. Skanuj czyta kod kamerą albo przyjmuje wklejony.',
+            '**Wpisz nazwę, kwotę, adres lub kod płatności**: pole pod saldem. Nazwa kontaktu, adres albo wklejony kod otwiera Wyślij z wypełnionymi danymi. Ctrl K przenosi do niego.',
+            '**W toku**: płatności w trakcie, każda ze swoimi krokami, od rozpoczęcia do zakończenia.',
+            '**Ostatnia aktywność**: najnowsze płatności; **Zobacz wszystkie** otwiera kartę Aktywność.',
+          ]),
+          const HelpBlock.p('Odśwież, obok salda, pyta węzeł ponownie. Saldo wymaga zsynchronizowanego węzła; dopóki węzeł się synchronizuje, wysyłanie czeka.'),
+        ],
+        id: HelpId.home,
+      ),
     HelpTopic(
       'start',
       'Odbierz pierwsze EPIC',
@@ -59,7 +76,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Wyślij komuś',
       'Otwórz Wyślij, wklej adres Epicbox odbiorcy, wpisz kwotę, sprawdź opłatę i wyślij.',
       [
-        HelpBlock.ol(['Otwórz [[Wyślij|Send]] i wklej adres odbiorcy lub wybierz kontakt.', 'Wpisz kwotę. Opłata jest widoczna przed wysłaniem.', phone ? 'Dotknij **Dalej**, sprawdź dane, potem **Wyślij … EPIC**.' : 'Naciśnij **Sprawdź**. **Sprawdź i wyślij** pokazuje płatność: wpisz hasło portfela, potem naciśnij **Wyślij … EPIC**. Widok Płytko nie ma Sprawdź: jego przycisk to **Wyślij … EPIC**.']),
+        HelpBlock.ol(['Otwórz [[Wyślij|Send]] i wklej adres odbiorcy lub wybierz kontakt.', 'Wpisz kwotę. Opłata jest widoczna przed wysłaniem.', phone ? 'Dotknij **Dalej**, sprawdź dane, potem **Wyślij … EPIC**.' : 'Naciśnij **Sprawdź**. **Sprawdź i wyślij** pokazuje płatność: wpisz hasło portfela, potem naciśnij **Wyślij … EPIC**.']),
         const HelpBlock.p('Sparowany kontakt ma w Wyślij dwie opcje, opisane w „Płatności po sparowaniu”; płatność z opcją sparowaną jest zapieczętowana. Każdy inny kontakt dostaje płatność na swój publiczny adres Epicbox.'),
         const HelpBlock.p('Teraz musi odpowiedzieć portfel odbiorcy (zobacz „Dlaczego transakcja wymaga obu stron?”). Przez Epicbox odbiorca nie musi być teraz online: płatność poczeka, aż jego portfel się otworzy. W tym czasie użyte monety są zablokowane, więc nie da się ich wydać dwa razy.'),
         HelpBlock.p('Gdy odpowiedź wróci, portfel sam zakończy płatność i opublikuje ją w sieci. Staje się ostateczna po osiągnięciu wymaganej liczby potwierdzeń ($confirmations).'),
@@ -80,7 +97,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.ol(['**Nadawca:** w Wyślij wybiera **Bezpośrednio · Przesyłanie pliku**, wpisuje kwotę i udostępnia plik (kończy się na .tx). Od teraz monety są zablokowane.', '**Odbiorca:** otwiera plik w [[Odbierz › Bezpośrednio · Plik|Receive › Direct · File]]. Jego portfel podpisuje go i udostępnia plik odpowiedzi (kończy się na .response). Ten plik odsyła.', '**Nadawca:** otwiera plik odpowiedzi w [[Odbierz › Bezpośrednio · Plik|Receive › Direct · File]]. Portfel kończy płatność i wysyła ją do sieci.'])
         else
-          const HelpBlock.ol(['**Nadawca:** w [[Wyślij|Send]] wybiera **Zapłać plikiem** w polu Do, wpisuje kwotę i zapisuje plik (kończy się na .tx). Od teraz monety są zablokowane.', '**Odbiorca:** w [[Odbierz|Receive]], w karcie **Pliki płatności**, naciska **Otwórz** i wybiera plik. Portfel podpisuje go i zapisuje plik odpowiedzi (kończy się na .response) do odesłania.', '**Nadawca:** otwiera plik odpowiedzi w ten sam sposób. W **Dokończ płatność** można go też zeskanować jako kod albo wkleić jako tekst. Portfel kończy płatność i wysyła ją do sieci.']),
+          const HelpBlock.ol(['**Nadawca:** w [[Wyślij|Send]] wybiera **Zapłać plikiem** w polu Do (albo naciska **Utwórz plik płatności** w Odbierz), wpisuje kwotę i zapisuje plik (kończy się na .tx). Od teraz monety są zablokowane.', '**Odbiorca:** w [[Odbierz|Receive]], w karcie **Pliki płatności**, naciska **Otwórz** i wybiera plik. Portfel podpisuje go i zapisuje plik odpowiedzi (kończy się na .response) do odesłania.', '**Nadawca:** otwiera plik odpowiedzi w ten sam sposób. W **Dokończ płatność** można go też zeskanować jako kod albo wkleić jako tekst. Portfel kończy płatność i wysyła ją do sieci.']),
         HelpBlock.p('Inne portfele Epic Cash nazywają te kroki po swojemu. Jeśli plik odpowiedzi nigdy nie przyjdzie, anuluj płatność w $cancelPlace, aby odblokować monety.'),
       ],
       id: HelpId.file,
@@ -106,7 +123,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         HelpBlock.ul([
           '${phone ? '**Metody płatności.**' : '**Metody.**'} Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym serwerem, więc nie ma płatności Epicbox ani faktur, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na serwerze). ${tor ? "**Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion oraz z adresem Tor ${phone ? 'tego telefonu' : 'tego komputera'}, na który można ci płacić) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku**" : "**Link · HTTP** (na adresy internetowe)${phone ? ', **Bezpośrednio · Płatność QR**' : ''} i **Bezpośrednio · Przesyłanie pliku**"} nie potrzebują serwera Epicbox. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.${phone ? ' Na telefonie **Link · HTTP** nie ma przełącznika: tylko wysyła, na każdy wklejony adres http(s).' : ''}',
           if (phone) '**Domyślna metoda.** Metoda, z którą otwiera się ekran Wyślij; na ekranie Wyślij można wybrać inną.' else '**Domyślna metoda**, w grupie **Wysyłanie**: metoda, z którą otwiera się ekran Wyślij; na ekranie Wyślij można wybrać inną.',
-          if (phone) '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.' else '**Strategia wysyłek** i **Podziel resztę**, w grupie **Wysyłanie**: które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je w widoku Na głęboką wodę, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
+          if (phone) '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.' else '**Strategia wysyłek** i **Podziel resztę**, w grupie **Wysyłanie**: które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
         ]),
       ],
       id: HelpId.methods,
@@ -181,7 +198,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('**Najmniejsze** sortuje wyjścia do wydania według wartości i bierze najmniejsze, aż pokryją kwotę i opłatę. Tylko one są zablokowane, dopóki płatność się potwierdza; resztę można od razu wysłać.'),
         HelpBlock.p('**Wszystkie** wydaje każde wyjście do wydania i zwraca jedno wyjście reszty. Wszystko jest zablokowane do osiągnięcia wymaganej liczby potwierdzeń ($confirmations), portfel ma potem mniej, ale większych wyjść, a opłata jest nieco wyższa, bo każde wejście kosztuje. Wysłanie całego salda zawsze używa Wszystkie.'),
-        HelpBlock.p('Domyślny sposób ustawisz w $payPlace, gdy w Zaawansowanych włączone są Opcje wysyłki${phone ? '' : ' w widoku Na głęboką wodę'}.'),
+        HelpBlock.p('Domyślny sposób ustawisz w $payPlace, gdy w Zaawansowanych włączone są Opcje wysyłki.'),
       ],
       id: HelpId.strategy,
     ),
@@ -261,6 +278,18 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ],
       id: HelpId.importWarning,
     ),
+    if (!phone)
+      const HelpTopic(
+        'network',
+        'Pasek stanu',
+        'Światła u dołu okna: węzeł, Epicbox i inne sposoby odbierania, każdy ze swoim stanem.',
+        [
+          HelpBlock.p('Każde światło to jedna usługa: **Węzeł**, **Epicbox**, a gdy są włączone, **Link · HTTP** i **Tor**. Kolor pokazuje stan; po wskazaniu kursorem widać nazwę i stan słowami.'),
+          HelpBlock.p('Kliknięcie światła pokazuje jego stan, używany serwer i przycisk do jego ustawień. Światło Epicbox proponuje też inny serwer, gdy używany przestaje odpowiadać.'),
+          HelpBlock.p('Obok świateł: to, co dzieje się teraz, na przykład wysyłana płatność, potem kurs EPIC i tryb połączenia. Wąskie okno zostawia światła, a pomija nazwy i kurs.'),
+        ],
+        id: HelpId.statusBar,
+      ),
     HelpTopic(
       'network',
       phone ? 'Węzły' : 'Węzły: publiczny lub lokalny',
@@ -276,7 +305,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           HelpBlock.p('Dotknij ikony węzła na karcie Portfel, aby zobaczyć stan węzła i przełączyć się na inny. Wysyłanie wymaga zsynchronizowanego węzła; przy stanie takim jak **12 w tyle** lub **Nie odpowiada** portfel sam przechodzi na inny węzeł z twojej listy, chyba że automatyczna zmiana węzła jest wyłączona: wtedy trzeba wybrać inny. Aby dodać węzeł po adresie, otwórz $nodePlace i wpisz adres w polu nad listą.')
         else
-          HelpBlock.p('Zmienisz go w $nodePlace: węzły są wymienione wraz ze stanem. Kliknij jednego, aby od razu przełączyć się na niego, albo wpisz adres, aby przefiltrować listę lub dodać węzeł. Wysyłanie wymaga zsynchronizowanego węzła; gdy węzeł zostaje w tyle, portfel proponuje inny. **Węzeł** na pasku stanu pokazuje jego stan (**Sieć** w widoku Płytko).'),
+          HelpBlock.p('Zmienisz go w $nodePlace: węzły są wymienione wraz ze stanem. Kliknij jednego, aby od razu przełączyć się na niego, albo wpisz adres, aby przefiltrować listę lub dodać węzeł. Wysyłanie wymaga zsynchronizowanego węzła; gdy węzeł zostaje w tyle, portfel proponuje inny. **Węzeł** na pasku stanu pokazuje jego stan.'),
       ],
       id: HelpId.node,
     ),

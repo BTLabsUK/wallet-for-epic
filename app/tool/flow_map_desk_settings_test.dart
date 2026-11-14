@@ -28,10 +28,8 @@ import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/server_icons.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/shots.dart';
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelControlProvider;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart' show MockDeskNode, deskNodeProvider, mockLocalNode;
 import 'package:epic_wallet/src/desktop/data/mock_devices.dart';
-import 'package:epic_wallet/src/desktop/screens/onboarding/depth_dial.dart' show showDepthHelp;
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/licence_texts_dialog.dart' show showLicenceTextsDialog;
 import 'package:epic_wallet/src/app_log.dart' show LogFileInfo;
@@ -48,8 +46,6 @@ import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show shotOt
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show EButton, ECheckbox;
 import 'package:epic_wallet/src/desktop/widgets/dialogs.dart' show EDialog;
 import 'package:epic_wallet/src/desktop/data/devices_state.dart' show deskDeviceServiceProvider;
-import 'package:epic_wallet/src/levels/level_providers.dart' show walletLevelProvider;
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:flutter/foundation.dart' show LicenseEntryWithLineBreaks, LicenseRegistry;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -73,11 +69,6 @@ final Size? _size = () {
 
 
 // ---- helpers (the tour's own are private to settings/shots.dart and devices/shots.dart) ----
-
-Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async {
-  await c.read(walletLevelProvider.future);
-  await c.read(deskLevelControlProvider).setLevel(level);
-};
 
 /// A test run has no licence registry (the app reads the bundle's notices): a few packages
 /// as the built app lists them, for the licence texts shot.
@@ -182,7 +173,6 @@ final List<DeskShot> flowMapSettingsShots = [
   DeskShot(id: 'fm-settings-wallets-removed-from-list', title: 'Wallets, one removed from the list: Add back', route: DeskRoute.settingsWallets, prepare: (c, _) async => c.read(deskProvider.notifier).removeWallet(shotOtherWallet.id, WalletRemoval.list)),
   // dialogs without a shot
   DeskShot(id: 'fm-settings-network-switch-confirm', title: 'Switch to Kill switch? with sends waiting', route: DeskRoute.settingsPrivacy, dialog: (c) => confirmNetworkModeSwitch(c, mode: NetworkMode.killSwitch, waiting: 2)),
-  DeskShot(id: 'fm-settings-depth-help', title: 'Advanced, what the views decide', route: DeskRoute.settingsAdvanced, dialog: showDepthHelp),
   DeskShot(id: 'fm-settings-licence-texts', title: 'About, licence texts', route: DeskRoute.settingsAbout, before: (_) async => _sampleLicences(), dialog: showLicenceTextsDialog),
   // drawn after the review (2026-11-13)
   DeskShot(id: 'fm-review-contact-pick', title: 'Send, choosing a contact', route: DeskRoute.send, dialog: showContactPickerDialog),
@@ -215,16 +205,10 @@ final List<DeskShot> flowMapSettingsShots = [
     before: (c) => _feature(c, {AdvancedFeature.builtInNode}),
     dialog: (ctx) => showLocalNodePortsDialog(ctx, ProviderScope.containerOf(ctx).read(deskNodeProvider), running: false),
   ),
-  // the view and the Advanced switches
+  // the Advanced switches
   DeskShot(id: 'fm-settings-advanced-all-on', title: 'Advanced, every switch on: count and Reset', route: DeskRoute.settingsAdvanced, height: 1450, before: (c) => _feature(c, {...AdvancedFeature.values}.difference(retiredFeatures))),
   DeskShot(id: 'fm-settings-node-server-details', title: 'Node, Advanced › Server details on', route: DeskRoute.settingsNode, before: (c) => _feature(c, {AdvancedFeature.serverDetails})),
-  DeskShot(id: 'fm-settings-rescan-shallow', title: 'Recheck balance, Shallow view', route: DeskRoute.settingsRescan, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: 'fm-settings-rescan-from-height', title: 'Recheck balance, Advanced › Recheck from a height on', route: DeskRoute.settingsRescan, height: 1000, before: (c) => _feature(c, {AdvancedFeature.recheckFromHeight})),
-  DeskShot(id: 'fm-settings-security-shallow', title: 'Security, Shallow view', route: DeskRoute.settingsSecurity, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: 'fm-settings-transactions-shallow', title: 'Transactions, Shallow view', route: DeskRoute.settingsReceiving, height: 1000, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: 'fm-settings-devices-shallow', title: 'Linked devices, Shallow view', route: DeskRoute.settingsDevices, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: 'fm-settings-wallet-deeper', title: 'Wallet, Deeper view', route: DeskRoute.settingsAccount, before: _level(WalletLevel.casual)),
-  DeskShot(id: 'fm-settings-node-deeper', title: 'Node, Deeper view', route: DeskRoute.settingsNode, before: _level(WalletLevel.casual)),
   DeskShot(id: 'fm-settings-search-no-results', title: 'Settings search, no match', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('zzqx')),
   DeskShot(id: 'fm-settings-help-no-results', title: 'Help, search without a match', route: DeskRoute.settingsHelp, arg: 'zzqxw'),
   DeskShot(id: 'fm-settings-privacy-node-only', title: 'Network & privacy, Node only', route: DeskRoute.settingsPrivacy, height: 1000, prepare: (c, _) async {

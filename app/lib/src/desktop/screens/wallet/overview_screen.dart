@@ -14,8 +14,6 @@ import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesSho
 import '../../app/tour.dart';
 import '../../data/invoice_state.dart' show deskInvoicesProvider;
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
-import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
-import '../../../levels/level_features.dart' show LevelWording;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
@@ -66,9 +64,6 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   bool _problemHidden = false;
   bool _addressNoteHidden = false;
 
-  /// Shallow's first-open notice was answered on this Overview.
-  bool _readyHidden = false;
-
   /// The history import offer was asked on this Overview.
   bool _importOffered = false;
 
@@ -101,8 +96,6 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final l = context.l10n;
     final shot = widget.arg is OverviewShot ? widget.arg! as OverviewShot : null;
     final s = ref.watch(deskProvider);
-    final lv = ref.watch(deskLevelUiProvider);
-    final shallow = lv.heroSentence;
     final hidden = s.settings.hideAmounts;
     final loading = shot == OverviewShot.loading || s.balance == null;
     // The scan a restore owes: its progress, not the empty-wallet state.
@@ -125,7 +118,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final nodeUrl = (s.status?.node.url ?? hostSettings.nodeFallback).replaceFirst(RegExp(r'^https?://'), '');
 
-    final recent = _Recent(txs: txs, shallow: shallow, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
+    final recent = _Recent(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;
     // The payment the In motion card shows, when it is a file send waiting for its response.
     final top = txs?.where(payInFlight).firstOrNull;
@@ -144,20 +137,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       });
     }
     final notices = <Widget>[
-      // The one notice about levels (the shell's); the Epicbox server offer is a toast.
+      // The shell's notice; the Epicbox server offer is a toast.
       if (ref.watch(deskShellNoticesShownProvider)) const DeskShellNotices(),
-      if (shallow && empty && !_readyHidden)
-        ENotice(
-          key: const ValueKey('overview-ready'),
-          tone: ETone.ok,
-          title: l.deskLvPayReadyHead,
-          text: l.deskLvPayReadyText,
-          actionsBelow: true,
-          actions: [
-            EButton(label: l.deskOvShowAddress, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.receive)),
-            EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _readyHidden = true)),
-          ],
-        ),
       if (restore != null) RestoreScanPanel(scan: restore),
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
       // This session runs on the unencrypted records; the next unlock copies them again.
@@ -259,8 +240,6 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               asOfBlock: syncing ? _walletTip : null,
               sendBlocked: syncing || nodeDown || shot == OverviewShot.nodeProblem,
               nodeAnswers: !(nodeDown || shot == OverviewShot.nodeProblem),
-              shallow: shallow,
-              casual: lv.casualWords,
               refresh: _refreshing
                   ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
                   : EIconButton(
@@ -272,12 +251,12 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                     ),
             ),
           ),
-          // The field: what to pay, typed or pasted (home_field.dart). Not at Shallow's first
-          // look into an empty wallet, where Receive is the one thing to do.
+          // The field: what to pay, typed or pasted (home_field.dart). Not in an empty wallet,
+          // where Receive is the one thing to do.
           if (!empty) ...[SizedBox(height: Sp.x4), const TourTarget(id: 'field', child: HomeField())],
           // Something to act on goes first; a quiet card stays below Recent activity.
           if (invoicesWait) const OverviewInvoicesCard(),
-          // A payment in progress, at every level: its steps live (D11).
+          // A payment in progress: its steps live (D11).
           if (txs != null) _InFlight(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onMore: () => nav.go(DeskRoute.activity, const ActivityArgs(pending: true))),
           // While the restore scan runs, Recent activity shows what it finds, never "No
           // transactions yet" (copy D1). The contacts used last stand beside it in a window
@@ -398,7 +377,7 @@ class _SyncNotice extends StatelessWidget {
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
-  const _BalancePanel({required this.balance, required this.empty, required this.hidden, required this.refresh, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false, this.shallow = false, this.casual = false});
+  const _BalancePanel({required this.balance, required this.empty, required this.hidden, required this.refresh, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false});
 
   final Balance? balance;
   final bool empty;
@@ -416,12 +395,6 @@ class _BalancePanel extends ConsumerWidget {
 
   /// Offline mode: the amounts are the last known ones, marked as such.
   final bool offline;
-
-  /// Shallow: one number and one sentence, no parts line, no fiat line.
-  final bool shallow;
-
-  /// Deeper: the parts of the balance in casual words.
-  final bool casual;
 
   /// Refresh, at the end of the label's row.
   final Widget refresh;
@@ -448,7 +421,7 @@ class _BalancePanel extends ConsumerWidget {
     final own = b == null ? 0 : ownChangeOffChain(txs).clamp(0, b.awaitingFinalization);
     final posted = b == null ? 0 : reported.clamp(0, b.awaitingFinalization - own);
     // The value in the chosen currency and what one EPIC costs, between the figure and its trace.
-    final fiat = price == null || b == null || shallow
+    final fiat = price == null || b == null
         ? null
         : Wrap(
             spacing: 14.u,
@@ -473,12 +446,12 @@ class _BalancePanel extends ConsumerWidget {
     // The parts of the balance that are not zero, in the phone's order (GP-007), then the total
     // when it is more than the figure above. One precision for all of them (UP-016, C-01).
     final parts = <(String, int)>[
-      if (b != null && !shallow) ...[
-        if (b.awaitingConfirmation > 0) (casual ? l.deskLvPayTileConfirming : l.deskOvBreakConfirming, b.awaitingConfirmation),
-        if (b.immature > 0) (casual ? l.deskLvPayTileMining : l.deskOvBreakImmature, b.immature),
-        if (b.awaitingFinalization - own - posted > 0) (casual ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, b.awaitingFinalization - own - posted),
+      if (b != null) ...[
+        if (b.awaitingConfirmation > 0) (l.deskPayTileConfirming, b.awaitingConfirmation),
+        if (b.immature > 0) (l.deskPayTileMining, b.immature),
+        if (b.awaitingFinalization - own - posted > 0) (l.deskPayTileAwaiting, b.awaitingFinalization - own - posted),
         if (posted > 0) (l.deskTxStatusSenderPosted, posted),
-        if (b.locked > 0) (casual ? l.deskLvPayTileLocked : l.deskOvBreakLocked, b.locked),
+        if (b.locked > 0) (l.deskPayTileLocked, b.locked),
         if (b.total != b.figure(own)) (l.deskOvBreakTotal, b.total),
       ],
     ];
@@ -524,7 +497,7 @@ class _BalancePanel extends ConsumerWidget {
               amount,
               SizedBox(height: 6.u),
               // What Send can use, when a send's change or a payment is still confirming, then
-              // the parts of the balance (none at Shallow).
+              // the parts of the balance.
               if (b != null && (parts.isNotEmpty || b.spendable != b.figure(own)))
                 Wrap(
                   spacing: 14.u,
@@ -544,10 +517,7 @@ class _BalancePanel extends ConsumerWidget {
                       ),
                   ],
                 ),
-              if (empty)
-                Text(shallow ? l.deskLvPayHeroNothing : l.deskOvEmptyHint, style: ts.small)
-              else if (shallow)
-                _HeroSentence(txs: txs, hidden: hidden),
+              if (empty) Text(l.deskOvEmptyHint, style: ts.small),
             ],
           );
           // Two by two beside the balance; one row under it in a narrow window, two by two
@@ -575,7 +545,7 @@ class _BalancePanel extends ConsumerWidget {
                     children: [
                       Expanded(child: words),
                       // The last 30 days between the balance and the buttons, where there is room.
-                      if (!shallow && !hidden && !empty && b != null && txs.isNotEmpty && box.maxWidth >= 1000.u) ...[
+                      if (!hidden && !empty && b != null && txs.isNotEmpty && box.maxWidth >= 1000.u) ...[
                         SizedBox(width: Sp.x8),
                         Expanded(child: HomeChart(txs: txs, total: b.total)),
                       ],
@@ -782,12 +752,9 @@ class _Skeleton extends StatelessWidget {
 }
 
 class _Recent extends StatelessWidget {
-  const _Recent({required this.txs, required this.onOpen, required this.onAll, this.shallow = false});
+  const _Recent({required this.txs, required this.onOpen, required this.onAll});
 
   final List<Tx>? txs;
-
-  /// Shallow: no mining rows, and an empty state that is only its title.
-  final bool shallow;
   final ValueChanged<Tx> onOpen;
   final VoidCallback onAll;
 
@@ -812,24 +779,22 @@ class _Recent extends StatelessWidget {
     } else if (list.isEmpty) {
       body = Builder(
         builder: (context) => Consumer(
-          builder: (context, ref, _) => shallow
-              ? EEmpty(icon: EIcons.receive, title: l.deskOvEmptyTitle)
-              : EEmpty(
-                  icon: EIcons.receive,
-                  title: l.deskOvEmptyTitle,
-                  text: l.deskOvEmptyText(deskMinConfirmations(ref)),
-                  actions: [
-                    // The hero's Receive EPIC is the primary: one per screen.
-                    EButton(label: l.deskOvShowAddress, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
-                    EButton.ghost(label: l.deskOvReceiveFile, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),
-                  ],
-                ),
+          builder: (context, ref, _) => EEmpty(
+            icon: EIcons.receive,
+            title: l.deskOvEmptyTitle,
+            text: l.deskOvEmptyText(deskMinConfirmations(ref)),
+            actions: [
+              // The hero's Receive EPIC is the primary: one per screen.
+              EButton(label: l.deskOvShowAddress, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
+              EButton.ghost(label: l.deskOvReceiveFile, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),
+            ],
+          ),
         ),
       );
     } else {
       body = Column(
         children: [
-          for (final (i, t) in (shallow ? list.where((t) => !t.immature) : list).take(recentActivityCount).indexed) ...[if (i > 0) Divider(height: 1, color: c.line), TxRow(tx: t, compact: true, onTap: () => onOpen(t))],
+          for (final (i, t) in list.take(recentActivityCount).indexed) ...[if (i > 0) Divider(height: 1, color: c.line), TxRow(tx: t, compact: true, onTap: () => onOpen(t))],
         ],
       );
     }
@@ -859,60 +824,7 @@ class _Recent extends StatelessWidget {
   }
 }
 
-/// Shallow's one sentence under the balance: what is moving, in two parts at most ("+12.5000
-/// arriving from Bob · 25.0000 on hold until Alice signs"). Nothing when nothing moves.
-class _HeroSentence extends StatelessWidget {
-  const _HeroSentence({required this.txs, required this.hidden});
-
-  final List<Tx> txs;
-  final bool hidden;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final l = context.l10n;
-    final arriving = [for (final t in txs) if (t.incoming && payInFlight(t)) t];
-    final held = [for (final t in txs) if (!t.incoming && t.state == TxState.waitingRecipient && !t.notPosted && payInFlight(t)) t];
-    String money(List<Tx> of) => hidden ? '••••••' : formatEpicL(l, of.fold<int>(0, (sum, t) => sum + t.amount));
-    final parts = <(IconData, Color, String)>[
-      if (arriving.isNotEmpty)
-        (
-          EIcons.clock,
-          c.info,
-          arriving.length == 1 && arriving.first.contactName != null ? l.deskLvPayHeroArriving(money(arriving), arriving.first.contactName!) : l.deskLvPayHeroArrivingMany(money(arriving)),
-        ),
-      if (held.isNotEmpty)
-        (
-          EIcons.lock,
-          c.dim,
-          held.length == 1 && held.first.contactName != null ? l.deskLvPayHeroHold(money(held), held.first.contactName!) : l.deskLvPayHeroHoldMany(money(held)),
-        ),
-    ];
-    if (parts.isEmpty) return const SizedBox.shrink();
-    return Wrap(
-      key: const ValueKey('overview-hero-sentence'),
-      spacing: Sp.x2,
-      runSpacing: Sp.x1,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        for (final (i, (icon, color, text)) in parts.indexed) ...[
-          if (i > 0) Text('·', style: ts.small.copyWith(color: c.faint)),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ExcludeSemantics(child: Icon(icon, size: Ctl.iconSm, color: color)),
-              SizedBox(width: Sp.x1),
-              Flexible(child: Text(text, style: ts.small.copyWith(color: color))),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-/// The payments under way, above Recent activity at every level (D11): the newest as a card with
+/// The payments under way, above Recent activity (D11): the newest as a card with
 /// its live steps ("On its way to Alice"), the next three as one line each in a box under it,
 /// then "N more · View" (Activity, Pending) for the rest.
 class _InFlight extends ConsumerWidget {
@@ -929,7 +841,6 @@ class _InFlight extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final technical = ref.watch(deskLevelFeaturesProvider.select((f) => f.wording)) == LevelWording.technical;
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final t = live.first;
     // A file send that waits for the recipient's file: the next step is on its card, beside
@@ -964,9 +875,9 @@ class _InFlight extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(_inFlightTitle(l, t, technical), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
+                                Text(_inFlightTitle(l, t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
                                 Text(
-                                  l.deskLvPayStartedAt(hidden ? '••••••' : formatEpicL(l, t.amount), timeOf(t)),
+                                  l.deskPayStartedAt(hidden ? '••••••' : formatEpicL(l, t.amount), timeOf(t)),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: ts.small,
@@ -997,7 +908,7 @@ class _InFlight extends ConsumerWidget {
                 children: [
                   for (final (i, r) in rows.indexed) ...[
                     if (i > 0) Divider(height: 1, color: c.line),
-                    _InFlightRow(key: ValueKey('overview-inflight-row-${r.id}'), tx: r, technical: technical, onOpen: onOpen),
+                    _InFlightRow(key: ValueKey('overview-inflight-row-${r.id}'), tx: r, onOpen: onOpen),
                   ],
                   if (more > 0) ...[
                     if (rows.isNotEmpty) Divider(height: 1, color: c.line),
@@ -1063,10 +974,9 @@ class _AccentBox extends StatelessWidget {
 /// A payment under way on one line: who, the step it is at in words, the five steps as dots
 /// (dropped when the row is narrow), the amount.
 class _InFlightRow extends ConsumerWidget {
-  const _InFlightRow({super.key, required this.tx, required this.technical, required this.onOpen});
+  const _InFlightRow({super.key, required this.tx, required this.onOpen});
 
   final Tx tx;
-  final bool technical;
   final ValueChanged<Tx> onOpen;
 
   @override
@@ -1074,9 +984,8 @@ class _InFlightRow extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final style = ref.watch(deskLevelFeaturesProvider.select((f) => f.timeline));
-    final steps = payStepList(l, tx, style, name: deskTxMailboxName(ref, tx, any: true) ?? tx.contactName);
-    final title = _inFlightTitle(l, tx, technical);
+    final steps = payStepList(l, tx, name: deskTxMailboxName(ref, tx, any: true) ?? tx.contactName);
+    final title = _inFlightTitle(l, tx);
     final step = payStepNowText(steps);
     return Semantics(
       button: true,
@@ -1113,17 +1022,14 @@ class _InFlightRow extends ConsumerWidget {
   }
 }
 
-/// "On its way to Alice" (Deep end: "Sending to Alice"); a payment coming in reads "Arriving
-/// from Bob". The Deep end names an address when no contact does.
-String _inFlightTitle(AppLocalizations l, Tx t, bool technical) {
-  // The Deep end names the way when no contact or address does: "via file", "in person".
-  final via = technical ? viaOf(t) : null;
-  if (via == Via.inPerson && !t.incoming) return l.deskLvPaySendingInPerson;
-  if (via != null) return t.incoming ? l.deskLvPayArrivingVia(viaPhrase(l, via)) : l.deskLvPaySendingVia(viaPhrase(l, via));
-  final name = t.contactName ?? (technical ? whoOf(l, t) : null);
-  if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
-  if (name == null) return l.lvPayOnItsWay;
-  return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);
+/// "On its way to Alice"; a payment coming in reads "Arriving from Bob". With no contact, the
+/// way names it ("via file", "in person"), else the address.
+String _inFlightTitle(AppLocalizations l, Tx t) {
+  final via = t.contactName == null ? viaOf(t) : null;
+  if (via == Via.inPerson && !t.incoming) return l.deskPaySendingInPerson;
+  if (via != null) return t.incoming ? l.deskPayArrivingVia(viaPhrase(l, via)) : l.deskPaySendingVia(viaPhrase(l, via));
+  final name = t.contactName ?? whoOf(l, t);
+  return t.incoming ? l.deskPayArrivingFrom(name) : l.deskPayOnItsWayTo(name);
 }
 
 class _PendingFiles extends ConsumerWidget {

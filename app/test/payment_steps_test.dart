@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
-// Level-aware payment screens: step derivation, level 1 Send (no method strip, QR Payment as a
-// quiet link) and level 1 Receive (New today badge after an Epicbox server move).
+// The phone's payment steps (step derivation) and Receive's server line (the New today badge
+// after an Epicbox server move).
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/levels/level_providers.dart';
-import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/relay_switch_providers.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/levels/payment_steps.dart';
+import 'package:epic_wallet/src/ui/payment_steps.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/theme/protocol.dart' show TimelineState;
@@ -66,7 +64,6 @@ Future<void> _pump(WidgetTester tester, Widget screen, {bool moved = false}) asy
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
-        currentLevelProvider.overrideWithValue(WalletLevel.justSendReceive),
         walletServiceProvider.overrideWithValue(FakeWalletService()),
         secretStoreProvider.overrideWithValue(MemorySecretStore()),
         slateFilesProvider.overrideWithValue(FakeSlateFiles()),
@@ -132,7 +129,7 @@ void main() {
 
     test('taken by the network but in no block yet is Posted, never Confirming 0 of 3', () {
       final posted = sent(TxStatus.awaitingConfirmation, height: BigInt.from(1001), finalized: 1700000000);
-      expect(paymentStepWord(l, posted, tip, target: 3), _l.lvPolPosted);
+      expect(paymentStepWord(l, posted, tip, target: 3), _l.payPosted);
       final steps = paymentSteps(l, posted, tip, target: 3, who: 'Alice')!;
       expect(steps.map((s) => s.label), ['Payment started', 'Alice signed', 'Posted to the network', 'Confirming', 'Completed']);
       expect(steps.map((s) => s.state), [
@@ -145,7 +142,7 @@ void main() {
       expect(steps[2].detail, isNotNull, reason: 'the step under way shows its time');
     });
 
-    test('an address at level 1 is its key alone', () {
+    test('an address is its key alone', () {
       const address = 'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@box.epic.invalid';
       expect(shortAddress(address), 'esVeVU…3es6TA@box.epic.invalid');
       expect(shortAddress(address, relay: false), 'esVeVU…3es6TA');
@@ -174,7 +171,7 @@ void main() {
         status: TxStatus.awaitingConfirmation,
         amountCredited: _epic(1),
       );
-      expect(paymentStepWord(l, tx, tip), _l.lvPayArriving);
+      expect(paymentStepWord(l, tx, tip), _l.payArriving);
     });
   });
 
@@ -189,7 +186,7 @@ void main() {
 
   testWidgets('Receive shows New today and the server line after a server move', (tester) async {
     await _pump(tester, const SlotScaffold(body: ReceiveView()), moved: true);
-    expect(find.text(_l.lvPayNewToday), findsOneWidget);
+    expect(find.text(_l.payNewToday), findsOneWidget);
     expect(find.text('Epicbox server: Stack Wallet.'), findsOneWidget);
     expect(find.text('Anyone with the old address needs the new one.'), findsOneWidget);
   });

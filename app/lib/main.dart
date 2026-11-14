@@ -24,7 +24,7 @@ import 'src/secret_store_api.dart' show SecretStore;
 import 'src/services/service_loader.dart' show startServices;
 import 'src/settings_file/settings_providers.dart';
 import 'src/wallet_service.dart' show Chain;
-import 'src/levels/first_start.dart';
+import 'src/first_start.dart';
 import 'src/first_run_tour.dart';
 import 'src/net/tor_net.dart';
 import 'src/tor_build.dart';

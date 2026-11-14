@@ -206,7 +206,7 @@ class _PhoneColumn extends ConsumerWidget {
               Text(l.netStatusEpicbox),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(check.failed ? l.lvShellBoxNotReachable : l.lvShellBoxListening,
+                child: Text(check.failed ? l.statusBoxNotReachable : l.statusBoxListening,
                     textAlign: TextAlign.end, maxLines: 2, style: TextStyle(color: check.failed ? t.risk : t.dim)),
               ),
             ],
@@ -219,7 +219,7 @@ class _PhoneColumn extends ConsumerWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
             onPressed: () {},
-            child: Text(l.lvShellSwitchServer),
+            child: Text(l.statusSwitchServer),
           ),
           const SizedBox(height: 8),
           TextButton(
@@ -345,7 +345,7 @@ class _DeskColumn extends StatelessWidget {
                 Text(l.netStatusEpicbox, style: ts.body),
                 SizedBox(width: Sp.x2),
                 Expanded(
-                  child: Text(check.failed ? l.lvShellBoxNotReachable : l.lvShellBoxListening,
+                  child: Text(check.failed ? l.statusBoxNotReachable : l.statusBoxListening,
                       textAlign: TextAlign.end, maxLines: 2, style: ts.small.copyWith(color: check.failed ? c.risk : c.dim)),
                 ),
               ],

@@ -7,13 +7,13 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../first_run_servers.dart';
-import '../net/tor_switch.dart';
-import '../net/ws_probe.dart' show probeTimeout;
-import '../providers.dart';
-import '../send_preflight.dart' show relayProbeProvider;
-import '../settings_file/settings_providers.dart' show hostSettingsProvider;
-import '../wallet_service.dart' show WalletConfig;
+import 'first_run_servers.dart';
+import 'net/tor_switch.dart';
+import 'net/ws_probe.dart' show probeTimeout;
+import 'providers.dart';
+import 'send_preflight.dart' show relayProbeProvider;
+import 'settings_file/settings_providers.dart' show hostSettingsProvider;
+import 'wallet_service.dart' show WalletConfig;
 
 Future<void> phoneFirstRunServers(Ref ref) async {
   // The Tor switch carries the probes and the wallet through Tor: this network's name lookups

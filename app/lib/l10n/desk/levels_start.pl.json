@@ -1,12 +1,3 @@
 {
-  "deskLvStartPreviewLabel": "Podgląd Przeglądu. Pokazuje więcej, im głębiej ustawisz pokrętło.",
-  "deskLvStartPreviewCaption": "Start w tym widoku. Nic zapisanego się nie zmienia.",
-  "deskLvStartCover": "Wybierz punkt, aby zobaczyć podgląd",
-  "deskLvStartUndercoverAbout": "O trybie Tylko Tor",
-  "deskLvStartHelpShallow": "Płytko · jeden adres, bez nazw serwerów, bez przełączników.",
-  "deskLvStartHelpDeeper": "Głębiej · ten sam portfel, plus to, co robi, prostymi słowami.",
-  "deskLvStartHelpDeep": "Na głęboką wodę · każdy przełącznik, każda liczba: dzisiejsza aplikacja.",
-  "deskLvStartMiniWallet": "Główny portfel",
-  "deskLvStartMiniLine": "+12,5 nadchodzi · 25,0 wstrzymane",
-  "deskLvStartMiniFresh": "Świeże z kopania"
+  "deskUndercoverAbout": "O trybie Tylko Tor"
 }

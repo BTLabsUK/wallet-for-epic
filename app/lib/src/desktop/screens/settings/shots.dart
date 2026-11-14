@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../../mock_fixtures.dart';
-import '../../../levels/level_providers.dart' show walletLevelProvider;
-import '../../../levels/wallet_level.dart';
-import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/mock_hosts.dart';
 import 'dart:async' show unawaited;
 import 'dart:io' show File;
@@ -98,12 +95,6 @@ void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
-/// Shows the screen at [level] (the tour's wallet stands on its own, so the pick is its own).
-/// The level's first build settles the store first: a pick before that is overwritten by it.
-Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async {
-  await c.read(walletLevelProvider.future);
-  await c.read(deskLevelControlProvider).setLevel(level);
-};
 
 final List<DeskShot> settingsShots = [
   const DeskShot(id: '20-node', title: 'Settings › Node: the node card', route: DeskRoute.settingsNode),
@@ -445,9 +436,6 @@ final List<DeskShot> settingsShots = [
   // Advanced mode (Settings › Advanced; the network mode is on Network & privacy) and what the
   // network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
-  // Wallet levels: Advanced (its Depth group on top) at Shallow and Deeper.
-  DeskShot(id: '43-advanced-l1', title: 'Settings › Advanced, Shallow', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '43-advanced-l2', title: 'Settings › Advanced, Deeper', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.casual)),
   const DeskShot(id: '43-advanced-narrow', title: 'Settings › Advanced at 1000x750', route: DeskRoute.settingsAdvanced, width: 1000, height: 750),
   DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(id: '43e-overview-waiting-tor', title: 'Overview, Tor only waiting for Tor', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
@@ -499,24 +487,18 @@ final List<DeskShot> settingsShots = [
   ),
   // The help popover (widgets/popover.dart) open on the Network group's info icon.
   DeskShot(id: '43r-network-help', title: 'Settings › Network & privacy › Network, the help popover open', route: DeskRoute.settingsPrivacy, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
-  // The Settings redesign (26.10.25): search, the hidden rows behind ⇕, the views' nav, the
-  // month picker.
+  // The Settings redesign (26.10.25): search, the hidden rows behind ⇕, the month picker.
   DeskShot(id: '45a-settings-search-tor', title: 'Settings search: "tor"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('tor')),
   DeskShot(id: '45b-settings-search-seed', title: 'Settings search: "seed"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('seed')),
   DeskShot(
     id: '45c-payments-sending-revealed',
-    title: 'Payments in the Deeper view, Sending with its hidden rows shown (⇕)',
+    title: 'Payments, Sending with its hidden rows shown (⇕)',
     route: DeskRoute.settingsReceiving,
-    before: _level(WalletLevel.casual),
     prepare: (c, _) async => c.read(moreOptionsRevealProvider.notifier).open('pay-sending'),
   ),
-  DeskShot(id: '45d-settings-shallow', title: 'Settings in the Shallow view: the nav', route: DeskRoute.settingsAccount, before: _level(WalletLevel.justSendReceive)),
-  // Network & privacy in the Shallow view (the servers, the modes), wide and narrow, and the
-  // Overview's mode mark in the two modes that stop payments.
-  DeskShot(id: '45h-privacy-shallow', title: 'Network & privacy in the Shallow view', route: DeskRoute.settingsPrivacy, height: 1100, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '45i-privacy-shallow-narrow', title: 'Network & privacy in the Shallow view, a narrow window', route: DeskRoute.settingsPrivacy, width: 1000, height: 1100, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '45j-overview-shallow-node-only', title: 'Overview in the Shallow view, Node only: the mark', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
-  DeskShot(id: '45k-overview-shallow-kill-switch', title: 'Overview in the Shallow view, Kill switch: the mark', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
+  // Home's mode mark in the two modes that stop payments.
+  DeskShot(id: '45j-home-node-only', title: 'Home, Node only: the mark', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '45k-home-kill-switch', title: 'Home, Kill switch: the mark', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(
     id: '45e-rescan-start-open',
     title: 'Recheck balance: the scan start open (month or height, with Recheck from a height on)',

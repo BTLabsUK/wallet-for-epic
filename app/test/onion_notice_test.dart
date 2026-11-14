@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
+import 'package:epic_wallet/src/desktop/data/desk_onion_notice.dart';
 import 'package:epic_wallet/src/epic1.dart' show PaymentMode;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Every Settings row, once: its id ([SetId]), its page, group, name, explanation, the other
-/// words that find it and what shows it (a view, an Advanced switch). Settings search reads
+/// words that find it and what shows it (an Advanced switch). Settings search reads
 /// only this list, so a row is searchable when it is listed here and its page row carries
 /// `anchor: SetId.x` (`test/desktop/settings_registry_test.dart` keeps both in step).
 library;
@@ -47,7 +47,7 @@ class SetEntry {
   final SetText? hint;
   final SetText? info;
 
-  /// What shows the row beyond its section's gate: a view, an Advanced switch.
+  /// What shows the row beyond its section's gate: an Advanced switch.
   final SetGate gate;
 
   /// The row this one sits under and only shows with (Receiving under Epicbox): a jump lands
@@ -77,7 +77,7 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.recheckGo, DeskRoute.settingsAccount, label: (l) => l.deskSetFrameRescan, group: (l) => l.deskSetGrpBalance, hint: (l) => l.deskSetRowRecheckGoHint, synonyms: (l) => l.deskSetSynRecheckGo),
   SetEntry(SetId.deleteWallet, DeskRoute.settingsAccount, label: (l) => l.deskSetDlgDeleteWallet, group: (l) => l.deskSetGrpRemove, hint: (l) => l.deskSetRowDeleteWalletHint, synonyms: (l) => l.deskSetSynDeleteWallet),
   SetEntry(SetId.recheckFrom, DeskRoute.settingsRescan, label: (l) => l.deskSetRescanStartHeading, synonyms: (l) => l.deskSetSynRecheckFrom),
-  SetEntry(SetId.recheckDrop, DeskRoute.settingsRescan, label: (l) => l.deskSetRescanDeleteUnconfirmed, hint: (l) => l.deskSetRowRecheckDropHint, synonyms: (l) => l.deskSetSynRecheckDrop, gate: SetGate(minLevel: 2, features: [AdvancedFeature.recheckFromHeight])),
+  SetEntry(SetId.recheckDrop, DeskRoute.settingsRescan, label: (l) => l.deskSetRescanDeleteUnconfirmed, hint: (l) => l.deskSetRowRecheckDropHint, synonyms: (l) => l.deskSetSynRecheckDrop, gate: SetGate(features: [AdvancedFeature.recheckFromHeight])),
   SetEntry(SetId.phraseGo, DeskRoute.settingsSecurity, label: (l) => l.deskSetFramePhrase, hint: (l) => l.deskSetRowPhraseGoHint, synonyms: (l) => l.deskSetSynPhraseGo),
   SetEntry(SetId.password, DeskRoute.settingsSecurity, label: (l) => l.deskSetDlgPassword, hint: (l) => l.deskSetRowPasswordHint, synonyms: (l) => l.deskSetSynPassword),
   SetEntry(SetId.remembered, DeskRoute.settingsSecurity, label: (l) => l.deskSetAcctRemembered, hint: (l) => l.deskSetRowRememberedHint, synonyms: (l) => l.deskSetSynRemembered),
@@ -92,8 +92,8 @@ final List<SetEntry> settingsRegistry = [
   if (DeskFeatures.tor) SetEntry(SetId.torPay, DeskRoute.settingsReceiving, label: (l) => l.methodDirectTor, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowTorPayHint, info: (l) => l.deskSetRowTorPayInfo, synonyms: (l) => l.deskSetSynTorPay),
   SetEntry(SetId.file, DeskRoute.settingsReceiving, label: (l) => l.deskKitMethodFiles, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowFileHint, synonyms: (l) => l.deskSetSynFile),
   SetEntry(SetId.defaultMethod, DeskRoute.settingsReceiving, label: (l) => l.deskSetTxStart, group: (l) => l.deskSetGrpSending, hint: (l) => l.deskSetRowDefaultMethodHint, synonyms: (l) => l.deskSetSynDefaultMethod),
-  SetEntry(SetId.strategy, DeskRoute.settingsReceiving, label: (l) => l.deskSetRowStrategy, group: (l) => l.deskSetGrpSending, hint: (l) => l.deskSetRowStrategyHint, info: (l) => l.deskSetRowStrategyInfo, synonyms: (l) => l.deskSetSynStrategy, gate: SetGate(minLevel: 3, features: [AdvancedFeature.sendOptions])),
-  SetEntry(SetId.splitChange, DeskRoute.settingsReceiving, label: (l) => l.outputsSplitChange, group: (l) => l.deskSetGrpSending, hint: (l) => l.deskSetRowSplitChangeHint, info: (l) => l.deskSetRowSplitChangeInfo, synonyms: (l) => l.deskSetSynSplitChange, gate: SetGate(minLevel: 3, features: [AdvancedFeature.sendOptions])),
+  SetEntry(SetId.strategy, DeskRoute.settingsReceiving, label: (l) => l.deskSetRowStrategy, group: (l) => l.deskSetGrpSending, hint: (l) => l.deskSetRowStrategyHint, info: (l) => l.deskSetRowStrategyInfo, synonyms: (l) => l.deskSetSynStrategy, gate: SetGate(features: [AdvancedFeature.sendOptions])),
+  SetEntry(SetId.splitChange, DeskRoute.settingsReceiving, label: (l) => l.outputsSplitChange, group: (l) => l.deskSetGrpSending, hint: (l) => l.deskSetRowSplitChangeHint, info: (l) => l.deskSetRowSplitChangeInfo, synonyms: (l) => l.deskSetSynSplitChange, gate: SetGate(features: [AdvancedFeature.sendOptions])),
   SetEntry(SetId.confirmations, DeskRoute.settingsReceiving, label: (l) => l.deskSetAdvConfirmations, group: (l) => l.deskSetGrpReceiving, hint: (l) => l.deskSetRowConfirmationsHint, synonyms: (l) => l.deskSetSynConfirmations),
   SetEntry(SetId.epic1Payments, DeskRoute.settingsReceiving, label: (l) => l.deskE1SetSwitch, group: (l) => l.advExperimental, info: (l) => l.deskE1SetInfo, synonyms: (l) => l.deskE1SetSyn),
   SetEntry(SetId.pairShop, DeskRoute.settingsInvoices, label: (l) => l.invSetPairShop, hint: (l) => l.deskSetRowPairShopHint, synonyms: (l) => l.deskSetSynPairShop),
@@ -108,18 +108,17 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.nodeServer, DeskRoute.settingsNode, label: (l) => l.deskSetNodeServer, group: (l) => l.deskSetGrpConnection, hint: (l) => l.deskSetRowNodeServerHint, synonyms: (l) => l.deskSetSynNodeServer),
   SetEntry(SetId.failover, DeskRoute.settingsNode, label: (l) => l.deskSetRowFailover, group: (l) => l.deskSetGrpConnection, hint: (l) => l.deskSetRowFailoverHint, synonyms: (l) => l.deskSetSynFailover),
   SetEntry(SetId.myNode, DeskRoute.settingsNode, label: (l) => l.deskOwnMine, group: (l) => l.deskSetGrpConnection, hint: (l) => l.deskSetRowMyNodeHint, synonyms: (l) => l.deskSetSynMyNode),
-  SetEntry(SetId.localNode, DeskRoute.settingsNode, label: (l) => l.deskSetRowLocalNode, group: (l) => l.deskSetGrpLocalNode, hint: (l) => l.deskSetRowLocalNodeHint, synonyms: (l) => l.deskSetSynLocalNode, gate: SetGate(minLevel: 3, features: [AdvancedFeature.builtInNode])),
-  SetEntry(SetId.localStart, DeskRoute.settingsNode, label: (l) => l.deskSetLnodeAutostart, group: (l) => l.deskSetGrpLocalNode, hint: (l) => l.deskSetRowLocalStartHint, synonyms: (l) => l.deskSetSynLocalStart, gate: SetGate(minLevel: 3, features: [AdvancedFeature.builtInNode]), parent: SetId.localNode),
+  SetEntry(SetId.localNode, DeskRoute.settingsNode, label: (l) => l.deskSetRowLocalNode, group: (l) => l.deskSetGrpLocalNode, hint: (l) => l.deskSetRowLocalNodeHint, synonyms: (l) => l.deskSetSynLocalNode, gate: SetGate(features: [AdvancedFeature.builtInNode])),
+  SetEntry(SetId.localStart, DeskRoute.settingsNode, label: (l) => l.deskSetLnodeAutostart, group: (l) => l.deskSetGrpLocalNode, hint: (l) => l.deskSetRowLocalStartHint, synonyms: (l) => l.deskSetSynLocalStart, gate: SetGate(features: [AdvancedFeature.builtInNode]), parent: SetId.localNode),
   SetEntry(SetId.netMode, DeskRoute.settingsPrivacy, label: (l) => l.deskSetRowNetMode, group: (l) => l.deskSetGrpConnections, synonyms: (l) => DeskFeatures.tor ? l.deskSetSynNetMode : l.deskNoTorSetSynNetMode),
   SetEntry(SetId.statusSite, DeskRoute.settingsPrivacy, label: (l) => l.deskSetPrivUseStatus(statusSiteHost), group: (l) => l.deskSetGrpServerStatus, hint: (l) => l.deskSetRowStatusSiteHint, synonyms: (l) => l.deskSetSynStatusSite),
-  SetEntry(SetId.view, DeskRoute.settingsAdvanced, label: (l) => l.deskSetRowView, group: (l) => l.deskSetGrpView, hint: (l) => l.deskSetRowViewHint, synonyms: (l) => l.deskSetSynView),
-  SetEntry(SetId.advOutputs, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvOutputs, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvOutputsHint, synonyms: (l) => l.deskSetSynAdvOutputs, gate: SetGate(minLevel: 2)),
-  SetEntry(SetId.advTech, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvTechnical, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvTechHint, synonyms: (l) => l.deskSetSynAdvTech, gate: SetGate(minLevel: 2)),
-  SetEntry(SetId.advSendopts, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvSendOptions, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvSendoptsHint, synonyms: (l) => l.deskSetSynAdvSendopts, gate: SetGate(minLevel: 2)),
-  SetEntry(SetId.advServers, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvServerDetails, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvServersHint, synonyms: (l) => l.deskSetSynAdvServers, gate: SetGate(minLevel: 2)),
-  SetEntry(SetId.advHeight, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvRecheck, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvHeightHint, synonyms: (l) => l.deskSetSynAdvHeight, gate: SetGate(minLevel: 2)),
-  SetEntry(SetId.advLocal, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvBuiltInNode, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvLocalHint, synonyms: (l) => l.deskSetSynAdvLocal, gate: SetGate(minLevel: 3)),
-  SetEntry(SetId.advLogs, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvLogs, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvLogsHint, synonyms: (l) => l.deskSetSynAdvLogs, gate: SetGate(minLevel: 2)),
+  SetEntry(SetId.advOutputs, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvOutputs, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvOutputsHint, synonyms: (l) => l.deskSetSynAdvOutputs),
+  SetEntry(SetId.advTech, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvTechnical, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvTechHint, synonyms: (l) => l.deskSetSynAdvTech),
+  SetEntry(SetId.advSendopts, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvSendOptions, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvSendoptsHint, synonyms: (l) => l.deskSetSynAdvSendopts),
+  SetEntry(SetId.advServers, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvServerDetails, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvServersHint, synonyms: (l) => l.deskSetSynAdvServers),
+  SetEntry(SetId.advHeight, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvRecheck, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvHeightHint, synonyms: (l) => l.deskSetSynAdvHeight),
+  SetEntry(SetId.advLocal, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvBuiltInNode, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvLocalHint, synonyms: (l) => l.deskSetSynAdvLocal),
+  SetEntry(SetId.advLogs, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvLogs, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvLogsHint, synonyms: (l) => l.deskSetSynAdvLogs),
   SetEntry(SetId.walletRows, DeskRoute.settingsWallets, label: (l) => l.deskSetRowWalletRows, group: (l) => l.deskSetGrpOnComputer, hint: (l) => l.deskSetRowWalletRowsHint, synonyms: (l) => l.deskSetSynWalletRows),
   SetEntry(SetId.createWallet, DeskRoute.settingsWallets, label: (l) => l.deskSetWalletsCreate, group: (l) => l.deskSetGrpAddWallet, hint: (l) => l.deskSetRowCreateWalletHint, synonyms: (l) => l.deskSetSynCreateWallet),
   SetEntry(SetId.importWallets, DeskRoute.settingsWallets, label: (l) => l.deskSetWalletsImport, group: (l) => l.deskSetGrpAddWallet, hint: (l) => l.deskSetRowImportWalletsHint, synonyms: (l) => l.deskSetSynImportWallets),
@@ -130,7 +129,7 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.logFiles, DeskRoute.settingsFiles, label: (l) => l.deskSetLogsFiles, group: (l) => l.deskSetGrpLogs, hint: (l) => l.deskSetRowLogFilesHint, synonyms: (l) => l.deskSetSynLogFiles, gate: SetGate(features: [AdvancedFeature.logs])),
   SetEntry(SetId.report, DeskRoute.settingsHelp, label: (l) => l.deskSetReportTitle, group: (l) => l.deskSetGrpSupport, hint: (l) => l.deskSetRowReportHint, synonyms: (l) => l.deskSetSynReport),
   SetEntry(SetId.tour, DeskRoute.settingsHelp, label: (l) => l.deskSetHelpTourAgain, group: (l) => l.deskSetGrpStartAgain, synonyms: (l) => l.deskSetSynTour),
-  SetEntry(SetId.setup, DeskRoute.settingsHelp, label: (l) => l.deskSetRowSetup, group: (l) => l.deskSetGrpStartAgain, hint: (l) => l.deskSetRowSetupHint, synonyms: (l) => l.deskSetSynSetup, gate: SetGate(minLevel: 2)),
+  SetEntry(SetId.setup, DeskRoute.settingsHelp, label: (l) => l.deskSetRowSetup, group: (l) => l.deskSetGrpStartAgain, hint: (l) => l.deskSetRowSetupHint, synonyms: (l) => l.deskSetSynSetup),
   SetEntry(SetId.updates, DeskRoute.settingsAbout, label: (l) => l.deskSetAboutUpdates, hint: (l) => l.deskSetRowUpdatesHint, synonyms: (l) => l.deskSetSynUpdates),
   SetEntry(SetId.website, DeskRoute.settingsAbout, label: (l) => l.deskSetRowWebsite, group: (l) => l.deskSetGrpLinks, synonyms: (l) => l.deskSetSynWebsite),
   SetEntry(SetId.source, DeskRoute.settingsAbout, label: (l) => l.deskSetAboutSource, group: (l) => l.deskSetGrpLinks, synonyms: (l) => l.deskSetSynSource),

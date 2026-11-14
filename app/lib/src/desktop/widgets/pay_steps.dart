@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-/// A payment's live steps on the desktop (wallet levels): started → signed → posted →
-/// confirming → done, in the level's words. Overview's in-flight card, Send after the send,
-/// Receive's arrival card and the payment detail show it.
+/// A payment's live steps on the desktop: started → signed → posted → confirming → done. Home's
+/// in-flight card, Send after the send, Receive's arrival card and the payment detail show it.
 ///
-/// The state of each step comes from [PayFacts], the one reading of a [Tx] that the Deep end's
-/// own step list (tx_detail.dart) shares: nothing is invented, a step shows a time only when
+/// The state of each step comes from [PayFacts], the one reading of a [Tx] that the payment
+/// detail's step list (tx_detail.dart) shares: nothing is invented, a step shows a time only when
 /// the wallet knows it, and a sub-line appears only when the data says so.
 library;
 
@@ -13,9 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../known_relays.dart' show recipientRelay;
-import '../../levels/level_features.dart' show TimelineStyle;
 import '../../network_gate.dart' show NetGate;
-import '../data/desk_levels.dart';
 import '../desk_l10n.dart';
 import '../screens/wallet/tx_display.dart' show deskTxMailboxName;
 import 'kit.dart';
@@ -99,15 +96,13 @@ bool payInFlight(Tx t) => payHasSteps(t) && t.state != TxState.confirmed;
 
 final _clock = DateFormat('HH:mm:ss');
 
-/// The five steps of [t] in the words of [style], the phone's own five ([sendSteps] and
-/// [paymentSteps] there, A-03): Payment started (or arrived), Recipient signed (or Signed and
-/// returned), Posted to the network, Confirming, Completed. The technical level counts
-/// "Confirming 2/6" as the phone's details do; the other levels say "Confirming 2 of 6", and
-/// with no block yet keep Posted as the step under way. [name] is the other side by name when
+/// The five steps of [t], the phone's own five ([sendSteps] and [paymentSteps] there, A-03):
+/// Payment started (or arrived), Recipient signed (or Signed and returned), Posted to the
+/// network, Confirming ("Confirming 2 of 6"), Completed. With no block yet, Posted stays the
+/// step under way. [name] is the other side by name when
 /// known; [times] adds the time of the step the wallet knows (the started one).
-List<PayStep> payStepList(AppLocalizations l, Tx t, TimelineStyle style, {String? name, bool times = false}) {
+List<PayStep> payStepList(AppLocalizations l, Tx t, {String? name, bool times = false}) {
   final f = PayFacts.of(t);
-  final technical = style == TimelineStyle.technicalSteps;
   final at = t.startedAt ?? t.created;
   final started = times ? _clock.format(at) : '';
   final n = t.confirmations;
@@ -126,15 +121,15 @@ List<PayStep> payStepList(AppLocalizations l, Tx t, TimelineStyle style, {String
   } else if (t.method != TxMethod.epicbox) {
     recipientSub = null;
   } else {
-    recipientSub = name == null ? l.deskLvPayOnEpicbox : l.sendTrackWaitingFor(name);
+    recipientSub = name == null ? l.deskPayOnEpicbox : l.sendTrackWaitingFor(name);
     recipientTip = recipientRelay(t.counterparty ?? '')?.label;
   }
 
   PayStepState at2(bool doneNow, bool nowNow) => doneNow ? PayStepState.done : (nowNow ? PayStepState.now : PayStepState.todo);
 
   final inBlockNow = f.inBlock && !f.done;
-  // The levels never read "Confirming 0 of 6": until a block has it, Posted is under way.
-  final postedHolds = !technical && inBlockNow && n <= 0;
+  // Never "Confirming 0 of 6": until a block has it, Posted is under way.
+  final postedHolds = inBlockNow && n <= 0;
 
   final first = PayStep(t.incoming ? l.txStepArrived : l.txStepStarted, PayStepState.done, started);
   final second = t.incoming
@@ -145,7 +140,7 @@ List<PayStep> payStepList(AppLocalizations l, Tx t, TimelineStyle style, {String
           sub: f.waitingSender && !t.senderPosted ? l.deskTxStatusWaitingSender : null,
         )
       : PayStep(
-          technical || name == null ? l.txStepAccepted : l.lvPaySigned(name),
+          name == null ? l.txStepAccepted : l.paySigned(name),
           f.signed ? PayStepState.done : PayStepState.now,
           '',
           sub: recipientSub,
@@ -161,7 +156,7 @@ List<PayStep> payStepList(AppLocalizations l, Tx t, TimelineStyle style, {String
     f.done
         ? l.txStepConfirmed
         : inBlockNow && !postedHolds
-        ? (technical ? l.txStatusConfirming(n, target) : l.lvPayConfirmingOf(n, target))
+        ? l.payConfirmingOf(n, target)
         : l.txStepConfirming,
     postedHolds ? PayStepState.todo : at2(f.done, inBlockNow),
     '',
@@ -186,11 +181,10 @@ class DeskPaymentSteps extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!payHasSteps(tx)) return const SizedBox.shrink();
     final l = context.l10n;
-    final style = ref.watch(deskLevelFeaturesProvider.select((f) => f.timeline));
     final mailbox = deskTxMailboxName(ref, tx, any: true);
     final name = mailbox ?? tx.contactName;
     final down = vertical ?? false;
-    final steps = payStepList(l, tx, style, name: name, times: down && !dense);
+    final steps = payStepList(l, tx, name: name, times: down && !dense);
     return LayoutBuilder(
       builder: (context, box) => Semantics(
         container: true,

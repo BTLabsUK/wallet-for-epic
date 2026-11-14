@@ -9,7 +9,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/invite_links.dart'
     show InviteKind, InviteLink, clearInviteHandlers, inviteInboxProvider, inviteShareText, registerInviteHandler;
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/first_start.dart' show firstStartDone, firstStartKey;
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -610,37 +610,35 @@ void main() {
     });
   });
 
-  group('a pairing invite at Just send and receive', () {
+  group('a pairing invite', () {
     /// The invite as the inviter's QR and Share carry it: the invite page's https link.
     String pageLink(_Harness h) => inviteShareText(
       InviteLink(InviteKind.pair, h.session.pairing.inviteLinkFrom(name: 'Anna')),
       invitePage: 'https://epiccash.btlabs.uk',
     );
 
-    _Harness levelOne() =>
-        _Harness()..store.values[levelKey] = const LevelChosen(WalletLevel.justSendReceive).encode();
+    _Harness answered() => _Harness()..store.values[firstStartKey] = firstStartDone;
 
-    // The phone has no level shell now (Phone Levels: no level UI), so a link handed to the app
-    // opens the invite at once; there is no notice first.
+    // A link handed to the app opens the invite at once; there is no notice first.
     testWidgets('a link handed to the app opens the invite, no notice first', (tester) async {
-      final h = levelOne();
+      final h = answered();
       await h.pump(tester);
       h.container.read(inviteInboxProvider).deliver(pageLink(h));
       await tester.pumpAndSettle();
       expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
-      expect(find.text(_l.lvShellPairNotice('Anna')), findsNothing);
+      expect(find.text(_l.statusPairNotice('Anna')), findsNothing);
     });
 
     testWidgets('Home\'s scan of the inviter\'s QR opens the invite, no notice first', (tester) async {
-      final h = levelOne();
+      final h = answered();
       await h.pump(tester);
       await h.scan(tester, pageLink(h));
       expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
-      expect(find.text(_l.lvShellPairNotice('Anna')), findsNothing);
+      expect(find.text(_l.statusPairNotice('Anna')), findsNothing);
     });
 
     testWidgets('Send › Scan of the inviter\'s QR opens the invite', (tester) async {
-      final h = levelOne();
+      final h = answered();
       await h.pump(tester);
       await _tap(tester, find.widgetWithText(KitButton, _l.homeSendButton));
       h.scanner.codes.add(pageLink(h));

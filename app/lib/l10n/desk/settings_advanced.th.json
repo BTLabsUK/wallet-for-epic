@@ -33,8 +33,5 @@
   "deskSetAdvConfirmationsMore": "เพิ่มการยืนยัน",
   "deskSetAdvConfirmationsCount": "{count, plural, other{ยืนยัน {count} ครั้ง}}",
   "deskSetAdvConfirmationsLowNote": "ยิ่งยืนยันน้อยยิ่งเร็ว แต่ปลอดภัยน้อยลง",
-  "deskSetAdvConfirmationsNotSaved": "ไม่ได้เปลี่ยนการยืนยัน",
-  "deskSetAdvViewLineOne": "ส่ง รับ และสำรองข้อมูล เลือกโหนดและเซิร์ฟเวอร์ Epicbox ให้อัตโนมัติ",
-  "deskSetAdvViewLineTwo": "เพิ่มวิธีชำระเงิน โหนด โหมดเครือข่าย และกระเป๋าอื่น",
-  "deskSetAdvViewLineThree": "เพิ่มเอาต์พุต ใบแจ้งหนี้ โหนดในเครื่อง และทุกสวิตช์ขั้นสูง"
+  "deskSetAdvConfirmationsNotSaved": "ไม่ได้เปลี่ยนการยืนยัน"
 }

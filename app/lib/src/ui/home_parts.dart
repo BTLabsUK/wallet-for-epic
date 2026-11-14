@@ -15,7 +15,6 @@ import '../providers.dart';
 import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'settings_rows.dart' show NavChevron;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
@@ -527,60 +526,3 @@ Widget destinationBody(String? trust, Widget child) {
   return trust == null ? body : trustId(trust, body);
 }
 
-/// Level 1's one destination under the balance: Contacts, as a row in the destination tiles'
-/// language (their surface, line and radius): the people icon, the label, a chevron at its end.
-/// One 56 dp target, the width of the list.
-class HomeContactsEntry extends StatelessWidget {
-  const HomeContactsEntry({super.key, required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    return Semantics(
-      key: homeDestinationKey(HomeDestination.contacts),
-      container: true,
-      button: true,
-      label: l.settingsContacts,
-      onTap: onTap,
-      child: destinationBody(
-        null,
-        Material(
-          color: t.surface,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: t.line),
-            borderRadius: BorderRadius.circular(t.radiusSmall),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: SizedBox(
-              height: 56,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
-                child: Row(
-                  children: [
-                    Icon(Icons.people_outline, size: 20, color: t.accentText),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        l.settingsContacts,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(color: t.text),
-                      ),
-                    ),
-                    const NavChevron(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

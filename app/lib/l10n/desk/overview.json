@@ -223,22 +223,6 @@
   "@deskOvBreakTotal": {
     "description": "Label of a balance cell under the big amount on Overview: the whole balance. Narrow cell, may wrap to two lines."
   },
-  "deskOvBreakConfirming": "Confirming",
-  "@deskOvBreakConfirming": {
-    "description": "Label of a balance cell on Overview: money still waiting for confirmations. Narrow cell."
-  },
-  "deskOvBreakImmature": "Mining rewards",
-  "@deskOvBreakImmature": {
-    "description": "Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell."
-  },
-  "deskOvBreakAwaiting": "Waiting for sender",
-  "@deskOvBreakAwaiting": {
-    "description": "Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines."
-  },
-  "deskOvBreakLocked": "Locked in sends",
-  "@deskOvBreakLocked": {
-    "description": "Label of a balance cell on Overview: money locked in unfinished sends. Narrow cell, may wrap to two lines."
-  },
   "deskOvUpdating": "Updating",
   "@deskOvUpdating": {
     "description": "Tag next to the balance label while the balance is being updated; also its screen reader label. One word."

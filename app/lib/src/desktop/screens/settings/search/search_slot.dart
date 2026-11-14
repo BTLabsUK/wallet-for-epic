@@ -10,11 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../levels/wallet_level.dart';
-import '../../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../../desk_l10n.dart';
 import '../../../widgets/kit.dart';
-import '../../../widgets/more_options.dart' show moreOptionsRevealProvider;
 import '../help_pairing.dart' show HelpAt;
 import '../help_topics.dart';
 import '../prefs.dart' show settingsPrefsProvider;
@@ -110,7 +107,7 @@ class _Topic extends _Item {
 List<_Item> _walk(SetSearch r) => [for (final h in r.shown) _Row(h), for (final t in r.help) _Topic(t), for (final h in r.hidden) _Row(h)];
 
 /// Goes to result [item]: its row (scrolled to, focused, flashed), its Help topic; a hidden row
-/// first gets its view or switch (review 2).
+/// first gets its switches turned on (review 2).
 Future<void> _go(BuildContext context, WidgetRef ref, _Item item) async {
   final l = context.l10n;
   final query = ref.read(settingsQueryProvider.notifier);
@@ -121,12 +118,6 @@ Future<void> _go(BuildContext context, WidgetRef ref, _Item item) async {
     case _Row(:final hit):
       if (hit.hidden) {
         final notices = <String>[];
-        if (hit.level case final lv?) {
-          await ref.read(deskLevelControlProvider).setLevel(WalletLevel.ofNumber(lv)!);
-          ref.read(moreOptionsRevealProvider.notifier).clear();
-          notices.add(l.deskSetSearchViewApplied(setViewName(l, lv)));
-        }
-        // Deep end may have turned the switch on already.
         final s = ref.read(deskProvider).settings;
         var adv = s.advanced;
         for (final f in hit.features) {
@@ -403,7 +394,7 @@ class SettingsSearchResults extends ConsumerWidget {
               tag: setJoinReasons(l, h.reasons),
               words: r.words,
               control: _OpenButton(
-                label: h.level != null ? l.deskSetSearchShowIn(setViewName(l, h.level!)) : l.deskSetSearchTurnOn,
+                label: l.deskSetSearchTurnOn,
                 onPressed: () => _go(context, ref, _Row(h)),
                 chevron: false,
               ),

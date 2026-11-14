@@ -73,7 +73,6 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.settingsRescan => SettingsRescanScreen(arg: a),
     DeskRoute.settingsAdvanced => SettingsAdvancedScreen(arg: a),
     // Change view is Advanced › View now.
-    DeskRoute.settingsLevel => SettingsAdvancedScreen(arg: a),
     DeskRoute.settingsAbout => SettingsAboutScreen(arg: a),
     DeskRoute.settingsHelp => SettingsHelpScreen(arg: a),
     DeskRoute.settingsFiles => SettingsFilesScreen(arg: a),

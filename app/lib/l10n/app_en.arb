@@ -2043,7 +2043,7 @@
   "@receiveAddressCopied": {
     "description": "Notice after the wallet's address was copied."
   },
-  "receiveFileTitle": "Receive by transaction file",
+  "receiveFileTitle": "Receive by payment file",
   "@receiveFileTitle": {
     "description": "Heading of the Receive tab's card for a payment that comes as a file (or its text) instead of over epicbox."
   },
@@ -5537,10 +5537,6 @@
   "@deskInvActBilledBy": {
     "description": "Detail label: the service that sent the invoice."
   },
-  "deskInvActOverviewTitle": "Invoices",
-  "@deskInvActOverviewTitle": {
-    "description": "Overview card title: invoices to pay and requests waiting."
-  },
   "deskInvActOverviewToPay": "{count, plural, =0{Nothing to pay} =1{1 invoice to pay} other{{count} invoices to pay}}",
   "@deskInvActOverviewToPay": {
     "description": "Overview card line: invoices waiting for your answer.",
@@ -7765,7 +7761,7 @@
   "@deskRecvFiles": {
     "description": "Heading of the transaction files panel on Receive."
   },
-  "deskRecvSignTitle": "Sign a transaction file",
+  "deskRecvSignTitle": "Sign a payment file",
   "@deskRecvSignTitle": {
     "description": "Row title in the transaction files panel: opens the page that signs a file the sender gave."
   },
@@ -9924,22 +9920,6 @@
   "deskOvBreakTotal": "Total",
   "@deskOvBreakTotal": {
     "description": "Label of a balance cell under the big amount on Overview: the whole balance. Narrow cell, may wrap to two lines."
-  },
-  "deskOvBreakConfirming": "Confirming",
-  "@deskOvBreakConfirming": {
-    "description": "Label of a balance cell on Overview: money still waiting for confirmations. Narrow cell."
-  },
-  "deskOvBreakImmature": "Mining rewards",
-  "@deskOvBreakImmature": {
-    "description": "Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell."
-  },
-  "deskOvBreakAwaiting": "Waiting for sender",
-  "@deskOvBreakAwaiting": {
-    "description": "Label of a balance cell on Overview: money of payments that wait to be finalized. Narrow cell, may wrap to two lines."
-  },
-  "deskOvBreakLocked": "Locked in sends",
-  "@deskOvBreakLocked": {
-    "description": "Label of a balance cell on Overview: money locked in unfinished sends. Narrow cell, may wrap to two lines."
   },
   "deskOvUpdating": "Updating",
   "@deskOvUpdating": {
@@ -16626,7 +16606,7 @@
   "@pairExpiresIn": {
     "description": "Label of the expiry segments."
   },
-  "contactsPairHint": "Pair with another wallet to seal transaction files and invoices between the two.",
+  "contactsPairHint": "Pair with another wallet to seal payment files and invoices between the two.",
   "@contactsPairHint": {
     "description": "Contacts: one line above the list while no contact is paired (and in the empty state), with the How it works link"
   },
@@ -22339,104 +22319,44 @@
       }
     }
   },
-  "levelThreeTitle": "Let me explore everything",
-  "@levelThreeTitle": {
-    "description": "First-start step and Change level dialog: level 3."
-  },
-  "levelUndercoverTitle": "Tor only",
-  "@levelUndercoverTitle": {
+  "undercoverTitle": "Tor only",
+  "@undercoverTitle": {
     "description": "Switch on the first onboarding screen (Tor builds only): Connection mode › Tor only from the first connection. Off by default."
   },
-  "levelRowTitle": "Wallet view",
-  "@levelRowTitle": {
-    "description": "Row at the top of Settings › Advanced; its second line is the current level's title."
-  },
-  "lvPickStopOne": "Shallow",
-  "@lvPickStopOne": {
-    "description": "Level picker dial: the first stop (level 1)."
-  },
-  "lvPickStopTwo": "Deeper",
-  "@lvPickStopTwo": {
-    "description": "Level picker dial: the second stop (level 2)."
-  },
-  "lvPickStopThree": "Deep end",
-  "@lvPickStopThree": {
-    "description": "Level picker dial: the third stop (level 3)."
-  },
-  "lvPickLineOne": "Send, receive, done. The wallet minds the rest.",
-  "@lvPickLineOne": {
-    "description": "Level picker: one-liner of level 1, under its name."
-  },
-  "lvPickLineTwo": "See what it’s doing, in plain words.",
-  "@lvPickLineTwo": {
-    "description": "Level picker: one-liner of level 2, under its name."
-  },
-  "lvPickLineThree": "Every switch, every number.",
-  "@lvPickLineThree": {
-    "description": "Level picker: one-liner of level 3, under its name."
-  },
-  "lvPickNone": "Pick a stop",
-  "@lvPickNone": {
-    "description": "Level picker before a stop is picked: in place of the level name."
-  },
-  "lvPickNoneLine": "The preview follows the dial.",
-  "@lvPickNoneLine": {
-    "description": "Level picker before a stop is picked: in place of the one-liner."
-  },
-  "lvPickDepth": "View",
-  "@lvPickDepth": {
-    "description": "Screen reader name of the level picker's group of three stops."
-  },
-  "lvPickHelpTitle": "What this decides",
-  "@lvPickHelpTitle": {
-    "description": "Level picker ⓘ sheet: title."
-  },
-  "lvPickHelpText": "Only how much the app shows. Every view sends and receives the same way, with the same keys and the same coins.",
-  "@lvPickHelpText": {
-    "description": "Level picker ⓘ sheet: text."
-  },
-  "lvPickUndercoverHelpNet": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Connection mode › Tor only; it can be turned off later in Settings › Network & privacy.",
-  "@lvPickUndercoverHelpNet": {
+  "undercoverHelp": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Connection mode › Tor only; it can be turned off later in Settings › Network & privacy.",
+  "@undercoverHelp": {
     "description": "Info text of Undercover on the level picker. Names where Tor only is turned off later (Settings › Network & privacy)."
   },
-  "lvPickUndercover": "Undercover",
-  "@lvPickUndercover": {
-    "description": "Change level screen: the Undercover (Tor only) switch."
-  },
-  "lvPickUndercoverLaterHelp": "Tor only. Every connection goes through Tor; starting takes longer. Where Tor is blocked, the wallet cannot connect until this is off.",
-  "@lvPickUndercoverLaterHelp": {
-    "description": "ⓘ sheet of the Undercover switch on the Change level screen."
-  },
-  "lvPickTorTitle": "Connecting through Tor",
-  "@lvPickTorTitle": {
+  "torWaitTitle": "Connecting through Tor",
+  "@torWaitTitle": {
     "description": "Waiting for Tor after the PIN, with Undercover on: heading."
   },
-  "lvPickTorLead": "The first connection through Tor can take a minute.",
-  "@lvPickTorLead": {
+  "torWaitLead": "The first connection through Tor can take a minute.",
+  "@torWaitLead": {
     "description": "Waiting for Tor: line under the heading."
   },
-  "lvPickTorBusy": "Building the circuit…",
-  "@lvPickTorBusy": {
+  "torWaitBusy": "Building the circuit…",
+  "@torWaitBusy": {
     "description": "Waiting for Tor: the busy line."
   },
-  "lvPickTorBlocked": "If Tor is blocked where you are, the wallet cannot connect until Undercover is turned off.",
-  "@lvPickTorBlocked": {
+  "torWaitBlocked": "If Tor is blocked where you are, the wallet cannot connect until Undercover is turned off.",
+  "@torWaitBlocked": {
     "description": "Waiting for Tor: text above the Turn Undercover off button."
   },
-  "lvPickTorOff": "Turn Undercover off",
-  "@lvPickTorOff": {
+  "torWaitOff": "Turn Undercover off",
+  "@torWaitOff": {
     "description": "Waiting for Tor: button that sets the network mode back to standard."
   },
-  "lvPickTorOffDone": "Undercover is off. Connecting directly.",
-  "@lvPickTorOffDone": {
+  "torWaitOffDone": "Undercover is off. Connecting directly.",
+  "@torWaitOffDone": {
     "description": "Notice after Turn Undercover off on the Tor wait screen."
   },
-  "lvPayArriving": "Arriving",
-  "@lvPayArriving": {
+  "payArriving": "Arriving",
+  "@payArriving": {
     "description": "Level 1-2 row step word: an incoming payment the sender is still finishing."
   },
-  "lvPayConfirming": "Confirming {count} of {target}",
-  "@lvPayConfirming": {
+  "payConfirming": "Confirming {count} of {target}",
+  "@payConfirming": {
     "description": "Level 1-2 row step word: confirmations so far of the wallet's setting.",
     "placeholders": {
       "count": {
@@ -22447,9 +22367,9 @@
       }
     }
   },
-  "lvPayConfirmingOf": "Confirming {count} of {target}",
-  "@lvPayConfirmingOf": {
-    "description": "Payment steps, the step under way: confirmations so far of the wallet's setting. The number, 'of' and the target are joined by no-break spaces so '0 of 6' never splits across lines. Replaces lvPayConfirming in the steps.",
+  "payConfirmingOf": "Confirming {count} of {target}",
+  "@payConfirmingOf": {
+    "description": "Payment steps, the step under way: confirmations so far of the wallet's setting. The number, 'of' and the target are joined by no-break spaces so '0 of 6' never splits across lines. Replaces payConfirming in the steps.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -22459,8 +22379,8 @@
       }
     }
   },
-  "lvPaySigned": "{name} signed",
-  "@lvPaySigned": {
+  "paySigned": "{name} signed",
+  "@paySigned": {
     "description": "Payment steps, a send: the recipient's wallet signed; name is the contact.",
     "placeholders": {
       "name": {
@@ -22468,16 +22388,16 @@
       }
     }
   },
-  "lvPayOnItsWay": "On its way",
-  "@lvPayOnItsWay": {
+  "payOnItsWay": "On its way",
+  "@payOnItsWay": {
     "description": "Level 1 Send: heading of the screen shown once a payment is out."
   },
-  "lvPayCloseNote": "You can close this. It shows under Activity until it is done.",
-  "@lvPayCloseNote": {
+  "payCloseNote": "You can close this. It shows under Activity until it is done.",
+  "@payCloseNote": {
     "description": "Level 1 Send: under On its way."
   },
-  "lvPayArrivalFrom": "{amount} from {name}",
-  "@lvPayArrivalFrom": {
+  "payArrivalFrom": "{amount} from {name}",
+  "@payArrivalFrom": {
     "description": "Level 1 Receive: arrival card title, a payment coming in.",
     "placeholders": {
       "amount": {
@@ -22488,20 +22408,20 @@
       }
     }
   },
-  "lvPayOpen": "Open",
-  "@lvPayOpen": {
+  "payOpen": "Open",
+  "@payOpen": {
     "description": "Level 1 Receive: opens the arriving payment's details."
   },
-  "lvPayNewToday": "New today",
-  "@lvPayNewToday": {
+  "payNewToday": "New today",
+  "@payNewToday": {
     "description": "Level 1 Receive: badge on the address after the Epicbox server moved."
   },
-  "lvPayNewAddress": "New address",
-  "@lvPayNewAddress": {
+  "payNewAddress": "New address",
+  "@payNewAddress": {
     "description": "Level 1 Receive: address label after the Epicbox server moved."
   },
-  "lvPayServerLine": "Epicbox server: {name}.",
-  "@lvPayServerLine": {
+  "payServerLine": "Epicbox server: {name}.",
+  "@payServerLine": {
     "description": "Level 1 Receive: the server now in use.",
     "placeholders": {
       "name": {
@@ -22509,28 +22429,24 @@
       }
     }
   },
-  "lvPayOldAddressLine": "Anyone with the old address needs the new one.",
-  "@lvPayOldAddressLine": {
+  "payOldAddressLine": "Anyone with the old address needs the new one.",
+  "@payOldAddressLine": {
     "description": "Level 1 Receive: after the server moved; does not promise the old address still works."
   },
-  "lvPayStarted": "Started",
-  "@lvPayStarted": {
+  "payStarted": "Started",
+  "@payStarted": {
     "description": "Level 1 payment details: when the payment started."
   },
-  "lvPayPaymentId": "Payment ID",
-  "@lvPayPaymentId": {
+  "payPaymentId": "Payment ID",
+  "@payPaymentId": {
     "description": "Details sheet: the slate id."
   },
-  "lvPayConfirmations": "Confirmations",
-  "@lvPayConfirmations": {
-    "description": "Details sheet row."
-  },
-  "lvPayCopyDetails": "Copy details",
-  "@lvPayCopyDetails": {
+  "payCopyDetails": "Copy details",
+  "@payCopyDetails": {
     "description": "Details sheet button."
   },
-  "lvShellStatusTip": "{name} · {state}",
-  "@lvShellStatusTip": {
+  "statusTip": "{name} · {state}",
+  "@statusTip": {
     "description": "Level 1 status icon tooltip and spoken label: the service and its state, e.g. Network · OK.",
     "placeholders": {
       "name": {
@@ -22541,56 +22457,28 @@
       }
     }
   },
-  "lvShellStateBehind": "Behind",
-  "@lvShellStateBehind": {
+  "statusStateBehind": "Behind",
+  "@statusStateBehind": {
     "description": "Level 1 network state: the node answers but is behind the network."
   },
-  "lvShellStateCatchingUp": "Catching up",
-  "@lvShellStateCatchingUp": {
-    "description": "Level 1 network state: the wallet is syncing."
-  },
-  "lvShellStateConnecting": "Connecting",
-  "@lvShellStateConnecting": {
-    "description": "Level 1 state of a status: connecting."
-  },
-  "lvShellOpensDetails": "Shows details",
-  "@lvShellOpensDetails": {
+  "statusOpensDetails": "Shows details",
+  "@statusOpensDetails": {
     "description": "Screen-reader hint of a level 1 status icon: a tap opens its details sheet."
   },
-  "lvShellLatestBlock": "Latest block",
-  "@lvShellLatestBlock": {
-    "description": "Network sheet fact: the newest block the node knows."
-  },
-  "lvShellThisWallet": "This wallet",
-  "@lvShellThisWallet": {
-    "description": "Network sheet fact label: whether this wallet is up to date."
-  },
-  "lvShellUpToDate": "Up to date",
-  "@lvShellUpToDate": {
-    "description": "Network sheet: this wallet has every block."
-  },
-  "lvShellNotChecked": "Not checked yet",
-  "@lvShellNotChecked": {
+  "statusNotChecked": "Not checked yet",
+  "@statusNotChecked": {
     "description": "Network sheet: the wallet could not be checked against the node yet."
   },
-  "lvShellLastChange": "Last change",
-  "@lvShellLastChange": {
-    "description": "Network sheet support fact: the node the wallet moved from by itself."
-  },
-  "lvShellBoxListening": "Connected · listening for payments",
-  "@lvShellBoxListening": {
+  "statusBoxListening": "Connected · listening for payments",
+  "@statusBoxListening": {
     "description": "Epicbox sheet state: connected to the Epicbox server and ready to receive."
   },
-  "lvShellBoxNotReachable": "Not reachable · keeps trying",
-  "@lvShellBoxNotReachable": {
+  "statusBoxNotReachable": "Not reachable · keeps trying",
+  "@statusBoxNotReachable": {
     "description": "Epicbox sheet state: the Epicbox server does not answer; the wallet keeps retrying."
   },
-  "lvShellBoxDownBody": "Payments to you wait and arrive when the server is back. Nothing changes unless you switch.",
-  "@lvShellBoxDownBody": {
-    "description": "Epicbox sheet while the server is down."
-  },
-  "lvShellOfferReady": "{name} is ready",
-  "@lvShellOfferReady": {
+  "statusOfferReady": "{name} is ready",
+  "@statusOfferReady": {
     "description": "Epicbox sheet: another Epicbox server, by name, answers and can take over.",
     "placeholders": {
       "name": {
@@ -22598,8 +22486,8 @@
       }
     }
   },
-  "lvShellOfferBody": "Switching gives this wallet a new address on {name}. Anyone with the old address needs the new one.",
-  "@lvShellOfferBody": {
+  "statusOfferBody": "Switching gives this wallet a new address on {name}. Anyone with the old address needs the new one.",
+  "@statusOfferBody": {
     "description": "Epicbox sheet: what switching servers does. Never promise that payments to the old address still arrive.",
     "placeholders": {
       "name": {
@@ -22607,8 +22495,8 @@
       }
     }
   },
-  "lvShellSwitchTo": "Switch to {name}",
-  "@lvShellSwitchTo": {
+  "statusSwitchTo": "Switch to {name}",
+  "@statusSwitchTo": {
     "description": "Button: move the wallet to the named Epicbox server.",
     "placeholders": {
       "name": {
@@ -22616,29 +22504,29 @@
       }
     }
   },
-  "lvShellKeepWaiting": "Keep waiting",
-  "@lvShellKeepWaiting": {
+  "statusKeepWaiting": "Keep waiting",
+  "@statusKeepWaiting": {
     "description": "Button: stay on the current Epicbox server for now."
   },
-  "lvShellRelayDownTitle": "The Epicbox server is not reachable.",
-  "@lvShellRelayDownTitle": {
-    "description": "Compact warning notice title: the wallet's Epicbox server does not answer (after the connection grace). lvShellRelayDownShort follows."
+  "statusRelayDownTitle": "The Epicbox server is not reachable.",
+  "@statusRelayDownTitle": {
+    "description": "Compact warning notice title: the wallet's Epicbox server does not answer (after the connection grace). statusRelayDownShort follows."
   },
-  "lvShellRelayDownShort": "{name} can take over; this wallet’s address changes with it.",
-  "@lvShellRelayDownShort": {
-    "description": "Line under lvShellRelayDownTitle: {name} is another Epicbox server ready to take over; moving to it changes the wallet's address. A Switch button follows.",
+  "statusRelayDownShort": "{name} can take over; this wallet’s address changes with it.",
+  "@statusRelayDownShort": {
+    "description": "Line under statusRelayDownTitle: {name} is another Epicbox server ready to take over; moving to it changes the wallet's address. A Switch button follows.",
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
   },
-  "lvShellSwitch": "Switch",
-  "@lvShellSwitch": {
+  "statusSwitch": "Switch",
+  "@statusSwitch": {
     "description": "Button on the Epicbox notice: move the wallet to the server the notice names."
   },
-  "lvShellSwitchedNotice": "Now on {name}. The new address is ready.",
-  "@lvShellSwitchedNotice": {
+  "statusSwitchedNotice": "Now on {name}. The new address is ready.",
+  "@statusSwitchedNotice": {
     "description": "Success notice after the Epicbox server switch.",
     "placeholders": {
       "name": {
@@ -22646,16 +22534,16 @@
       }
     }
   },
-  "lvShellShowNewAddress": "Show new address",
-  "@lvShellShowNewAddress": {
+  "statusShowNewAddress": "Show new address",
+  "@statusShowNewAddress": {
     "description": "Button after a server switch: opens Receive with the new address."
   },
-  "lvShellAddress": "Address",
-  "@lvShellAddress": {
+  "statusAddress": "Address",
+  "@statusAddress": {
     "description": "Epicbox sheet support fact: this wallet's Epicbox address."
   },
-  "lvShellPairNotice": "{name} wants to pair with this wallet.",
-  "@lvShellPairNotice": {
+  "statusPairNotice": "{name} wants to pair with this wallet.",
+  "@statusPairNotice": {
     "description": "Level 1 notice: someone sent a pairing request.",
     "placeholders": {
       "name": {
@@ -22663,8 +22551,8 @@
       }
     }
   },
-  "lvShellQuietArriving": "+{amount} arriving",
-  "@lvShellQuietArriving": {
+  "statusQuietArriving": "+{amount} arriving",
+  "@statusQuietArriving": {
     "description": "Level 1 quiet line under the balance: money on its way in.",
     "placeholders": {
       "amount": {
@@ -22672,96 +22560,20 @@
       }
     }
   },
-  "lvPolPosted": "Posted",
-  "@lvPolPosted": {
+  "payPosted": "Posted",
+  "@payPosted": {
     "description": "Levels 1–2 row word for a payment the network has taken but no block holds yet (0 confirmations): never 'Confirming 0 of 3'."
   },
-  "deskLvStartPreviewLabel": "Preview of Home. It shows more as the dial goes deeper.",
-  "@deskLvStartPreviewLabel": {
-    "description": "Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth)."
-  },
-  "deskLvStartPreviewCaption": "Home in this view. Nothing stored changes between views.",
-  "@deskLvStartPreviewCaption": {
-    "description": "Caption under the Overview picture in Settings › Advanced › View."
-  },
-  "deskLvStartCover": "Pick a stop to see the preview",
-  "@deskLvStartCover": {
-    "description": "Over the faded Overview picture on Welcome before a stop of the depth dial is picked."
-  },
-  "deskLvStartUndercoverAbout": "About Tor only",
-  "@deskLvStartUndercoverAbout": {
+  "deskUndercoverAbout": "About Tor only",
+  "@deskUndercoverAbout": {
     "description": "Label of the info button next to the Tor only switch on Welcome."
   },
-  "deskLvStartHelpShallow": "Shallow · one address, no server names, no switches.",
-  "@deskLvStartHelpShallow": {
-    "description": "Dialog \"What this decides\": the line for the first stop. Shallow is the stop name."
-  },
-  "deskLvStartHelpDeeper": "Deeper · the same wallet, plus what it is doing, in plain words.",
-  "@deskLvStartHelpDeeper": {
-    "description": "Dialog \"What this decides\": the line for the second stop. Deeper is the stop name."
-  },
-  "deskLvStartHelpDeep": "Deep end · every switch, every number: today’s app.",
-  "@deskLvStartHelpDeep": {
-    "description": "Dialog \"What this decides\": the line for the third stop. Deep end is the stop name."
-  },
-  "deskLvStartMiniWallet": "Main wallet",
-  "@deskLvStartMiniWallet": {
-    "description": "The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet."
-  },
-  "deskLvStartMiniLine": "+12.5 arriving · 25.0 locked",
-  "@deskLvStartMiniLine": {
-    "description": "The one sentence under the balance in the small Overview picture at Shallow. A sample."
-  },
-  "deskLvStartMiniFresh": "Fresh from mining",
-  "@deskLvStartMiniFresh": {
-    "description": "Balance tile in the small Overview picture at Deeper: mining rewards not yet spendable."
-  },
-  "deskLvSendHowTo": "How to send it",
-  "@deskLvSendHowTo": {
-    "description": "Heading of the method card on Send at the Deeper level, above the Epicbox, Link and File Transfer choice."
-  },
-  "deskLvSendButton": "Send",
-  "@deskLvSendButton": {
-    "description": "Label of the Summary column's button on Send at the Shallow level while no amount is entered yet."
-  },
-  "deskLvSendButtonAmount": "Send {amount} EPIC",
-  "@deskLvSendButtonAmount": {
-    "description": "Label of the Summary column's button on Send at the Shallow level when the recipient has no name. {amount} is the amount with decimals.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      }
-    }
-  },
-  "deskLvSendButtonTo": "Send {amount} EPIC to {name}",
-  "@deskLvSendButtonTo": {
-    "description": "Label of the Summary column's button on Send at the Shallow level. {amount} is the amount with decimals, {name} the contact's name.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      },
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskLvSendNothingLeaves": "Nothing leaves until you press Send. After that it cannot be taken back.",
-  "@deskLvSendNothingLeaves": {
+  "deskSendNothingLeaves": "Nothing leaves until you press Send. After that it cannot be taken back.",
+  "@deskSendNothingLeaves": {
     "description": "Line under the Send button on Send at the Shallow level, and under the title of the password dialog that follows."
   },
-  "deskLvSendPasswordTitle": "Wallet password",
-  "@deskLvSendPasswordTitle": {
-    "description": "Title of the dialog that asks for the wallet's password after Send at the Shallow level."
-  },
-  "deskLvSendConfirm": "Send",
-  "@deskLvSendConfirm": {
-    "description": "Button of the password dialog at the Shallow level; pressing it sends the payment."
-  },
-  "deskLvSendLiveTo": "On its way to {name}",
-  "@deskLvSendLiveTo": {
+  "deskSendLiveTo": "On its way to {name}",
+  "@deskSendLiveTo": {
     "description": "Heading of Send after a payment went out, at every level. {name} is the contact's name.",
     "placeholders": {
       "name": {
@@ -22770,8 +22582,8 @@
       }
     }
   },
-  "deskLvSendLiveAmountTo": "{amount} EPIC to {name}",
-  "@deskLvSendLiveAmountTo": {
+  "deskSendLiveAmountTo": "{amount} EPIC to {name}",
+  "@deskSendLiveAmountTo": {
     "description": "Line under the heading of Send after a payment went out. {amount} is the amount, {name} the contact's name.",
     "placeholders": {
       "amount": {
@@ -22784,8 +22596,8 @@
       }
     }
   },
-  "deskLvSendLiveAmount": "{amount} EPIC",
-  "@deskLvSendLiveAmount": {
+  "deskSendLiveAmount": "{amount} EPIC",
+  "@deskSendLiveAmount": {
     "description": "Line under the heading of Send after a payment went out, when the recipient has no name. {amount} is the amount.",
     "placeholders": {
       "amount": {
@@ -22794,38 +22606,8 @@
       }
     }
   },
-  "deskLvSendYourAddress": "This wallet’s address",
-  "@deskLvSendYourAddress": {
-    "description": "Heading of the address card on Receive at the Shallow level."
-  },
-  "deskLvSendReady": "Ready to receive",
-  "@deskLvSendReady": {
-    "description": "State line on Receive at the Shallow level when the Epicbox server answers."
-  },
-  "deskLvSendClosedInfo": "Payments sent while the wallet is closed arrive when it opens.",
-  "@deskLvSendClosedInfo": {
-    "description": "Text of the info icon next to the address on Receive: what happens to a payment sent while this wallet is closed."
-  },
-  "deskLvSendPayFiles": "Payment files",
-  "@deskLvSendPayFiles": {
-    "description": "Heading of the file card on Receive at the Deeper level."
-  },
-  "deskLvSendPrevAddress": "Previous address",
-  "@deskLvSendPrevAddress": {
-    "description": "Title of the collapsed row on Receive after the Epicbox server moved, holding what is left of the old address."
-  },
-  "deskLvSendPrevText": "The old address was on {server}. Anyone who has it needs the new one.",
-  "@deskLvSendPrevText": {
-    "description": "Text inside the Previous address row on Receive after the Epicbox server moved. {server} is the old Epicbox server's address (a domain). Says that people with the old address need the new one; it does not promise old-address payments still arrive.",
-    "placeholders": {
-      "server": {
-        "type": "String",
-        "example": "epicbox.example.com"
-      }
-    }
-  },
-  "deskLvPayConfirmingComma": "Confirming, {count} of {target}",
-  "@deskLvPayConfirmingComma": {
+  "deskPayConfirmingComma": "Confirming, {count} of {target}",
+  "@deskPayConfirmingComma": {
     "description": "Deeper payment steps: confirmations so far of the number the wallet waits for.",
     "placeholders": {
       "count": {
@@ -22838,8 +22620,8 @@
       }
     }
   },
-  "deskLvPayOnItsWayTo": "On its way to {name}",
-  "@deskLvPayOnItsWayTo": {
+  "deskPayOnItsWayTo": "On its way to {name}",
+  "@deskPayOnItsWayTo": {
     "description": "Overview's card for a payment you sent that is not done yet (Shallow and Deeper); name is the contact.",
     "placeholders": {
       "name": {
@@ -22848,18 +22630,8 @@
       }
     }
   },
-  "deskLvPaySendingTo": "Sending to {name}",
-  "@deskLvPaySendingTo": {
-    "description": "Overview's card for a payment you sent that is not done yet (Deep end); name is the recipient.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskLvPayArrivingFrom": "Arriving from {name}",
-  "@deskLvPayArrivingFrom": {
+  "deskPayArrivingFrom": "Arriving from {name}",
+  "@deskPayArrivingFrom": {
     "description": "Overview's card for a payment received that is not done yet; name is the sender.",
     "placeholders": {
       "name": {
@@ -22868,8 +22640,8 @@
       }
     }
   },
-  "deskLvPayStartedAt": "{amount} EPIC · started {time}",
-  "@deskLvPayStartedAt": {
+  "deskPayStartedAt": "{amount} EPIC · started {time}",
+  "@deskPayStartedAt": {
     "description": "Overview's card for a payment in progress: its amount and the time it started.",
     "placeholders": {
       "amount": {
@@ -22882,133 +22654,49 @@
       }
     }
   },
-  "deskLvPayHeroArriving": "+{amount} arriving from {name}",
-  "@deskLvPayHeroArriving": {
-    "description": "Overview's hero sentence at Shallow: one payment from a contact is on its way in; amount is the EPIC amount.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      },
-      "name": {
-        "type": "String",
-        "example": "Bob"
-      }
-    }
-  },
-  "deskLvPayHeroArrivingMany": "+{amount} arriving",
-  "@deskLvPayHeroArrivingMany": {
-    "description": "Overview's hero sentence at Shallow: payments are on their way in; amount is their sum.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      }
-    }
-  },
-  "deskLvPayHeroHold": "{amount} locked until {name} signs",
-  "@deskLvPayHeroHold": {
-    "description": "Overview's hero sentence at Shallow: a payment you sent is waiting for the recipient to sign, its coins are on hold.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "25.0000"
-      },
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskLvPayHeroHoldMany": "{amount} locked until signed",
-  "@deskLvPayHeroHoldMany": {
-    "description": "Overview's hero sentence at Shallow: payments you sent are waiting to be signed, their coins are on hold; amount is their sum.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "25.0000"
-      }
-    }
-  },
-  "deskLvPayHeroNothing": "Nothing arriving yet.",
-  "@deskLvPayHeroNothing": {
-    "description": "Overview's hero sentence at Shallow in a wallet with no payments."
-  },
-  "deskLvPayReadyHead": "Wallet ready",
-  "@deskLvPayReadyHead": {
-    "description": "Overview notice title at Shallow when the new wallet is ready. A title: no period, no \"your\"."
-  },
-  "deskLvPayReadyText": "Share the address to get the first EPIC.",
-  "@deskLvPayReadyText": {
-    "description": "Overview notice at Shallow in a wallet with no payments: text."
-  },
-  "deskLvPayTileConfirming": "Still confirming",
-  "@deskLvPayTileConfirming": {
+  "deskPayTileConfirming": "Still confirming",
+  "@deskPayTileConfirming": {
     "description": "Deeper Overview tile: coins that arrived and wait for more confirmations."
   },
-  "deskLvPayTileMining": "Fresh from mining",
-  "@deskLvPayTileMining": {
+  "deskPayTileMining": "Fresh from mining",
+  "@deskPayTileMining": {
     "description": "Deeper Overview tile: mining rewards that are not yet spendable."
   },
-  "deskLvPayTileAwaiting": "Awaiting reply",
-  "@deskLvPayTileAwaiting": {
+  "deskPayTileAwaiting": "Awaiting reply",
+  "@deskPayTileAwaiting": {
     "description": "Deeper Overview tile and the small Overview picture at Deeper: payments waiting for the other wallet's reply. Short: fits one line in a narrow tile."
   },
-  "deskLvPayTileLocked": "Set aside for sends",
-  "@deskLvPayTileLocked": {
+  "deskPayTileLocked": "Set aside for sends",
+  "@deskPayTileLocked": {
     "description": "Deeper Overview tile: coins held by payments you sent."
   },
-  "deskLvPayImmatureCasual": "Fresh from mining, not spendable yet",
-  "@deskLvPayImmatureCasual": {
+  "deskPayMaturing": "Fresh from mining, not spendable yet",
+  "@deskPayMaturing": {
     "description": "Deeper row status of a mining reward that is not spendable yet."
   },
-  "deskLvPayKind": "Payment",
-  "@deskLvPayKind": {
-    "description": "Shallow Activity row: the line under a name when the payment has no note."
-  },
-  "deskLvShellNewsTitle": "New: wallet view",
-  "@deskLvShellNewsTitle": {
-    "description": "Desktop Overview: title of the one-time notice an install that updated into wallet levels sees. 'Wallet depth' is the setting that picks how much the app shows (levels Shallow, Deeper, Deep end)."
-  },
-  "deskLvShellNewsText": "This install shows everything, as before. Shallow and Deeper show less.",
-  "@deskLvShellNewsText": {
-    "description": "Desktop Overview: text of the one-time 'New: wallet depth' notice. Shallow and Deeper are the names of the two quieter levels; keep them as the level picker names them."
-  },
-  "deskLvShellNewsLook": "Have a look",
-  "@deskLvShellNewsLook": {
-    "description": "Desktop Overview: button on the 'New: wallet depth' notice; opens the page where the level is changed and dismisses the notice."
-  },
-  "deskLvShellFailover": "Failover",
-  "@deskLvShellFailover": {
+  "deskStatusFailover": "Failover",
+  "@deskStatusFailover": {
     "description": "Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering."
   },
-  "deskLvShellOn": "On",
-  "@deskLvShellOn": {
+  "deskStatusOn": "On",
+  "@deskStatusOn": {
     "description": "Desktop status popover: value of the Failover row when the node failover setting is on."
   },
-  "deskLvShellHeight": "Height",
-  "@deskLvShellHeight": {
+  "deskStatusHeight": "Height",
+  "@deskStatusHeight": {
     "description": "Desktop Node status popover (Deep end level): row label; the node's block height."
   },
-  "deskLvShellVersion": "Version",
-  "@deskLvShellVersion": {
+  "deskStatusVersion": "Version",
+  "@deskStatusVersion": {
     "description": "Desktop Node status popover (Deep end level): row label; the node software's version."
   },
-  "deskLvShellRecheckHint": "If an amount looks wrong, the wallet reads the chain again.",
-  "@deskLvShellRecheckHint": {
+  "deskStatusRecheckHint": "If an amount looks wrong, the wallet reads the chain again.",
+  "@deskStatusRecheckHint": {
     "description": "Desktop Settings › This wallet at the Shallow level: info text of the Recheck balance row, whose Open button opens the Recheck balance page."
   },
-  "lvShellSwitchServer": "Switch server",
-  "@lvShellSwitchServer": {
+  "statusSwitchServer": "Switch server",
+  "@statusSwitchServer": {
     "description": "Level-1 Network and Epicbox status sheets: button that opens the other servers of the list; one tap moves to the picked one."
-  },
-  "deskLvShellSwitchServer": "Switch server",
-  "@deskLvShellSwitchServer": {
-    "description": "Desktop title-bar status popover (Network or Epicbox) at the Shallow level: button that opens a short list of the other servers of the user's list, each named by its address; one click moves the wallet to that server."
-  },
-  "deskLvShellNoOtherServer": "No other server in the list.",
-  "@deskLvShellNoOtherServer": {
-    "description": "Desktop status popover at the Shallow level: shown under Switch server when the user's server list has no server other than the one in use."
   },
   "deskLastSessionFroze": "The app stopped responding last time. Send the log?",
   "@deskLastSessionFroze": {
@@ -23126,8 +22814,8 @@
       }
     }
   },
-  "deskLvPayOnEpicbox": "On Epicbox",
-  "@deskLvPayOnEpicbox": {
+  "deskPayOnEpicbox": "On Epicbox",
+  "@deskPayOnEpicbox": {
     "description": "Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short."
   },
   "deskRailReceivingInternet": "Receiving · internet",
@@ -24057,16 +23745,6 @@
   "@deskSetSearchHiddenLine": {
     "description": "Settings search: line beside the Hidden here heading."
   },
-  "deskSetSearchShowIn": "Show in {view}",
-  "@deskSetSearchShowIn": {
-    "description": "Settings search, hidden result: button that changes to the view that shows the setting, then goes to it. view is Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "view": {
-        "type": "String",
-        "example": "Deep end"
-      }
-    }
-  },
   "deskSetSearchTurnOn": "Turn on",
   "@deskSetSearchTurnOn": {
     "description": "Settings search, hidden result: button that turns on the Advanced switch that shows the setting, then goes to it."
@@ -24104,16 +23782,6 @@
   "deskSetSearchResults": "Search results",
   "@deskSetSearchResults": {
     "description": "Settings search: the results list's name for screen readers."
-  },
-  "deskSetSearchViewGate": "{view} view",
-  "@deskSetSearchViewGate": {
-    "description": "What shows a hidden setting: a view. view is Shallow, Deeper or Deep end, e.g. \"Deep end view\".",
-    "placeholders": {
-      "view": {
-        "type": "String",
-        "example": "Deep end"
-      }
-    }
   },
   "deskSetSearchFeatGate": "Advanced › {feature}",
   "@deskSetSearchFeatGate": {
@@ -24158,32 +23826,11 @@
       }
     }
   },
-  "deskSetSearchViewApplied": "View: {view}",
-  "@deskSetSearchViewApplied": {
-    "description": "Notice after a search result changed the view. view is Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "view": {
-        "type": "String"
-      }
-    }
-  },
   "deskSetSearchFeatApplied": "Advanced › {feature}: on",
   "@deskSetSearchFeatApplied": {
     "description": "Notice after a search result turned on an Advanced switch.",
     "placeholders": {
       "feature": {
-        "type": "String"
-      }
-    }
-  },
-  "deskSetSearchFallbackView": "{page} shows in the {view} view.",
-  "@deskSetSearchFallbackView": {
-    "description": "Notice when a link opens a Settings page the current view hides; the first page of its group opens instead. view is Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "page": {
-        "type": "String"
-      },
-      "view": {
         "type": "String"
       }
     }
@@ -24275,10 +23922,6 @@
   "deskSetGrpServerStatus": "Server status",
   "@deskSetGrpServerStatus": {
     "description": "Settings: heading of the “Server status” group of rows (on its page and over search results)."
-  },
-  "deskSetGrpView": "View",
-  "@deskSetGrpView": {
-    "description": "Settings: heading of the “View” group of rows (on its page and over search results)."
   },
   "deskSetGrpShowsMore": "Shows more",
   "@deskSetGrpShowsMore": {
@@ -24640,18 +24283,6 @@
   "@deskSetSynStatusSite": {
     "description": "Settings search: other words that find the “Use status.btlabs.uk” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
-  "deskSetRowView": "View",
-  "@deskSetRowView": {
-    "description": "Settings row title: View (section advanced)."
-  },
-  "deskSetRowViewHint": "Shallow, Deeper or Deep end: how much of the wallet shows.",
-  "@deskSetRowViewHint": {
-    "description": "Settings row “View”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
-  },
-  "deskSetSynView": "level, depth, shallow, deeper, deep end, simple, expert, beginner, advanced mode",
-  "@deskSetSynView": {
-    "description": "Settings search: other words that find the “View” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
   "deskSetRowAdvOutputsHint": "The Outputs page: the coins the balance is made of.",
   "@deskSetRowAdvOutputsHint": {
     "description": "Settings row “Outputs”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
@@ -24835,18 +24466,6 @@
   "deskSetAcctRemove": "Remove",
   "@deskSetAcctRemove": {
     "description": "Wallet settings: heading of the Delete wallet row."
-  },
-  "deskSetAdvViewLineOne": "Sending, receiving and backups. The node and the Epicbox server are chosen automatically.",
-  "@deskSetAdvViewLineOne": {
-    "description": "Advanced › View: the Shallow view’s one line. Facts only."
-  },
-  "deskSetAdvViewLineTwo": "Adds payment methods, the node, network modes and more wallets.",
-  "@deskSetAdvViewLineTwo": {
-    "description": "Advanced › View: the Deeper view’s one line. Facts only."
-  },
-  "deskSetAdvViewLineThree": "Adds outputs, invoices, the local node and every Advanced switch.",
-  "@deskSetAdvViewLineThree": {
-    "description": "Advanced › View: the Deep end view’s one line. Facts only."
   },
   "deskSetFrameBack": "Wallet",
   "@deskSetFrameBack": {
@@ -27017,8 +26636,8 @@
       }
     }
   },
-  "deskLvPaySendingInPerson": "Sending in person",
-  "@deskLvPaySendingInPerson": {
+  "deskPaySendingInPerson": "Sending in person",
+  "@deskPaySendingInPerson": {
     "description": "Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end)."
   },
   "deskInvIssuerWaitingInPerson": "Waiting for the other wallet’s answer. Nothing is paid until it approves.",
@@ -27107,8 +26726,8 @@
   "@deskIpOnlineDetails": {
     "description": "Screen reader hint of the online answer status line: tapping it opens its details."
   },
-  "deskLvPaySendingVia": "Sending {via}",
-  "@deskLvPaySendingVia": {
+  "deskPaySendingVia": "Sending {via}",
+  "@deskPaySendingVia": {
     "description": "Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; via is how it travels, e.g. 'via file'.",
     "placeholders": {
       "via": {
@@ -27117,8 +26736,8 @@
       }
     }
   },
-  "deskLvPayArrivingVia": "Arriving {via}",
-  "@deskLvPayArrivingVia": {
+  "deskPayArrivingVia": "Arriving {via}",
+  "@deskPayArrivingVia": {
     "description": "Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; via is how it travels, e.g. 'via file' or 'in person'.",
     "placeholders": {
       "via": {
@@ -27221,8 +26840,8 @@
       }
     }
   },
-  "deskLvSendLiveVia": "On its way {via}",
-  "@deskLvSendLiveVia": {
+  "deskSendLiveVia": "On its way {via}",
+  "@deskSendLiveVia": {
     "description": "Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.",
     "placeholders": {
       "via": {
@@ -27231,8 +26850,8 @@
       }
     }
   },
-  "deskLvSendLiveAmountVia": "{amount} EPIC {via}",
-  "@deskLvSendLiveAmountVia": {
+  "deskSendLiveAmountVia": "{amount} EPIC {via}",
+  "@deskSendLiveAmountVia": {
     "description": "Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.",
     "placeholders": {
       "amount": {

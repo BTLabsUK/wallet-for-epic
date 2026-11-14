@@ -714,7 +714,7 @@ class _ContactDetail extends ConsumerWidget {
     final torOnly = !DeskFeatures.tor && x.addresses.isNotEmpty && x.kinds.every((k) => k == RecipientKind.tor);
     final nav = ref.read(deskNavProvider.notifier);
     final pairs = ref.watch(deskPairsProvider);
-    // Pair, the Pairing block and their pages: only where the level shows the Pair page.
+    // Pair, the Pairing block and their pages: only where the Pair page is shown.
     final pairPage = deskRouteShown(ref, DeskRoute.pair);
     // Its payments: to and from its address, and through any pairing attached to it.
     final pairings = pairs ? {for (final r in ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]) if (r.contactId == x.id) r.id} : const <String>{};

@@ -49,7 +49,7 @@ enum AdvancedFeature {
   invoices,
 
   /// Experimental: linked devices (`devices/`): this wallet on two or more devices that tell
-  /// each other about their payments. On for everyone at every level since 26.10.25 (item 10):
+  /// each other about their payments. On for everyone since 26.10.25 (item 10):
   /// its switch is gone and a stored "off" is read and ignored. Linking itself needs the QR and the check on
   /// both devices, and nothing connects while no device is linked or being linked. Runs the
   /// pairing engine for the devices' private pairings even while [pairing] is off; nothing of
@@ -127,7 +127,7 @@ class AdvancedPrefs {
   /// ignored.
   bool get pairingOn => true;
 
-  /// Linked devices are on for everyone, at every level (item 10): no switch any more, a stored
+  /// Linked devices are on for everyone (item 10): no switch any more, a stored
   /// "off" from an older build is ignored. Independent of [pairingOn].
   bool get linkedDevicesOn => true;
 

@@ -11,10 +11,7 @@ import '../../../advanced.dart' show AdvancedFeature;
 import '../../../contact_store.dart' show ContactFields;
 import '../../../contacts_file.dart' show encodeContactsFile;
 import '../../app/shots.dart';
-import '../../../levels/level_providers.dart' show walletLevelProvider;
 import '../../../message_checks.dart';
-import '../../../levels/wallet_level.dart';
-import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/history_files.dart';
 import '../../data/mock_wallet.dart';
 import '../../../models.dart' show PairingEvent, PairingEventKind, PairingState;
@@ -37,17 +34,8 @@ import 'tx_detail.dart';
 import 'tx_details_dialog.dart';
 import 'tx_label.dart';
 
-/// Shows the screen at [level] (the tour's wallet stands on its own, so the pick is its own).
-/// Sets the wallet level for a shot. The stored choice is read first: a store before the
-/// notifier's first read lands would be overwritten by that read (Deep end).
-Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async {
-  await c.read(walletLevelProvider.future);
-  await c.read(deskLevelControlProvider).setLevel(level);
-};
-
-/// The Outputs page is on the rail at Deep end with Advanced › Outputs on.
+/// The Outputs page is in the tabs with Advanced › Outputs on.
 Future<void> _outputsOn(ProviderContainer c) async {
-  await _level(WalletLevel.everything)(c);
   final s = c.read(deskProvider).settings;
   await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.outputs, true)));
 }
@@ -238,18 +226,7 @@ Future<void> _annaMoved(ProviderContainer c) async {
 const Future<void> Function(ProviderContainer) annaMovedForShots = _annaMoved;
 
 final List<DeskShot> walletShots = [
-  // Wallet levels: Overview, Activity and the payment detail at Shallow and Deeper.
-  DeskShot(id: '10-overview-l1', title: 'Overview, Shallow', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '10-overview-l2', title: 'Overview, Deeper', route: DeskRoute.overview, before: _level(WalletLevel.casual)),
-  DeskShot(id: '11-activity-l1', title: 'Activity, Shallow', route: DeskRoute.activity, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '12-tx-detail-l1', title: 'Payment detail, Shallow', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '12-tx-detail-l2', title: 'Payment detail, Deeper', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.casual)),
-  // The title bar's status popovers: Shallow (Network and Epicbox with Switch server, the
-  // node's list open) and Deep end (Node, Epicbox, Link · HTTP, Tor).
-  DeskShot(id: '10s-status-node-l1', title: 'Network status popover, Shallow', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('node')),
-  DeskShot(id: '10s-status-node-l1-switch', title: 'Network status popover, Shallow, Switch server open', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('node'), after: _inPopover('status-switch-node')),
-  DeskShot(id: '10s-status-epicbox-l1', title: 'Epicbox status popover, Shallow', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('epicbox')),
-  DeskShot(id: '10s-status-epicbox-l1-switch', title: 'Epicbox status popover, Shallow, Switch server open', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('epicbox'), after: _inPopover('status-switch-epicbox')),
+  // The status bar's popovers: Node, Epicbox, Link · HTTP, Tor.
   DeskShot(id: '10s-status-node', title: 'Node status popover', route: DeskRoute.overview, prepare: _status('node')),
   DeskShot(id: '10s-status-epicbox', title: 'Epicbox status popover', route: DeskRoute.overview, prepare: _status('epicbox')),
   DeskShot(id: '10s-status-epicbox-checking', title: 'Epicbox status popover, a message check running', route: DeskRoute.overview, before: _checkRunning, prepare: _status('epicbox')),

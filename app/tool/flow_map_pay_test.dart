@@ -60,8 +60,8 @@ import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_licence.dart';
 import 'package:epic_wallet/src/tor_location.dart';
-import 'package:epic_wallet/src/levels/relay_switch.dart' show RelaySwitchOffer;
-import 'package:epic_wallet/src/levels/relay_switch_providers.dart'
+import 'package:epic_wallet/src/relay_switch.dart' show RelaySwitchOffer;
+import 'package:epic_wallet/src/relay_switch_providers.dart'
     show RelaySwitchNotifier, RelaySwitchResult, relaySwitchProvider, relaySwitchResultProvider;
 import 'package:epic_wallet/src/ui/kit/kit_keypad.dart' show KitKeypad;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;

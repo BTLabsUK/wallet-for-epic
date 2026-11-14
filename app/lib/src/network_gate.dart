@@ -182,7 +182,7 @@ abstract final class NetGate {
   /// The mode the gate enforces: the stored one, or Kill switch while [firstStartHold].
   static NetworkMode get mode => _firstStartHold ? NetworkMode.killSwitch : _mode;
 
-  /// A fresh install has not answered the first-start step (`levels/first_start.dart`): no
+  /// A fresh install has not answered the first-start step (`first_start.dart`): no
   /// connection of any kind, as Kill switch, whatever mode is stored. The stored mode (Tor only
   /// when the user picks Undercover) is set underneath and takes over at [releaseFirstStart],
   /// so the first connection is already made in it.

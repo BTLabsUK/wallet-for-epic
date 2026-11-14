@@ -6,7 +6,6 @@ library;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/desk_levels.dart' show DeskLevelFeatures;
 import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import 'package:flutter/widgets.dart' show IconData;
@@ -67,11 +66,8 @@ enum DeskRoute {
   settingsSecurity(section: DeskSection.settings),
   settingsRescan(section: DeskSection.settings),
 
-  /// The view and the switches that show more (`settings_advanced.dart`).
+  /// The switches that show more (`settings_advanced.dart`).
   settingsAdvanced(section: DeskSection.settings),
-
-  /// The old Change view page: it opens Advanced, where the view is chosen ([DeskNav.go]).
-  settingsLevel(section: DeskSection.settings),
   settingsAbout(section: DeskSection.settings),
   settingsHelp(section: DeskSection.settings),
 
@@ -115,19 +111,6 @@ String deskNavLabel(AppLocalizations l, DeskSection s) => switch (s) {
   DeskSection.outputs => l.deskShellNavOutputs,
   DeskSection.contacts => l.deskShellNavContacts,
   DeskSection.settings => l.deskShellNavSettings,
-};
-
-/// Whether the level hides [route]'s page: Shallow has no Node, Wallets or Files & logs page;
-/// Invoices and the pairing places are Deep end's (the shell keeps Invoices while an invoice
-/// waits). Recheck balance, Linked devices, Network & privacy and Transactions (it holds the
-/// epic1 switch) stay at every view.
-bool deskLevelHides(DeskLevelFeatures ui, DeskRoute route) => switch (route) {
-  DeskRoute.settingsNode => !ui.nodeSettings,
-  DeskRoute.settingsFiles => ui.shallow,
-  DeskRoute.settingsWallets => !ui.addWallet,
-  DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices => !ui.invoicesPage,
-  DeskRoute.pair => !ui.pairingPages,
-  _ => false,
 };
 
 /// The tabs of Invoices: Pay (invoices to pay) and Issue (invoices this wallet issued).
@@ -185,8 +168,6 @@ class DeskNav extends Notifier<DeskLocation> {
   }
 
   void go(DeskRoute route, [Object? arg]) {
-    // Change view is a part of Advanced now.
-    if (route == DeskRoute.settingsLevel) route = DeskRoute.settingsAdvanced;
     if (route == state.route && arg == state.arg) return;
     _history.add(state);
     if (_history.length > _keep) _history.removeAt(0);

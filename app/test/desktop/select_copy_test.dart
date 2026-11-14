@@ -124,7 +124,7 @@ void main() {
     expect(_clip, contains('WALLET.txt'));
     expect(_clip, isNot(contains('Show less')));
     expect(_clip, isNot(contains('Read more')));
-    expect(_clip, isNot(contains('Home')));
+    expect(_clip, isNot(contains('This computer')));
   });
 
   testWidgets('payment details: the pane is a selection of its own (drag, word, Select all), apart from the list', (tester) async {

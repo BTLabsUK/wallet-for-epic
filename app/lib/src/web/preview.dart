@@ -12,15 +12,15 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../epic1.dart' show FakeEpic1;
 import '../mock_fixtures.dart';
-import '../levels/first_start.dart' show firstStartProvider;
-import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
+import '../first_start.dart' show firstStartProvider;
+import '../relay_switch_providers.dart' show relaySwitchProvider;
 import '../net/http_types.dart' show NetError;
 import '../network.dart';
 import '../pairing_fake.dart' show FakePairing, fakePairingLink;
 import '../phone_tor.dart';
 import '../relay_directory.dart';
 import '../wallet_service.dart';
-import 'preview_levels.dart';
+import 'preview_relay.dart';
 import 'preview_live.dart';
 
 /// `--dart-define=WFE_WEB_FAKE=true`: the web app runs on [previewWalletService].

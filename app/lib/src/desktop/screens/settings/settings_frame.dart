@@ -10,22 +10,21 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
-import '../../data/desk_levels.dart';
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 import 'search/search_slot.dart';
 import 'search/settings_sections.dart';
 import '../../../advanced.dart' show AdvancedFeature;
 
-/// The Settings navigation for the view: the sections of [settingsSections] in their four
-/// groups (the open wallet, under its name; App; This computer; Help), each entry its icon and
-/// name. A section the view hides ([deskLevelHides]) has no entry, Invoices needs a wallet that
-/// takes them, and an empty group has no heading. Sub-pages have no entry of their own. The
-/// wallet's group also lists Contacts, which opens the Contacts page outside Settings.
-List<ESubnavGroup> settingsNavGroups(AppLocalizations l, {required String? walletName, required bool invoices, required DeskLevelFeatures ui}) => [
+/// The Settings navigation: the sections of [settingsSections] in their four groups (the open
+/// wallet, under its name; App; This computer; Help), each entry its icon and name. Invoices
+/// needs a wallet that takes them, and an empty group has no heading. Sub-pages have no entry
+/// of their own. The wallet's group also lists Contacts, which opens the Contacts page outside
+/// Settings.
+List<ESubnavGroup> settingsNavGroups(AppLocalizations l, {required String? walletName, required bool invoices}) => [
   for (final nav in SetNav.values)
     if ([
       for (final s in settingsSections)
-        if (s.nav == nav && s.parent == null && !deskLevelHides(ui, s.route) && (s.route != DeskRoute.settingsInvoices || invoices))
+        if (s.nav == nav && s.parent == null && (s.route != DeskRoute.settingsInvoices || invoices))
           ...[
             (s.route as Object, settingsSectionLabel(l, s.route), s.icon),
             // Contacts, as on the phone: the entry opens the Contacts page itself.
@@ -39,15 +38,14 @@ List<ESubnavGroup> settingsNavGroups(AppLocalizations l, {required String? walle
 DeskRoute? settingsParent(DeskRoute route) => setSectionOf(route)?.parent;
 
 /// The name of a Settings page, as its title and its entry say it.
-String settingsPageTitle(AppLocalizations l, DeskRoute route) =>
-    settingsSectionLabel(l, route == DeskRoute.settingsLevel ? DeskRoute.settingsAdvanced : route);
+String settingsPageTitle(AppLocalizations l, DeskRoute route) => settingsSectionLabel(l, route);
 
 /// Whether the window shows the Settings column in place of the sidebar (the sidebar's own
 /// desktop width); narrower, the page keeps the section strip.
 bool settingsTakeover(BuildContext context) => MediaQuery.sizeOf(context).width >= Bp.desktop;
 
 /// The entry a page raises: its own, or its parent's for a sub-page.
-DeskRoute settingsCurrent(DeskRoute route) => route == DeskRoute.settingsLevel ? DeskRoute.settingsAdvanced : setNavRouteOf(route);
+DeskRoute settingsCurrent(DeskRoute route) => setNavRouteOf(route);
 
 /// The Settings column (option 1, the takeover): "← Wallet" and "Settings", the search field,
 /// the grouped navigation, and at its foot what runs now and the Esc hint. It stands where the
@@ -63,9 +61,8 @@ class SettingsColumn extends ConsumerWidget {
     final ts = context.ts;
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
-    final ui = ref.watch(deskLevelUiProvider);
     final name = ref.watch(deskProvider.select((s) => s.account?.name));
-    final groups = settingsNavGroups(l, walletName: name, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
+    final groups = settingsNavGroups(l, walletName: name, invoices: ref.watch(deskInvoicesShownProvider));
     final matches = ref.watch(settingsSearchRoutesProvider);
     return Semantics(
       container: true,
@@ -244,9 +241,8 @@ class SettingsFrame extends ConsumerWidget {
         child: measure(body),
       );
     }
-    final ui = ref.watch(deskLevelUiProvider);
     final name = ref.watch(deskProvider.select((s) => s.account?.name));
-    final groups = settingsNavGroups(l, walletName: name, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
+    final groups = settingsNavGroups(l, walletName: name, invoices: ref.watch(deskInvoicesShownProvider));
     return EPage(
       title: l.deskSetFrameTitle,
       width: EPageWidth.full,
@@ -480,6 +476,3 @@ class _SectionStrip extends StatelessWidget {
 
 /// What shows a row hidden here, as its marker and the ⇕ control say it: "Advanced › Logs".
 String advancedByFeature(AppLocalizations l, AdvancedFeature f) => l.deskSetSearchFeatGate(setFeatureName(l, f));
-
-/// "Deep end view", "Deeper view" (1 Shallow, 2 Deeper, 3 Deep end).
-String advancedByView(AppLocalizations l, int level) => l.deskSetSearchViewGate(setViewName(l, level));

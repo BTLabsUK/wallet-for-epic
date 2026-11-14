@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
-// A tester on 26.11.3 (desktop, Shallow): "When I sent a test transaction, during the
-// confirmation process I went back to my wallet -- the amount was way off." A send locks its
-// whole input coin until the change confirms, so a test send of 1 from one coin of 100 leaves
-// nothing spendable for those blocks. Shallow's figure is the wallet's balance, so it keeps the
-// 98.992 coming back while the send is posted and while its change confirms; the 0 spendable
-// now is a line under it.
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
+// A tester on 26.11.3 (desktop): "When I sent a test transaction, during the confirmation
+// process I went back to my wallet -- the amount was way off." A send locks its whole input coin
+// until the change confirms, so a test send of 1 from one coin of 100 leaves nothing spendable
+// for those blocks. Home's figure is the wallet's balance, so it keeps the 98.992 coming back
+// while the send is posted and while its change confirms; the 0 spendable now is a line under
+// it.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/price.dart' show PriceNotifier, fiatChoiceProvider, priceProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as w;
@@ -59,11 +57,10 @@ class _Price extends PriceNotifier {
   Future<double?> build() async => 2;
 }
 
-Future<void> _pump(WidgetTester tester, Balance b, Tx tx, {WalletLevel level = WalletLevel.justSendReceive}) async {
+Future<void> _pump(WidgetTester tester, Balance b, Tx tx) async {
   final container = ProviderContainer(
     overrides: [
       deskApiProvider.overrideWithValue(_Wallet(b, tx)),
-      deskLevelProvider.overrideWithValue(level),
       priceProvider.overrideWith(_Price.new),
       fiatChoiceProvider.overrideWith((ref) async => (show: true, currency: 'usd')),
     ],
@@ -89,7 +86,7 @@ String _shown(WidgetTester tester) => [
   for (final t in tester.widgetList<w.RichText>(find.byType(w.RichText))) t.text.toPlainText(),
 ].join('\n');
 
-/// Shallow's figure keeps the 98.992, with the 0 spendable now on a line under it.
+/// The figure keeps the 98.992, with the 0 spendable now on a line under it.
 void _expectBalanceKept(WidgetTester tester) {
   final l = englishStrings;
   final shown = _shown(tester);
@@ -119,12 +116,11 @@ void main() {
     _expectBalanceKept(tester);
   });
 
-  testWidgets('deeper levels: the money line converts the figure, not the total', (tester) async {
+  testWidgets('the money line converts the figure, not the total', (tester) async {
     await _pump(
       tester,
       const Balance(spendable: 0, awaitingConfirmation: 0, locked: 100 * _epic, awaitingFinalization: _change, reportedTotal: 100 * _epic),
       _send(TxState.posted),
-      level: WalletLevel.everything,
     );
     final shown = _shown(tester);
     expect(shown, contains('98.99'));

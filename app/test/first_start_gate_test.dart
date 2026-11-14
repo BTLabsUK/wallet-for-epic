@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // A fresh install opens no connection before its first-start step is answered
-// (levels/first_start.dart): the gate holds every kind of connection, a real request never
+// (first_start.dart): the gate holds every kind of connection, a real request never
 // reaches a listening server, and the mode picked underneath (Undercover = Tor only) is the
 // one the first connection is made in. An existing install is never held.
 import 'dart:io';
 
 import 'package:epic_wallet/src/advanced.dart';
-import 'package:epic_wallet/src/levels/first_start.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/first_start.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -22,7 +21,7 @@ void main() {
   test('a fresh install holds every connection until the step is answered', () async {
     final store = MemorySecretStore();
     expect(await holdUntilFirstStart(store), isTrue);
-    expect(store.values[levelKey], levelPendingValue);
+    expect(store.values[firstStartKey], firstStartPending);
     expect(NetGate.firstStartHold, isTrue);
 
     // Every kind, to every host, loopback included.
@@ -63,11 +62,37 @@ void main() {
     expect(hits, 1);
   });
 
-  test('an existing install is never held and lands on its level', () async {
+  test('an existing install is never held and is stored as answered', () async {
     final store = MemorySecretStore({'app.qr_method_seen': '1'});
     expect(await holdUntilFirstStart(store), isFalse);
     expect(NetGate.firstStartHold, isFalse);
-    expect(LevelChoice.decode(store.values[levelKey]), const LevelChosen(existingInstallLevel));
+    expect(store.values[firstStartKey], firstStartDone);
+  });
+
+  group('settleFirstStart', () {
+    Future<(bool, Map<String, String>)> run(Map<String, String> init) async {
+      final m = {...init};
+      final pending = await settleFirstStart(read: (k) async => m[k], write: (k, v) async => m[k] = v);
+      return (pending, m);
+    }
+
+    test('a fresh store waits', () async {
+      final (pending, m) = await run({});
+      expect(pending, isTrue);
+      expect(m[firstStartKey], firstStartPending);
+    });
+    test('an existing install is answered', () async {
+      final (pending, m) = await run({'app.qr_method_seen': 'true'});
+      expect(pending, isFalse);
+      expect(m[firstStartKey], firstStartDone);
+    });
+    test('a value an earlier build stored is kept and counts as answered', () async {
+      for (final v in ['1', '2', '3']) {
+        final (pending, m) = await run({firstStartKey: v});
+        expect(pending, isFalse, reason: v);
+        expect(m[firstStartKey], v, reason: v);
+      }
+    });
   });
 
   test('tasks waiting for the first start run once it is answered', () async {

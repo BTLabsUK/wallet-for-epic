@@ -1,10 +1,10 @@
 {
-  "deskLvPayOnEpicbox": "On Epicbox",
-  "@deskLvPayOnEpicbox": {
+  "deskPayOnEpicbox": "On Epicbox",
+  "@deskPayOnEpicbox": {
     "description": "Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short."
   },
-  "deskLvPayConfirmingComma": "Confirming, {count} of {target}",
-  "@deskLvPayConfirmingComma": {
+  "deskPayConfirmingComma": "Confirming, {count} of {target}",
+  "@deskPayConfirmingComma": {
     "description": "Deeper payment steps: confirmations so far of the number the wallet waits for.",
     "placeholders": {
       "count": {
@@ -17,8 +17,8 @@
       }
     }
   },
-  "deskLvPayOnItsWayTo": "On its way to {name}",
-  "@deskLvPayOnItsWayTo": {
+  "deskPayOnItsWayTo": "On its way to {name}",
+  "@deskPayOnItsWayTo": {
     "description": "Overview's card for a payment you sent that is not done yet (Shallow and Deeper); name is the contact.",
     "placeholders": {
       "name": {
@@ -27,22 +27,12 @@
       }
     }
   },
-  "deskLvPaySendingTo": "Sending to {name}",
-  "deskLvPaySendingInPerson": "Sending in person",
-  "@deskLvPaySendingInPerson": {
+  "deskPaySendingInPerson": "Sending in person",
+  "@deskPaySendingInPerson": {
     "description": "Overview's card for a payment you sent in person (a code or a file handed over) that is not done yet (Deep end)."
   },
-  "@deskLvPaySendingTo": {
-    "description": "Overview's card for a payment you sent that is not done yet (Deep end); name is the recipient.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskLvPayArrivingFrom": "Arriving from {name}",
-  "@deskLvPayArrivingFrom": {
+  "deskPayArrivingFrom": "Arriving from {name}",
+  "@deskPayArrivingFrom": {
     "description": "Overview's card for a payment received that is not done yet; name is the sender.",
     "placeholders": {
       "name": {
@@ -51,8 +41,8 @@
       }
     }
   },
-  "deskLvPaySendingVia": "Sending {via}",
-  "@deskLvPaySendingVia": {
+  "deskPaySendingVia": "Sending {via}",
+  "@deskPaySendingVia": {
     "description": "Overview's card (Deep end) for a payment you sent that is not done yet, when no contact or address is known; via is how it travels, e.g. 'via file'.",
     "placeholders": {
       "via": {
@@ -61,8 +51,8 @@
       }
     }
   },
-  "deskLvPayArrivingVia": "Arriving {via}",
-  "@deskLvPayArrivingVia": {
+  "deskPayArrivingVia": "Arriving {via}",
+  "@deskPayArrivingVia": {
     "description": "Overview's card (Deep end) for a payment received that is not done yet, when no sender is known; via is how it travels, e.g. 'via file' or 'in person'.",
     "placeholders": {
       "via": {
@@ -71,8 +61,8 @@
       }
     }
   },
-  "deskLvPayStartedAt": "{amount} EPIC · started {time}",
-  "@deskLvPayStartedAt": {
+  "deskPayStartedAt": "{amount} EPIC · started {time}",
+  "@deskPayStartedAt": {
     "description": "Overview's card for a payment in progress: its amount and the time it started.",
     "placeholders": {
       "amount": {
@@ -85,88 +75,24 @@
       }
     }
   },
-  "deskLvPayHeroArriving": "+{amount} arriving from {name}",
-  "@deskLvPayHeroArriving": {
-    "description": "Overview's hero sentence at Shallow: one payment from a contact is on its way in; amount is the EPIC amount.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      },
-      "name": {
-        "type": "String",
-        "example": "Bob"
-      }
-    }
-  },
-  "deskLvPayHeroArrivingMany": "+{amount} arriving",
-  "@deskLvPayHeroArrivingMany": {
-    "description": "Overview's hero sentence at Shallow: payments are on their way in; amount is their sum.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      }
-    }
-  },
-  "deskLvPayHeroHold": "{amount} locked until {name} signs",
-  "@deskLvPayHeroHold": {
-    "description": "Overview's hero sentence at Shallow: a payment you sent is waiting for the recipient to sign, its coins are on hold.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "25.0000"
-      },
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskLvPayHeroHoldMany": "{amount} locked until signed",
-  "@deskLvPayHeroHoldMany": {
-    "description": "Overview's hero sentence at Shallow: payments you sent are waiting to be signed, their coins are on hold; amount is their sum.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "25.0000"
-      }
-    }
-  },
-  "deskLvPayHeroNothing": "Nothing arriving yet.",
-  "@deskLvPayHeroNothing": {
-    "description": "Overview's hero sentence at Shallow in a wallet with no payments."
-  },
-  "deskLvPayReadyHead": "Wallet ready",
-  "@deskLvPayReadyHead": {
-    "description": "Overview notice title at Shallow when the new wallet is ready. A title: no period, no \"your\"."
-  },
-  "deskLvPayReadyText": "Share the address to get the first EPIC.",
-  "@deskLvPayReadyText": {
-    "description": "Overview notice at Shallow in a wallet with no payments: text."
-  },
-  "deskLvPayTileConfirming": "Still confirming",
-  "@deskLvPayTileConfirming": {
+  "deskPayTileConfirming": "Still confirming",
+  "@deskPayTileConfirming": {
     "description": "Deeper Overview tile: coins that arrived and wait for more confirmations."
   },
-  "deskLvPayTileMining": "Fresh from mining",
-  "@deskLvPayTileMining": {
+  "deskPayTileMining": "Fresh from mining",
+  "@deskPayTileMining": {
     "description": "Deeper Overview tile: mining rewards that are not yet spendable."
   },
-  "deskLvPayTileAwaiting": "Awaiting reply",
-  "@deskLvPayTileAwaiting": {
+  "deskPayTileAwaiting": "Awaiting reply",
+  "@deskPayTileAwaiting": {
     "description": "Deeper Overview tile and the small Overview picture at Deeper: payments waiting for the other wallet's reply. Short: fits one line in a narrow tile."
   },
-  "deskLvPayTileLocked": "Set aside for sends",
-  "@deskLvPayTileLocked": {
+  "deskPayTileLocked": "Set aside for sends",
+  "@deskPayTileLocked": {
     "description": "Deeper Overview tile: coins held by payments you sent."
   },
-  "deskLvPayImmatureCasual": "Fresh from mining, not spendable yet",
-  "@deskLvPayImmatureCasual": {
+  "deskPayMaturing": "Fresh from mining, not spendable yet",
+  "@deskPayMaturing": {
     "description": "Deeper row status of a mining reward that is not spendable yet."
-  },
-  "deskLvPayKind": "Payment",
-  "@deskLvPayKind": {
-    "description": "Shallow Activity row: the line under a name when the payment has no note."
   }
 }

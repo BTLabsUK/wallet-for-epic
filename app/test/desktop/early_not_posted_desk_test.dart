@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// A send whose post may still be under way reads "Posting…" on the desktop at every level, with
+// A send whose post may still be under way reads "Posting…" on the desktop, with
 // the Posted step the one under way; "Not posted" waits for a post that really failed. The core
 // side (when a row is posting) is test/early_not_posted_test.dart.
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show ETone;
 import 'package:epic_wallet/src/desktop/widgets/pay_steps.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
-import 'package:epic_wallet/src/levels/level_features.dart' show LevelWording, TimelineStyle;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,20 +41,16 @@ void main() {
   final l = englishStrings;
   Tx desk(core.TxEntry e) => deskTx(e, tip: 100, minConf: 3, fallbackId: -1, contactName: 'Bob');
 
-  test('posting: no Not posted, at every level, and the Posted step is under way', () {
+  test('posting: no Not posted, and the Posted step is under way', () {
     final t = desk(_finalized(posting: true));
     expect(t.notPosted, isFalse);
     expect(t.posting, isTrue);
     expect(statusOf(l, t), (l.postFinishedPosting, ETone.info));
-    for (final w in LevelWording.values) {
-      expect(levelStatusWithMailbox(l, t, w, null).$1, l.postFinishedPosting, reason: '$w');
-    }
-    for (final style in TimelineStyle.values) {
-      final steps = payStepList(l, t, style, name: 'Bob');
-      expect(steps.where((s) => s.state == PayStepState.now), hasLength(1), reason: '$style');
-      expect(steps.indexWhere((s) => s.state == PayStepState.now), 2, reason: '$style: Posted is the step under way');
-      expect(steps.every((s) => s.sub != l.deskTxStatusNotPosted), isTrue);
-    }
+    expect(payStatusWithMailbox(l, t, null).$1, l.postFinishedPosting);
+    final steps = payStepList(l, t, name: 'Bob');
+    expect(steps.where((s) => s.state == PayStepState.now), hasLength(1));
+    expect(steps.indexWhere((s) => s.state == PayStepState.now), 2, reason: 'Posted is the step under way');
+    expect(steps.every((s) => s.sub != l.deskTxStatusNotPosted), isTrue);
   });
 
   test('a first post that fails and a retry that succeeds: posting, then posted, never Not posted', () {

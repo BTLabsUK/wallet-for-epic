@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../settings_file/host_settings.dart' show hostSettings;
 import '../../../trust_ids.dart';
-import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/desk_node.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
@@ -117,9 +116,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   bool _busy = false;
   bool _checking = false;
 
-  /// A first run at Shallow: no wizard; its defaults are saved ([_saveDefaults]) and Unlock follows.
-  late bool _auto = _first != null && _shot == null && !ref.read(deskLevelUiProvider).setupWizard;
-
   /// Why the last Save failed on a first run: the Epicbox step then offers to skip it.
   String? _saveFailed;
 
@@ -162,30 +158,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       if (!mounted) return;
       setState(() => _boxes = b);
     });
-    if (_auto) WidgetsBinding.instance.addPostFrameCallback((_) => _saveDefaults());
   }
-
-  /// Shallow's first run: what Save would save with nothing changed. The node stays automatic
-  /// (none is picked), Epicbox is the one every wallet uses and listens once Unlock opens the
-  /// wallet; the mark is cleared like Save does. A failure shows the wizard instead, where the
-  /// user sees the reason and can skip.
-  Future<void> _saveDefaults() async {
-    final first = _first;
-    if (first == null || !mounted) return;
-    try {
-      ref.read(settingsPrefsProvider.notifier).set(ref.read(settingsPrefsProvider).copyWith(epicboxOnStart: true, builtin: false));
-    } on Object catch (e) {
-      logWarn('desk', 'setup defaults not saved: ${e.runtimeType}');
-      if (mounted) setState(() => _auto = false);
-      return;
-    }
-    if (first.added.id case final id?) {
-      if (!await _clearMark(id)) return;
-    }
-    if (!mounted) return;
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, first.added);
-  }
-
 
   /// On a first run, until the user picks: the healthiest, then fastest node whose check came
   /// back healthy, in the neutral order (no hard-coded host, never by list position). A node
@@ -341,7 +314,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_auto) return const EHeroScreen(child: ESpinner());
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     final railIndex = _step == SetupStep.local ? _steps.indexOf(SetupStep.node) : _steps.indexOf(_step);

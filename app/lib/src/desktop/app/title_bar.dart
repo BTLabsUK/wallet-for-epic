@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The window's own title bar (the system's is hidden, desk_window.dart), 52 u tall above every
 /// screen. The brand opens the app menu (Lock, Switch wallet, Help, Report a problem, Keyboard
-/// shortcuts, About, Quit). Then the wallet's places as tabs, the wallet switcher (the name
-/// alone at Shallow with one wallet), Hide amounts, Lock and the window controls: Windows' three
+/// shortcuts, About, Quit). Then the wallet's places as tabs, the wallet switcher, Hide
+/// amounts, Lock and the window controls: Windows' three
 /// on the right, round ones on Linux, the traffic lights' room on the left on macOS. Unlock and
 /// the first-run screens keep only the brand and the controls. The services' status and the
 /// network mode are in the status bar at the window's foot (status_bar.dart).
@@ -32,7 +32,6 @@ import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
 import '../../ui/theme/brand.dart' show EpicMark;
 import '../../advanced.dart' show NetworkMode;
 import '../../ui/network_mode_text.dart';
-import '../data/desk_levels.dart';
 import '../data/net_mode_view.dart' show deskNetTor;
 import '../data/node_view.dart' show digits;
 import '../data/tor_view.dart' show TorState;
@@ -780,8 +779,7 @@ class _WalletChip extends ConsumerWidget {
     final locking = ref.watch(deskLockingProvider);
     final name = account?.id != null || (label ?? '').isEmpty ? (account?.name ?? '') : label!;
     final current = wallets.where((w) => w.current).firstOrNull?.id ?? account?.id;
-    final ui = ref.watch(deskLevelUiProvider);
-    Widget chip({required bool chevron}) => Row(
+    final chip = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         EAvatar(name, size: 21.u),
@@ -797,19 +795,10 @@ class _WalletChip extends ConsumerWidget {
             ),
           ),
         ),
-        if (chevron) ...[SizedBox(width: Sp.x2), Icon(EIcons.chevronDown, size: 16.u, color: c.faint)],
+        SizedBox(width: Sp.x2),
+        Icon(EIcons.chevronDown, size: 16.u, color: c.faint),
       ],
     );
-    // Shallow with one wallet: the name alone, no menu (the switcher shows once a second
-    // wallet exists).
-    if (!ui.walletSwitcher) {
-      return Semantics(
-        key: const ValueKey('bar-wallet-name'),
-        label: name,
-        excludeSemantics: true,
-        child: Padding(padding: EdgeInsetsDirectional.only(start: 5.u, end: Sp.x2), child: chip(chevron: false)),
-      );
-    }
     return _BarMenu(
       minWidth: 260.u,
       children: (context, m) => [
@@ -831,7 +820,7 @@ class _WalletChip extends ConsumerWidget {
             onPressed: w.id == current ? () {} : locking ? null : () => lockWallet(ref, then: UnlockPick(w.id, switched: true)),
           ),
         _menuDivider(c),
-        if (ui.addWallet) _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
+        _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
         _menuItem(context, icon: EIcons.settings, label: l.deskBarWalletSettings, onPressed: () => _go(ref, DeskRoute.settingsAccount)),
       ],
       builder: (context, m, open) => _BarButton(
@@ -841,7 +830,7 @@ class _WalletChip extends ConsumerWidget {
         open: open,
         padding: EdgeInsetsDirectional.only(start: 5.u, end: Sp.x2),
         onPressed: () => _toggle(m),
-        child: chip(chevron: true),
+        child: chip,
       ),
     );
   }
@@ -914,7 +903,7 @@ void _reportProblem() {
   if (shown != null) unawaited(showReportProblemDialog(shown));
 }
 
-/// Hide amounts, on every page; the levels that keep it out of the header have none.
+/// Hide amounts, on every page.
 class _EyeButton extends ConsumerWidget {
   const _EyeButton({required this.dim});
 
@@ -922,7 +911,6 @@ class _EyeButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.watch(deskLevelUiProvider.select((u) => u.hideAmountsInHeader))) return const SizedBox.shrink();
     final c = context.dc;
     final l = context.l10n;
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));

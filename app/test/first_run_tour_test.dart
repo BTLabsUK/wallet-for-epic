@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // The first-run tour is offered (a toast with Show me) only on a fresh install's first run: never after an
-// update of an install that has data (wallets, settings, the level), whatever older version
+// update of an install that has data (wallets, settings, the first-start answer), whatever older version
 // wrote it, and never on a second launch. Settling it changes nothing else in the store.
 import 'package:epic_wallet/src/first_run_tour.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart' show levelKey, levelPendingValue, settleLevelChoice;
+import 'package:epic_wallet/src/first_start.dart' show firstStartKey, firstStartPending, settleFirstStart;
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -13,11 +13,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _seenKey = AppSettingsNotifier.phoneTourSeenKey;
 
-/// A launch as `main.dart` runs it: the tour settled first, then the level, then the settings;
+/// A launch as `main.dart` runs it: the tour settled first, then the first start, then the settings;
 /// returns whether Home's automatic start offered the tour.
 Future<bool> _launch(MemorySecretStore store) async {
   await settlePhoneFirstRunTour(store);
-  await settleLevelChoice(read: store.read, write: store.write);
+  await settleFirstStart(read: store.read, write: store.write);
   final c = ProviderContainer(
     overrides: [secretStoreProvider.overrideWithValue(store), phonePaymentsProvider.overrideWithValue(true)],
     retry: (_, _) => null,
@@ -52,7 +52,7 @@ void main() {
   test('a fresh install whose first run never opened it (left Home first): not on the second launch', () async {
     final store = MemorySecretStore();
     expect(await settlePhoneFirstRunTour(store), isTrue);
-    await settleLevelChoice(read: store.read, write: store.write);
+    await settleFirstStart(read: store.read, write: store.write);
     store.values['wallet.mainnet.pinSealed'] = 'sealed';
     expect(await _launch(store), isFalse);
     expect(store.values[_seenKey], 'true');
@@ -60,14 +60,14 @@ void main() {
 
   group('an update of an install with data never offers it', () {
     // What each older version left without the tour's flag: a wallet from before the tour
-    // (26.10.23), settings, the level (26.10.31+, Level 1 never opened it by itself).
+    // (26.10.23), settings, the first-start answer.
     for (final (name, key, value) in [
       ('a sealed wallet PIN', 'wallet.mainnet.pinSealed', 'sealed'),
       ('settings only', 'app.advanced_prefs', ''),
       ('the settings marker', 'app.qr_method_seen', 'true'),
       ('the network', 'app.network', 'mainnet'),
-      ('a level choice', levelKey, '1'),
-      ('a pending level step', levelKey, levelPendingValue),
+      ('a first-start answer', firstStartKey, '1'),
+      ('a pending first-start step', firstStartKey, firstStartPending),
     ]) {
       test(name, () async {
         final store = MemorySecretStore()..values[key] = value;

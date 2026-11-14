@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The Settings sections in navigation order, what shows each (a view, an Advanced switch),
-/// and the words for it: "Deep end view", "Advanced › Outputs". Search, the "more options"
-/// control and a deep link to a hidden page all read the gates from here, so they name the
-/// same reasons.
+/// The Settings sections in navigation order, the Advanced switches that show a row or group,
+/// and the words for it: "Advanced › Outputs". Search, the "more options" control and a deep
+/// link to a hidden row all read the gates from here, so they name the same reasons.
 library;
 
 import 'package:flutter/widgets.dart' show IconData;
@@ -10,68 +9,51 @@ import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../advanced.dart';
-import '../../../../levels/wallet_level.dart';
-import '../../../../ui/levels/level_names.dart' show levelStopName;
-import '../../../data/desk_levels.dart' show deskLevelProvider;
 import '../../../desk_l10n.dart';
 import '../../../widgets/kit.dart';
 
 /// The navigation's groups: this wallet, the app, this computer, then Help.
 enum SetNav { wallet, app, computer, help }
 
-/// What the user sees now: the view (1 Shallow, 2 Deeper, 3 Deep end) and the Advanced
-/// switches that are on.
+/// The Advanced switches that are on.
 @immutable
 class SetView {
-  const SetView(this.level, this.features);
+  const SetView(this.features);
 
-  final int level;
   final Set<AdvancedFeature> features;
 
   bool has(AdvancedFeature f) => features.contains(f);
 
   @override
-  bool operator ==(Object other) =>
-      other is SetView && other.level == level && other.features.length == features.length && other.features.containsAll(features);
+  bool operator ==(Object other) => other is SetView && other.features.length == features.length && other.features.containsAll(features);
 
   @override
-  int get hashCode => Object.hash(level, Object.hashAllUnordered(features));
+  int get hashCode => Object.hashAllUnordered(features);
 }
 
-/// The view and the stored Advanced switches (not the level's effective ones: a switch that is
-/// on still reads as on at Shallow; the view gate says Shallow hides it).
+/// The stored Advanced switches.
 final setViewProvider = Provider<SetView>((ref) {
-  final level = ref.watch(deskLevelProvider);
   final adv = ref.watch(deskProvider.select((s) => s.settings.advanced));
-  return SetView(level.number, {...adv.features});
+  return SetView({...adv.features});
 });
 
-/// What shows a section, group or row: a view from [minLevel] up and every switch of [features].
+/// What shows a section, group or row: every switch of [features].
 @immutable
 class SetGate {
-  const SetGate({this.minLevel = 1, this.features = const []});
+  const SetGate({this.features = const []});
 
   static const none = SetGate();
 
-  final int minLevel;
   final List<AdvancedFeature> features;
 
   /// Both gates at once (a row inside a gated group).
-  SetGate and(SetGate o) => SetGate(
-    minLevel: minLevel > o.minLevel ? minLevel : o.minLevel,
-    features: [...features, for (final f in o.features) if (!features.contains(f)) f],
-  );
-
-  bool levelOpen(SetView v) => v.level >= minLevel;
+  SetGate and(SetGate o) => SetGate(features: [...features, for (final f in o.features) if (!features.contains(f)) f]);
 
   /// The switches still off in [v].
   List<AdvancedFeature> featuresOff(SetView v) => [for (final f in features) if (!v.has(f)) f];
 
-  bool open(SetView v) => levelOpen(v) && featuresOff(v).isEmpty;
+  bool open(SetView v) => featuresOff(v).isEmpty;
 }
-
-/// A view's name: Shallow, Deeper, Deep end.
-String setViewName(AppLocalizations l, int level) => levelStopName(l, WalletLevel.ofNumber(level) ?? WalletLevel.everything);
 
 /// The Advanced switch's name as Advanced › Shows more lists it.
 String setFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
@@ -88,10 +70,9 @@ String setFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) {
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
-/// Why [gate] is closed in [v], one entry per part: "Deep end view", "Advanced › Outputs".
-/// Empty when it is open.
+/// Why [gate] is closed in [v], one entry per switch: "Advanced › Outputs". Empty when it is
+/// open.
 List<String> setGateReasons(AppLocalizations l, SetGate gate, SetView v) => [
-  if (!gate.levelOpen(v)) l.deskSetSearchViewGate(setViewName(l, gate.minLevel)),
   for (final f in gate.featuresOff(v)) l.deskSetSearchFeatGate(setFeatureName(l, f)),
 ];
 
@@ -126,19 +107,19 @@ const List<SetSection> settingsSections = [
   SetSection(DeskRoute.settingsSecurity, SetNav.wallet, EIcons.shield),
   SetSection(DeskRoute.settingsPhrase, SetNav.wallet, EIcons.key, parent: DeskRoute.settingsSecurity),
   SetSection(DeskRoute.settingsReceiving, SetNav.wallet, EIcons.antenna),
-  SetSection(DeskRoute.settingsInvoices, SetNav.wallet, EIcons.invoice, gate: SetGate(minLevel: 3)),
+  SetSection(DeskRoute.settingsInvoices, SetNav.wallet, EIcons.invoice),
   SetSection(DeskRoute.settingsDevices, SetNav.wallet, EIcons.devices),
   SetSection(DeskRoute.settingsAppearance, SetNav.app, EIcons.palette),
-  SetSection(DeskRoute.settingsNode, SetNav.app, EIcons.node, gate: SetGate(minLevel: 2)),
+  SetSection(DeskRoute.settingsNode, SetNav.app, EIcons.node),
   SetSection(DeskRoute.settingsPrivacy, SetNav.app, EIcons.network),
   SetSection(DeskRoute.settingsAdvanced, SetNav.app, EIcons.tune),
-  SetSection(DeskRoute.settingsWallets, SetNav.computer, EIcons.coins, gate: SetGate(minLevel: 2)),
-  SetSection(DeskRoute.settingsFiles, SetNav.computer, EIcons.folderOpen, gate: SetGate(minLevel: 2)),
+  SetSection(DeskRoute.settingsWallets, SetNav.computer, EIcons.coins),
+  SetSection(DeskRoute.settingsFiles, SetNav.computer, EIcons.folderOpen),
   SetSection(DeskRoute.settingsHelp, SetNav.help, EIcons.help),
   SetSection(DeskRoute.settingsAbout, SetNav.help, EIcons.info),
 ];
 
-/// The section of [route]; null for a route that is no section (Change view, a non-Settings place).
+/// The section of [route]; null for a route that is no section (a non-Settings place).
 SetSection? setSectionOf(DeskRoute route) {
   for (final s in settingsSections) {
     if (s.route == route) return s;
@@ -177,10 +158,10 @@ String settingsNavLabel(AppLocalizations l, SetNav nav, {String? walletName}) =>
   SetNav.help => l.deskSetFrameHelp,
 };
 
-/// Where a jump to [route] lands in [v] (review 14). A section the view or a switch hides falls
-/// back to the first shown entry of its navigation group (else Wallet), with a [notice] that
-/// says what shows it: "Payments shows in the Deeper view." A shown section, or a route that is
-/// no section, comes back as it is with no notice.
+/// Where a jump to [route] lands in [v] (review 14). A section a switch hides falls back to
+/// the first shown entry of its navigation group (else Wallet), with a [notice] that says what
+/// shows it. A shown section, or a route that is no section, comes back as it is with no
+/// notice.
 ({DeskRoute route, String? notice}) settingsFallback(AppLocalizations l, SetView v, DeskRoute route) {
   final s = setSectionOf(route);
   if (s == null || s.fullGate.open(v)) return (route: route, notice: null);
@@ -193,9 +174,5 @@ String settingsNavLabel(AppLocalizations l, SetNav nav, {String? walletName}) =>
     }
   }
   final page = settingsSectionLabel(l, top.route);
-  final gate = s.fullGate;
-  final notice = !gate.levelOpen(v)
-      ? l.deskSetSearchFallbackView(page, setViewName(l, gate.minLevel))
-      : l.deskSetSearchFallbackFeat(page, setFeatureName(l, gate.featuresOff(v).first));
-  return (route: to, notice: notice);
+  return (route: to, notice: l.deskSetSearchFallbackFeat(page, setFeatureName(l, s.fullGate.featuresOff(v).first)));
 }

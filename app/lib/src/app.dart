@@ -11,8 +11,7 @@ import 'connection_state.dart';
 import 'l10n.dart';
 import 'node_failover_phone.dart';
 import 'price.dart' show priceProvider;
-import 'levels/level_providers.dart' show effectiveAdvancedProvider;
-import 'levels/relay_switch_providers.dart' show relayDrainWatchProvider, relaySwitchProvider;
+import 'relay_switch_providers.dart' show relayDrainWatchProvider, relaySwitchProvider;
 import 'providers.dart';
 import 'restore_scan.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
@@ -75,7 +74,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // A wallet rebuilt from its phrase finishes its scan from block 0 by itself, after every
     // unlock (restore_scan.dart); Home shows where it stands.
     ref.listenManual(restoreScanProvider, (_, _) {});
-    // Alive for the app's life: at every level an Epicbox relay down for a while is offered a
+    // Alive for the app's life: an Epicbox relay down for a while is offered a
     // one-tap move (never made by itself), and an address left behind is read for 30 days.
     ref.listenManual(relaySwitchProvider, (_, _) {});
     ref.listenManual(relayDrainWatchProvider, (_, _) {});
@@ -262,7 +261,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
           child: _BottomGap(
           child: SettingsFileNotices(
             child: AdvancedOptions(
-              prefs: ref.watch(effectiveAdvancedProvider),
+              prefs: ref.watch(advancedPrefsProvider),
               child: child!,
             ),
           ),

@@ -21,7 +21,6 @@ import 'prefs.dart' show settingsPrefsProvider;
 import 'report_problem.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedOf;
-import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import 'setting_ids.dart';
 
 /// The query's words, lower case, longest first; none under two letters in all.
@@ -380,17 +379,15 @@ class _SupportGroup extends StatelessWidget {
   }
 }
 
-/// Help › Start again: the tour, and Set up (Deeper and up; Shallow has no Set up).
+/// Help › Start again: the tour, and Set up.
 class _StartAgainGroup extends ConsumerWidget {
   const _StartAgainGroup();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final setup = ref.watch(deskLevelUiProvider).setupWizard;
     final setupRow = ESetRow(
       anchor: SetId.setup,
-      advancedBy: setup ? null : advancedByView(l, 2),
       title: l.deskSetHelpSetupAgain,
       hint: l.deskSetHelpSetupHint,
       control: ERowControl(child: EButton(label: l.deskSetAcctRunSetup, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.setup))),
@@ -403,10 +400,8 @@ class _StartAgainGroup extends ConsumerWidget {
           title: l.deskSetHelpTourAgain,
           control: ERowControl(child: EButton(label: l.deskSetHelpTourStart, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => startDeskTour(ref))),
         ),
-        if (setup) setupRow,
+        setupRow,
       ],
-      hidden: [if (!setup) setupRow],
-      revealKey: 'help-again',
     );
   }
 }

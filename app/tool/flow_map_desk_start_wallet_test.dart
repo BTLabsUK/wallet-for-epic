@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Desktop flow map, part `start-wallet`: states of the start, Overview shell and Activity flows the
 // desktop tour lacks (Forgot password, the title bar menus, the shortcuts
-// dialog, Overview at Deep end with Advanced on), rendered on the mock wallet exactly as
+// dialog, Home with Outputs on), rendered on the mock wallet exactly as
 // tool/desktop_tour_test.dart does. Ids `fm-start-wallet-...`.
 //
 //   flutter test tool/flow_map_desk_start_wallet_test.dart
@@ -10,10 +10,7 @@ import 'package:epic_wallet/src/desktop/app/desk_window.dart' show PictureDeskWi
 import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature, NetworkMode;
 import 'package:epic_wallet/src/desktop/app/shots.dart';
 import 'package:epic_wallet/src/desktop/app/title_bar.dart' show showDeskShortcuts;
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelControlProvider;
 import 'package:epic_wallet/src/desktop/screens/onboarding/reset_password_screen.dart' show ResetPasswordArg;
-import 'package:epic_wallet/src/levels/level_providers.dart' show walletLevelProvider;
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'dart:async' show Completer, unawaited;
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -102,13 +99,7 @@ const _savings = '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f';
 const _goodPhraseWords = ['zoo','zoo','zoo','zoo','zoo','zoo','zoo','zoo','zoo','zoo','zoo','wrong'];
 const _otherPhraseWords = ['legal','winner','thank','year','wave','sausage','worth','useful','legal','winner','thank','yellow'];
 
-Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async {
-  await c.read(walletLevelProvider.future);
-  await c.read(deskLevelControlProvider).setLevel(level);
-};
-
-Future<void> _deepAdvancedOn(ProviderContainer c) async {
-  await _level(WalletLevel.everything)(c);
+Future<void> _outputsOn(ProviderContainer c) async {
   final s = c.read(deskProvider).settings;
   await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.outputs, true)));
 }
@@ -176,7 +167,6 @@ final Map<String, Future<void> Function(WidgetTester)> _steps = {
   'fm-start-wallet-reset-unverifiable': _resetSubmit,
   'fm-start-wallet-app-menu': (t) => _tap(t, const ValueKey('bar-brand')),
   'fm-start-wallet-wallet-menu': (t) => _tap(t, const ValueKey('bar-wallet')),
-  'fm-start-wallet-wallet-menu-l1': (t) => _tap(t, const ValueKey('bar-wallet')),
   'fm-start-wallet-mode-mark-tor-only': (t) => _tap(t, const ValueKey('bar-net-mode')),
   'fm-start-wallet-shortcuts': (t) async {
     unawaited(showDeskShortcuts());
@@ -193,11 +183,10 @@ final List<DeskShot> flowMapStartWalletShots = [
   const DeskShot(id: 'fm-start-wallet-reset-unverifiable', title: 'Forgot password: the phrase cannot be checked', route: DeskRoute.resetPassword, arg: ResetPasswordArg(_savings, phrase: [..._goodPhraseWords])),
   const DeskShot(id: 'fm-start-wallet-app-menu', title: 'Overview: the app menu open', route: DeskRoute.overview),
   const DeskShot(id: 'fm-start-wallet-wallet-menu', title: 'Overview: the wallet switcher with three wallets', route: DeskRoute.overview),
-  DeskShot(id: 'fm-start-wallet-wallet-menu-l1', title: 'Overview, Shallow: the wallet switcher without Add wallet', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: 'fm-start-wallet-mode-mark-tor-only', title: 'Overview, Tor only: the mode mark popover', route: DeskRoute.overview, before: _torOnly),
   const DeskShot(id: 'fm-start-wallet-shortcuts', title: 'Overview: the keyboard shortcuts dialog', route: DeskRoute.overview),
-  DeskShot(id: 'fm-start-wallet-overview-deep-advanced', title: 'Overview, Deep end with Advanced on', route: DeskRoute.overview, before: _deepAdvancedOn),
-  DeskShot(id: 'fm-start-wallet-activity-deep-advanced', title: 'Activity, Deep end with Advanced on', route: DeskRoute.activity, before: _deepAdvancedOn),
+  DeskShot(id: 'fm-start-wallet-overview-outputs-on', title: 'Home with Advanced › Outputs on', route: DeskRoute.overview, before: _outputsOn),
+  DeskShot(id: 'fm-start-wallet-activity-outputs-on', title: 'Activity with Advanced › Outputs on', route: DeskRoute.activity, before: _outputsOn),
 ];
 
 void main() {

@@ -141,12 +141,6 @@ abstract final class Lay {
 
 /// The widest a component gets that must not stretch with the window.
 abstract final class Max {
-  /// The depth dial with its caption.
-  static double get dial => _px(440);
-
-  /// The Overview picture beside or under the depth dial.
-  static double get preview => _px(520);
-
   /// Payment steps laid across.
   static double get steps => _px(880);
 

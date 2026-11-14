@@ -37,8 +37,6 @@ import '../../ui/pairing/invite_links.dart';
 import '../../pairing_providers.dart' show requestFromContact;
 import '../../models.dart' show PairingEvent, epicboxKey;
 import '../data/desk_errors.dart' show deskErrorText;
-import '../../levels/wallet_level.dart' show WalletLevel;
-import '../data/desk_levels.dart';
 import '../data/node_fit_facts.dart' show NodeFitFacts, nodeFitFactsProvider;
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -447,10 +445,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskProvider.select((s) => s.oldHistory), (_, next) {
       if (next.isNotEmpty && mounted) unawaited(_askOldHistory(next));
     });
-    // A place of a part switched off (Pairing, Invoices) or one the level hides reads as
-    // Overview, or as the Settings landing for a Settings page.
-    // A Settings page the view hides falls back to the first entry of its group, with a toast
-    // that says what shows it (review 14).
+    // A place of a part switched off (Outputs, Pairing, Invoices) reads as Home, or as the
+    // Settings landing for a Settings page. A Settings page a switch hides falls back to the
+    // first entry of its group, with a toast that says what shows it (review 14).
     final DeskLocation shown;
     if (deskRouteShown(ref, at.route)) {
       shown = at;
@@ -750,12 +747,11 @@ class _PhoneTopBar extends ConsumerWidget {
   }
 }
 
-/// Whether [route] is shown: the pairing places need Pairing, the invoice places a wallet that
-/// takes invoices, and the level may hide the page ([deskLevelHides]).
+/// Whether [route] is shown: Outputs needs its switch, the pairing places need Pairing, the
+/// invoice places a wallet that takes invoices.
 bool deskRouteShown(WidgetRef ref, DeskRoute route) {
   if (route == DeskRoute.outputs) return outputsShown(ref);
   if (route == DeskRoute.invoices || route == DeskRoute.invoiceReview) return invoicesShown(ref);
-  if (deskLevelHides(ref.watch(deskLevelUiProvider), route)) return false;
   return switch (route) {
     DeskRoute.pair => ref.watch(deskPairsProvider),
     DeskRoute.invoiceIssue || DeskRoute.settingsInvoices => ref.watch(deskInvoicesShownProvider),
@@ -763,17 +759,17 @@ bool deskRouteShown(WidgetRef ref, DeskRoute route) {
   };
 }
 
-/// Where Settings opens: Wallet, its first entry, at every view.
+/// Where Settings opens: Wallet, its first entry.
 DeskRoute deskSettingsHome(WidgetRef ref) => DeskRoute.settingsAccount;
 
-/// Advanced › Outputs at Deep end, or a split or consolidation the node did not take yet at any
-/// level (never hide what is in use: its Broadcast again and Cancel live there).
+/// Advanced › Outputs, or a split or consolidation the node did not take yet (never hide what
+/// is in use: its Broadcast again and Cancel live there).
 bool outputsShown(WidgetRef ref) =>
-    (ref.watch(deskLevelUiProvider).level == WalletLevel.everything && advancedHas(ref, AdvancedFeature.outputs)) ||
+    advancedHas(ref, AdvancedFeature.outputs) ||
     (ref.watch(deskProvider).txs?.any((t) => t.notPosted) ?? false);
 
-/// Invoices on the rail: Deep end with a wallet that takes them, or an invoice to answer at any
-/// view (never hide what is in use: a contact's Allow invoices brings them at every view).
+/// Invoices in the tabs: a wallet that takes them, or an invoice to answer (never hide what is
+/// in use).
 bool invoicesShown(WidgetRef ref) =>
     ref.watch(deskInvoicesShownProvider) || (ref.watch(deskApiProvider).supportsInvoices && ref.watch(deskInvoiceBadgeProvider) > 0);
 

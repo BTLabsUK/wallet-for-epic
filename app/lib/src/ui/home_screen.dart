@@ -42,7 +42,7 @@ import 'slate_file_screen.dart';
 import 'status.dart';
 import 'kit/kit_ground.dart' show KitGround;
 import 'tour/phone_tour.dart';
-import 'levels/relay_down.dart' show RelayDownNotices;
+import 'relay_down.dart' show RelayDownNotices;
 import '../settings_file/host_settings.dart' show appConfig;
 import '../log.dart' show logWarn;
 import '../onion_notice.dart' show markOnionNoticeSeen, onionNoticeDue;

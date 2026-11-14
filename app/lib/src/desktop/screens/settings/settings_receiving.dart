@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-import '../../../levels/wallet_level.dart';
 import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../../payment_prefs.dart';
 import '../../../advanced.dart' show NetworkModeRestricted;
@@ -23,11 +22,9 @@ import '../../widgets/kit.dart';
 import '../../widgets/server_list_panel.dart';
 import '../../data/server_lists.dart';
 import '../transfer/epicbox_notice.dart';
-import '../../data/desk_levels.dart' show deskLevelProvider;
 import '../wallet/outputs_dialogs.dart' show EStepper;
 import '../wallet/tx_display.dart' show timeOf, whoOf;
 import 'prefs.dart';
-import 'search/settings_sections.dart' show setJoinReasons;
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 import '../epic1/epic1_settings.dart';
@@ -420,12 +417,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       if (p.directFile) MethodKind.directFile,
     ];
     final start = p.startMethod.family == MethodFamily.link ? MethodKind.linkHttp : p.startMethod;
-    // Deep end with Advanced › Send options; otherwise behind the group's ⇕, saying both.
-    final deep = ref.watch(deskLevelProvider) == WalletLevel.everything;
-    final options = deep && advancedHas(ref, AdvancedFeature.sendOptions);
-    final by = options
-        ? null
-        : setJoinReasons(l, [if (!deep) advancedByView(l, 3), if (!advancedHas(ref, AdvancedFeature.sendOptions)) advancedByFeature(l, AdvancedFeature.sendOptions)]);
+    // With Advanced › Send options; otherwise behind the group's ⇕.
+    final options = advancedHas(ref, AdvancedFeature.sendOptions);
+    final by = options ? null : advancedByFeature(l, AdvancedFeature.sendOptions);
     final out = ref.watch(deskOutputPrefsProvider).value ?? const OutputPrefs();
     final save = ref.read(deskOutputPrefsProvider.notifier).save;
     final optionRows = [
@@ -717,8 +711,8 @@ class ReceivingGroup extends ConsumerWidget {
   }
 }
 
-/// The Epicbox server picker: the Epicbox row's of Transactions, the epic1 group's server and
-/// the Shallow Network & privacy page's. [status] is the one shown (the tour lays its states over the real one); null takes
+/// The Epicbox server picker: the Epicbox row's of Transactions and the epic1 group's server.
+/// [status] is the one shown (the tour lays its states over the real one); null takes
 /// the wallet's. Nothing while the server list or the status loads.
 class EpicboxServerPicker extends ConsumerStatefulWidget {
   const EpicboxServerPicker({super.key, this.status, this.openInitially = false, this.shot});

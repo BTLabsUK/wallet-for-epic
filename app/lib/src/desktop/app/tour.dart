@@ -23,7 +23,6 @@ import '../../trust_ids.dart';
 import '../data/desk_store.dart';
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
-import '../data/desk_levels.dart' show deskLevelUiProvider;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider;
 import '../../epic1.dart' show PaymentMode;
 
@@ -129,19 +128,12 @@ List<TourStep> tourStepsFor({required bool invoices, bool epic1 = false}) => [
 final List<TourStep> deskTourSteps = tourStepsFor(invoices: deskInvoicesRoute != null);
 
 /// The steps for the open wallet: with Invoices only when the page is in the app and the
-/// wallet takes invoices (the sidebar hides the page otherwise).
-/// At Shallow ([shallow]) it skips the stops whose targets the level hides: the tiles, Send's
-/// methods (epic1's link form shows at every level), the Node page and Advanced.
-List<TourStep> deskTourStepsFor({required bool supportsInvoices, bool shallow = false, bool epic1 = false}) {
-  final steps = epic1
-      ? tourStepsFor(invoices: supportsInvoices && deskInvoicesRoute != null, epic1: true)
-      : supportsInvoices
-      ? deskTourSteps
-      : tourStepsFor(invoices: false);
-  if (!shallow) return steps;
-  final hidden = {DeskRoute.overview, if (!epic1) DeskRoute.send, DeskRoute.settingsNode, DeskRoute.settingsAdvanced};
-  return [for (final s in steps) if (!hidden.contains(s.route) && s.route.section != DeskSection.invoices) s];
-}
+/// wallet takes invoices (the tabs hide the page otherwise).
+List<TourStep> deskTourStepsFor({required bool supportsInvoices, bool epic1 = false}) => epic1
+    ? tourStepsFor(invoices: supportsInvoices && deskInvoicesRoute != null, epic1: true)
+    : supportsInvoices
+    ? deskTourSteps
+    : tourStepsFor(invoices: false);
 
 /// Tests: the steps the shell's overlay shows instead of [deskTourSteps].
 @visibleForTesting
@@ -284,8 +276,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
       widget.stepList ??
       debugTourSteps ??
       deskTourStepsFor(
-        supportsInvoices: ref.read(deskInvoicesShownProvider) && ref.read(deskLevelUiProvider).invoicesPage,
-        shallow: ref.read(deskLevelUiProvider).shallow,
+        supportsInvoices: ref.read(deskInvoicesShownProvider),
         epic1: ref.read(deskPaymentModeProvider) == PaymentMode.epic1,
       );
   late int _i = widget.startAt.clamp(0, _steps.length - 1);

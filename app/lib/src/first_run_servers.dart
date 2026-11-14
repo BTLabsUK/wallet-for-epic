@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// First run: a fresh install's wallet starts on servers that answer from here. When the
-/// first-start step is answered (`levels/first_start.dart`), before any wallet exists and so
+/// first-start step is answered (`first_start.dart`), before any wallet exists and so
 /// before any address is shown or shared, the node and the Epicbox server in use (the first of
 /// each list of the settings file) are asked, together with the rest of each list, all at once
 /// with a short timeout. One that does not answer gives way to the first of its list that does,

@@ -6,8 +6,8 @@ import 'dart:io';
 
 import 'package:epic_wallet/main_desktop.dart' show deskWalletsOnDisk;
 import 'package:epic_wallet/src/advanced.dart';
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/desktop/data/desk_first_start.dart';
+import 'package:epic_wallet/src/first_start.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,33 +18,31 @@ void main() {
     NetGate.set(NetworkMode.standard);
   });
 
-  final chosen = const LevelChosen(existingInstallLevel).encode();
-
   test('an empty keychain with a wallet on disk is not held', () async {
     final store = MemorySecretStore();
     expect(await deskHoldUntilFirstStart(store, walletsOnDisk: () async => true), isFalse);
     expect(NetGate.firstStartHold, isFalse);
-    expect(store.values[levelKey], chosen);
+    expect(store.values[firstStartKey], firstStartDone);
   });
 
   test('a pending step with a wallet on disk is released', () async {
-    final store = MemorySecretStore({levelKey: levelPendingValue});
+    final store = MemorySecretStore({firstStartKey: firstStartPending});
     expect(await deskHoldUntilFirstStart(store, walletsOnDisk: () async => true), isFalse);
     expect(NetGate.firstStartHold, isFalse);
-    expect(store.values[levelKey], chosen);
+    expect(store.values[firstStartKey], firstStartDone);
   });
 
   test('a fresh install with no wallet on disk is still held', () async {
     final store = MemorySecretStore();
     expect(await deskHoldUntilFirstStart(store, walletsOnDisk: () async => false), isTrue);
     expect(NetGate.firstStartHold, isTrue);
-    expect(store.values[levelKey], levelPendingValue);
+    expect(store.values[firstStartKey], firstStartPending);
   });
 
   test('a failing disk check falls back to the keychain', () async {
     final store = MemorySecretStore();
     expect(await deskHoldUntilFirstStart(store, walletsOnDisk: () async => throw StateError('x')), isTrue);
-    expect(store.values[levelKey], levelPendingValue);
+    expect(store.values[firstStartKey], firstStartPending);
   });
 
   group('the check at launch (main_desktop.dart)', () {

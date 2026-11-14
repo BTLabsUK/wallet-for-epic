@@ -11,9 +11,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../connection_state.dart';
 import '../desktop/data/mock_hosts.dart';
-import '../levels/first_start.dart';
-import '../levels/relay_switch.dart';
-import '../levels/relay_switch_providers.dart';
+import '../first_start.dart';
+import '../relay_switch.dart';
+import '../relay_switch_providers.dart';
 import '../network.dart' show EpicboxRelay;
 import '../providers.dart' show sessionProvider, walletConfigProvider;
 import '../ui/status.dart' show EpicboxState;

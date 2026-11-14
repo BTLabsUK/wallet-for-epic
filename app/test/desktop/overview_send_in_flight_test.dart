@@ -71,8 +71,8 @@ void main() {
     Finder part(String label) => find.byKey(ValueKey('overview-part-$label'));
     int cell(String label) => tester.widget<FitMoney>(find.descendant(of: part(label), matching: find.byType(FitMoney))).nano;
 
-    expect(part(_l.deskOvBreakAwaiting), findsNothing, reason: 'the change is the wallet\'s own: nothing waits for a sender');
-    expect(cell(_l.deskOvBreakLocked), 10000000);
+    expect(part(_l.deskPayTileAwaiting), findsNothing, reason: 'the change is the wallet\'s own: nothing waits for a sender');
+    expect(cell(_l.deskPayTileLocked), 10000000);
     expect(cell(_l.deskOvBreakTotal), 10000000);
     final send = tester.widget<EButton>(find.widgetWithText(EButton, 'Send'));
     final receive = tester.widget<EButton>(find.widgetWithText(EButton, 'Receive'));

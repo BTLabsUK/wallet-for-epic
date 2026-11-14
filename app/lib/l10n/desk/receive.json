@@ -201,7 +201,7 @@
   "@deskRecvFiles": {
     "description": "Heading of the transaction files panel on Receive."
   },
-  "deskRecvSignTitle": "Sign a transaction file",
+  "deskRecvSignTitle": "Sign a payment file",
   "@deskRecvSignTitle": {
     "description": "Row title in the transaction files panel: opens the page that signs a file the sender gave."
   },

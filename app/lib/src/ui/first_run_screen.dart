@@ -6,9 +6,8 @@ import '../advanced.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../help/help_content.dart' show HelpId;
-import '../levels/first_run_servers_phone.dart';
-import '../levels/first_start.dart';
-import '../levels/wallet_level.dart' show firstStartLevel;
+import '../first_run_servers_phone.dart';
+import '../first_start.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -24,7 +23,7 @@ import 'kit/kit_row.dart';
 import 'kit/kit_support.dart' show kitId;
 import 'kit/kit_tokens.dart';
 import 'launch_screen.dart';
-import 'levels/tor_wait_screen.dart';
+import 'tor_wait_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
 import 'theme/brand.dart' show BrandVariant, BrandWordmark;
@@ -47,7 +46,7 @@ const Key firstRunTorOnlyKey = ValueKey('first-run-tor-only');
 /// then the repeat, then the biometrics offer; the wallet is made sealed under it.
 ///
 /// On a fresh install nothing connects until Create or Restore ([firstStartProvider]): the
-/// screen answers that first step, with the Tor only switch, as the level step did before.
+/// screen answers that first step, with the Tor only switch.
 /// The first step's top gap: the tile sits 188 below the top of the frame.
 const double _welcomeTop = 124;
 
@@ -66,7 +65,7 @@ class _TorOnlyRow extends StatelessWidget {
     return Semantics(
       container: true,
       toggled: value,
-      label: l.levelUndercoverTitle,
+      label: l.undercoverTitle,
       hint: l.phoneWelcomeTorLine,
       excludeSemantics: true,
       onTap: onChanged == null ? null : () => onChanged!(!value),
@@ -86,7 +85,7 @@ class _TorOnlyRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(l.levelUndercoverTitle, style: KitType.rowTitle.copyWith(color: t.text)),
+                        Text(l.undercoverTitle, style: KitType.rowTitle.copyWith(color: t.text)),
                         const SizedBox(height: 3),
                         Text(l.phoneWelcomeTorLine, style: KitType.rowSub.copyWith(color: t.dim)),
                       ],
@@ -148,7 +147,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       await ref.read(appSettingsProvider.notifier).setAdvanced(settings.advanced.withMode(NetworkMode.standard));
     }
     if (ref.read(firstStartProvider)) {
-      await ref.read(firstStartProvider.notifier).complete(level: firstStartLevel, undercover: _tor);
+      await ref.read(firstStartProvider.notifier).complete(undercover: _tor);
     }
   }
 

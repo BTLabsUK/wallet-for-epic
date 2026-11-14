@@ -328,7 +328,7 @@ class StatusIcons extends ConsumerWidget {
             dot: e.dot,
             label: e.label,
             detail: e.detail,
-            actionHint: l.lvShellOpensDetails,
+            actionHint: l.statusOpensDetails,
             pulse: e.pulse,
             onTap: () => showConnectionsSheet(context),
             onLongPress: () => showConnectionsSheet(context),

@@ -6,8 +6,8 @@
 
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/connection_state.dart';
-import 'package:epic_wallet/src/levels/relay_switch.dart';
-import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
+import 'package:epic_wallet/src/relay_switch.dart';
+import 'package:epic_wallet/src/relay_switch_providers.dart';
 import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';

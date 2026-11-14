@@ -26,7 +26,7 @@ import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_start.dart';
 import 'package:epic_wallet/src/ui/month_picker.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart' show levelKey;
+import 'package:epic_wallet/src/first_start.dart' show firstStartDone, firstStartKey;
 import 'package:epic_wallet/src/start_month.dart' show StartMonth, defaultStartMonth;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
@@ -2069,7 +2069,7 @@ void main() {
 
     testWidgets('restore scans from January 2025 by default, at level 1', (tester) async {
       final h = _Harness(sealed: false, walletExists: false);
-      h.store.values[levelKey] = '1';
+      h.store.values[firstStartKey] = firstStartDone;
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       // The start is a row with its value; the explanation sits under it.
@@ -2090,7 +2090,7 @@ void main() {
 
     testWidgets('Scan from the start restores with no start height, and the month comes back', (tester) async {
       final h = _Harness(sealed: false, walletExists: false);
-      h.store.values[levelKey] = '1';
+      h.store.values[firstStartKey] = firstStartDone;
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       await _tapKey(tester, ScanStart.infoKey);
@@ -2125,7 +2125,7 @@ void main() {
     testWidgets('restore offers the month and the height at level 1, behind the calendar', (tester) async {
       // Advanced is off: Restore is a one-off, so the choice is not behind a switch.
       final h = _Harness(sealed: false, walletExists: false);
-      h.store.values[levelKey] = '1';
+      h.store.values[firstStartKey] = firstStartDone;
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       expect(find.byKey(ScanStart.changeKey), findsOneWidget);

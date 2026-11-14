@@ -876,7 +876,7 @@ class ESetGroup extends StatelessWidget {
   final List<Widget> rows;
   final Widget? trailing;
 
-  /// Rows the view or an Advanced switch hides here, each an [ESetRow] with [ESetRow.advancedBy]
+  /// Rows an Advanced switch hides here, each an [ESetRow] with [ESetRow.advancedBy]
   /// set. The group shows the one "more options" control (EMoreOptions) for them; revealed, they
   /// follow [rows] in place, marked. [revealKey] keys the reveal state (unique per page group).
   final List<Widget> hidden;
@@ -958,7 +958,7 @@ class ESetRow extends StatelessWidget {
   final String? anchor;
 
   /// Set on a row shown only because the user revealed hidden options: what normally shows it
-  /// ("Deep end view", "Advanced › Send options"). The row gets the quiet advanced marker.
+  /// ("Advanced › Send options"). The row gets the quiet advanced marker.
   final String? advancedBy;
 
   /// Null when the group's title already names the row: the text is then the row's head.
@@ -1077,7 +1077,7 @@ class ESetRow extends StatelessWidget {
   }
 }
 
-/// A small tag with a dashed edge: what normally shows a revealed row ("Deep end view").
+/// A small tag with a dashed edge: what normally shows a revealed row ("Advanced › Logs").
 class EReasonTag extends StatelessWidget {
   const EReasonTag(this.text, {super.key});
 

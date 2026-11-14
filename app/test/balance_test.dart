@@ -431,7 +431,7 @@ void main() {
       await _pump(tester, session);
       expect(_rowLabel(tester), isNot(contains('received,')));
       expect(find.textContaining(l.txStatusReceived), findsNothing);
-      expect(find.textContaining(l.lvPolPosted), findsOneWidget);
+      expect(find.textContaining(l.payPosted), findsOneWidget);
       expect(find.text(l.phoneHomeArriving(epicFor(l, _epic(2.5), unit: false))), findsOneWidget);
 
       // The next refresh reaches block 228: three confirmations, both say so.
@@ -459,7 +459,7 @@ void main() {
         transactions: [received(height: _tip - BigInt.from(3))],
       );
       await _pump(tester, session);
-      expect(find.textContaining(l.lvPayConfirming(1, 3)), findsOneWidget);
+      expect(find.textContaining(l.payConfirming(1, 3)), findsOneWidget);
       expect(find.textContaining(l.txStatusReceived), findsNothing);
     });
   });

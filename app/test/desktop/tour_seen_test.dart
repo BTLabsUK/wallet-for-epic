@@ -3,7 +3,7 @@
 // app's settings), and the compact rail shows the version with the build.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskSettleFirstRunTour;
+import 'package:epic_wallet/src/desktop/data/desk_first_start.dart' show deskSettleFirstRunTour;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart' show deskAppVersion;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

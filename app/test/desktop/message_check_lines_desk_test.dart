@@ -4,14 +4,11 @@
 // waiting. Each shows for a report that has it and is absent otherwise.
 import 'dart:async';
 
-import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/message_check_panel.dart' show deskMessageCheckRowKey;
 import 'package:epic_wallet/src/desktop/app/routes.dart' show DeskRoute, deskStartProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/message_checks.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:flutter/material.dart';
@@ -39,8 +36,6 @@ Future<MessageChecks> _openPopover(WidgetTester tester) async {
   final container = ProviderContainer(
     overrides: [
       deskStartProvider.overrideWithValue(DeskRoute.overview),
-      deskLevelProvider.overrideWithValue(WalletLevel.everything),
-      deskLevelUiProvider.overrideWithValue(DeskLevelFeatures.of(WalletLevel.everything, prefs: const AdvancedPrefs(), wallets: 1)),
     ],
   );
   addTearDown(container.dispose);

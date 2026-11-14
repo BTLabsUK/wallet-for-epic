@@ -113,7 +113,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                 key: const ValueKey('account-recheck'),
                 anchor: SetId.recheckGo,
                 title: l.deskSetFrameRescan,
-                hint: l.deskLvShellRecheckHint,
+                hint: l.deskStatusRecheckHint,
                 control: ERowControl(child: EButton(label: l.commonOpen, icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan))),
               ),
             ],

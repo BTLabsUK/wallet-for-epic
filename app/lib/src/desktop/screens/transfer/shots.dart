@@ -2,8 +2,6 @@
 import '../../data/mock_hosts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../levels/wallet_level.dart';
-import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../../tor_routes.dart';
 import '../../app/shots.dart';
 import '../settings/shots.dart' show openInfoHint, tapShotTrustId;
@@ -38,15 +36,10 @@ Future<void> _annaOtherApp(ProviderContainer c) async {
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
-/// Shows the screen at [level] (the tour's wallet stands on its own, so the pick is its own).
-Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) => c.read(deskLevelControlProvider).setLevel(level);
 
 final List<DeskShot> transferShots = [
   DeskShot(id: '13-send', title: 'Send', route: DeskRoute.send),
   DeskShot(id: '13-send-narrow', title: 'Send at 1000x700', route: DeskRoute.send, width: 1000, height: 700),
-  // Wallet levels: Send at Shallow and Deeper.
-  DeskShot(id: '13-send-l1', title: 'Send, Shallow', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5'), before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '13-send-l2', title: 'Send, Deeper', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5'), before: _level(WalletLevel.casual)),
   DeskShot(id: '13b-send-node-syncing', title: 'Send, node not synced', route: DeskRoute.send, arg: SendArgs(nodeSync: 0.62, recipient: _anna, amount: '12.5')),
   DeskShot(id: '13w-send-pairing-moved', title: 'Send to a contact that moved relay: Delivered via, moved here on', route: DeskRoute.send, arg: const SendArgs(pairingTo: mockAnnaPairing, amount: '1', epicboxHealth: ServiceHealth.ok), before: annaMovedForShots),
   // A paired contact's Epicbox address in To: the address selector (paired address | public
@@ -129,9 +122,6 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '16h-transactions-epicbox-off', title: 'Settings › Transactions, Epicbox off', route: DeskRoute.settingsReceiving, prepare: (c, _) => _epicboxOff(c)),
   const DeskShot(id: '17-receive', title: 'Receive', route: DeskRoute.receive, arg: ReceiveArgs()),
   const DeskShot(id: '17-receive-narrow', title: 'Receive at 800x700, QR under', route: DeskRoute.receive, arg: ReceiveArgs(), width: 800, height: 700),
-  // Wallet levels: Receive at Shallow and Deeper.
-  DeskShot(id: '17-receive-l1', title: 'Receive, Shallow', route: DeskRoute.receive, arg: const ReceiveArgs(), before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '17-receive-l2', title: 'Receive, Deeper', route: DeskRoute.receive, arg: const ReceiveArgs(), before: _level(WalletLevel.casual)),
   const DeskShot(id: '17b-receive-all-off', title: 'Receive, all off', route: DeskRoute.receive, arg: ReceiveArgs(epicbox: RxEpicbox.off)),
   const DeskShot(id: '17c-receive-http-tor-on', title: 'Receive, HTTP and Tor on', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, tor: RxTor.on)),
   const DeskShot(id: '17d-receive-connecting', title: 'Receive, connecting', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.starting, tor: RxTor.connecting)),

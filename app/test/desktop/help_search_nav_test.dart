@@ -2,24 +2,21 @@
 // The Settings navigation moves while a search has words, and lists Contacts.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/search/search_slot.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_appearance.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/trust_ids.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, Size size, {WalletLevel? level}) async {
+Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, Size size) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: [
     deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero)),
-    if (level != null) deskLevelProvider.overrideWithValue(level),
   ], retry: (_, _) => null);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
@@ -74,8 +71,8 @@ void main() {
       expect(find.byType(SettingsAppearanceScreen), findsOneWidget);
     });
 
-    testWidgets('Settings lists Contacts, which opens the Contacts page, at the Shallow view, $size', (tester) async {
-      final container = await _open(tester, DeskRoute.settingsAccount, size, level: WalletLevel.ofNumber(1));
+    testWidgets('Settings lists Contacts, which opens the Contacts page, $size', (tester) async {
+      final container = await _open(tester, DeskRoute.settingsAccount, size);
       final entry = find.byWidgetPredicate((w) => w is TrustId && w.id == TrustIds.settingsSection(DeskRoute.contacts.name));
       expect(entry, findsOneWidget);
       await tester.tap(entry, warnIfMissed: true);
