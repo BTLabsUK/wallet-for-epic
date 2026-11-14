@@ -153,6 +153,8 @@ flutter:
     - assets/licenses/tor.txt
     - assets/licenses/tor-source.txt
     - assets/licenses/status-icons.txt
+    # Every package's licence text, generated: python3 tool/licences/gen_licences.py --text (no UI).
+    - assets/licenses/third_party.txt
     # The BT Wallet wordmark ("BT WALLET for Epic Cash", outlined), cut from the brand kit's row
     # lockups; BrandWordmark (lib/src/ui/theme/brand.dart) picks the dark or light one.
     - assets/brand/

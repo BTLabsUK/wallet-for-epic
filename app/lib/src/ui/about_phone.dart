@@ -12,6 +12,8 @@ import '../dist_build.dart';
 import '../network_gate.dart' show NetBlock;
 import '../l10n.dart';
 import '../settings_file/host_settings.dart' show hostSettings;
+import '../tor_build.dart';
+import '../tor_licence.dart';
 import '../trust_ids.dart';
 import '../updater.dart';
 import 'common.dart' show copyText;
@@ -108,6 +110,13 @@ class AboutPhoneBody extends ConsumerWidget {
             if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site, id: TrustIds.aboutSite, minHeight: 54),
           ],
         ),
+        // Tor's GPL notice and where its source is, readable offline (the packages' licence texts
+        // ship as assets/licenses/third_party.txt).
+        if (torBuilt)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+            child: TorSourceNote(style: KitType.rowSub.copyWith(fontSize: 12, color: t.faint)),
+          ),
         if (updates || projectRepoUrl != null || privacyPolicyUrl != null) ...[
           const SizedBox(height: Kit.groupGap),
           KitGroup(
