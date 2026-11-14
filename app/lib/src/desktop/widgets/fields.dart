@@ -61,28 +61,28 @@ class EField extends StatelessWidget {
       children: [
         // The aside goes under the label when both do not fit on one line.
         if (showLabel) ...[
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.end,
-          spacing: Sp.x3,
-          runSpacing: Sp.x1,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Epic1Text(label, style: ts.label),
-                if (optional) ...[
-                  SizedBox(width: Sp.x2),
-                  Text(context.l10n.deskKitOptional, style: ts.small.copyWith(color: c.faint)),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.end,
+            spacing: Sp.x3,
+            runSpacing: Sp.x1,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Epic1Text(label, style: ts.label),
+                  if (optional) ...[
+                    SizedBox(width: Sp.x2),
+                    Text(context.l10n.deskKitOptional, style: ts.small.copyWith(color: c.faint)),
+                  ],
+                  ?labelTrailing,
                 ],
-                ?labelTrailing,
-              ],
-            ),
-            ?aside,
-          ],
-        ),
-        SizedBox(height: 6.u),
+              ),
+              ?aside,
+            ],
+          ),
+          SizedBox(height: 6.u),
         ],
         _EFieldLabel(label: label, child: child),
         if (error != null) ...[
@@ -267,82 +267,82 @@ class _EInputState extends State<EInput> {
               )
             : const BoxDecoration(),
         child: AnimatedContainer(
-        duration: Dur.fast,
-        height: sm ? Ctl.sm : null,
-        constraints: sm ? null : BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
-        decoration: line
-            // The line look: no fill, no box; the hairline under the text takes the
-            // field's states (dim on hover, the accent with focus).
-            ? BoxDecoration(border: Border(bottom: BorderSide(color: border, width: focused ? 1.5 : 1)))
-            : BoxDecoration(
-                color: c.s2,
-                borderRadius: BorderRadius.circular(Rad.sm),
-                border: Border.all(color: border),
-                boxShadow: focused
-                    ? [
-                        BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 3.u),
-                      ]
-                    : null,
-              ),
-        child: Opacity(
-          opacity: widget.enabled ? 1 : 0.5,
-          child: Row(
-            crossAxisAlignment: multi ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-            children: [
-              if (widget.leading != null)
-                Padding(
-                  padding: EdgeInsets.only(left: line ? Sp.x1 : Sp.x3),
-                  child: Icon(widget.leading, size: line ? Ctl.iconSm + 2.u : Ctl.icon, color: line && focused ? c.dim : c.faint),
+          duration: Dur.fast,
+          height: sm ? Ctl.sm : null,
+          constraints: sm ? null : BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
+          decoration: line
+              // The line look: no fill, no box; the hairline under the text takes the
+              // field's states (dim on hover, the accent with focus).
+              ? BoxDecoration(border: Border(bottom: BorderSide(color: border, width: focused ? 1.5 : 1)))
+              : BoxDecoration(
+                  color: c.s2,
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  border: Border.all(color: border),
+                  boxShadow: focused
+                      ? [
+                          BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 3.u),
+                        ]
+                      : null,
                 ),
-              Expanded(
-                child: _FadeEnd(
-                  on: widget.fadeEnd && !multi && widget.trailing != null,
-                  child: TrustId(widget.semanticsId, child: Semantics(
-                  label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
-                  child: TextField(
-                    controller: widget.controller,
-                    // A mouse caret and selection, never the phone's teardrop handles.
-                    selectionControls: desktopTextSelectionControls,
-                    focusNode: _focus,
-                    enabled: widget.enabled,
-                    obscureText: widget.obscure,
-                    autofocus: widget.autofocus,
-                    maxLines: widget.obscure ? 1 : widget.maxLines,
-                    minLines: multi ? 3 : 1,
-                    keyboardType: widget.keyboardType,
-                    inputFormatters: widget.inputFormatters,
-                    onChanged: widget.onChanged,
-                    onSubmitted: _submitted,
-                    // Enter keeps the focus in the field (a wrong password can be retyped);
-                    // the form moves it when there is a next field.
-                    onEditingComplete: widget.onSubmitted != null || _form != null ? () {} : null,
-                    textInputAction: widget.textInputAction ?? (_form == null || _multi ? null : TextInputAction.next),
-                    style: style,
-                    cursorColor: c.accent,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      border: InputBorder.none,
-                      hintText: widget.hint,
-                      hintStyle: ts.body.copyWith(color: c.faint),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: line ? Sp.x2 : Sp.x3,
-                        vertical: multi ? Sp.x3 : (sm ? 0 : 12),
-                      ),
+          child: Opacity(
+            opacity: widget.enabled ? 1 : 0.5,
+            child: Row(
+              crossAxisAlignment: multi ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+              children: [
+                if (widget.leading != null)
+                  Padding(
+                    padding: EdgeInsets.only(left: line ? Sp.x1 : Sp.x3),
+                    child: Icon(widget.leading, size: line ? Ctl.iconSm + 2.u : Ctl.icon, color: line && focused ? c.dim : c.faint),
+                  ),
+                Expanded(
+                  child: _FadeEnd(
+                    on: widget.fadeEnd && !multi && widget.trailing != null,
+                    child: TrustId(widget.semanticsId, child: Semantics(
+                      label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
+                      child: TextField(
+                        controller: widget.controller,
+                        // A mouse caret and selection, never the phone's teardrop handles.
+                        selectionControls: desktopTextSelectionControls,
+                        focusNode: _focus,
+                        enabled: widget.enabled,
+                        obscureText: widget.obscure,
+                        autofocus: widget.autofocus,
+                        maxLines: widget.obscure ? 1 : widget.maxLines,
+                        minLines: multi ? 3 : 1,
+                        keyboardType: widget.keyboardType,
+                        inputFormatters: widget.inputFormatters,
+                        onChanged: widget.onChanged,
+                        onSubmitted: _submitted,
+                        // Enter keeps the focus in the field (a wrong password can be retyped);
+                        // the form moves it when there is a next field.
+                        onEditingComplete: widget.onSubmitted != null || _form != null ? () {} : null,
+                        textInputAction: widget.textInputAction ?? (_form == null || _multi ? null : TextInputAction.next),
+                        style: style,
+                        cursorColor: c.accent,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                          hintText: widget.hint,
+                          hintStyle: ts.body.copyWith(color: c.faint),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: line ? Sp.x2 : Sp.x3,
+                            vertical: multi ? Sp.x3 : (sm ? 0 : 12),
+                          ),
+                        ),
+                    )),
                     ),
-                  )),
                   ),
                 ),
-              ),
-              if (widget.trailing != null)
-                Padding(
-                  padding: EdgeInsets.only(right: Sp.x1),
-                  // Icons inside a field (eye, clear, paste) are never Tab stops.
-                  child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
-                ),
-            ],
+                if (widget.trailing != null)
+                  Padding(
+                    padding: EdgeInsets.only(right: Sp.x1),
+                    // Icons inside a field (eye, clear, paste) are never Tab stops.
+                    child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
+                  ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -719,17 +719,17 @@ class ESegmented<T> extends StatelessWidget {
               children: [for (final s in segs) _Seg(seg: s, selected: s.value == value, md: md, stretch: false, onTap: s.enabled ? () => onChanged(s.value) : null)],
             )
           : Row(
-        mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
-        children: [
-          for (final s in segs) ...[
-            if (s != segs.first) const SizedBox(width: 2),
-            if (stretch)
-              Expanded(child: _Seg(seg: s, selected: s.value == value, md: md, stretch: true, onTap: s.enabled ? () => onChanged(s.value) : null))
-            else
-              _Seg(seg: s, selected: s.value == value, md: md, stretch: false, onTap: s.enabled ? () => onChanged(s.value) : null),
-          ],
-        ],
-      ),
+            mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
+            children: [
+              for (final s in segs) ...[
+                if (s != segs.first) const SizedBox(width: 2),
+                if (stretch)
+                  Expanded(child: _Seg(seg: s, selected: s.value == value, md: md, stretch: true, onTap: s.enabled ? () => onChanged(s.value) : null))
+                else
+                  _Seg(seg: s, selected: s.value == value, md: md, stretch: false, onTap: s.enabled ? () => onChanged(s.value) : null),
+              ],
+            ],
+          ),
     );
     if (!shrink) return control(segments, stretch);
     return LayoutBuilder(

@@ -391,116 +391,116 @@ class EDrawer extends StatelessWidget {
 void showEToast(
   BuildContext context,
   String title, {
-  String? text,
-  required ETone tone,
-  ({String label, VoidCallback run})? action,
-  List<({String label, VoidCallback run})> items = const [],
-  bool stay = false,
-}) {
-  final c = context.dc;
-  final toasts = deskToastsOf(context);
-  if (toasts == null) return;
-  final color = switch (tone) {
-    ETone.ok => c.ok,
-    ETone.risk => c.risk,
-    ETone.warn => c.warn,
-    ETone.info => c.info,
-    ETone.neutral => c.dim,
-    // Gold is the brand's, never a notice's: a done toast in gold reads as done (ok).
-    ETone.gold => c.ok,
-  };
-  var acted = false;
-  final icon = switch (tone) {
-    ETone.risk => EIcons.error,
-    ETone.warn => EIcons.alert,
-    ETone.info || ETone.neutral => EIcons.info,
-    ETone.ok || ETone.gold => EIcons.okCircle,
-  };
-  Widget head({Widget? trailing}) => Row(
-    children: [
-      Icon(icon, size: Ctl.icon, color: color),
-      SizedBox(width: Sp.x3),
-      Expanded(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600),
-            ),
-            if (text != null)
-              Text(
-                text,
-                style: TextStyle(color: c.dim, fontSize: Fs.sm),
-              ),
-          ],
-        ),
-      ),
-      if (action != null) ...[
+    String? text,
+    required ETone tone,
+    ({String label, VoidCallback run})? action,
+    List<({String label, VoidCallback run})> items = const [],
+    bool stay = false,
+  }) {
+    final c = context.dc;
+    final toasts = deskToastsOf(context);
+    if (toasts == null) return;
+    final color = switch (tone) {
+      ETone.ok => c.ok,
+      ETone.risk => c.risk,
+      ETone.warn => c.warn,
+      ETone.info => c.info,
+      ETone.neutral => c.dim,
+      // Gold is the brand's, never a notice's: a done toast in gold reads as done (ok).
+      ETone.gold => c.ok,
+    };
+    var acted = false;
+    final icon = switch (tone) {
+      ETone.risk => EIcons.error,
+      ETone.warn => EIcons.alert,
+      ETone.info || ETone.neutral => EIcons.info,
+      ETone.ok || ETone.gold => EIcons.okCircle,
+    };
+    Widget head({Widget? trailing}) => Row(
+      children: [
+        Icon(icon, size: Ctl.icon, color: color),
         SizedBox(width: Sp.x3),
-        EButton(
-          label: action.label,
-          size: EBtnSize.sm,
-          onPressed: () {
-            acted = true;
-            toasts.hide();
-            action.run();
-          },
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(color: c.text, fontSize: Fs.md, fontWeight: FontWeight.w600),
+              ),
+              if (text != null)
+                Text(
+                  text,
+                  style: TextStyle(color: c.dim, fontSize: Fs.sm),
+                ),
+            ],
+          ),
         ),
+        if (action != null) ...[
+          SizedBox(width: Sp.x3),
+          EButton(
+            label: action.label,
+            size: EBtnSize.sm,
+            onPressed: () {
+              acted = true;
+              toasts.hide();
+              action.run();
+            },
+          ),
+        ],
+        if (trailing != null) ...[SizedBox(width: Sp.x2), trailing],
       ],
-      if (trailing != null) ...[SizedBox(width: Sp.x2), trailing],
-    ],
-  );
-  // A toast with items keeps its own clock: it stops while the pointer is over the toast or
-  // the items are unfolded, so the host's own must not run out first.
-  final folds = items.isNotEmpty;
-  final shown = toasts.add(
-    EToast(
-      padding: folds ? EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
-      child: folds
-          ? _ToastFold(
-              head: head,
-              items: items,
-              onItem: (item) {
-                acted = true;
-                toasts.hide();
-                item.run();
-              },
-              onExpire: toasts.hide,
-            )
-          : head(),
-    ),
-    folds ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
-  );
-  // A toast belongs to the screen it was shown on: leaving the screen closes it.
-  ProviderContainer? container;
-  try {
-    container = ProviderScope.containerOf(context, listen: false);
-  } on Object {
-    container = null;
-  }
-  if (container == null) return;
-  ProviderSubscription<DeskLocation>? sub;
-  sub = container.listen(deskNavProvider, (prev, next) {
-    if (prev?.route != next.route) {
-      // Every toast of the screen goes, the queued ones too.
-      toasts.clear();
+    );
+    // A toast with items keeps its own clock: it stops while the pointer is over the toast or
+    // the items are unfolded, so the host's own must not run out first.
+    final folds = items.isNotEmpty;
+    final shown = toasts.add(
+      EToast(
+        padding: folds ? EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x2, Sp.x2) : EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 14.u),
+        child: folds
+            ? _ToastFold(
+                head: head,
+                items: items,
+                onItem: (item) {
+                  acted = true;
+                  toasts.hide();
+                  item.run();
+                },
+                onExpire: toasts.hide,
+              )
+            : head(),
+      ),
+      folds ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
+    );
+    // A toast belongs to the screen it was shown on: leaving the screen closes it.
+    ProviderContainer? container;
+    try {
+      container = ProviderScope.containerOf(context, listen: false);
+    } on Object {
+      container = null;
+    }
+    if (container == null) return;
+    ProviderSubscription<DeskLocation>? sub;
+    sub = container.listen(deskNavProvider, (prev, next) {
+      if (prev?.route != next.route) {
+        // Every toast of the screen goes, the queued ones too.
+        toasts.clear();
+        sub?.close();
+        sub = null;
+        if (stay && !acted && !next.route.bare) {
+          // After every toast of the old screen cleared, this one's own clear included.
+          scheduleMicrotask(() {
+            if (context.mounted) showEToast(context, title, text: text, tone: tone, action: action, items: items, stay: true);
+          });
+        }
+      }
+    });
+    shown.then((_) {
       sub?.close();
       sub = null;
-      if (stay && !acted && !next.route.bare) {
-        // After every toast of the old screen cleared, this one's own clear included.
-        scheduleMicrotask(() {
-          if (context.mounted) showEToast(context, title, text: text, tone: tone, action: action, items: items, stay: true);
-        });
-      }
-    }
-  });
-  shown.then((_) {
-    sub?.close();
-    sub = null;
-  });
-}
+    });
+  }
 
 /// A toast's surface: the raised card at the window's top right.
 class EToast extends StatelessWidget {

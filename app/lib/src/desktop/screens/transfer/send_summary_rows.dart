@@ -219,19 +219,19 @@ String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy
 ({String? feeSecondLine, List<(String, Widget)> facts}) reviewOutputLines(
   AppLocalizations l,
   SendSummary s, {
-  required SelectionStrategy strategy,
-  required SelectionStrategy defaultStrategy,
-  required int blocks,
-  int extraFee = 0,
-  String Function(int outputs)? usesAll,
-}) => (
-  feeSecondLine: strategy == SelectionStrategy.all && s.change > 0 && usesAll != null
-      ? usesAll(s.lockedOutputs)
-      : s.changeOutputs > 1
-      ? keepNumbersWithUnits(l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, decimals: exactDecimals)))
-      : null,
-  facts: [
-    (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy, blocks))),
-    if (strategy != defaultStrategy) (l.deskSendFactStrategy, Text(l.deskSendFactStrategyValue(strategyWord(l, strategy)))),
-  ],
-);
+    required SelectionStrategy strategy,
+    required SelectionStrategy defaultStrategy,
+    required int blocks,
+    int extraFee = 0,
+    String Function(int outputs)? usesAll,
+  }) => (
+    feeSecondLine: strategy == SelectionStrategy.all && s.change > 0 && usesAll != null
+        ? usesAll(s.lockedOutputs)
+        : s.changeOutputs > 1
+        ? keepNumbersWithUnits(l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, decimals: exactDecimals)))
+        : null,
+    facts: [
+      (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy, blocks))),
+      if (strategy != defaultStrategy) (l.deskSendFactStrategy, Text(l.deskSendFactStrategyValue(strategyWord(l, strategy)))),
+    ],
+  );

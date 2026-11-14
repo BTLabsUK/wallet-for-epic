@@ -151,25 +151,25 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
         Padding(
           padding: methodDetailsIndent,
           child: ESetRow(
-          anchor: SetId.httpPort,
-          title: l.deskSetHttpPort,
-          hint: l.deskSetHttpPortHint('${appConfig.httpListenPort}'),
-          control: ERowControl(
-            child: Focus(
-              onFocusChange: (f) => f ? null : unawaited(_applyPort()),
-              child: EInput(
-                size: EBtnSize.sm,
-                controller: _port,
-                mono: true,
-                invalid: _portError != null,
-                semanticLabel: l.deskSetHttpPortLabel,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(5)],
-                onSubmitted: (_) => _applyPort(),
+            anchor: SetId.httpPort,
+            title: l.deskSetHttpPort,
+            hint: l.deskSetHttpPortHint('${appConfig.httpListenPort}'),
+            control: ERowControl(
+              child: Focus(
+                onFocusChange: (f) => f ? null : unawaited(_applyPort()),
+                child: EInput(
+                  size: EBtnSize.sm,
+                  controller: _port,
+                  mono: true,
+                  invalid: _portError != null,
+                  semanticLabel: l.deskSetHttpPortLabel,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(5)],
+                  onSubmitted: (_) => _applyPort(),
+                ),
               ),
             ),
-          ),
-          below: _portError == null ? null : Text(_portError!, style: ts.small.copyWith(color: c.risk)),
+            below: _portError == null ? null : Text(_portError!, style: ts.small.copyWith(color: c.risk)),
           ),
         ),
       ],

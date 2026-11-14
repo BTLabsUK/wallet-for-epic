@@ -172,15 +172,15 @@ class DeskBackdrop extends StatelessWidget {
                 child: CustomPaint(
                   painter: c.dots.a == 0 ? null : _PageDots(c.dots, step: 22.u, radius: 1.u),
                   child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: const Alignment(0.55, -0.4),
-                      radius: 1.15,
-                      colors: [c.wash, c.wash.withValues(alpha: c.wash.a * 0.5), c.wash.withValues(alpha: 0)],
-                      stops: const [0, 0.42, 1],
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: const Alignment(0.55, -0.4),
+                        radius: 1.15,
+                        colors: [c.wash, c.wash.withValues(alpha: c.wash.a * 0.5), c.wash.withValues(alpha: 0)],
+                        stops: const [0, 0.42, 1],
+                      ),
                     ),
                   ),
-                ),
                 ),
               ),
             ),
@@ -1368,108 +1368,108 @@ class _WrapRowData extends ContainerBoxParentData<RenderBox> {}
 
 class _RenderWrapRow extends RenderBox
     with ContainerRenderObjectMixin<RenderBox, _WrapRowData>, RenderBoxContainerDefaultsMixin<RenderBox, _WrapRowData> {
-  _RenderWrapRow(this._gap, this._runGap, this._minWords, this._top);
+      _RenderWrapRow(this._gap, this._runGap, this._minWords, this._top);
 
-  bool _top;
-  set top(bool v) {
-    if (v == _top) return;
-    _top = v;
-    markNeedsLayout();
-  }
+      bool _top;
+      set top(bool v) {
+        if (v == _top) return;
+        _top = v;
+        markNeedsLayout();
+      }
 
-  double _gap;
-  set gap(double v) {
-    if (v == _gap) return;
-    _gap = v;
-    markNeedsLayout();
-  }
+      double _gap;
+      set gap(double v) {
+        if (v == _gap) return;
+        _gap = v;
+        markNeedsLayout();
+      }
 
-  double _runGap;
-  set runGap(double v) {
-    if (v == _runGap) return;
-    _runGap = v;
-    markNeedsLayout();
-  }
+      double _runGap;
+      set runGap(double v) {
+        if (v == _runGap) return;
+        _runGap = v;
+        markNeedsLayout();
+      }
 
-  double _minWords;
-  set minWords(double v) {
-    if (v == _minWords) return;
-    _minWords = v;
-    markNeedsLayout();
-  }
+      double _minWords;
+      set minWords(double v) {
+        if (v == _minWords) return;
+        _minWords = v;
+        markNeedsLayout();
+      }
 
-  RenderBox get _words => firstChild!;
-  RenderBox get _control => lastChild!;
+      RenderBox get _words => firstChild!;
+      RenderBox get _control => lastChild!;
 
-  @override
-  void setupParentData(RenderBox child) {
-    if (child.parentData is! _WrapRowData) child.parentData = _WrapRowData();
-  }
+      @override
+      void setupParentData(RenderBox child) {
+        if (child.parentData is! _WrapRowData) child.parentData = _WrapRowData();
+      }
 
-  bool _fits(double width, double control) => control + _gap + _minWords <= width;
+      bool _fits(double width, double control) => control + _gap + _minWords <= width;
 
-  @override
-  double computeMinIntrinsicWidth(double height) => [_words.getMinIntrinsicWidth(height), _control.getMinIntrinsicWidth(height)].reduce((a, b) => a > b ? a : b);
+      @override
+      double computeMinIntrinsicWidth(double height) => [_words.getMinIntrinsicWidth(height), _control.getMinIntrinsicWidth(height)].reduce((a, b) => a > b ? a : b);
 
-  @override
-  double computeMaxIntrinsicWidth(double height) => _words.getMaxIntrinsicWidth(height) + _gap + _control.getMaxIntrinsicWidth(height);
+      @override
+      double computeMaxIntrinsicWidth(double height) => _words.getMaxIntrinsicWidth(height) + _gap + _control.getMaxIntrinsicWidth(height);
 
-  @override
-  double computeMinIntrinsicHeight(double width) => _height(width, (b, w) => b.getMinIntrinsicHeight(w));
+      @override
+      double computeMinIntrinsicHeight(double width) => _height(width, (b, w) => b.getMinIntrinsicHeight(w));
 
-  @override
-  double computeMaxIntrinsicHeight(double width) => _height(width, (b, w) => b.getMaxIntrinsicHeight(w));
+      @override
+      double computeMaxIntrinsicHeight(double width) => _height(width, (b, w) => b.getMaxIntrinsicHeight(w));
 
-  double _height(double width, double Function(RenderBox, double) h) {
-    final cw = _control.getMaxIntrinsicWidth(double.infinity);
-    if (_fits(width, cw)) {
-      final a = h(_words, width - cw - _gap);
-      final b = h(_control, cw);
-      return a > b ? a : b;
+      double _height(double width, double Function(RenderBox, double) h) {
+        final cw = _control.getMaxIntrinsicWidth(double.infinity);
+        if (_fits(width, cw)) {
+          final a = h(_words, width - cw - _gap);
+          final b = h(_control, cw);
+          return a > b ? a : b;
+        }
+        return h(_words, width) + _runGap + h(_control, width);
+      }
+
+      @override
+      Size computeDryLayout(BoxConstraints constraints) {
+        final width = constraints.maxWidth;
+        final c = _control.getDryLayout(BoxConstraints(maxWidth: width));
+        if (_fits(width, c.width)) {
+          final w = _words.getDryLayout(BoxConstraints.tightFor(width: width - c.width - _gap));
+          return constraints.constrain(Size(width, w.height > c.height ? w.height : c.height));
+        }
+        final w = _words.getDryLayout(BoxConstraints.tightFor(width: width));
+        return constraints.constrain(Size(width, w.height + _runGap + c.height));
+      }
+
+      @override
+      void performLayout() {
+        final width = constraints.maxWidth;
+        _control.layout(BoxConstraints(maxWidth: width), parentUsesSize: true);
+        final c = _control.size;
+        final wd = _words.parentData! as _WrapRowData;
+        final cd = _control.parentData! as _WrapRowData;
+        if (_fits(width, c.width)) {
+          // On one line, both centred on it, as the plain row does.
+          _words.layout(BoxConstraints.tightFor(width: width - c.width - _gap), parentUsesSize: true);
+          final h = _words.size.height > c.height ? _words.size.height : c.height;
+          wd.offset = Offset(0, _top ? 0 : (h - _words.size.height) / 2);
+          cd.offset = Offset(width - c.width, _top ? 0 : (h - c.height) / 2);
+          size = constraints.constrain(Size(width, h));
+        } else {
+          _words.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);
+          wd.offset = Offset.zero;
+          cd.offset = Offset(0, _words.size.height + _runGap);
+          size = constraints.constrain(Size(width, _words.size.height + _runGap + c.height));
+        }
+      }
+
+      @override
+      void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+
+      @override
+      bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
     }
-    return h(_words, width) + _runGap + h(_control, width);
-  }
-
-  @override
-  Size computeDryLayout(BoxConstraints constraints) {
-    final width = constraints.maxWidth;
-    final c = _control.getDryLayout(BoxConstraints(maxWidth: width));
-    if (_fits(width, c.width)) {
-      final w = _words.getDryLayout(BoxConstraints.tightFor(width: width - c.width - _gap));
-      return constraints.constrain(Size(width, w.height > c.height ? w.height : c.height));
-    }
-    final w = _words.getDryLayout(BoxConstraints.tightFor(width: width));
-    return constraints.constrain(Size(width, w.height + _runGap + c.height));
-  }
-
-  @override
-  void performLayout() {
-    final width = constraints.maxWidth;
-    _control.layout(BoxConstraints(maxWidth: width), parentUsesSize: true);
-    final c = _control.size;
-    final wd = _words.parentData! as _WrapRowData;
-    final cd = _control.parentData! as _WrapRowData;
-    if (_fits(width, c.width)) {
-      // On one line, both centred on it, as the plain row does.
-      _words.layout(BoxConstraints.tightFor(width: width - c.width - _gap), parentUsesSize: true);
-      final h = _words.size.height > c.height ? _words.size.height : c.height;
-      wd.offset = Offset(0, _top ? 0 : (h - _words.size.height) / 2);
-      cd.offset = Offset(width - c.width, _top ? 0 : (h - c.height) / 2);
-      size = constraints.constrain(Size(width, h));
-    } else {
-      _words.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);
-      wd.offset = Offset.zero;
-      cd.offset = Offset(0, _words.size.height + _runGap);
-      size = constraints.constrain(Size(width, _words.size.height + _runGap + c.height));
-    }
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
-}
 
 /// The info (or help) icon that opens the row's explanation in a popover
 /// (`popover.dart`): a hover shows the text as a tip ([ETip]); a click, Enter or Space opens the
@@ -1556,36 +1556,36 @@ class EInfoHintState extends State<EInfoHint> {
       onClick: false,
       excludeFromSemantics: true,
       child: Semantics(
-      button: true,
-      label: widget.title ?? widget.label ?? context.l10n.deskKitInfoLabel,
-      hint: widget.text,
-      expanded: _open,
-      excludeSemantics: true,
-      onTap: open,
-      child: FocusableActionDetector(
-        focusNode: _node,
-        mouseCursor: SystemMouseCursors.help,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        shortcuts: const {SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(), SingleActivator(LogicalKeyboardKey.space): ActivateIntent()},
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => open())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: open,
-            child: FocusRing(
-              focused: Focus.of(context).hasFocus,
-              radius: Rad.xs,
-              child: AnimatedContainer(
-                duration: Dur.fast,
-                width: size,
-                height: size,
-                decoration: BoxDecoration(color: lit ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
-                child: Icon(widget.glyph, size: Ctl.iconSm, color: lit ? c.text : c.dim),
+        button: true,
+        label: widget.title ?? widget.label ?? context.l10n.deskKitInfoLabel,
+        hint: widget.text,
+        expanded: _open,
+        excludeSemantics: true,
+        onTap: open,
+        child: FocusableActionDetector(
+          focusNode: _node,
+          mouseCursor: SystemMouseCursors.help,
+          onShowHoverHighlight: (v) => setState(() => _hover = v),
+          shortcuts: const {SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(), SingleActivator(LogicalKeyboardKey.space): ActivateIntent()},
+          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => open())},
+          child: Builder(
+            builder: (context) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: open,
+              child: FocusRing(
+                focused: Focus.of(context).hasFocus,
+                radius: Rad.xs,
+                child: AnimatedContainer(
+                  duration: Dur.fast,
+                  width: size,
+                  height: size,
+                  decoration: BoxDecoration(color: lit ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
+                  child: Icon(widget.glyph, size: Ctl.iconSm, color: lit ? c.text : c.dim),
+                ),
               ),
             ),
           ),
         ),
-      ),
       ),
     );
   }

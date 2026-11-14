@@ -272,9 +272,9 @@ class _SettingsSearchKeysState extends ConsumerState<SettingsSearchKeys> {
     final onHelp = ref.read(deskNavProvider).route == DeskRoute.settingsHelp;
     if ((e.logicalKey == LogicalKeyboardKey.keyK && ctrl && !hw.isAltPressed) ||
         (e.logicalKey == LogicalKeyboardKey.slash && !ctrl && !typing && !onHelp)) {
-      ref.read(settingsSearchFocusProvider.notifier).request();
-      return true;
-    }
+          ref.read(settingsSearchFocusProvider.notifier).request();
+          return true;
+        }
     return false;
   }
 

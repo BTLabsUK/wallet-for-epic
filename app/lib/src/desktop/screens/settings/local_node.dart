@@ -238,35 +238,35 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
             }
             final Widget tab = _tab == LocalTab.status ? status(wide: false) : peers;
             return Padding(
-          padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // The buttons at the card's right edge beside the tabs; on their own row under
-              // them, side by side from the left, when the card is narrow.
-              EBesideOrUnder(
-                minWords: 200.u,
-                words: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: ESegmented<LocalTab>(
-                    segments: [ESegment(LocalTab.status, l.deskSetLnodeTabStatus), ESegment(LocalTab.peers, l.deskSetLnodeTabPeers)],
-                    value: _tab,
-                    onChanged: (t) => setState(() => _tab = t),
+              padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // The buttons at the card's right edge beside the tabs; on their own row under
+                  // them, side by side from the left, when the card is narrow.
+                  EBesideOrUnder(
+                    minWords: 200.u,
+                    words: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: ESegmented<LocalTab>(
+                        segments: [ESegment(LocalTab.status, l.deskSetLnodeTabStatus), ESegment(LocalTab.peers, l.deskSetLnodeTabPeers)],
+                        value: _tab,
+                        onChanged: (t) => setState(() => _tab = t),
+                      ),
+                    ),
+                    control: Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: controls),
                   ),
-                ),
-                control: Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: controls),
+                  SizedBox(height: Sp.x4),
+                  AnimatedSwitcher(
+                    duration: Motion.cross,
+                    switchInCurve: Motion.easeOut,
+                    switchOutCurve: Motion.easeIn,
+                    layoutBuilder: (current, previous) => Stack(alignment: Alignment.topLeft, children: [...previous, ?current]),
+                    child: tab,
+                  ),
+                ],
               ),
-              SizedBox(height: Sp.x4),
-              AnimatedSwitcher(
-                duration: Motion.cross,
-                switchInCurve: Motion.easeOut,
-                switchOutCurve: Motion.easeIn,
-                layoutBuilder: (current, previous) => Stack(alignment: Alignment.topLeft, children: [...previous, ?current]),
-                child: tab,
-              ),
-            ],
-          ),
-        );
+            );
           },
         ),
         Divider(height: 1, thickness: 1, color: c.line),
@@ -318,17 +318,17 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                 spacing: Sp.x2,
                 runSpacing: Sp.x2,
                 children: [
-              ERowControl(
-                child: EButton(
-                  label: l.deskSetLnodeOpen,
-                  size: EBtnSize.sm,
-                  onPressed: () async {
-                    final ok = await ref.read(deskOpenFolderProvider)(s.dataFolder);
-                    if (!ok && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: s.dataFolder, tone: ETone.warn);
-                  },
-                ),
-              ),
-              ERowControl(child: EButton(label: l.deskSetLnodeChange, size: EBtnSize.sm, onPressed: _moving == null ? () => _changeFolder(s) : null)),
+                  ERowControl(
+                    child: EButton(
+                      label: l.deskSetLnodeOpen,
+                      size: EBtnSize.sm,
+                      onPressed: () async {
+                        final ok = await ref.read(deskOpenFolderProvider)(s.dataFolder);
+                        if (!ok && context.mounted) showEToast(context, l.deskSetLnodeFolderNotOpened, text: s.dataFolder, tone: ETone.warn);
+                      },
+                    ),
+                  ),
+                  ERowControl(child: EButton(label: l.deskSetLnodeChange, size: EBtnSize.sm, onPressed: _moving == null ? () => _changeFolder(s) : null)),
                 ],
               );
               if (box.maxWidth - 2 * Ctl.rowW - Sp.x2 - Sp.x3 >= 240.u) {

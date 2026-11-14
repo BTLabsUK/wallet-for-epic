@@ -172,16 +172,16 @@ class EModalButtons extends StatelessWidget {
         return FocusTraversalGroup(
           policy: OrderedTraversalPolicy(),
           child: Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [
-            for (final (i, b) in buttons.indexed)
-              SizedBox(
-                key: b.key,
-                width: i < first ? above : (i == buttons.length - 1 ? main : unit),
-                child: EButtonFill(child: b),
-              ),
-          ],
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (final (i, b) in buttons.indexed)
+                SizedBox(
+                  key: b.key,
+                  width: i < first ? above : (i == buttons.length - 1 ? main : unit),
+                  child: EButtonFill(child: b),
+                ),
+            ],
           ),
         );
       },

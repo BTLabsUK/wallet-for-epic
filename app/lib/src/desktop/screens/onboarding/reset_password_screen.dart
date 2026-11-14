@@ -302,14 +302,14 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> with 
           Align(
             alignment: AlignmentDirectional.centerEnd,
             child: Wrap(
-            spacing: Sp.x2,
-            runSpacing: Sp.x2,
-            children: [
-              EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: pasteClipboard),
-              DeskScanButton(key: const ValueKey('reset-scan'), size: EBtnSize.sm, onScan: scanPhrase),
-              EButton(label: l.deskOnbRestoreClear, size: EBtnSize.sm, onPressed: e.filled == 0 ? null : e.clear),
-            ],
-          ),
+              spacing: Sp.x2,
+              runSpacing: Sp.x2,
+              children: [
+                EButton(label: l.commonPaste, icon: EIcons.paste, size: EBtnSize.sm, onPressed: pasteClipboard),
+                DeskScanButton(key: const ValueKey('reset-scan'), size: EBtnSize.sm, onScan: scanPhrase),
+                EButton(label: l.deskOnbRestoreClear, size: EBtnSize.sm, onPressed: e.filled == 0 ? null : e.clear),
+              ],
+            ),
           ),
           SizedBox(height: Sp.x3),
           PhraseGrid(entry: e, autofocus: true, onSubmit: complete && !_checking ? _toPassword : null),

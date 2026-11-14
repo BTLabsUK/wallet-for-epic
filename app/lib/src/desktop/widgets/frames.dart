@@ -82,32 +82,32 @@ class EPage extends StatelessWidget {
         if (!header)
           Semantics(header: true, label: title, child: const SizedBox.shrink())
         else
-        Container(
-          height: Ctl.topbar,
-          padding: EdgeInsets.symmetric(horizontal: pad),
-          child: Row(
-            children: [
-              if (onBack != null) ...[
-                _BackButton(onBack: onBack!),
-                SizedBox(width: Sp.x2),
-              ],
-              Expanded(
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Semantics(
-                        header: true,
-                        child: Text(title, style: context.ts.h1, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Container(
+            height: Ctl.topbar,
+            padding: EdgeInsets.symmetric(horizontal: pad),
+            child: Row(
+              children: [
+                if (onBack != null) ...[
+                  _BackButton(onBack: onBack!),
+                  SizedBox(width: Sp.x2),
+                ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Semantics(
+                          header: true,
+                          child: Text(title, style: context.ts.h1, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
                       ),
-                    ),
-                    if (titleTrailing != null) ...[SizedBox(width: Sp.x3), titleTrailing!],
-                  ],
+                      if (titleTrailing != null) ...[SizedBox(width: Sp.x3), titleTrailing!],
+                    ],
+                  ),
                 ),
-              ),
-              for (final a in actions) ...[SizedBox(width: Sp.x2), a],
-            ],
+                for (final a in actions) ...[SizedBox(width: Sp.x2), a],
+              ],
+            ),
           ),
-        ),
         Expanded(
           child: scroll && fill != null
               ? CustomScrollView(
@@ -142,16 +142,16 @@ class _BackButton extends StatelessWidget {
   // Not a Tab stop: Alt+Left and the mouse Back button do the same.
   Widget build(BuildContext context) => ExcludeFocusTraversal(
     child: ETip(
-    context.l10n.deskKitBackAlt,
-    child: IconButton(
-      onPressed: onBack,
-      icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),
-      style: IconButton.styleFrom(
-        fixedSize: Size.square(Ctl.sm),
-        minimumSize: Size.square(Ctl.sm),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm)),
+      context.l10n.deskKitBackAlt,
+      child: IconButton(
+        onPressed: onBack,
+        icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),
+        style: IconButton.styleFrom(
+          fixedSize: Size.square(Ctl.sm),
+          minimumSize: Size.square(Ctl.sm),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm)),
+        ),
       ),
-    ),
     ),
   );
 }

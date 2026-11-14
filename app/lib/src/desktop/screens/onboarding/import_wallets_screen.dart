@@ -394,28 +394,28 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     return DeskStepBack(
       onBack: canBack ? _back : (leaveSafe && !_busy ? null : () {}),
       child: EOnbFrame(
-      sideTitle: l.deskOnbWelcomeImport,
-      steps: railOf([l.deskOnbImportStepFind, l.deskOnbImportStepChoose, l.deskOnbImportStepCheck, l.deskOnbImportTitle, l.commonDone], _railIndex),
-      title: h.title,
-      lead: h.lead,
-      barEnd: _step == ImportStep.done ? null : EButton.ghost(label: l.commonCancel, icon: EIcons.close, size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : _cancel),
-      onBack: canBack ? _back : null,
-      backLabel: l.deskOnbImportBack,
-      width: EOnbFrame.wide,
-      status: stat,
-      // The old wallet's password form takes Enter: Old, New, Repeat, then Import.
-      enter: _step == ImportStep.import && current != null ? l.deskOnbKeyNextImport : null,
-      actions: [
-        // Skip sits left of the main button; Tab reaches Import first, then Skip.
-        if (_step == ImportStep.import && current != null)
-          FocusTraversalOrder(order: const NumericFocusOrder(2), child: EButton(label: l.deskOnbImportSkip, onPressed: _busy ? null : _skipCurrent)),
-        FocusTraversalOrder(
-          order: const NumericFocusOrder(1),
-          child: EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
-        ),
-      ],
-      child: _body(context),
-    ),
+        sideTitle: l.deskOnbWelcomeImport,
+        steps: railOf([l.deskOnbImportStepFind, l.deskOnbImportStepChoose, l.deskOnbImportStepCheck, l.deskOnbImportTitle, l.commonDone], _railIndex),
+        title: h.title,
+        lead: h.lead,
+        barEnd: _step == ImportStep.done ? null : EButton.ghost(label: l.commonCancel, icon: EIcons.close, size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : _cancel),
+        onBack: canBack ? _back : null,
+        backLabel: l.deskOnbImportBack,
+        width: EOnbFrame.wide,
+        status: stat,
+        // The old wallet's password form takes Enter: Old, New, Repeat, then Import.
+        enter: _step == ImportStep.import && current != null ? l.deskOnbKeyNextImport : null,
+        actions: [
+          // Skip sits left of the main button; Tab reaches Import first, then Skip.
+          if (_step == ImportStep.import && current != null)
+            FocusTraversalOrder(order: const NumericFocusOrder(2), child: EButton(label: l.deskOnbImportSkip, onPressed: _busy ? null : _skipCurrent)),
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(1),
+            child: EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
+          ),
+        ],
+        child: _body(context),
+      ),
     );
   }
 
@@ -742,50 +742,50 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       child: EForm(
         onSubmit: _busy ? null : _importCurrent,
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          EField(
-            label: l.deskOnbImportOldPassword,
-            help: l.deskOnbImportOldHelp(f.name),
-            error: short ? null : _error,
-            child: EPasswordInput(
-              key: ValueKey('old-${f.id}'),
-              controller: _old,
-              autofocus: true,
-              invalid: _error != null && !short,
-              semanticLabel: l.deskOnbImportOldOf(f.name),
-              onChanged: (_) => setState(() => _error = null),
-            ),
-          ),
-          if (short) ...[
-            SizedBox(height: Sp.x3),
-            Text(l.deskOnbImportOldShort(minPasswordLength), style: ts.small),
-            SizedBox(height: Sp.x3),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             EField(
-              label: l.deskOnbImportNewPassword,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  EPasswordInput(controller: _new, semanticLabel: l.deskOnbImportNewPassword, onChanged: (_) => setState(() => _error = null)),
-                  SizedBox(height: Sp.x2),
-                  ExcludeFocusTraversal(child: PasswordHint(controller: _new)),
-                ],
-              ),
-            ),
-            SizedBox(height: Sp.x3),
-            EField(
-              label: l.deskOnbImportRepeat,
-              error: _error,
+              label: l.deskOnbImportOldPassword,
+              help: l.deskOnbImportOldHelp(f.name),
+              error: short ? null : _error,
               child: EPasswordInput(
-                controller: _repeat,
-                semanticLabel: l.deskOnbImportRepeatNew,
-                invalid: _error != null,
+                key: ValueKey('old-${f.id}'),
+                controller: _old,
+                autofocus: true,
+                invalid: _error != null && !short,
+                semanticLabel: l.deskOnbImportOldOf(f.name),
                 onChanged: (_) => setState(() => _error = null),
               ),
             ),
+            if (short) ...[
+              SizedBox(height: Sp.x3),
+              Text(l.deskOnbImportOldShort(minPasswordLength), style: ts.small),
+              SizedBox(height: Sp.x3),
+              EField(
+                label: l.deskOnbImportNewPassword,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    EPasswordInput(controller: _new, semanticLabel: l.deskOnbImportNewPassword, onChanged: (_) => setState(() => _error = null)),
+                    SizedBox(height: Sp.x2),
+                    ExcludeFocusTraversal(child: PasswordHint(controller: _new)),
+                  ],
+                ),
+              ),
+              SizedBox(height: Sp.x3),
+              EField(
+                label: l.deskOnbImportRepeat,
+                error: _error,
+                child: EPasswordInput(
+                  controller: _repeat,
+                  semanticLabel: l.deskOnbImportRepeatNew,
+                  invalid: _error != null,
+                  onChanged: (_) => setState(() => _error = null),
+                ),
+              ),
+            ],
           ],
-        ],
-      ),
+        ),
       ),
     );
   }

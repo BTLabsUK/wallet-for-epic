@@ -46,46 +46,46 @@ class AccountForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return EForm(
-    onSubmit: onSubmit,
-    child: Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      EField(
-        label: l.deskOnbStepPassword,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            PasswordBox(
-              controller: password,
-              invalid: passwordError != null,
-              semanticLabel: l.deskOnbStepPassword,
-              semanticsId: passwordId,
-              textInputAction: TextInputAction.next,
+      onSubmit: onSubmit,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          EField(
+            label: l.deskOnbStepPassword,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PasswordBox(
+                  controller: password,
+                  invalid: passwordError != null,
+                  semanticLabel: l.deskOnbStepPassword,
+                  semanticsId: passwordId,
+                  textInputAction: TextInputAction.next,
+                  onChanged: (_) => onChanged(),
+                ),
+                SizedBox(height: Sp.x2),
+                // Its info icon is not a Tab stop (keyboard.dart); the hint text is on screen.
+                // A too-short password says so on this line, in place of the hint.
+                ExcludeFocusTraversal(child: PasswordHint(controller: password, error: passwordError)),
+              ],
+            ),
+          ),
+          SizedBox(height: Sp.x4),
+          EField(
+            label: l.deskSetupConfirmPassword,
+            error: confirmError,
+            child: PasswordBox(
+              controller: confirm,
+              invalid: confirmError != null,
+              semanticLabel: l.deskSetupConfirmPassword,
+              semanticsId: confirmId,
+              textInputAction: TextInputAction.done,
               onChanged: (_) => onChanged(),
             ),
-            SizedBox(height: Sp.x2),
-            // Its info icon is not a Tab stop (keyboard.dart); the hint text is on screen.
-            // A too-short password says so on this line, in place of the hint.
-            ExcludeFocusTraversal(child: PasswordHint(controller: password, error: passwordError)),
-          ],
-        ),
+          ),
+        ],
       ),
-      SizedBox(height: Sp.x4),
-      EField(
-        label: l.deskSetupConfirmPassword,
-        error: confirmError,
-        child: PasswordBox(
-          controller: confirm,
-          invalid: confirmError != null,
-          semanticLabel: l.deskSetupConfirmPassword,
-          semanticsId: confirmId,
-          textInputAction: TextInputAction.done,
-          onChanged: (_) => onChanged(),
-        ),
-      ),
-    ],
-  ),
-  );
+    );
   }
 }
 

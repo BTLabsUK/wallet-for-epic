@@ -1800,47 +1800,47 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         final narrow = outer.maxWidth - 2 * Sp.x8 < Lay.xl;
         final form = res is! SendFileReady && res is! SendDone;
         return DeskStepBack(
-      onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
-      child: EPage(
-      title: context.l10n.deskSendTitle,
-      footer: narrow && form ? _reviewBar(st) : null,
-      titleTrailing: res is SendFileReady || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
-      width: EPageWidth.mid,
-      child: res is SendFileReady
-          ? _fileReady(res, nav)
-          : res is SendDone
-          ? _done(res, nav)
-          : LayoutBuilder(
-              builder: (context, box) {
-                final wide = box.maxWidth >= Lay.xl;
-                // Tab: the notices' actions, the form's fields, then Review send; Enter in Amount reviews.
-                final notices = _notices(st);
-                final form = FocusTraversalOrder(order: const NumericFocusOrder(1), child: FocusTraversalGroup(child: _form(st)));
-                final summary = FocusTraversalOrder(order: const NumericFocusOrder(2), child: FocusTraversalGroup(child: _summary(st, res, review: !narrow)));
-                return EForm(
-                  onSubmit: _canSend(st) && !_reviewing ? _review : null,
-                  child: FocusTraversalGroup(
-                    policy: OrderedTraversalPolicy(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (notices.isNotEmpty)
-                          FocusTraversalOrder(
-                            order: const NumericFocusOrder(0),
-                            child: FocusTraversalGroup(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: notices),
-                            ),
+          onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
+          child: EPage(
+            title: context.l10n.deskSendTitle,
+            footer: narrow && form ? _reviewBar(st) : null,
+            titleTrailing: res is SendFileReady || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
+            width: EPageWidth.mid,
+            child: res is SendFileReady
+                ? _fileReady(res, nav)
+                : res is SendDone
+                ? _done(res, nav)
+                : LayoutBuilder(
+                    builder: (context, box) {
+                      final wide = box.maxWidth >= Lay.xl;
+                      // Tab: the notices' actions, the form's fields, then Review send; Enter in Amount reviews.
+                      final notices = _notices(st);
+                      final form = FocusTraversalOrder(order: const NumericFocusOrder(1), child: FocusTraversalGroup(child: _form(st)));
+                      final summary = FocusTraversalOrder(order: const NumericFocusOrder(2), child: FocusTraversalGroup(child: _summary(st, res, review: !narrow)));
+                      return EForm(
+                        onSubmit: _canSend(st) && !_reviewing ? _review : null,
+                        child: FocusTraversalGroup(
+                          policy: OrderedTraversalPolicy(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (notices.isNotEmpty)
+                                FocusTraversalOrder(
+                                  order: const NumericFocusOrder(0),
+                                  child: FocusTraversalGroup(
+                                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: notices),
+                                  ),
+                                ),
+                              // Form and Summary are one unit.
+                              if (!wide) ...[form, SizedBox(height: Sp.col), summary] else PanelRow(main: form, side: summary, sideWidth: Ctl.sideSm),
+                            ],
                           ),
-                        // Form and Summary are one unit.
-                        if (!wide) ...[form, SizedBox(height: Sp.col), summary] else PanelRow(main: form, side: summary, sideWidth: Ctl.sideSm),
-                      ],
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-    ),
-    );
+          ),
+        );
       },
     );
   }
@@ -2497,23 +2497,23 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         ]),
         // Advanced › Send options; open when a link brought the user here for it.
         if (advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
-        SizedBox(height: Sp.x5),
-        SendAdvanced(
-          strategy: _strategy,
-          defaultStrategy: _prefs.strategy,
-          split: _smart,
-          sendAll: _all,
-          initiallyOpen: _args.advancedOpen,
-          onStrategy: (v) {
-            setState(() => _strategyOverride = v);
-            _replan();
-          },
-          onSplit: (v) {
-            setState(() => _smartOverride = v);
-            _replan();
-          },
-          onOutputs: outputsShown(ref) ? () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs) : null,
-        ),
+          SizedBox(height: Sp.x5),
+          SendAdvanced(
+            strategy: _strategy,
+            defaultStrategy: _prefs.strategy,
+            split: _smart,
+            sendAll: _all,
+            initiallyOpen: _args.advancedOpen,
+            onStrategy: (v) {
+              setState(() => _strategyOverride = v);
+              _replan();
+            },
+            onSplit: (v) {
+              setState(() => _smartOverride = v);
+              _replan();
+            },
+            onOutputs: outputsShown(ref) ? () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs) : null,
+          ),
         ],
         if (DeskFeatures.dandelion && !file) ...[
           SizedBox(height: Sp.x5),
@@ -2883,68 +2883,68 @@ class SendSummaryPanel extends StatelessWidget {
     return CustomPaint(
       foregroundPainter: CornerTicksPainter(c.tick, length: 14.u, width: 1.5),
       child: EPanel(
-      title: l.deskSendSummary,
-      padding: EdgeInsets.all(Sp.panel),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // The amount leads, large, and whom it goes to; before one is typed, the plain row.
-          if (n > 0) ...[
-            FittedBox(
-              alignment: AlignmentDirectional.centerStart,
-              fit: BoxFit.scaleDown,
-              child: EMoney(n, size: Fs.h1, color: bad ? c.risk : c.text),
-            ),
-            if (to != null) ...[
-              SizedBox(height: Sp.x1),
-              Text(l.deskSendSummaryTo(to!), key: const ValueKey('send-summary-to'), style: ts.small.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
-            ],
-            Divider(height: Sp.x5, color: c.line),
-          ] else
-            line(l.deskSendAmount, null, risk: bad),
-          line(l.deskSendNetworkFee, fee, loading: pending && fee == null),
-          if (via != null)
-            Padding(
-              key: const ValueKey('send-summary-via'),
-              padding: EdgeInsets.symmetric(vertical: Sp.x2),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.sendFactVia, style: ts.bodyDim),
-                  SizedBox(width: Sp.x3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(via!, style: ts.body, textAlign: TextAlign.end),
-                        if (viaSub != null && viaSub!.isNotEmpty)
-                          Text(viaSub!, style: ts.mono(size: Fs.xs, color: c.dim), textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis),
-                      ],
-                    ),
-                  ),
-                ],
+        title: l.deskSendSummary,
+        padding: EdgeInsets.all(Sp.panel),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // The amount leads, large, and whom it goes to; before one is typed, the plain row.
+            if (n > 0) ...[
+              FittedBox(
+                alignment: AlignmentDirectional.centerStart,
+                fit: BoxFit.scaleDown,
+                child: EMoney(n, size: Fs.h1, color: bad ? c.risk : c.text),
               ),
+              if (to != null) ...[
+                SizedBox(height: Sp.x1),
+                Text(l.deskSendSummaryTo(to!), key: const ValueKey('send-summary-to'), style: ts.small.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+              ],
+              Divider(height: Sp.x5, color: c.line),
+            ] else
+              line(l.deskSendAmount, null, risk: bad),
+            line(l.deskSendNetworkFee, fee, loading: pending && fee == null),
+            if (via != null)
+              Padding(
+                key: const ValueKey('send-summary-via'),
+                padding: EdgeInsets.symmetric(vertical: Sp.x2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.sendFactVia, style: ts.bodyDim),
+                    SizedBox(width: Sp.x3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(via!, style: ts.body, textAlign: TextAlign.end),
+                          if (viaSub != null && viaSub!.isNotEmpty)
+                            Text(viaSub!, style: ts.mono(size: Fs.xs, color: c.dim), textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ExpandFade(
+              open: lockRows && ready && (summary?.changeOutputs ?? 0) > 1,
+              child: summary == null || summary!.changeOutputs < 2
+                  ? const SizedBox.shrink()
+                  : SendSplitLine(outputs: summary!.changeOutputs, extraFee: extraFee, change: summary!.change),
             ),
-          ExpandFade(
-            open: lockRows && ready && (summary?.changeOutputs ?? 0) > 1,
-            child: summary == null || summary!.changeOutputs < 2
-                ? const SizedBox.shrink()
-                : SendSplitLine(outputs: summary!.changeOutputs, extraFee: extraFee, change: summary!.change),
-          ),
-          Divider(height: Sp.x4, color: c.line),
-          // Never Amount alone as Total: it waits for the fee, "—" when the estimate failed.
-          line(l.deskSendTotal, ready && fee != null ? n + fee! : null, strong: true, loading: pending && fee == null),
-          if (lockRows) SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations, loading: pending),
-          if (updating) Text(l.deskSendUpdating, style: ts.caption),
-          SizedBox(height: Sp.x4),
-          if (review) ...[
-            EButton.primary(key: reviewKey, semanticsId: reviewId, label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
-            SizedBox(height: Sp.x3),
+            Divider(height: Sp.x4, color: c.line),
+            // Never Amount alone as Total: it waits for the fee, "—" when the estimate failed.
+            line(l.deskSendTotal, ready && fee != null ? n + fee! : null, strong: true, loading: pending && fee == null),
+            if (lockRows) SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations, loading: pending),
+            if (updating) Text(l.deskSendUpdating, style: ts.caption),
+            SizedBox(height: Sp.x4),
+            if (review) ...[
+              EButton.primary(key: reviewKey, semanticsId: reviewId, label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
+              SizedBox(height: Sp.x3),
+            ],
+            Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
           ],
-          Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
-        ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -3303,53 +3303,53 @@ class _Suggestions extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Container(
-        constraints: BoxConstraints(maxWidth: Max.dialog),
-        decoration: BoxDecoration(
-          color: c.s2,
-          borderRadius: BorderRadius.circular(Rad.sm),
-          border: Border.all(color: c.lineStrong),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final (i, x) in contacts.indexed) ...[
-              if (i > 0) Divider(height: 1, color: c.line),
-              Semantics(
-                button: true,
-                label: '${x.name}, ${addressOf(x)}',
-                excludeSemantics: true,
-                child: EInkWell(
-                  onTap: () => onPick(x),
-                  child: Container(
-                    height: 44.u,
-                    padding: EdgeInsets.symmetric(horizontal: Sp.x3),
-                    child: Row(
-                      children: [
-                        EAvatar(x.name, size: 28.u),
-                        SizedBox(width: Sp.x3),
-                        Expanded(child: Text(x.name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        SizedBox(width: Sp.x2),
-                        if (pairingOf(x) case final p?)
-                          Flexible(child: PairingOnlyLine(name: x.name, pairing: p))
-                        else ...[
-                          EKindTag.of(addressOf(x), compact: true),
+          constraints: BoxConstraints(maxWidth: Max.dialog),
+          decoration: BoxDecoration(
+            color: c.s2,
+            borderRadius: BorderRadius.circular(Rad.sm),
+            border: Border.all(color: c.lineStrong),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, x) in contacts.indexed) ...[
+                if (i > 0) Divider(height: 1, color: c.line),
+                Semantics(
+                  button: true,
+                  label: '${x.name}, ${addressOf(x)}',
+                  excludeSemantics: true,
+                  child: EInkWell(
+                    onTap: () => onPick(x),
+                    child: Container(
+                      height: 44.u,
+                      padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+                      child: Row(
+                        children: [
+                          EAvatar(x.name, size: 28.u),
                           SizedBox(width: Sp.x3),
-                          Flexible(child: EShortAddress(addressOf(x), tooltip: false)),
+                          Expanded(child: Text(x.name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          SizedBox(width: Sp.x2),
+                          if (pairingOf(x) case final p?)
+                            Flexible(child: PairingOnlyLine(name: x.name, pairing: p))
+                          else ...[
+                            EKindTag.of(addressOf(x), compact: true),
+                            SizedBox(width: Sp.x3),
+                            Flexible(child: EShortAddress(addressOf(x), tooltip: false)),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
+              ],
+              Divider(height: 1, color: c.line),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+                child: Text(context.l10n.deskSendMatchCount(contacts.length), style: ts.caption),
               ),
             ],
-            Divider(height: 1, color: c.line),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-              child: Text(context.l10n.deskSendMatchCount(contacts.length), style: ts.caption),
-            ),
-          ],
+          ),
         ),
-      ),
       ),
     );
   }

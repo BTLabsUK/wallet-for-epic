@@ -1079,43 +1079,43 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
             child: DecoratedBox(
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.sm), boxShadow: c.popShadow),
               child: Material(
-              color: c.s4,
-              elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
-              clipBehavior: Clip.antiAlias,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: width, maxWidth: width, maxHeight: maxHeight),
-                child: Semantics(
-                  label: widget.label,
-                  explicitChildNodes: true,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      top,
-                      Flexible(
-                        child: CallbackShortcuts(
-                          bindings: {
-                            const SingleActivator(LogicalKeyboardKey.arrowDown): () => _listScope.nextFocus(),
-                            const SingleActivator(LogicalKeyboardKey.arrowUp): () => _listScope.previousFocus(),
-                          },
-                          child: FocusScope(
-                            node: _listScope,
-                            child: ListView(
-                              controller: _scroll,
-                              padding: EdgeInsets.fromLTRB(Sp.x2, 0, Sp.x2, Sp.x2),
-                              shrinkWrap: true,
-                              children: rows,
+                color: c.s4,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
+                clipBehavior: Clip.antiAlias,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: width, maxWidth: width, maxHeight: maxHeight),
+                  child: Semantics(
+                    label: widget.label,
+                    explicitChildNodes: true,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        top,
+                        Flexible(
+                          child: CallbackShortcuts(
+                            bindings: {
+                              const SingleActivator(LogicalKeyboardKey.arrowDown): () => _listScope.nextFocus(),
+                              const SingleActivator(LogicalKeyboardKey.arrowUp): () => _listScope.previousFocus(),
+                            },
+                            child: FocusScope(
+                              node: _listScope,
+                              child: ListView(
+                                controller: _scroll,
+                                padding: EdgeInsets.fromLTRB(Sp.x2, 0, Sp.x2, Sp.x2),
+                                shrinkWrap: true,
+                                children: rows,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      ...foot,
-                    ],
+                        ...foot,
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
           ),
             ),
         ),

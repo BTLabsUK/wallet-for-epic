@@ -470,39 +470,39 @@ MenuStyle _menuStyle({double? minWidth}) => MenuStyle(
 /// One menu row: icon (or a leading widget), label, and the shortcut on the right.
 Widget _menuItem(
   BuildContext context, {
-  Key? key,
-  IconData? icon,
-  Widget? leading,
-  required String label,
-  String? keys,
-  Widget? trailing,
-  VoidCallback? onPressed,
-}) {
-  final c = context.dc;
-  final ts = context.ts;
-  return MenuItemButton(
-    key: key,
-    onPressed: onPressed,
-    style: ButtonStyle(
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      minimumSize: WidgetStatePropertyAll(Size(0, 36.u)),
-      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10.u)),
-      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
-      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-      backgroundColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.hover : null,
+    Key? key,
+    IconData? icon,
+    Widget? leading,
+    required String label,
+    String? keys,
+    Widget? trailing,
+    VoidCallback? onPressed,
+  }) {
+    final c = context.dc;
+    final ts = context.ts;
+    return MenuItemButton(
+      key: key,
+      onPressed: onPressed,
+      style: ButtonStyle(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: WidgetStatePropertyAll(Size(0, 36.u)),
+        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10.u)),
+        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.hover : null,
+        ),
       ),
-    ),
-    leadingIcon: leading ?? (icon == null ? null : Icon(icon, size: 19.u, color: c.dim)),
-    trailingIcon: keys != null
-        ? Padding(padding: EdgeInsetsDirectional.only(start: Sp.x6), child: Text(keys, style: ts.caption.copyWith(fontSize: Fs.xs, color: c.faint)))
-        : trailing,
-    child: Padding(
-      padding: EdgeInsetsDirectional.only(start: Sp.x1),
-      child: Text(label, style: ts.body.copyWith(color: onPressed == null ? c.faint : c.text)),
-    ),
-  );
-}
+      leadingIcon: leading ?? (icon == null ? null : Icon(icon, size: 19.u, color: c.dim)),
+      trailingIcon: keys != null
+          ? Padding(padding: EdgeInsetsDirectional.only(start: Sp.x6), child: Text(keys, style: ts.caption.copyWith(fontSize: Fs.xs, color: c.faint)))
+          : trailing,
+      child: Padding(
+        padding: EdgeInsetsDirectional.only(start: Sp.x1),
+        child: Text(label, style: ts.body.copyWith(color: onPressed == null ? c.faint : c.text)),
+      ),
+    );
+  }
 
 Widget _menuDivider(DeskColors c) => Padding(
   padding: EdgeInsets.symmetric(vertical: 6.u, horizontal: Sp.x1),

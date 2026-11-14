@@ -350,29 +350,29 @@ class RequestDetail extends ConsumerWidget {
         ),
         // Advanced › Technical details shows the slate id; Cancel payment, a recovery, always shows.
         if (technical || r.state == RequestState.notPosted) ...[
-        SizedBox(height: Sp.x4),
-        EDetails(
-          title: l.deskInvAdvanced,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (technical)
-              EFacts([
-                (
-                  l.deskInvSlateId,
-                  Row(children: [Expanded(child: EMonoText(r.slateId)), ECopyButton(text: r.slateId, label: l.deskInvIssuerCopySlate)]),
-                ),
-              ]),
-              if (r.state == RequestState.notPosted) ...[
-                if (technical) SizedBox(height: Sp.x3),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: InvButton(label: l.deskInvIssuerCancel, kind: EBtnKind.danger, width: InvW.md, onPressed: () => showCancelRequestPayment(context, ref, r)),
-                ),
+          SizedBox(height: Sp.x4),
+          EDetails(
+            title: l.deskInvAdvanced,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (technical)
+                  EFacts([
+                    (
+                      l.deskInvSlateId,
+                      Row(children: [Expanded(child: EMonoText(r.slateId)), ECopyButton(text: r.slateId, label: l.deskInvIssuerCopySlate)]),
+                    ),
+                  ]),
+                if (r.state == RequestState.notPosted) ...[
+                  if (technical) SizedBox(height: Sp.x3),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: InvButton(label: l.deskInvIssuerCancel, kind: EBtnKind.danger, width: InvW.md, onPressed: () => showCancelRequestPayment(context, ref, r)),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
         ],
       ],
     );

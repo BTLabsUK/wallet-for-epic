@@ -289,44 +289,44 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             else if (torPanel && (torRx == TorState.starting || torRx == TorState.failed) && (torRx == TorState.starting || !ref.watch(connectionGraceProvider))) ...[_torNotice(torRx), SizedBox(height: Sp.x4)],
             if (arriving != null) ...[_arrivalCard(arriving, nav), SizedBox(height: Sp.x4)],
             LayoutBuilder(
-          builder: (context, box) {
-            if (box.maxWidth >= Lay.wide) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 7,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, ?files])),
-                  ),
-                  if (others.isNotEmpty) ...[
-                    SizedBox(width: Sp.x6),
-                    Expanded(
-                      flex: 5,
-                      child: TourTarget(
+              builder: (context, box) {
+                if (box.maxWidth >= Lay.wide) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 7,
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, ?files])),
+                      ),
+                      if (others.isNotEmpty) ...[
+                        SizedBox(width: Sp.x6),
+                        Expanded(
+                          flex: 5,
+                          child: TourTarget(
+                            id: 'receive-others',
+                            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    epicbox,
+                    if (others.isNotEmpty) ...[
+                      SizedBox(height: Sp.x8),
+                      TourTarget(
                         id: 'receive-others',
                         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
                       ),
-                    ),
+                    ],
+                    if (files != null) ...[SizedBox(height: Sp.x3), files],
                   ],
-                ],
-              );
-            }
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                epicbox,
-                if (others.isNotEmpty) ...[
-                  SizedBox(height: Sp.x8),
-                  TourTarget(
-                    id: 'receive-others',
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
-                  ),
-                ],
-                if (files != null) ...[SizedBox(height: Sp.x3), files],
-              ],
-            );
-          },
-        ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -754,20 +754,20 @@ class _MethodPanel extends StatelessWidget {
                   child: Semantics(header: true, child: Text(title, style: ts.h3, maxLines: 1, overflow: TextOverflow.ellipsis)),
                 ),
                 if (showSwitch) ...[
-                ExcludeSemantics(child: Text(context.l10n.deskRecvReceiving, style: ts.body)),
-                SizedBox(width: Sp.x3),
-                SizedBox(
-                  width: 40.u,
-                  height: 24.u,
-                  child: busy
-                      ? Center(child: ESpinner(size: 18.u))
-                      : ESwitch(
-                          key: ValueKey('rx-switch-${method.name}'),
-                          value: switchOn,
-                          onChanged: onSwitch,
-                          semanticLabel: context.l10n.deskRecvSwitchLabel(title),
-                        ),
-                ),
+                  ExcludeSemantics(child: Text(context.l10n.deskRecvReceiving, style: ts.body)),
+                  SizedBox(width: Sp.x3),
+                  SizedBox(
+                    width: 40.u,
+                    height: 24.u,
+                    child: busy
+                        ? Center(child: ESpinner(size: 18.u))
+                        : ESwitch(
+                            key: ValueKey('rx-switch-${method.name}'),
+                            value: switchOn,
+                            onChanged: onSwitch,
+                            semanticLabel: context.l10n.deskRecvSwitchLabel(title),
+                          ),
+                  ),
                 ],
               ],
             ),

@@ -502,12 +502,12 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
           child: Transform.translate(
             offset: Offset(-EButton.labelInset(EBtnSize.inline), 0),
             child: EButton.ghost(
-            key: const ValueKey('e1-pay-in-person'),
-            semanticsId: TrustIds.e1PayInPerson,
-            label: l.deskE1PayInPerson,
-            icon: EIcons.phone,
-            size: EBtnSize.inline,
-            onPressed: () => unawaited(openDeskPayInPerson(context)),
+              key: const ValueKey('e1-pay-in-person'),
+              semanticsId: TrustIds.e1PayInPerson,
+              label: l.deskE1PayInPerson,
+              icon: EIcons.phone,
+              size: EBtnSize.inline,
+              onPressed: () => unawaited(openDeskPayInPerson(context)),
             ),
           ),
         ),

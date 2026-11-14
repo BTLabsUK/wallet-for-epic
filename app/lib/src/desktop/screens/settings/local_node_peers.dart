@@ -323,94 +323,94 @@ class _PeersTabState extends ConsumerState<PeersTab> {
             ),
         ],
         if (own == null) ...[
-        SizedBox(height: Sp.x4),
-        Divider(height: 1, thickness: 1, color: c.line),
-        SizedBox(height: Sp.x3),
-        Wrap(
-          spacing: Sp.x4,
-          runSpacing: Sp.x3,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(l.deskSetPeersPreferred, style: ts.small),
-            SizedBox(
-              width: 220.u,
-              child: EInput(
-                controller: _preferred,
-                hint: 'ip:port', // l10n-ok: address format
-                mono: true,
-                invalid: _preferredError != null,
-                semanticLabel: l.deskSetPeersPreferredLabel,
-                onChanged: (_) => _preferredError == null ? null : setState(() => _preferredError = null),
-                onSubmitted: (_) => options == null ? null : _addPreferred(options),
-              ),
-            ),
-            EButton(label: l.deskSetPeersAdd, size: EBtnSize.inline, onPressed: options == null ? null : () => _addPreferred(options)),
-            Text(l.deskSetPeersMaxIn, style: ts.small),
-            SizedBox(
-              width: 64.u,
-              // Saved on Enter and when the field loses focus.
-              child: Focus(
-                canRequestFocus: false,
-                skipTraversal: true,
-                onFocusChange: (f) => f || options == null ? null : _setMax(options, inbound: true),
-                child: EInput(
-                  controller: _maxIn,
-                  mono: true,
-                  invalid: _maxError != null,
-                  semanticLabel: l.deskSetPeersMaxInLabel,
-                  keyboardType: TextInputType.number,
-                  onSubmitted: (_) => options == null ? null : _setMax(options, inbound: true),
-                ),
-              ),
-            ),
-            Text(l.deskSetPeersMaxOut, style: ts.small),
-            SizedBox(
-              width: 64.u,
-              // Saved on Enter and when the field loses focus.
-              child: Focus(
-                canRequestFocus: false,
-                skipTraversal: true,
-                onFocusChange: (f) => f || options == null ? null : _setMax(options, inbound: false),
-                child: EInput(
-                  controller: _maxOut,
-                  mono: true,
-                  invalid: _maxError != null,
-                  semanticLabel: l.deskSetPeersMaxOutLabel,
-                  keyboardType: TextInputType.number,
-                  onSubmitted: (_) => options == null ? null : _setMax(options, inbound: false),
-                ),
-              ),
-            ),
-          ],
-        ),
-        if (_preferredError != null || _maxError != null) ...[
-          SizedBox(height: Sp.x1),
-          Text(_preferredError ?? _maxError!, style: ts.caption.copyWith(color: c.risk)),
-        ],
-        if (options != null && options.preferredPeers.isNotEmpty) ...[
-          SizedBox(height: Sp.x2),
+          SizedBox(height: Sp.x4),
+          Divider(height: 1, thickness: 1, color: c.line),
+          SizedBox(height: Sp.x3),
           Wrap(
-            spacing: Sp.x2,
-            runSpacing: Sp.x1,
+            spacing: Sp.x4,
+            runSpacing: Sp.x3,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text(l.deskSetPeersPreferredCount(options.preferredPeers.length), style: ts.caption),
-              for (final p in options.preferredPeers)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(p, style: ts.mono(size: Fs.xs, color: c.dim)),
-                    EIconButton(icon: EIcons.close, label: l.deskSetPeersForget(p), size: EBtnSize.inline, tabStop: false, onPressed: () => _removePreferred(options, p)),
-                  ],
+              Text(l.deskSetPeersPreferred, style: ts.small),
+              SizedBox(
+                width: 220.u,
+                child: EInput(
+                  controller: _preferred,
+                  hint: 'ip:port', // l10n-ok: address format
+                  mono: true,
+                  invalid: _preferredError != null,
+                  semanticLabel: l.deskSetPeersPreferredLabel,
+                  onChanged: (_) => _preferredError == null ? null : setState(() => _preferredError = null),
+                  onSubmitted: (_) => options == null ? null : _addPreferred(options),
                 ),
+              ),
+              EButton(label: l.deskSetPeersAdd, size: EBtnSize.inline, onPressed: options == null ? null : () => _addPreferred(options)),
+              Text(l.deskSetPeersMaxIn, style: ts.small),
+              SizedBox(
+                width: 64.u,
+                // Saved on Enter and when the field loses focus.
+                child: Focus(
+                  canRequestFocus: false,
+                  skipTraversal: true,
+                  onFocusChange: (f) => f || options == null ? null : _setMax(options, inbound: true),
+                  child: EInput(
+                    controller: _maxIn,
+                    mono: true,
+                    invalid: _maxError != null,
+                    semanticLabel: l.deskSetPeersMaxInLabel,
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (_) => options == null ? null : _setMax(options, inbound: true),
+                  ),
+                ),
+              ),
+              Text(l.deskSetPeersMaxOut, style: ts.small),
+              SizedBox(
+                width: 64.u,
+                // Saved on Enter and when the field loses focus.
+                child: Focus(
+                  canRequestFocus: false,
+                  skipTraversal: true,
+                  onFocusChange: (f) => f || options == null ? null : _setMax(options, inbound: false),
+                  child: EInput(
+                    controller: _maxOut,
+                    mono: true,
+                    invalid: _maxError != null,
+                    semanticLabel: l.deskSetPeersMaxOutLabel,
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (_) => options == null ? null : _setMax(options, inbound: false),
+                  ),
+                ),
+              ),
             ],
           ),
-        ],
-        SizedBox(height: Sp.x3),
-        Text(
-          l.deskSetPeersNote(peerMaxMin, peerMaxMax, peerMaxDefault),
-          style: ts.caption.copyWith(color: c.faint),
-        ),
+          if (_preferredError != null || _maxError != null) ...[
+            SizedBox(height: Sp.x1),
+            Text(_preferredError ?? _maxError!, style: ts.caption.copyWith(color: c.risk)),
+          ],
+          if (options != null && options.preferredPeers.isNotEmpty) ...[
+            SizedBox(height: Sp.x2),
+            Wrap(
+              spacing: Sp.x2,
+              runSpacing: Sp.x1,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(l.deskSetPeersPreferredCount(options.preferredPeers.length), style: ts.caption),
+                for (final p in options.preferredPeers)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(p, style: ts.mono(size: Fs.xs, color: c.dim)),
+                      EIconButton(icon: EIcons.close, label: l.deskSetPeersForget(p), size: EBtnSize.inline, tabStop: false, onPressed: () => _removePreferred(options, p)),
+                    ],
+                  ),
+              ],
+            ),
+          ],
+          SizedBox(height: Sp.x3),
+          Text(
+            l.deskSetPeersNote(peerMaxMin, peerMaxMax, peerMaxDefault),
+            style: ts.caption.copyWith(color: c.faint),
+          ),
         ],
       ],
     );

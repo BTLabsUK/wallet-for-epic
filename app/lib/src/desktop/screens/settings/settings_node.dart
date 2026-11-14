@@ -278,29 +278,29 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> with _N
             child: Padding(
               padding: EdgeInsets.only(bottom: Sp.x8),
               child: TourTarget(
-              id: 'node-server',
-              child: ESetGroup(
-              gap: false,
-              title: l.deskSetNodeConnection,
-              rows: [
-                m.row,
-                const NodeFailoverRow(),
-                // A listed https node the user also runs: marked as theirs, it is asked directly.
-                if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
-                  ESetRow(
-                    anchor: SetId.myNode,
-                    title: l.deskOwnMine,
-                    hint: l.deskOwnMineHint(statusSiteHost),
-                    hintHelp: localNodeHelp(ref),
-                    control: ESwitch(
-                      value: m.mine,
-                      semanticLabel: l.deskOwnMine,
-                      onChanged: (v) => p.set(prefs.copyWith(mineNodes: v ? {...prefs.mineNodes, chosenUrl} : ({...prefs.mineNodes}..remove(chosenUrl)))),
-                    ),
-                  ),
-              ],
-            ),
-            ),
+                id: 'node-server',
+                child: ESetGroup(
+                  gap: false,
+                  title: l.deskSetNodeConnection,
+                  rows: [
+                    m.row,
+                    const NodeFailoverRow(),
+                    // A listed https node the user also runs: marked as theirs, it is asked directly.
+                    if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
+                      ESetRow(
+                        anchor: SetId.myNode,
+                        title: l.deskOwnMine,
+                        hint: l.deskOwnMineHint(statusSiteHost),
+                        hintHelp: localNodeHelp(ref),
+                        control: ESwitch(
+                          value: m.mine,
+                          semanticLabel: l.deskOwnMine,
+                          onChanged: (v) => p.set(prefs.copyWith(mineNodes: v ? {...prefs.mineNodes, chosenUrl} : ({...prefs.mineNodes}..remove(chosenUrl)))),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
           // What the node says of itself: its card, or the panel of the user's own node or of
@@ -596,47 +596,47 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
         control: Align(
           alignment: AlignmentDirectional.centerStart,
           child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Ctl.narrow),
-          child: ServerListPanel(
-          key: panelKey,
-          kind: ServerKind.node,
-          label: l.deskSetNodeServer,
-          value: value,
-          fieldText: switching != null
-              ? (switching.url == null ? l.deskSetNodeLocalNode : hostOf(switching.url!))
-              : prefs.builtin
-              ? l.deskSetNodeLocalNode
-              : hostOf(current.url),
-          // While switching, the node switched to's name, never the one left's.
-          fieldSub: switching != null
-              ? (switching.url == null ? null : prefs.nodeLabels[switching.url] ?? all.where((n) => n.url == switching.url).firstOrNull?.operator)
-              : prefs.builtin
-              ? localNodeRowText(l, local)
-              : stopping
-              ? nodeSwitchText(l, moving!)
-              : failover != null
-              ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
-              : (prefs.nodeLabels[current.url] ?? current.operator),
-          tone: stateTone(view.state),
-          state: switching != null ? EState.active : view.state,
-          servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
-            final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
-            return c.own ? ownLabel(l, c, url) : null;
-          }),
-          source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
-          // Advanced › Built-in node; the node in use stays listed.
-          local: advancedHas(ref, AdvancedFeature.builtInNode) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
-          listNote: nodeListNoteText(l),
-          busy: switching != null,
-          pickWhileBusy: true,
-          busyLabel: switching == null ? null : nodeSwitchText(l, switching),
-          error: _error,
-          openInitially: openInitially,
-          shot: shot,
-          onChoose: _pick,
-          onTest: _test,
-        ),
-        ),
+            constraints: BoxConstraints(maxWidth: Ctl.narrow),
+            child: ServerListPanel(
+              key: panelKey,
+              kind: ServerKind.node,
+              label: l.deskSetNodeServer,
+              value: value,
+              fieldText: switching != null
+                  ? (switching.url == null ? l.deskSetNodeLocalNode : hostOf(switching.url!))
+                  : prefs.builtin
+                  ? l.deskSetNodeLocalNode
+                  : hostOf(current.url),
+              // While switching, the node switched to's name, never the one left's.
+              fieldSub: switching != null
+                  ? (switching.url == null ? null : prefs.nodeLabels[switching.url] ?? all.where((n) => n.url == switching.url).firstOrNull?.operator)
+                  : prefs.builtin
+                  ? localNodeRowText(l, local)
+                  : stopping
+                  ? nodeSwitchText(l, moving!)
+                  : failover != null
+                  ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
+                  : (prefs.nodeLabels[current.url] ?? current.operator),
+              tone: stateTone(view.state),
+              state: switching != null ? EState.active : view.state,
+              servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
+                final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
+                return c.own ? ownLabel(l, c, url) : null;
+              }),
+              source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
+              // Advanced › Built-in node; the node in use stays listed.
+              local: advancedHas(ref, AdvancedFeature.builtInNode) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
+              listNote: nodeListNoteText(l),
+              busy: switching != null,
+              pickWhileBusy: true,
+              busyLabel: switching == null ? null : nodeSwitchText(l, switching),
+              error: _error,
+              openInitially: openInitially,
+              shot: shot,
+              onChoose: _pick,
+              onTest: _test,
+            ),
+          ),
         ),
       ),
     );

@@ -113,21 +113,21 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     final field = ConstrainedBox(
       constraints: BoxConstraints(minHeight: 58.u),
       child: EInput(
-      key: const ValueKey('home-field'),
-      controller: _text,
-      focusNode: _focus,
-      onChanged: (_) => setState(() {}),
-      leading: EIcons.search,
-      hint: l.deskOvFieldHint,
-      semanticLabel: l.deskOvFieldHint,
-      onSubmitted: _go,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          EIconButton(icon: EIcons.file, label: l.deskOvReceiveFile, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.importTx)),
-          DeskScanButton(key: const ValueKey('home-field-scan'), onScan: () => unawaited(openDeskScan(context, ref))),
-        ],
-      ),
+        key: const ValueKey('home-field'),
+        controller: _text,
+        focusNode: _focus,
+        onChanged: (_) => setState(() {}),
+        leading: EIcons.search,
+        hint: l.deskOvFieldHint,
+        semanticLabel: l.deskOvFieldHint,
+        onSubmitted: _go,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EIconButton(icon: EIcons.file, label: l.deskOvReceiveFile, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.importTx)),
+            DeskScanButton(key: const ValueKey('home-field-scan'), onScan: () => unawaited(openDeskScan(context, ref))),
+          ],
+        ),
       ),
     );
     if (matches.isEmpty) return field;

@@ -358,41 +358,41 @@ class ESeedGrid extends StatelessWidget {
     // Never selectable by a drag: the words leave only through the copy button and its rules.
     return NoSelect(
       child: LayoutBuilder(
-      builder: (context, box) {
-        final cols = box.maxWidth < 480.u ? 2 : columns;
-        final w = (box.maxWidth - (cols - 1) * Sp.x2) / cols;
-        return Wrap(
-          spacing: Sp.x2,
-          runSpacing: Sp.x2,
-          children: [
-            for (var i = 0; i < words.length; i++)
-              Container(
-                width: w,
-                height: 40.u,
-                padding: EdgeInsets.symmetric(horizontal: Sp.x3),
-                decoration: BoxDecoration(
-                  color: c.s2,
-                  borderRadius: BorderRadius.circular(Rad.sm),
-                  border: Border.all(color: c.line),
+        builder: (context, box) {
+          final cols = box.maxWidth < 480.u ? 2 : columns;
+          final w = (box.maxWidth - (cols - 1) * Sp.x2) / cols;
+          return Wrap(
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            children: [
+              for (var i = 0; i < words.length; i++)
+                Container(
+                  width: w,
+                  height: 40.u,
+                  padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+                  decoration: BoxDecoration(
+                    color: c.s2,
+                    borderRadius: BorderRadius.circular(Rad.sm),
+                    border: Border.all(color: c.line),
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 20.u,
+                        child: Text('${i + 1}', textAlign: TextAlign.right, style: context.ts.mono(size: 11, color: c.faint)),
+                      ),
+                      SizedBox(width: Sp.x2),
+                      Expanded(
+                        child: revealed
+                            ? Text(words[i], style: context.ts.mono(size: Fs.md))
+                            : Container(height: 8.u, margin: EdgeInsets.only(right: Sp.x6), decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(4.u))),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 20.u,
-                      child: Text('${i + 1}', textAlign: TextAlign.right, style: context.ts.mono(size: 11, color: c.faint)),
-                    ),
-                    SizedBox(width: Sp.x2),
-                    Expanded(
-                      child: revealed
-                          ? Text(words[i], style: context.ts.mono(size: Fs.md))
-                          : Container(height: 8.u, margin: EdgeInsets.only(right: Sp.x6), decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(4.u))),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        );
-      },
+            ],
+          );
+        },
       ),
     );
   }
@@ -594,41 +594,41 @@ class _ESelectState<T> extends State<ESelect<T>> {
               builder: (context) => TrustId(
                 widget.semanticsId,
                 child: Semantics(
-                button: true,
-                label: semanticLabel,
-                value: current?.title,
-                child: EInkWell(
-                  onTap: () {
-                    if (controller.isOpen) return controller.close();
-                    Focus.of(context).requestFocus();
-                    controller.open();
-                  },
-                  borderRadius: BorderRadius.circular(Rad.sm),
-                  child: Container(
-                    height: size == EBtnSize.sm ? Ctl.sm : Ctl.md,
-                    padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
-                    decoration: BoxDecoration(
-                      color: c.s2,
-                      borderRadius: BorderRadius.circular(Rad.sm),
-                      border: Border.all(color: controller.isOpen ? c.accent : c.lineField),
-                    ),
-                    child: Row(
-                      children: [
-                        if (current?.leading != null) ...[current!.leading!, SizedBox(width: Sp.x2)],
-                        Expanded(
-                          child: Text(
-                            current?.title ?? '',
-                            style: mono ? ts.mono(size: Fs.sm) : ts.body,
-                            overflow: TextOverflow.ellipsis,
+                  button: true,
+                  label: semanticLabel,
+                  value: current?.title,
+                  child: EInkWell(
+                    onTap: () {
+                      if (controller.isOpen) return controller.close();
+                      Focus.of(context).requestFocus();
+                      controller.open();
+                    },
+                    borderRadius: BorderRadius.circular(Rad.sm),
+                    child: Container(
+                      height: size == EBtnSize.sm ? Ctl.sm : Ctl.md,
+                      padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+                      decoration: BoxDecoration(
+                        color: c.s2,
+                        borderRadius: BorderRadius.circular(Rad.sm),
+                        border: Border.all(color: controller.isOpen ? c.accent : c.lineField),
+                      ),
+                      child: Row(
+                        children: [
+                          if (current?.leading != null) ...[current!.leading!, SizedBox(width: Sp.x2)],
+                          Expanded(
+                            child: Text(
+                              current?.title ?? '',
+                              style: mono ? ts.mono(size: Fs.sm) : ts.body,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        if (current?.trailing != null) ...[current!.trailing!, SizedBox(width: Sp.x2)],
-                        Icon(EIcons.chevronDown, size: Ctl.icon, color: c.dim),
-                      ],
+                          if (current?.trailing != null) ...[current!.trailing!, SizedBox(width: Sp.x2)],
+                          Icon(EIcons.chevronDown, size: Ctl.icon, color: c.dim),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
               ),
             ),
           ),

@@ -100,22 +100,22 @@ class DeskSlateQrReader implements DeskPartReader<String> {
 Future<DeskScanResult<String>?> deskScanSlate(
   BuildContext context,
   WidgetRef ref, {
-  required String title,
-  String? hint,
-  required String Function(AppLocalizations l) notSlate,
-  String? first,
-}) async {
-  final reader = DeskSlateQrReader(ref.read(deskApiProvider), notSlate: notSlate);
-  if (first != null) {
-    try {
-      if (await reader.read(first) case DeskPartDone<String>(:final value)) return DeskScanned(value);
-    } on Object {
-      // The dialog reads it again from the camera.
+    required String title,
+    String? hint,
+    required String Function(AppLocalizations l) notSlate,
+    String? first,
+  }) async {
+    final reader = DeskSlateQrReader(ref.read(deskApiProvider), notSlate: notSlate);
+    if (first != null) {
+      try {
+        if (await reader.read(first) case DeskPartDone<String>(:final value)) return DeskScanned(value);
+      } on Object {
+        // The dialog reads it again from the camera.
+      }
+      if (!context.mounted) return null;
     }
-    if (!context.mounted) return null;
+    return deskScanParts<String>(context, title: title, hint: hint, reader: reader);
   }
-  return deskScanParts<String>(context, title: title, hint: hint, reader: reader);
-}
 
 /// Scan QR beside a flow's Choose file or Paste: the shared Scan, labelled.
 class DeskQrScanButton extends StatelessWidget {

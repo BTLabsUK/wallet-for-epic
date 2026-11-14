@@ -308,16 +308,16 @@ class _PickRowState extends State<_PickRow> {
                           ],
                         )
                       : EAddressLines(
-                    name: widget.contact.name,
-                    address: widget.contact.address.isEmpty ? (widget.contact.epic1 ?? '') : widget.contact.address,
-                    note: widget.contact.note,
-                    nameTrailing: widget.contact.favourite
-                        ? Padding(
-                            padding: EdgeInsets.only(left: Sp.x1),
-                            child: Icon(EIcons.star, size: 14.u, color: c.accentText),
-                          )
-                        : null,
-                  ),
+                        name: widget.contact.name,
+                        address: widget.contact.address.isEmpty ? (widget.contact.epic1 ?? '') : widget.contact.address,
+                        note: widget.contact.note,
+                        nameTrailing: widget.contact.favourite
+                            ? Padding(
+                                padding: EdgeInsets.only(left: Sp.x1),
+                                child: Icon(EIcons.star, size: 14.u, color: c.accentText),
+                              )
+                            : null,
+                      ),
                 ),
                 if (widget.chosen) ...[SizedBox(width: Sp.x3), Icon(EIcons.okCircle, size: 18.u, color: c.accentText)],
               ],

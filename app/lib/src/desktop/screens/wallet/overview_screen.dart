@@ -184,13 +184,13 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           actionsBelow: true,
           actions: [
             if (ref.watch(settingsPrefsProvider).builtin)
-            EButton(
-              label: _restarting ? l.deskOvStarting : l.deskOvStartNode,
-              icon: EIcons.refresh,
-              size: EBtnSize.inline,
-              busy: _restarting,
-              onPressed: _restarting ? null : _restartNode,
-            ),
+              EButton(
+                label: _restarting ? l.deskOvStarting : l.deskOvStartNode,
+                icon: EIcons.refresh,
+                size: EBtnSize.inline,
+                busy: _restarting,
+                onPressed: _restarting ? null : _restartNode,
+              ),
             EButton(label: l.deskOvNodeSettings, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
           ],
         ),
@@ -208,78 +208,78 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     // The Epicbox server offer and the move as toasts (item 16), not cards in the layout.
     return DeskRelayNotice(
       child: EPage(
-      title: l.deskOvTitle,
-      header: false,
-      width: EPageWidth.full,
-      // The BT Labs lattice in the room a short Recent activity leaves, fading as rows come.
-      fill: restore == null || (s.txs?.isNotEmpty ?? false)
-          ? BrandLattice(
-              // Light draws it in the brand brown, stronger: the text colour at the dark
-              // theme's alpha is a smudge on paper.
-              color: context.dc.wash.a == 0 ? context.dc.text : context.dc.accentDeep,
-              strength: latticeStrength(txs?.length),
-              cell: latticeCellDesktop.u,
-              vignette: true,
-              gain: context.dc.wash.a == 0 ? 1 : 1.6,
-            )
-          : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final n in notices) ...[n, gap],
-          TourTarget(
-            id: 'balance',
-            child: _BalancePanel(
-              balance: loading ? null : balance,
-              empty: empty,
-              hidden: hidden,
-              // Not beside "Cannot reach the node": a refresh still waiting on a node that does
-              // not answer (packets dropped) only ends at its timeout.
-              updating: !offline && !nodeDown && (starting || syncing || loading || walletSync),
-              offline: offline,
-              asOfBlock: syncing ? _walletTip : null,
-              sendBlocked: syncing || nodeDown || shot == OverviewShot.nodeProblem,
-              nodeAnswers: !(nodeDown || shot == OverviewShot.nodeProblem),
-              refresh: _refreshing
-                  ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
-                  : EIconButton(
-                      semanticsId: TrustIds.overviewRefresh,
-                      icon: EIcons.refresh,
-                      size: EBtnSize.inline,
-                      label: netBlock == NetBlock.killSwitch ? l.recheckOffKill : (netBlockReason(l, netBlock) ?? l.deskOvRefresh),
-                      onPressed: netBlock == NetBlock.none ? _refresh : null,
-                    ),
+        title: l.deskOvTitle,
+        header: false,
+        width: EPageWidth.full,
+        // The BT Labs lattice in the room a short Recent activity leaves, fading as rows come.
+        fill: restore == null || (s.txs?.isNotEmpty ?? false)
+            ? BrandLattice(
+                // Light draws it in the brand brown, stronger: the text colour at the dark
+                // theme's alpha is a smudge on paper.
+                color: context.dc.wash.a == 0 ? context.dc.text : context.dc.accentDeep,
+                strength: latticeStrength(txs?.length),
+                cell: latticeCellDesktop.u,
+                vignette: true,
+                gain: context.dc.wash.a == 0 ? 1 : 1.6,
+              )
+            : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final n in notices) ...[n, gap],
+            TourTarget(
+              id: 'balance',
+              child: _BalancePanel(
+                balance: loading ? null : balance,
+                empty: empty,
+                hidden: hidden,
+                // Not beside "Cannot reach the node": a refresh still waiting on a node that does
+                // not answer (packets dropped) only ends at its timeout.
+                updating: !offline && !nodeDown && (starting || syncing || loading || walletSync),
+                offline: offline,
+                asOfBlock: syncing ? _walletTip : null,
+                sendBlocked: syncing || nodeDown || shot == OverviewShot.nodeProblem,
+                nodeAnswers: !(nodeDown || shot == OverviewShot.nodeProblem),
+                refresh: _refreshing
+                    ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
+                    : EIconButton(
+                        semanticsId: TrustIds.overviewRefresh,
+                        icon: EIcons.refresh,
+                        size: EBtnSize.inline,
+                        label: netBlock == NetBlock.killSwitch ? l.recheckOffKill : (netBlockReason(l, netBlock) ?? l.deskOvRefresh),
+                        onPressed: netBlock == NetBlock.none ? _refresh : null,
+                      ),
+              ),
             ),
-          ),
-          // The field: what to pay, typed or pasted (home_field.dart). Not in an empty wallet,
-          // where Receive is the one thing to do.
-          if (!empty) ...[SizedBox(height: Sp.x4), const TourTarget(id: 'field', child: HomeField())],
-          // Something to act on goes first; a quiet card stays below Recent activity.
-          if (invoicesWait) const OverviewInvoicesCard(),
-          // A payment in progress: its steps live (D11).
-          if (txs != null) _InFlight(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onMore: () => nav.go(DeskRoute.activity, const ActivityArgs(pending: true))),
-          // While the restore scan runs, Recent activity shows what it finds, never "No
-          // transactions yet" (copy D1). The contacts used last stand beside it in a window
-          // with the room, under it otherwise.
-          if (restore == null || (s.txs?.isNotEmpty ?? false))
-            LayoutBuilder(
-              builder: (context, box) => box.maxWidth >= Lay.xl && (s.contacts?.isNotEmpty ?? false)
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: recent),
-                        SizedBox(width: Sp.x4),
-                        SizedBox(width: 340.u, child: const HomeContacts()),
-                      ],
-                    )
-                  : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [recent, const HomeContacts()]),
-            ),
-          // The file sends to finish that the card above does not already offer.
-          if (pending - onCard > 0) _PendingFiles(count: pending - onCard),
-          if (!invoicesWait) const OverviewInvoicesCard(),
-        ],
+            // The field: what to pay, typed or pasted (home_field.dart). Not in an empty wallet,
+            // where Receive is the one thing to do.
+            if (!empty) ...[SizedBox(height: Sp.x4), const TourTarget(id: 'field', child: HomeField())],
+            // Something to act on goes first; a quiet card stays below Recent activity.
+            if (invoicesWait) const OverviewInvoicesCard(),
+            // A payment in progress: its steps live (D11).
+            if (txs != null) _InFlight(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onMore: () => nav.go(DeskRoute.activity, const ActivityArgs(pending: true))),
+            // While the restore scan runs, Recent activity shows what it finds, never "No
+            // transactions yet" (copy D1). The contacts used last stand beside it in a window
+            // with the room, under it otherwise.
+            if (restore == null || (s.txs?.isNotEmpty ?? false))
+              LayoutBuilder(
+                builder: (context, box) => box.maxWidth >= Lay.xl && (s.contacts?.isNotEmpty ?? false)
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: recent),
+                          SizedBox(width: Sp.x4),
+                          SizedBox(width: 340.u, child: const HomeContacts()),
+                        ],
+                      )
+                    : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [recent, const HomeContacts()]),
+              ),
+            // The file sends to finish that the card above does not already offer.
+            if (pending - onCard > 0) _PendingFiles(count: pending - onCard),
+            if (!invoicesWait) const OverviewInvoicesCard(),
+          ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -631,31 +631,31 @@ class _BigAmount extends StatelessWidget {
                 BigInt.from(nano),
                 hidden: hidden,
                 child: Row(
-                key: const ValueKey('balance-row'),
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  // Past the least size the figure scales down rather than cut to an
-                  // ellipsis: a clipped balance reads as a different number (A-01).
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text.rich(
-                        TextSpan(children: spans),
-                        style: style,
-                        maxLines: 1,
-                        softWrap: false,
+                  key: const ValueKey('balance-row'),
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    // Past the least size the figure scales down rather than cut to an
+                    // ellipsis: a clipped balance reads as a different number (A-01).
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text.rich(
+                          TextSpan(children: spans),
+                          style: style,
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: 10.u),
-                  Text(
-                    epicUnit,
-                    style: ts.mono(size: Fs.md, color: c.dim, weight: FontWeight.w500),
-                  ),
-                ],
+                    SizedBox(width: 10.u),
+                    Text(
+                      epicUnit,
+                      style: ts.mono(size: Fs.md, color: c.dim, weight: FontWeight.w500),
+                    ),
+                  ],
                 ),
               ),
             ),

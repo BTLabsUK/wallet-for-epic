@@ -280,87 +280,87 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
       // The barrier does not close the dialog (a stray click would lose the text); Esc does.
       bindings: {const SingleActivator(LogicalKeyboardKey.escape): () => _busy ? null : nav.maybePop()},
       child: PopScope(
-      canPop: !_busy,
-      child: EDialog(
-        title: l.deskSetReportTitle,
-        icon: EIcons.bug,
-        size: DialogWidth.wide,
-        dismissible: !_busy,
-        description: l.deskSetReportDesc,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            EField(
-              label: l.deskSetReportWhat,
-              error: emptyError,
-              child: EInput(
-                controller: _description,
-                autofocus: true,
-                maxLines: 4,
-                invalid: emptyError != null,
-                hint: l.deskSetReportWhatHint,
-                semanticLabel: l.deskSetReportWhat,
-                onChanged: (_) => setState(() {}),
+        canPop: !_busy,
+        child: EDialog(
+          title: l.deskSetReportTitle,
+          icon: EIcons.bug,
+          size: DialogWidth.wide,
+          dismissible: !_busy,
+          description: l.deskSetReportDesc,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              EField(
+                label: l.deskSetReportWhat,
+                error: emptyError,
+                child: EInput(
+                  controller: _description,
+                  autofocus: true,
+                  maxLines: 4,
+                  invalid: emptyError != null,
+                  hint: l.deskSetReportWhatHint,
+                  semanticLabel: l.deskSetReportWhat,
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
-            ),
-            SizedBox(height: Sp.x4),
-            ECheckbox(
-              value: _attachLogs,
-              label: l.deskSetReportAttach,
-              onChanged: (v) {
-                setState(() => _attachLogs = v);
-                _refreshPreview();
-              },
-            ),
-            SizedBox(height: Sp.x1),
-            Text(
-              widget.lastSession == null ? l.deskSetReportAttachHint : '${l.deskSetReportAttachHint} ${l.deskLastSessionAttached}',
-              style: ts.small,
-            ),
-            if (_attachLogs) ...[
-              SizedBox(height: Sp.x2),
-              // The tick and, beside it, what it changes and what never goes: behind the info
-              // icon, so the dialog carries no small print under it.
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ECheckbox(
-                    key: const ValueKey('report-full-details'),
-                    value: _fullDetails,
-                    label: l.deskSetReportFullDetails,
-                    onChanged: (v) {
-                      setState(() => _fullDetails = v);
-                      _refreshPreview();
-                    },
-                  ),
-                  SizedBox(width: Sp.x1),
-                  EInfoHint(l.deskSetReportFullDetailsInfo, key: const ValueKey('report-full-details-info'), title: l.deskSetReportFullDetails, icon: EIcons.info),
-                ],
+              SizedBox(height: Sp.x4),
+              ECheckbox(
+                value: _attachLogs,
+                label: l.deskSetReportAttach,
+                onChanged: (v) {
+                  setState(() => _attachLogs = v);
+                  _refreshPreview();
+                },
+              ),
+              SizedBox(height: Sp.x1),
+              Text(
+                widget.lastSession == null ? l.deskSetReportAttachHint : '${l.deskSetReportAttachHint} ${l.deskLastSessionAttached}',
+                style: ts.small,
+              ),
+              if (_attachLogs) ...[
+                SizedBox(height: Sp.x2),
+                // The tick and, beside it, what it changes and what never goes: behind the info
+                // icon, so the dialog carries no small print under it.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ECheckbox(
+                      key: const ValueKey('report-full-details'),
+                      value: _fullDetails,
+                      label: l.deskSetReportFullDetails,
+                      onChanged: (v) {
+                        setState(() => _fullDetails = v);
+                        _refreshPreview();
+                      },
+                    ),
+                    SizedBox(width: Sp.x1),
+                    EInfoHint(l.deskSetReportFullDetailsInfo, key: const ValueKey('report-full-details-info'), title: l.deskSetReportFullDetails, icon: EIcons.info),
+                  ],
+                ),
+              ],
+              SizedBox(height: Sp.x3),
+              EDetails(
+                title: l.deskSetReportSentWhat,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(metaLine(_parts(l)), style: ts.small),
+                    SizedBox(height: Sp.x2),
+                    ReportPreview(text: _log == null && _attachLogs ? null : _preview),
+                  ],
+                ),
               ),
             ],
-            SizedBox(height: Sp.x3),
-            EDetails(
-              title: l.deskSetReportSentWhat,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(metaLine(_parts(l)), style: ts.small),
-                  SizedBox(height: Sp.x2),
-                  ReportPreview(text: _log == null && _attachLogs ? null : _preview),
-                ],
-              ),
-            ),
+          ),
+          // Beside the buttons, never scrolled out of a short window: what Save or Send did, and
+          // why Send can't run.
+          foot: notices.isEmpty ? null : Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: Sp.x2, children: notices),
+          actions: [
+            EButton(label: l.commonCancel, onPressed: _busy ? null : nav.pop),
+            EButton(label: l.deskSetReportSaveToFile, icon: EIcons.download, busy: _saving, onPressed: _busy ? null : _save),
+            EButton.primary(label: l.deskSetReportSend, icon: EIcons.send, busy: _busy, onPressed: canSend ? _send : null),
           ],
         ),
-        // Beside the buttons, never scrolled out of a short window: what Save or Send did, and
-        // why Send can't run.
-        foot: notices.isEmpty ? null : Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: Sp.x2, children: notices),
-        actions: [
-          EButton(label: l.commonCancel, onPressed: _busy ? null : nav.pop),
-          EButton(label: l.deskSetReportSaveToFile, icon: EIcons.download, busy: _saving, onPressed: _busy ? null : _save),
-          EButton.primary(label: l.deskSetReportSend, icon: EIcons.send, busy: _busy, onPressed: canSend ? _send : null),
-        ],
-      ),
       ),
     );
   }

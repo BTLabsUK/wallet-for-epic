@@ -401,23 +401,23 @@ class _Chip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(Rad.sm),
         child: NoSelect(
-        child: Container(
-          height: Ctl.sm,
-          padding: EdgeInsets.symmetric(horizontal: Sp.x3),
-          decoration: BoxDecoration(
-            color: selected ? c.s3 : null,
-            borderRadius: BorderRadius.circular(Rad.sm),
-            border: Border.all(color: selected ? c.lineStrong : c.line),
+          child: Container(
+            height: Ctl.sm,
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+            decoration: BoxDecoration(
+              color: selected ? c.s3 : null,
+              borderRadius: BorderRadius.circular(Rad.sm),
+              border: Border.all(color: selected ? c.lineStrong : c.line),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: Ctl.iconSm, color: selected ? c.accentText : c.dim),
+                SizedBox(width: Sp.x2),
+                Text(label, style: context.ts.body.copyWith(color: selected ? c.text : c.dim)),
+              ],
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: Ctl.iconSm, color: selected ? c.accentText : c.dim),
-              SizedBox(width: Sp.x2),
-              Text(label, style: context.ts.body.copyWith(color: selected ? c.text : c.dim)),
-            ],
-          ),
-        ),
         ),
       ),
     ));

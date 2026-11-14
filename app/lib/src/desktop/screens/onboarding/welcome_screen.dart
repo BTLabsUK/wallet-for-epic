@@ -119,78 +119,78 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     final offered = torBuilt && held && !hasWallets;
     return EHeroScreen(
             child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: hasWallets ? 480.u : 780.u),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Center(child: EGlyphTile()),
-            SizedBox(height: 18.u),
-            if (hasWallets)
-              Semantics(
-                header: true,
-                child: Text(l.deskOnbWelcomeAdd, style: ts.h1, textAlign: TextAlign.center),
-              )
-            else ...[
-              Semantics(
-                header: true,
-                child: Center(child: BrandWordmark(variant: BrandVariant.desktop, size: Fs.h1.u, label: appName)),
-              ),
-              SizedBox(height: 14.u),
-              Text(l.deskOnbWelcomeTagline, style: ts.bodyDim, textAlign: TextAlign.center),
-            ],
-            SizedBox(height: 28.u),
-            // Create first and widest; Restore and Import side by side under it when they fit.
-            create,
-            SizedBox(height: gap),
-            LayoutBuilder(
-              builder: (context, box) => box.maxWidth >= Lay.md
-                  ? IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [Expanded(child: restore), SizedBox(width: gap), Expanded(child: import)],
-                      ),
+              constraints: BoxConstraints(maxWidth: hasWallets ? 480.u : 780.u),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Center(child: EGlyphTile()),
+                  SizedBox(height: 18.u),
+                  if (hasWallets)
+                    Semantics(
+                      header: true,
+                      child: Text(l.deskOnbWelcomeAdd, style: ts.h1, textAlign: TextAlign.center),
                     )
-                  : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [restore, SizedBox(height: gap), import]),
-            ),
-            if (!hasWallets) ...[
-              SizedBox(height: 28.u),
-              const _Facts(),
-              // Niche, so under the doors and quiet.
-              if (offered) ...[
-                SizedBox(height: Sp.x6),
-                Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 480.u),
-                    child: DeskUndercoverRow(value: _undercover, onChanged: _busy ? null : (v) => setState(() => _undercover = v)),
+                  else ...[
+                    Semantics(
+                      header: true,
+                      child: Center(child: BrandWordmark(variant: BrandVariant.desktop, size: Fs.h1.u, label: appName)),
+                    ),
+                    SizedBox(height: 14.u),
+                    Text(l.deskOnbWelcomeTagline, style: ts.bodyDim, textAlign: TextAlign.center),
+                  ],
+                  SizedBox(height: 28.u),
+                  // Create first and widest; Restore and Import side by side under it when they fit.
+                  create,
+                  SizedBox(height: gap),
+                  LayoutBuilder(
+                    builder: (context, box) => box.maxWidth >= Lay.md
+                        ? IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [Expanded(child: restore), SizedBox(width: gap), Expanded(child: import)],
+                            ),
+                          )
+                        : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [restore, SizedBox(height: gap), import]),
                   ),
-                ),
-              ],
-            ],
-            if (flow.testNet) ...[
-              SizedBox(height: Sp.x4),
-              NetNote(flow.network, l.deskOnbWelcomeTestNote, center: true),
-            ],
-            if (hasWallets) ...[
-              SizedBox(height: Sp.x5),
-              Center(
-                child: ELink(
-                  label: l.deskOnbWelcomeBack,
-                  onPressed: () => nav.canBack ? nav.back() : nav.reset(DeskRoute.unlock),
-                ),
+                  if (!hasWallets) ...[
+                    SizedBox(height: 28.u),
+                    const _Facts(),
+                    // Niche, so under the doors and quiet.
+                    if (offered) ...[
+                      SizedBox(height: Sp.x6),
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 480.u),
+                          child: DeskUndercoverRow(value: _undercover, onChanged: _busy ? null : (v) => setState(() => _undercover = v)),
+                        ),
+                      ),
+                    ],
+                  ],
+                  if (flow.testNet) ...[
+                    SizedBox(height: Sp.x4),
+                    NetNote(flow.network, l.deskOnbWelcomeTestNote, center: true),
+                  ],
+                  if (hasWallets) ...[
+                    SizedBox(height: Sp.x5),
+                    Center(
+                      child: ELink(
+                        label: l.deskOnbWelcomeBack,
+                        onPressed: () => nav.canBack ? nav.back() : nav.reset(DeskRoute.unlock),
+                      ),
+                    ),
+                  ],
+                  if (DeskFeatures.testNetworks || DeskFeatures.dataFolder) ...[
+                    SizedBox(height: Sp.x6),
+                    EDetails(
+                      title: l.deskOnbWelcomeAdvanced,
+                      initiallyOpen: widget.arg == 'advanced' || flow.dataFolder != null,
+                      child: _advanced(context, flow, hasWallets),
+                    ),
+                  ],
+                ],
               ),
-            ],
-            if (DeskFeatures.testNetworks || DeskFeatures.dataFolder) ...[
-              SizedBox(height: Sp.x6),
-              EDetails(
-                title: l.deskOnbWelcomeAdvanced,
-                initiallyOpen: widget.arg == 'advanced' || flow.dataFolder != null,
-                child: _advanced(context, flow, hasWallets),
-              ),
-            ],
-          ],
-        ),
-      ),
+            ),
     );
   }
 
@@ -202,90 +202,90 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (DeskFeatures.testNetworks) ...[
-        EField(
-          label: l.deskOnbWelcomeNetwork,
-          help: 'The main network holds real EPIC. The test networks hold coins of no value.', // l10n-ok: development builds only
-          child: ESelect<String>(
-            semanticLabel: l.deskOnbWelcomeNetwork,
-            value: flow.network,
-            onChanged: ref.read(onbFlowProvider.notifier).setNetwork,
-            items: [
-              for (final n in const ['mainnet', 'floonet', 'usernet']) ESelectItem(n, networkName(n)),
-            ],
+          EField(
+            label: l.deskOnbWelcomeNetwork,
+            help: 'The main network holds real EPIC. The test networks hold coins of no value.', // l10n-ok: development builds only
+            child: ESelect<String>(
+              semanticLabel: l.deskOnbWelcomeNetwork,
+              value: flow.network,
+              onChanged: ref.read(onbFlowProvider.notifier).setNetwork,
+              items: [
+                for (final n in const ['mainnet', 'floonet', 'usernet']) ESelectItem(n, networkName(n)),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: Sp.x5),
+          SizedBox(height: Sp.x5),
         ],
         if (DeskFeatures.dataFolder) ...[
-        Row(
-          children: [
-            Expanded(child: Text(l.deskOnbWelcomeFolder, style: ts.label)),
-            EIconButton(
-              icon: EIcons.info,
-              label: _tip ? l.deskOnbWelcomeHideDetails : l.deskOnbWelcomeMoreAbout,
-              size: EBtnSize.inline,
-              selected: _tip,
-              onPressed: () => setState(() => _tip = !_tip),
-            ),
-          ],
-        ),
-        SizedBox(height: Sp.x1),
-        Text(l.deskOnbWelcomeFolderWhere, style: ts.small),
-        if (_tip) ...[
-          SizedBox(height: Sp.x1),
-          Semantics(
-            liveRegion: true,
-            child: Text(l.deskOnbWelcomeFolderDetail, style: ts.small),
-          ),
-        ],
-        SizedBox(height: Sp.x2),
-        if (flow.dataFolder != null)
-          Semantics(
-            liveRegion: true,
-            child: Row(
-              children: [
-                Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok),
-                SizedBox(width: Sp.x2),
-                Flexible(child: Text(l.deskOnbWelcomeUsing('${flow.dataFolder}'), style: ts.small)),
-              ],
-            ),
-          )
-        else
-          Text(_defaultFolder, style: ts.mono()),
-        SizedBox(height: Sp.x3),
-        if (locked)
-          Text(l.deskOnbWelcomeLocked, style: ts.small)
-        else
-          Wrap(
-            spacing: Sp.x3,
-            runSpacing: Sp.x2,
-            crossAxisAlignment: WrapCrossAlignment.center,
+          Row(
             children: [
-              EButton(label: l.deskOnbWelcomeChooseFolder, icon: EIcons.folder, size: EBtnSize.sm, onPressed: _pickFolder),
-              if (flow.dataFolder != null)
-                ELink(
-                  label: l.deskOnbWelcomeDefaultFolder,
-                  onPressed: () => setState(() {
-                    _folderError = null;
-                    ref.read(onbFlowProvider.notifier).setFolder(null);
-                  }),
-                ),
+              Expanded(child: Text(l.deskOnbWelcomeFolder, style: ts.label)),
+              EIconButton(
+                icon: EIcons.info,
+                label: _tip ? l.deskOnbWelcomeHideDetails : l.deskOnbWelcomeMoreAbout,
+                size: EBtnSize.inline,
+                selected: _tip,
+                onPressed: () => setState(() => _tip = !_tip),
+              ),
             ],
           ),
-        if (_folderError != null) ...[
+          SizedBox(height: Sp.x1),
+          Text(l.deskOnbWelcomeFolderWhere, style: ts.small),
+          if (_tip) ...[
+            SizedBox(height: Sp.x1),
+            Semantics(
+              liveRegion: true,
+              child: Text(l.deskOnbWelcomeFolderDetail, style: ts.small),
+            ),
+          ],
           SizedBox(height: Sp.x2),
-          Semantics(
-            liveRegion: true,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (flow.dataFolder != null)
+            Semantics(
+              liveRegion: true,
+              child: Row(
+                children: [
+                  Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok),
+                  SizedBox(width: Sp.x2),
+                  Flexible(child: Text(l.deskOnbWelcomeUsing('${flow.dataFolder}'), style: ts.small)),
+                ],
+              ),
+            )
+          else
+            Text(_defaultFolder, style: ts.mono()),
+          SizedBox(height: Sp.x3),
+          if (locked)
+            Text(l.deskOnbWelcomeLocked, style: ts.small)
+          else
+            Wrap(
+              spacing: Sp.x3,
+              runSpacing: Sp.x2,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Icon(EIcons.error, size: Ctl.iconSm, color: c.risk),
-                SizedBox(width: Sp.x2),
-                Expanded(child: Text(switch (_folderError!) { _FolderIssue.notEmpty => l.deskOnbWelcomeFolderNotEmpty, _FolderIssue.walletFolder => l.deskOnbWelcomeFolderIsWallet }, style: ts.small.copyWith(color: c.risk))),
+                EButton(label: l.deskOnbWelcomeChooseFolder, icon: EIcons.folder, size: EBtnSize.sm, onPressed: _pickFolder),
+                if (flow.dataFolder != null)
+                  ELink(
+                    label: l.deskOnbWelcomeDefaultFolder,
+                    onPressed: () => setState(() {
+                      _folderError = null;
+                      ref.read(onbFlowProvider.notifier).setFolder(null);
+                    }),
+                  ),
               ],
             ),
-          ),
-        ],
+          if (_folderError != null) ...[
+            SizedBox(height: Sp.x2),
+            Semantics(
+              liveRegion: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(EIcons.error, size: Ctl.iconSm, color: c.risk),
+                  SizedBox(width: Sp.x2),
+                  Expanded(child: Text(switch (_folderError!) { _FolderIssue.notEmpty => l.deskOnbWelcomeFolderNotEmpty, _FolderIssue.walletFolder => l.deskOnbWelcomeFolderIsWallet }, style: ts.small.copyWith(color: c.risk))),
+                ],
+              ),
+            ),
+          ],
         ],
       ],
     );

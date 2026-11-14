@@ -234,95 +234,95 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final list = TourTarget(
       id: 'contacts-list',
       child: EPanel(
-      padding: EdgeInsets.zero,
-      // Beside the pane the page stays and the list scrolls inside its panel.
-      scroll: split,
-      head: Padding(
-        padding: EdgeInsetsDirectional.only(end: Sp.x3),
-        child: CallbackShortcuts(
-          bindings: {
-            const SingleActivator(LogicalKeyboardKey.escape): () {
-              if (_query.text.isNotEmpty) setState(_query.clear);
+        padding: EdgeInsets.zero,
+        // Beside the pane the page stays and the list scrolls inside its panel.
+        scroll: split,
+        head: Padding(
+          padding: EdgeInsetsDirectional.only(end: Sp.x3),
+          child: CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.escape): () {
+                if (_query.text.isNotEmpty) setState(_query.clear);
+              },
             },
-          },
-          child: ESearch(
-            semanticsId: TrustIds.pairContactsSearch,
-            controller: _query,
-            hint: l.deskConSearchHint,
-            label: l.deskConSearchLabel,
-            clearLabel: l.deskConClearSearch,
-            onChanged: (_) => setState(() {}),
+            child: ESearch(
+              semanticsId: TrustIds.pairContactsSearch,
+              controller: _query,
+              hint: l.deskConSearchHint,
+              label: l.deskConSearchLabel,
+              clearLabel: l.deskConClearSearch,
+              onChanged: (_) => setState(() {}),
+            ),
           ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (long) ...[
-          Padding(
-            padding: EdgeInsets.all(Sp.x3),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: Sp.x3,
-                    runSpacing: Sp.x2,
-                    children: [
-                      Semantics(liveRegion: true, child: Text(count, style: ts.small)),
-                      ESegmented<_Sort>(
-                        segments: [ESegment(_Sort.name, l.deskConSortName), ESegment(_Sort.recent, l.deskConSortRecent)],
-                        value: _sort,
-                        onChanged: (v) => setState(() => _sort = v),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (long) ...[
+              Padding(
+                padding: EdgeInsets.all(Sp.x3),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: Sp.x3,
+                        runSpacing: Sp.x2,
+                        children: [
+                          Semantics(liveRegion: true, child: Text(count, style: ts.small)),
+                          ESegmented<_Sort>(
+                            segments: [ESegment(_Sort.name, l.deskConSortName), ESegment(_Sort.recent, l.deskConSortRecent)],
+                            value: _sort,
+                            onChanged: (v) => setState(() => _sort = v),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-          Divider(height: 1, color: c.line),
+                  ],
+                ),
+              ),
+              Divider(height: 1, color: c.line),
+            ],
+            // Pairings in no contact, by the name they chose.
+            for (final r in orphans)
+              if (q.isEmpty || peerLabel(l, r).toLowerCase().contains(q)) _OrphanRow(key: ValueKey(r.id), record: r),
+            if (shown.isEmpty && _query.text.isEmpty && orphans.isEmpty)
+              Padding(
+                padding: EdgeInsets.all(Sp.x5),
+                child: Text(l.deskConNone, style: ts.bodyDim, textAlign: TextAlign.center),
+              )
+            else if (shown.isEmpty)
+              Padding(
+                padding: EdgeInsets.all(Sp.x5),
+                child: Column(
+                  children: [
+                    Text(l.deskConNoMatchList, style: ts.bodyDim),
+                    SizedBox(height: Sp.x2),
+                    EButton.ghost(label: l.deskConClearSearch, onPressed: () => setState(_query.clear)),
+                  ],
+                ),
+              )
+            else
+              Padding(
+                padding: EdgeInsets.all(Sp.x2),
+                child: Column(
+                  children: [
+                    for (final x in shown)
+                      _ContactRow(
+                        contact: x,
+                        selected: paneOpen && !_adding && x.id == selected?.id,
+                        onTap: () => setState(() {
+                          _selected = x.id;
+                          _editing = false;
+                          _adding = false;
+                        }),
+                        onDouble: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send, x),
+                      ),
+                  ],
+                ),
+              ),
           ],
-          // Pairings in no contact, by the name they chose.
-          for (final r in orphans)
-            if (q.isEmpty || peerLabel(l, r).toLowerCase().contains(q)) _OrphanRow(key: ValueKey(r.id), record: r),
-          if (shown.isEmpty && _query.text.isEmpty && orphans.isEmpty)
-            Padding(
-              padding: EdgeInsets.all(Sp.x5),
-              child: Text(l.deskConNone, style: ts.bodyDim, textAlign: TextAlign.center),
-            )
-          else if (shown.isEmpty)
-            Padding(
-              padding: EdgeInsets.all(Sp.x5),
-              child: Column(
-                children: [
-                  Text(l.deskConNoMatchList, style: ts.bodyDim),
-                  SizedBox(height: Sp.x2),
-                  EButton.ghost(label: l.deskConClearSearch, onPressed: () => setState(_query.clear)),
-                ],
-              ),
-            )
-          else
-            Padding(
-              padding: EdgeInsets.all(Sp.x2),
-              child: Column(
-                children: [
-                  for (final x in shown)
-                    _ContactRow(
-                      contact: x,
-                      selected: paneOpen && !_adding && x.id == selected?.id,
-                      onTap: () => setState(() {
-                        _selected = x.id;
-                        _editing = false;
-                        _adding = false;
-                      }),
-                      onDouble: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send, x),
-                    ),
-                ],
-              ),
-            ),
-        ],
-      ),
+        ),
       ),
     );
 
@@ -359,23 +359,23 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               children: [
                 Flexible(
                   child: PanelRow(
-              sideWidth: paneWidth,
-              maxSideFraction: Ctl.sideMaxFraction,
-              main: list,
-              // A header band like the list's: what the pane shows.
-              side: EPanel(
-                    title: _adding || _editing ? null : l.deskConDetailsTitle,
-                    scroll: true,
-                    child: paneOpen
-                        ? Align(
-                            alignment: Alignment.topLeft,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 600.u),
-                              child: pane(),
-                            ),
-                          )
-                        : const _Idle(),
-                  ),
+                    sideWidth: paneWidth,
+                    maxSideFraction: Ctl.sideMaxFraction,
+                    main: list,
+                    // A header band like the list's: what the pane shows.
+                    side: EPanel(
+                          title: _adding || _editing ? null : l.deskConDetailsTitle,
+                          scroll: true,
+                          child: paneOpen
+                              ? Align(
+                                  alignment: Alignment.topLeft,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(maxWidth: 600.u),
+                                    child: pane(),
+                                  ),
+                                )
+                              : const _Idle(),
+                        ),
                   ),
                 ),
               ],
@@ -1257,89 +1257,89 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     return DeskStepBack(
       onBack: dirty ? () {} : null,
       child: EForm(
-      onSubmit: _saving ? null : _save,
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        onSubmit: _saving ? null : _save,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _Pic(name: _name.text.isEmpty ? '?' : _name.text, picture: _picture, size: 56.u),
-            SizedBox(width: Sp.x4),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Semantics(header: true, child: Text(widget.contact == null ? l.deskConNewTitle : l.deskConEditTitle, style: ts.h2)),
-                  if (DeskFeatures.contactPictures) ...[
-                  SizedBox(height: Sp.x2),
-                  Wrap(
-                    spacing: Sp.x2,
-                    runSpacing: Sp.x1,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Pic(name: _name.text.isEmpty ? '?' : _name.text, picture: _picture, size: 56.u),
+                SizedBox(width: Sp.x4),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      EButton(
-                        label: _picture ? l.deskConChangePicture : l.deskConAddPicture,
-                        icon: EIcons.camera,
-                        kind: EBtnKind.ghost,
-                        size: EBtnSize.inline,
-                        tabStop: false,
-                        onPressed: () => setState(() => _picture = true),
-                      ),
-                      if (_picture) EButton(label: l.deskConRemovePicture, icon: EIcons.trash, kind: EBtnKind.ghost, size: EBtnSize.inline, tabStop: false, onPressed: () => setState(() => _picture = false)),
+                      Semantics(header: true, child: Text(widget.contact == null ? l.deskConNewTitle : l.deskConEditTitle, style: ts.h2)),
+                      if (DeskFeatures.contactPictures) ...[
+                        SizedBox(height: Sp.x2),
+                        Wrap(
+                          spacing: Sp.x2,
+                          runSpacing: Sp.x1,
+                          children: [
+                            EButton(
+                              label: _picture ? l.deskConChangePicture : l.deskConAddPicture,
+                              icon: EIcons.camera,
+                              kind: EBtnKind.ghost,
+                              size: EBtnSize.inline,
+                              tabStop: false,
+                              onPressed: () => setState(() => _picture = true),
+                            ),
+                            if (_picture) EButton(label: l.deskConRemovePicture, icon: EIcons.trash, kind: EBtnKind.ghost, size: EBtnSize.inline, tabStop: false, onPressed: () => setState(() => _picture = false)),
+                          ],
+                        ),
+                        SizedBox(height: Sp.x1),
+                        Text(l.deskConPictureHelp, style: ts.caption),
+                      ],
                     ],
                   ),
-                  SizedBox(height: Sp.x1),
-                  Text(l.deskConPictureHelp, style: ts.caption),
-                  ],
-                ],
-              ),
+                ),
+              ],
+            ),
+            SizedBox(height: Sp.x6),
+            EField(
+              label: l.deskConFieldName,
+              error: nameError,
+              child: EInput(controller: _name, focusNode: _nameFocus, invalid: nameError != null, onChanged: (_) => setState(() {}), autofocus: true),
+            ),
+            SizedBox(height: Sp.x5),
+            // A heading only over several fields: one field's own label says what it holds (#17);
+            // under the heading the fields need no label of their own.
+            if (headed) ...[
+              Text(l.contactAddresses, style: ts.label),
+              SizedBox(height: Sp.x2),
+            ],
+            for (final f in _fields) ...[
+              if (f.text.text.trim().isNotEmpty || free.isNotEmpty)
+                Padding(
+                  key: ObjectKey(f),
+                  padding: EdgeInsets.only(bottom: Sp.x3),
+                  child: _addressField(l, c, f, free, noAddress && f == _fields.first, labelled: !headed),
+                ),
+            ],
+            SizedBox(height: Sp.x5),
+            EField(
+              label: l.deskConNote,
+              optional: true,
+              child: EInput(controller: _note, maxLines: 3),
+            ),
+            SizedBox(height: Sp.x6),
+            if (_saveError != null) ...[
+              ENotice(title: l.deskConSaveFailed, text: _saveError, tone: ETone.risk),
+              SizedBox(height: Sp.x4),
+            ],
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: Sp.x2,
+              runSpacing: Sp.x2,
+              children: [
+                EButton(label: l.commonCancel, tabStop: false, onPressed: () => widget.onDone(null)),
+                EButton.primary(semanticsId: TrustIds.pairSavedSave, label: l.deskConSave, icon: EIcons.check, busy: _saving, onPressed: _fields.any((f) => f.clash != null) ? null : _save),
+              ],
             ),
           ],
         ),
-        SizedBox(height: Sp.x6),
-        EField(
-          label: l.deskConFieldName,
-          error: nameError,
-          child: EInput(controller: _name, focusNode: _nameFocus, invalid: nameError != null, onChanged: (_) => setState(() {}), autofocus: true),
-        ),
-        SizedBox(height: Sp.x5),
-        // A heading only over several fields: one field's own label says what it holds (#17);
-        // under the heading the fields need no label of their own.
-        if (headed) ...[
-          Text(l.contactAddresses, style: ts.label),
-          SizedBox(height: Sp.x2),
-        ],
-        for (final f in _fields) ...[
-          if (f.text.text.trim().isNotEmpty || free.isNotEmpty)
-            Padding(
-              key: ObjectKey(f),
-              padding: EdgeInsets.only(bottom: Sp.x3),
-              child: _addressField(l, c, f, free, noAddress && f == _fields.first, labelled: !headed),
-            ),
-        ],
-        SizedBox(height: Sp.x5),
-        EField(
-          label: l.deskConNote,
-          optional: true,
-          child: EInput(controller: _note, maxLines: 3),
-        ),
-        SizedBox(height: Sp.x6),
-        if (_saveError != null) ...[
-          ENotice(title: l.deskConSaveFailed, text: _saveError, tone: ETone.risk),
-          SizedBox(height: Sp.x4),
-        ],
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          spacing: Sp.x2,
-          runSpacing: Sp.x2,
-          children: [
-            EButton(label: l.commonCancel, tabStop: false, onPressed: () => widget.onDone(null)),
-            EButton.primary(semanticsId: TrustIds.pairSavedSave, label: l.deskConSave, icon: EIcons.check, busy: _saving, onPressed: _fields.any((f) => f.clash != null) ? null : _save),
-          ],
-        ),
-      ],
-    ),
-    ),
+      ),
     );
   }
 
@@ -1681,16 +1681,16 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
             ),
             // A contact that takes no payments has nothing to seal or invoice.
             if (!noPayments)
-            ESetRow(
-              title: l.contactSealPayments,
-              text: changed ? l.contactPausedUntilChecked : (waiting ? l.pairWaitingFor(name) : null),
-              hint: l.contactSealTip(name),
-              control: ESwitch(
-                value: !changed && !waiting && p.seal != SealMode.off,
-                semanticLabel: l.contactSealPayments,
-                onChanged: locked ? null : (v) => _run(() => deskPairingCall(ref, (api) => api.setSeal(p.id, v))),
+              ESetRow(
+                title: l.contactSealPayments,
+                text: changed ? l.contactPausedUntilChecked : (waiting ? l.pairWaitingFor(name) : null),
+                hint: l.contactSealTip(name),
+                control: ESwitch(
+                  value: !changed && !waiting && p.seal != SealMode.off,
+                  semanticLabel: l.contactSealPayments,
+                  onChanged: locked ? null : (v) => _run(() => deskPairingCall(ref, (api) => api.setSeal(p.id, v))),
+                ),
               ),
-            ),
             if (!noPayments)
               ESetRow(
                 title: l.contactAllowInvoices,

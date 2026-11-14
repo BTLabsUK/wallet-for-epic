@@ -98,68 +98,68 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
     return PopScope(
       canPop: !_busy,
       child: EDialog(
-      title: l.deskSetDlgPwTitle,
-      dismissible: !_busy,
-      description: l.deskSetDlgPwDescPlain,
-      icon: EIcons.lock,
-      // Enter: Current → New → Repeat, then Change password once all three are valid.
-      body: EForm(
-        onSubmit: _busy || !_valid ? null : _save,
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // One rhythm for the three fields (#82): each has one line under its input (the
-          // error line kept, or the New password's hint, Ctl.inline tall for its info icon),
-          // then the same gap to the next label.
-          EField(
-            label: l.deskSetDlgPwCurrent,
-            error: _wrong ? l.deskSetDlgPwWrong : null,
-            reserveError: true,
-            child: EPasswordInput(
-              controller: _current,
-              autofocus: true,
-              invalid: _wrong,
-              semanticLabel: l.deskSetDlgPwCurrent,
-              onChanged: (_) => setState(() {
-                _wrong = false;
-                _error = null;
-              }),
-            ),
-          ),
-          // EField's kept line is 20 tall; the hint line below New is Ctl.inline.
-          SizedBox(height: Sp.x4 + Ctl.inline - 20.u),
-          EField(
-            label: l.deskSetDlgPwNew,
-            error: nextError,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: l.deskSetDlgPwNew, onChanged: (_) => _edited()),
-                SizedBox(height: 6.u),
-                // Informs only; its info icon is not a Tab stop.
-                ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
+        title: l.deskSetDlgPwTitle,
+        dismissible: !_busy,
+        description: l.deskSetDlgPwDescPlain,
+        icon: EIcons.lock,
+        // Enter: Current → New → Repeat, then Change password once all three are valid.
+        body: EForm(
+          onSubmit: _busy || !_valid ? null : _save,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // One rhythm for the three fields (#82): each has one line under its input (the
+              // error line kept, or the New password's hint, Ctl.inline tall for its info icon),
+              // then the same gap to the next label.
+              EField(
+                label: l.deskSetDlgPwCurrent,
+                error: _wrong ? l.deskSetDlgPwWrong : null,
+                reserveError: true,
+                child: EPasswordInput(
+                  controller: _current,
+                  autofocus: true,
+                  invalid: _wrong,
+                  semanticLabel: l.deskSetDlgPwCurrent,
+                  onChanged: (_) => setState(() {
+                    _wrong = false;
+                    _error = null;
+                  }),
+                ),
+              ),
+              // EField's kept line is 20 tall; the hint line below New is Ctl.inline.
+              SizedBox(height: Sp.x4 + Ctl.inline - 20.u),
+              EField(
+                label: l.deskSetDlgPwNew,
+                error: nextError,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: l.deskSetDlgPwNew, onChanged: (_) => _edited()),
+                    SizedBox(height: 6.u),
+                    // Informs only; its info icon is not a Tab stop.
+                    ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
+                  ],
+                ),
+              ),
+              SizedBox(height: Sp.x4),
+              EField(
+                label: l.deskSetDlgPwRepeat,
+                error: repeatError,
+                reserveError: true,
+                child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: l.deskSetDlgPwRepeat, onChanged: (_) => _edited()),
+              ),
+              if (_error != null) ...[
+                SizedBox(height: Sp.x3),
+                Semantics(liveRegion: true, child: Text(_error!, style: ts.small.copyWith(color: c.risk))),
               ],
-            ),
+            ],
           ),
-          SizedBox(height: Sp.x4),
-          EField(
-            label: l.deskSetDlgPwRepeat,
-            error: repeatError,
-            reserveError: true,
-            child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: l.deskSetDlgPwRepeat, onChanged: (_) => _edited()),
-          ),
-          if (_error != null) ...[
-            SizedBox(height: Sp.x3),
-            Semantics(liveRegion: true, child: Text(_error!, style: ts.small.copyWith(color: c.risk))),
-          ],
+        ),
+        actions: [
+          EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+          EButton.primary(label: l.deskSetDlgPwTitle, busy: _busy, onPressed: _valid ? _save : null),
         ],
       ),
-      ),
-      actions: [
-        EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: l.deskSetDlgPwTitle, busy: _busy, onPressed: _valid ? _save : null),
-      ],
-    ),
     );
   }
 }
@@ -297,77 +297,77 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
         body: EForm(
           onSubmit: _ready ? _remove : null,
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Two real options only for the open wallet; otherwise the one sentence about the
-            // files, no selection card for a single choice (UD-022).
-            if (_isOpen)
-              Semantics(
-                label: l.deskSetDlgRemoveWhat,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    choice(WalletRemoval.list, l.deskSetDlgRemoveFromList, l.deskSetDlgRemoveFromListHint(w.folder)),
-                    choice(
-                      WalletRemoval.delete,
-                      l.deskSetDlgDeleteWallet,
-                      l.deskSetDlgRemoveDeleteHint(w.folder),
-                    ),
-                  ],
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Two real options only for the open wallet; otherwise the one sentence about the
+              // files, no selection card for a single choice (UD-022).
+              if (_isOpen)
+                Semantics(
+                  label: l.deskSetDlgRemoveWhat,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      choice(WalletRemoval.list, l.deskSetDlgRemoveFromList, l.deskSetDlgRemoveFromListHint(w.folder)),
+                      choice(
+                        WalletRemoval.delete,
+                        l.deskSetDlgDeleteWallet,
+                        l.deskSetDlgRemoveDeleteHint(w.folder),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Text(l.deskSetDlgRemoveFromListHint(w.folder), style: ts.body),
+              if (!_isOpen) ...[
+                SizedBox(height: Sp.x3),
+                Text(
+                  l.deskSetDlgRemoveUnlockHintSecurity,
+                  style: ts.small,
                 ),
-              )
-            else
-              Text(l.deskSetDlgRemoveFromListHint(w.folder), style: ts.body),
-            if (!_isOpen) ...[
-              SizedBox(height: Sp.x3),
-              Text(
-                l.deskSetDlgRemoveUnlockHintSecurity,
-                style: ts.small,
-              ),
-              SizedBox(height: Sp.x1),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ELink(label: l.deskSetDlgRemoveUnlock, onPressed: _busy ? null : _unlockThis),
-              ),
-            ],
-            if (_mode == WalletRemoval.delete) ...[
-              SizedBox(height: Sp.x2),
-              ENotice(
-                title: l.deskSetDlgRemoveIrreversible,
-                text: l.deskSetDlgRemoveIrreversibleBody,
-                tone: ETone.risk,
-              ),
-              SizedBox(height: Sp.x4),
-              EField(
-                label: l.deskSetDlgRemoveName,
-                help: l.deskSetDlgRemoveTypeName(w.name),
-                error: _typed.text.isNotEmpty && !_nameOk ? l.deskSetDlgRemoveNameMismatch : null,
-                child: EInput(
-                  controller: _typed,
-                  enabled: !_busy,
-                  invalid: _typed.text.isNotEmpty && !_nameOk,
-                  semanticLabel: l.deskSetDlgRemoveName,
-                  onChanged: (_) => setState(() {}),
+                SizedBox(height: Sp.x1),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ELink(label: l.deskSetDlgRemoveUnlock, onPressed: _busy ? null : _unlockThis),
                 ),
-              ),
-              SizedBox(height: Sp.x3),
-              EField(
-                label: l.deskSetDlgPassword,
-                child: EPasswordInput(controller: _password, onChanged: (_) => setState(() => _error = null)),
-              ),
-              SizedBox(height: Sp.x3),
-              ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.deskSetDlgPhraseWritten),
+              ],
+              if (_mode == WalletRemoval.delete) ...[
+                SizedBox(height: Sp.x2),
+                ENotice(
+                  title: l.deskSetDlgRemoveIrreversible,
+                  text: l.deskSetDlgRemoveIrreversibleBody,
+                  tone: ETone.risk,
+                ),
+                SizedBox(height: Sp.x4),
+                EField(
+                  label: l.deskSetDlgRemoveName,
+                  help: l.deskSetDlgRemoveTypeName(w.name),
+                  error: _typed.text.isNotEmpty && !_nameOk ? l.deskSetDlgRemoveNameMismatch : null,
+                  child: EInput(
+                    controller: _typed,
+                    enabled: !_busy,
+                    invalid: _typed.text.isNotEmpty && !_nameOk,
+                    semanticLabel: l.deskSetDlgRemoveName,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                SizedBox(height: Sp.x3),
+                EField(
+                  label: l.deskSetDlgPassword,
+                  child: EPasswordInput(controller: _password, onChanged: (_) => setState(() => _error = null)),
+                ),
+                SizedBox(height: Sp.x3),
+                ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.deskSetDlgPhraseWritten),
+              ],
+              if (_error != null) ...[
+                SizedBox(height: Sp.x3),
+                Semantics(liveRegion: true, child: Text(_error!, style: ts.small.copyWith(color: c.risk))),
+              ],
+              if (_busy) ...[
+                SizedBox(height: Sp.x2),
+                Text(l.deskSetDlgRemoving, style: ts.small.copyWith(color: c.dim)),
+              ],
             ],
-            if (_error != null) ...[
-              SizedBox(height: Sp.x3),
-              Semantics(liveRegion: true, child: Text(_error!, style: ts.small.copyWith(color: c.risk))),
-            ],
-            if (_busy) ...[
-              SizedBox(height: Sp.x2),
-              Text(l.deskSetDlgRemoving, style: ts.small.copyWith(color: c.dim)),
-            ],
-          ],
-        ),
+          ),
         ),
         actions: [
           EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
@@ -467,43 +467,43 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return PopScope(
-    canPop: !_busy,
-    child: EDialog(
-      title: l.deskSetDlgDeleteTitle,
-      description: l.deskSetDlgDeleteDesc,
-      icon: EIcons.trash,
-      tone: ETone.risk,
-      dismissible: !_busy,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          EField(
-            label: l.deskSetDlgPassword,
-            error: _error,
-            child: EPasswordInput(
-              controller: _password,
-              autofocus: true,
-              invalid: _error != null,
-              onChanged: (_) => setState(() => _error = null),
-              onSubmitted: (_) => _delete(),
+      canPop: !_busy,
+      child: EDialog(
+        title: l.deskSetDlgDeleteTitle,
+        description: l.deskSetDlgDeleteDesc,
+        icon: EIcons.trash,
+        tone: ETone.risk,
+        dismissible: !_busy,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            EField(
+              label: l.deskSetDlgPassword,
+              error: _error,
+              child: EPasswordInput(
+                controller: _password,
+                autofocus: true,
+                invalid: _error != null,
+                onChanged: (_) => setState(() => _error = null),
+                onSubmitted: (_) => _delete(),
+              ),
             ),
-          ),
-          SizedBox(height: Sp.x4),
-          ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.deskSetDlgPhraseWritten),
-          if (_busy) ...[
-            SizedBox(height: Sp.x2),
-            WorkStatus(
-              text: deleteStepText(l, _step),
-              style: context.ts.small.copyWith(color: context.dc.dim),
-            ),
+            SizedBox(height: Sp.x4),
+            ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.deskSetDlgPhraseWritten),
+            if (_busy) ...[
+              SizedBox(height: Sp.x2),
+              WorkStatus(
+                text: deleteStepText(l, _step),
+                style: context.ts.small.copyWith(color: context.dc.dim),
+              ),
+            ],
           ],
+        ),
+        actions: [
+          EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+          EButton(label: l.deskSetDlgDeleteWallet, icon: EIcons.trash, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
         ],
       ),
-      actions: [
-        EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton(label: l.deskSetDlgDeleteWallet, icon: EIcons.trash, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
-      ],
-    ),
-  );
+    );
   }
 }

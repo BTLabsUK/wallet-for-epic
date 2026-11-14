@@ -569,70 +569,70 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         SizedBox(height: Sp.x4),
         // A withdrawal not posted yet: its notice below stands alone.
         if (!t.isInvoice && !(withdrawal != null && !onChain))
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 10.u),
-          decoration: BoxDecoration(
-            color: c.s2,
-            borderRadius: BorderRadius.circular(Rad.sm),
-            border: Border.all(color: c.line),
-          ),
-          child: Row(
-            children: [
-              TxStateMark(t),
-              SizedBox(width: Sp.x3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // The words on the badge, the meaning under it.
-                    if (t.incoming && t.senderCancelled && t.state == TxState.waitingRecipient) ...[
-                      EBadge(l.txStatusSenderCancelled, key: const ValueKey('tx-sender-cancelled'), tone: ETone.neutral),
-                      SizedBox(height: Sp.x1),
-                    ] else if (t.incoming && t.senderPosted && t.state == TxState.waitingRecipient) ...[
-                      EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
-                      SizedBox(height: Sp.x1),
-                    ],
-                    if (deskShowsSealed(ref, t)) ...[const Epic1SealedBadge(), SizedBox(height: Sp.x1)],
-                    Text(
-                      resendOffer != null
-                          ? (resendOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
-                          : mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered
-                          ? l.deskTxStatusWaitingFor(mailboxName)
-                          : linkOffer != null
-                          ? (linkOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
-                          : linkWaiting && linkName != null
-                          ? l.deskTxStatusWaitingFor(linkName)
-                          : _now(l, t),
-                      style: ts.body,
-                    ),
-                    // Gone from the relay after seven days: the line says so.
-                    if (resendOffer?.gone ?? false) ...[
-                      SizedBox(height: Sp.x1),
-                      Text(l.mailboxNeverPickedUp(mailboxName!), key: const ValueKey('tx-mailbox-gone'), style: ts.small),
-                    ],
-                    if (linkOffer?.gone ?? false) ...[
-                      SizedBox(height: Sp.x1),
-                      Text(l.mailboxNeverPickedUp(linkName ?? l.linkPayeeLead), key: const ValueKey('tx-link-gone'), style: ts.small),
-                    ],
-                    if (t.otherWallet && !t.fromBackup && t.receivedOn == null) ...[
-                      SizedBox(height: Sp.x1),
-                      ELink(
-                        key: const ValueKey('tx-other-wallet-help'),
-                        label: l.txOtherWalletMore,
-                        onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.otherWallet)),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 10.u),
+            decoration: BoxDecoration(
+              color: c.s2,
+              borderRadius: BorderRadius.circular(Rad.sm),
+              border: Border.all(color: c.line),
+            ),
+            child: Row(
+              children: [
+                TxStateMark(t),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // The words on the badge, the meaning under it.
+                      if (t.incoming && t.senderCancelled && t.state == TxState.waitingRecipient) ...[
+                        EBadge(l.txStatusSenderCancelled, key: const ValueKey('tx-sender-cancelled'), tone: ETone.neutral),
+                        SizedBox(height: Sp.x1),
+                      ] else if (t.incoming && t.senderPosted && t.state == TxState.waitingRecipient) ...[
+                        EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
+                        SizedBox(height: Sp.x1),
+                      ],
+                      if (deskShowsSealed(ref, t)) ...[const Epic1SealedBadge(), SizedBox(height: Sp.x1)],
+                      Text(
+                        resendOffer != null
+                            ? (resendOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
+                            : mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered
+                            ? l.deskTxStatusWaitingFor(mailboxName)
+                            : linkOffer != null
+                            ? (linkOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
+                            : linkWaiting && linkName != null
+                            ? l.deskTxStatusWaitingFor(linkName)
+                            : _now(l, t),
+                        style: ts.body,
                       ),
+                      // Gone from the relay after seven days: the line says so.
+                      if (resendOffer?.gone ?? false) ...[
+                        SizedBox(height: Sp.x1),
+                        Text(l.mailboxNeverPickedUp(mailboxName!), key: const ValueKey('tx-mailbox-gone'), style: ts.small),
+                      ],
+                      if (linkOffer?.gone ?? false) ...[
+                        SizedBox(height: Sp.x1),
+                        Text(l.mailboxNeverPickedUp(linkName ?? l.linkPayeeLead), key: const ValueKey('tx-link-gone'), style: ts.small),
+                      ],
+                      if (t.otherWallet && !t.fromBackup && t.receivedOn == null) ...[
+                        SizedBox(height: Sp.x1),
+                        ELink(
+                          key: const ValueKey('tx-other-wallet-help'),
+                          label: l.txOtherWalletMore,
+                          onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.otherWallet)),
+                        ),
+                      ],
+                      // Its sender cancelled it: Cancel is there at once, with no line to weigh.
+                      if (hold != null && !hold.senderCancelled && !hold.offered) ...[
+                        SizedBox(height: Sp.x1),
+                        DeskCancelNote(key: const ValueKey('tx-cancel-hold'), text: _holdLine(l, hold), anchor: HelpAnchor.receiving),
+                      ],
                     ],
-                    // Its sender cancelled it: Cancel is there at once, with no line to weigh.
-                    if (hold != null && !hold.senderCancelled && !hold.offered) ...[
-                      SizedBox(height: Sp.x1),
-                      DeskCancelNote(key: const ValueKey('tx-cancel-hold'), text: _holdLine(l, hold), anchor: HelpAnchor.receiving),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
         // Waiting for a paired contact's answer: its keys changed meanwhile, or its relay is
         // silent.
         if (mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && mailboxPairing != null) ..._mailboxNotices(l, mailboxName, mailboxPairing),
@@ -688,13 +688,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 onPressed: () => showTxDetailsDialog(context, t),
               ),
             if (t.deviceName == null)
-            EButton(
-              label: t.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit,
-              icon: EIcons.pencil,
-              kind: EBtnKind.ghost,
-              size: EBtnSize.inline,
-              onPressed: () => ref.read(txLabelEditingProvider.notifier).open(t.key, txLabelDetailPlace),
-            ),
+              EButton(
+                label: t.labelText == null ? l.deskTxLabelAdd : l.deskTxLabelEdit,
+                icon: EIcons.pencil,
+                kind: EBtnKind.ghost,
+                size: EBtnSize.inline,
+                onPressed: () => ref.read(txLabelEditingProvider.notifier).open(t.key, txLabelDetailPlace),
+              ),
           ],
         ),
         EFacts(labelWidth: 96.u, [
@@ -756,7 +756,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           (l.deskTxFactAmount, EMoney(t.amount, surface: AmountSurface.exact)),
           // The other wallet paid the fee: this wallet only saw the coins leave.
           if (!t.incoming && t.otherWallet) (l.deskTxFactFee, Text(l.txDetailsNotKnown))
-          else if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee, surface: AmountSurface.exact)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600, surface: AmountSurface.exact))],
+            else if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee, surface: AmountSurface.exact)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600, surface: AmountSurface.exact))],
           // The same word as Send's field and its review; the line under it says which way it went.
           if (t.message != null)
             (

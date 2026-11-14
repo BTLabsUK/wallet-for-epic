@@ -161,34 +161,34 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         return DeskStepBack(
           onBack: _password.text.isNotEmpty || _confirm.text.isNotEmpty ? () {} : null,
           child: EOnbFrame(
-          sideTitle: l.deskOnbCreateSide,
-          steps: rail,
-          title: _name ?? defaultWalletName(ref),
-          heading: WalletNameTitle(place: 'create', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
-          lead: l.deskOnbCreateLead,
-          onBack: () => nav.back(),
-          icon: EIcons.lock,
-          enter: l.deskOnbKeyNextCreate,
-          actions: [
-            EButton.primary(semanticsId: TrustIds.createSubmit, label: l.deskOnbCreateTitle, onPressed: _accountOk ? _create : null),
-          ],
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (flow.testNet) ...[
-                NetNote(flow.network, l.deskOnbCreateTestNote),
-                SizedBox(height: Sp.x5),
-              ],
-              AccountForm(
-                password: _password,
-                confirm: _confirm,
-                passwordError: pe,
-                confirmError: ce,
-                onChanged: () => setState(() {}),
-                onSubmit: _accountOk ? _create : null,
-              ),
+            sideTitle: l.deskOnbCreateSide,
+            steps: rail,
+            title: _name ?? defaultWalletName(ref),
+            heading: WalletNameTitle(place: 'create', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
+            lead: l.deskOnbCreateLead,
+            onBack: () => nav.back(),
+            icon: EIcons.lock,
+            enter: l.deskOnbKeyNextCreate,
+            actions: [
+              EButton.primary(semanticsId: TrustIds.createSubmit, label: l.deskOnbCreateTitle, onPressed: _accountOk ? _create : null),
             ],
-          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (flow.testNet) ...[
+                  NetNote(flow.network, l.deskOnbCreateTestNote),
+                  SizedBox(height: Sp.x5),
+                ],
+                AccountForm(
+                  password: _password,
+                  confirm: _confirm,
+                  passwordError: pe,
+                  confirmError: ce,
+                  onChanged: () => setState(() {}),
+                  onSubmit: _accountOk ? _create : null,
+                ),
+              ],
+            ),
           ),
         );
       case CreateStep.phrase:
@@ -208,85 +208,85 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     return DeskStepBack(
       onBack: () {},
       child: EOnbFrame(
-      sideTitle: l.deskOnbCreateSide,
-      steps: rail,
-      title: l.deskOnbStepPhrase,
-      lead: l.deskOnbCreatePhraseLead,
-      width: EOnbFrame.wide,
-      status: _revealed ? null : l.deskOnbCreateRevealFirst,
-      actions: [
-        EButton.primary(semanticsId: TrustIds.createContinue, label: l.commonContinue, busy: _busy, onPressed: _revealed && _written ? _finish : null),
-      ],
-      // The words scroll on their own: the warning, the actions and the checkbox stay in view.
-      fill: true,
-      child: phrase == null
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                warn,
-                Padding(padding: EdgeInsets.all(Sp.x8), child: Center(child: ESpinner(size: 24.u))),
-              ],
-            )
-          : EPhraseLayout(
-              header: [warn],
-              // Bare buttons: Show QR's label ends at the grid's edge, not its padding.
-              edgeInset: EButton.labelInset(EBtnSize.sm),
-              // Hidden words hold the room of the actions and the checkbox: nothing moves on Reveal.
-              actions: [
-                if (!_revealed)
-                  ReservedSlot.like(model: EButton.ghost(label: l.deskOnbCreateHide, icon: EIcons.eyeOff, onPressed: null))
-                else ...[
-                  EButton.ghost(
-                    label: l.deskOnbCreateHide,
-                    icon: EIcons.eyeOff,
-                    onPressed: () => setState(() {
-                      _revealed = false;
-                      _written = false;
-                    }),
-                  ),
-                  EButton.ghost(
-                    label: l.commonCopy,
-                    icon: EIcons.copy,
-                    onPressed: () => copyPhrase(context, phrase.join(' ')),
-                  ),
-                  // A centred dialog, never under the scrolling words (item 18).
-                  EButton.ghost(
-                    label: l.deskOnbCreateShowQr,
-                    icon: EIcons.qr,
-                    onPressed: () => showPhraseQrDialog(context, phrase.join(' ')),
-                  ),
+        sideTitle: l.deskOnbCreateSide,
+        steps: rail,
+        title: l.deskOnbStepPhrase,
+        lead: l.deskOnbCreatePhraseLead,
+        width: EOnbFrame.wide,
+        status: _revealed ? null : l.deskOnbCreateRevealFirst,
+        actions: [
+          EButton.primary(semanticsId: TrustIds.createContinue, label: l.commonContinue, busy: _busy, onPressed: _revealed && _written ? _finish : null),
+        ],
+        // The words scroll on their own: the warning, the actions and the checkbox stay in view.
+        fill: true,
+        child: phrase == null
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  warn,
+                  Padding(padding: EdgeInsets.all(Sp.x8), child: Center(child: ESpinner(size: 24.u))),
                 ],
-              ],
-              grid: ESeedGrid(words: phrase, revealed: _revealed, columns: 4),
-              // On a backdrop of its own: in a small window the caption sits over the word boxes.
-              cover: _revealed
-                  ? null
-                  : Container(
-                      padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-                      decoration: BoxDecoration(
-                        color: context.dc.s1,
-                        borderRadius: BorderRadius.circular(Rad.sm),
-                        border: Border.all(color: context.dc.line),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          EButton.primary(semanticsId: TrustIds.createReveal, label: l.deskOnbCreateReveal, icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
-                          SizedBox(height: Sp.x2),
-                          Text(l.deskOnbCreateCheckScreen, style: ts.small, textAlign: TextAlign.center),
-                        ],
-                      ),
+              )
+            : EPhraseLayout(
+                header: [warn],
+                // Bare buttons: Show QR's label ends at the grid's edge, not its padding.
+                edgeInset: EButton.labelInset(EBtnSize.sm),
+                // Hidden words hold the room of the actions and the checkbox: nothing moves on Reveal.
+                actions: [
+                  if (!_revealed)
+                    ReservedSlot.like(model: EButton.ghost(label: l.deskOnbCreateHide, icon: EIcons.eyeOff, onPressed: null))
+                  else ...[
+                    EButton.ghost(
+                      label: l.deskOnbCreateHide,
+                      icon: EIcons.eyeOff,
+                      onPressed: () => setState(() {
+                        _revealed = false;
+                        _written = false;
+                      }),
                     ),
-              footer: _revealed
-                  ? ECheckbox(
-                      semanticsId: TrustIds.createWritten,
-                      value: _written,
-                      onChanged: (v) => setState(() => _written = v),
-                      label: l.deskOnbCreateWritten(phrase.length),
-                    )
-                  : ReservedSlot.like(model: ECheckbox(value: false, onChanged: (_) {}, label: l.deskOnbCreateWritten(phrase.length))),
-            ),
-    ),
+                    EButton.ghost(
+                      label: l.commonCopy,
+                      icon: EIcons.copy,
+                      onPressed: () => copyPhrase(context, phrase.join(' ')),
+                    ),
+                    // A centred dialog, never under the scrolling words (item 18).
+                    EButton.ghost(
+                      label: l.deskOnbCreateShowQr,
+                      icon: EIcons.qr,
+                      onPressed: () => showPhraseQrDialog(context, phrase.join(' ')),
+                    ),
+                  ],
+                ],
+                grid: ESeedGrid(words: phrase, revealed: _revealed, columns: 4),
+                // On a backdrop of its own: in a small window the caption sits over the word boxes.
+                cover: _revealed
+                    ? null
+                    : Container(
+                        padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                        decoration: BoxDecoration(
+                          color: context.dc.s1,
+                          borderRadius: BorderRadius.circular(Rad.sm),
+                          border: Border.all(color: context.dc.line),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            EButton.primary(semanticsId: TrustIds.createReveal, label: l.deskOnbCreateReveal, icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
+                            SizedBox(height: Sp.x2),
+                            Text(l.deskOnbCreateCheckScreen, style: ts.small, textAlign: TextAlign.center),
+                          ],
+                        ),
+                      ),
+                footer: _revealed
+                    ? ECheckbox(
+                        semanticsId: TrustIds.createWritten,
+                        value: _written,
+                        onChanged: (v) => setState(() => _written = v),
+                        label: l.deskOnbCreateWritten(phrase.length),
+                      )
+                    : ReservedSlot.like(model: ECheckbox(value: false, onChanged: (_) {}, label: l.deskOnbCreateWritten(phrase.length))),
+              ),
+      ),
     );
   }
 }

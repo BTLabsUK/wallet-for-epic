@@ -462,58 +462,58 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     return EForm(
       onSubmit: _continue,
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (failed != null) ...[
-          ENotice(
-            tone: ETone.risk,
-            title: l.deskSetupSaveFailedTitle,
-            // The string adds the full stop.
-            text: l.deskSetupSaveFailedText(_noStop(failed)),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (failed != null) ...[
+            ENotice(
+              tone: ETone.risk,
+              title: l.deskSetupSaveFailedTitle,
+              // The string adds the full stop.
+              text: l.deskSetupSaveFailedText(_noStop(failed)),
+            ),
+            SizedBox(height: Sp.x4),
+          ],
+          ESwitch(
+            value: _epicboxOn,
+            label: l.deskSlSetupEpicboxOn,
+            semanticLabel: l.deskSlSetupEpicboxOn,
+            onChanged: (v) => setState(() => _epicboxOn = v),
           ),
-          SizedBox(height: Sp.x4),
-        ],
-        ESwitch(
-          value: _epicboxOn,
-          label: l.deskSlSetupEpicboxOn,
-          semanticLabel: l.deskSlSetupEpicboxOn,
-          onChanged: (v) => setState(() => _epicboxOn = v),
-        ),
-        ExpandFade(
-          open: _epicboxOn,
-          child: Padding(
-            padding: EdgeInsets.only(top: Sp.x4),
-            child: EField(
-              label: l.deskSetupEpicboxServer,
-              child: ServerListPanel(
-                kind: ServerKind.relay,
+          ExpandFade(
+            open: _epicboxOn,
+            child: Padding(
+              padding: EdgeInsets.only(top: Sp.x4),
+              child: EField(
                 label: l.deskSetupEpicboxServer,
-                value: _relay,
-                fieldText: _relay,
-                fieldSub: row?.operator,
-                tone: switch (row?.state) {
-                  NodeHealthState.healthy => ETone.ok,
-                  NodeHealthState.degraded => ETone.warn,
-                  NodeHealthState.down => ETone.risk,
-                  _ => ETone.neutral,
-                },
-                servers: [...rows, if (row == null) PanelServer.bare(ServerKind.relay, _relay)],
-                source: relaySource(boxes ?? const [], inUse: _relay),
-                chooseOnly: true,
-                keepBelow: Ctl.md + Sp.x8,
-                openInitially: _shot?.listOpen ?? false,
-                onChoose: (v) async => setState(() => _relay = v),
-                onTest: _testRelay,
+                child: ServerListPanel(
+                  kind: ServerKind.relay,
+                  label: l.deskSetupEpicboxServer,
+                  value: _relay,
+                  fieldText: _relay,
+                  fieldSub: row?.operator,
+                  tone: switch (row?.state) {
+                    NodeHealthState.healthy => ETone.ok,
+                    NodeHealthState.degraded => ETone.warn,
+                    NodeHealthState.down => ETone.risk,
+                    _ => ETone.neutral,
+                  },
+                  servers: [...rows, if (row == null) PanelServer.bare(ServerKind.relay, _relay)],
+                  source: relaySource(boxes ?? const [], inUse: _relay),
+                  chooseOnly: true,
+                  keepBelow: Ctl.md + Sp.x8,
+                  openInitially: _shot?.listOpen ?? false,
+                  onChoose: (v) async => setState(() => _relay = v),
+                  onTest: _testRelay,
+                ),
               ),
             ),
           ),
-        ),
-        // Save starts the bundled node: said where Save is.
-        if (bundled) ...[
-          SizedBox(height: Sp.x6),
-          Text(local?.useFallback ?? hasFallbackNode ? l.deskSetupSaveStartsFallback(fallback) : l.deskSetupSaveStarts, style: ts.caption),
+          // Save starts the bundled node: said where Save is.
+          if (bundled) ...[
+            SizedBox(height: Sp.x6),
+            Text(local?.useFallback ?? hasFallbackNode ? l.deskSetupSaveStartsFallback(fallback) : l.deskSetupSaveStarts, style: ts.caption),
+          ],
         ],
-      ],
       ),
     );
   }

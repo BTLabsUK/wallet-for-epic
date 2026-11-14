@@ -212,20 +212,20 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> with PhrasePaste<
         return DeskStepBack(
           onBack: () {},
           child: ProgressView(
-          title: _failure != null || _permissionDenied ? l.deskOnbRestoreNotRestored : l.deskOnbRestoreRestoring,
-          stages: [
-            Stage('restore', l.deskOnbRestoreRestoring),
-            if (_locking) Stage('lock', l.deskOnbCreateLocking),
-          ],
-          current: 'restore',
-          failed: 'restore',
-          failure: _permissionDenied ? l.deskOnbRestorePermission(desktopDataFolder(Platform.environment, windows: Platform.isWindows) ?? desktopDataFolderName) : _failure,
-          wait: l.deskOnbRestoreWait,
-          onBack: () => setState(() {
-            _step = RestoreStep.account;
-            _failure = null;
-          }),
-          onRetry: _restore,
+            title: _failure != null || _permissionDenied ? l.deskOnbRestoreNotRestored : l.deskOnbRestoreRestoring,
+            stages: [
+              Stage('restore', l.deskOnbRestoreRestoring),
+              if (_locking) Stage('lock', l.deskOnbCreateLocking),
+            ],
+            current: 'restore',
+            failed: 'restore',
+            failure: _permissionDenied ? l.deskOnbRestorePermission(desktopDataFolder(Platform.environment, windows: Platform.isWindows) ?? desktopDataFolderName) : _failure,
+            wait: l.deskOnbRestoreWait,
+            onBack: () => setState(() {
+              _step = RestoreStep.account;
+              _failure = null;
+            }),
+            onRetry: _restore,
           ),
         );
       case RestoreStep.account:
@@ -234,38 +234,38 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> with PhrasePaste<
         return DeskStepBack(
           onBack: () => setState(() => _step = RestoreStep.words),
           child: EOnbFrame(
-          sideTitle: l.deskOnbRestoreSide,
-          steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
-          title: _name ?? defaultWalletName(ref),
-          heading: WalletNameTitle(place: 'restore', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
-          lead: l.deskOnbRestorePasswordLead,
-          onBack: () => setState(() => _step = RestoreStep.words),
-          icon: EIcons.lock,
-          enter: l.deskOnbKeyNextRestore,
-          actions: [
-            EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null, semanticsId: TrustIds.restoreContinue),
-          ],
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (flow.testNet) ...[
-                NetNote(flow.network, l.deskOnbCreateTestNote),
-                SizedBox(height: Sp.x5),
-              ],
-              AccountForm(
-                password: _password,
-                confirm: _confirm,
-                passwordError: pe,
-                confirmError: ce,
-                onChanged: () => setState(() {}),
-                onSubmit: _accountOk ? _restore : null,
-                passwordId: TrustIds.restorePassword,
-                confirmId: TrustIds.restorePasswordConfirm,
-              ),
-              SizedBox(height: Sp.x4),
-              ScanStart(controller: _scanStart, ids: ScanStartIds.restore),
+            sideTitle: l.deskOnbRestoreSide,
+            steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
+            title: _name ?? defaultWalletName(ref),
+            heading: WalletNameTitle(place: 'restore', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
+            lead: l.deskOnbRestorePasswordLead,
+            onBack: () => setState(() => _step = RestoreStep.words),
+            icon: EIcons.lock,
+            enter: l.deskOnbKeyNextRestore,
+            actions: [
+              EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null, semanticsId: TrustIds.restoreContinue),
             ],
-          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (flow.testNet) ...[
+                  NetNote(flow.network, l.deskOnbCreateTestNote),
+                  SizedBox(height: Sp.x5),
+                ],
+                AccountForm(
+                  password: _password,
+                  confirm: _confirm,
+                  passwordError: pe,
+                  confirmError: ce,
+                  onChanged: () => setState(() {}),
+                  onSubmit: _accountOk ? _restore : null,
+                  passwordId: TrustIds.restorePassword,
+                  confirmId: TrustIds.restorePasswordConfirm,
+                ),
+                SizedBox(height: Sp.x4),
+                ScanStart(controller: _scanStart, ids: ScanStartIds.restore),
+              ],
+            ),
           ),
         );
       case RestoreStep.words || RestoreStep.wordsFilled:

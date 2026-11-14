@@ -328,42 +328,42 @@ class _EIconButtonState extends State<EIconButton> {
     return ExcludeFocusTraversal(
       excluding: !widget.tabStop,
       child: ETip(
-      widget.label,
-      child: TrustId(widget.semanticsId, child: Semantics(
-        button: true,
-        label: widget.label,
-        selected: widget.selected,
-        excludeSemantics: true,
-        onTap: widget.onPressed,
-        child: FocusableActionDetector(
-          enabled: enabled,
-          mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
-          child: Builder(
-            builder: (context) => GestureDetector(
-              onTap: widget.onPressed,
-              child: FocusRing(
-                focused: Focus.of(context).hasFocus,
-                child: AnimatedContainer(
-                  duration: Dur.fast,
-                  width: dim,
-                  height: dim,
-                  decoration: BoxDecoration(
-                    color: _hover && enabled ? c.hover : Colors.transparent,
-                    borderRadius: BorderRadius.circular(Rad.sm),
-                  ),
-                  child: Icon(
-                    widget.icon,
-                    size: widget.size == EBtnSize.inline ? Ctl.iconSm : Ctl.icon,
-                    color: fg,
+        widget.label,
+        child: TrustId(widget.semanticsId, child: Semantics(
+          button: true,
+          label: widget.label,
+          selected: widget.selected,
+          excludeSemantics: true,
+          onTap: widget.onPressed,
+          child: FocusableActionDetector(
+            enabled: enabled,
+            mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+            onShowHoverHighlight: (v) => setState(() => _hover = v),
+            actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
+            child: Builder(
+              builder: (context) => GestureDetector(
+                onTap: widget.onPressed,
+                child: FocusRing(
+                  focused: Focus.of(context).hasFocus,
+                  child: AnimatedContainer(
+                    duration: Dur.fast,
+                    width: dim,
+                    height: dim,
+                    decoration: BoxDecoration(
+                      color: _hover && enabled ? c.hover : Colors.transparent,
+                      borderRadius: BorderRadius.circular(Rad.sm),
+                    ),
+                    child: Icon(
+                      widget.icon,
+                      size: widget.size == EBtnSize.inline ? Ctl.iconSm : Ctl.icon,
+                      color: fg,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      )),
+        )),
       ),
     );
   }
@@ -399,34 +399,34 @@ class _ELinkState extends State<ELink> {
       excluding: !widget.tabStop,
       // One node with the label, as EButton: the id names it, not the focus node inside.
       child: TrustId(widget.semanticsId, child: Semantics(
-      link: true,
-      label: widget.label,
-      excludeSemantics: true,
-      onTap: widget.onPressed,
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onPressed,
-            child: FocusRing(
-              focused: Focus.of(context).hasFocus,
-              child: NoSelect(
-              child: Text(
-                widget.label,
-                style: TextStyle(
-                  color: color,
-                  fontSize: Fs.sm,
-                  fontWeight: widget.dim ? FontWeight.w400 : FontWeight.w600,
-                  decoration: TextDecoration.underline,
-                  decorationColor: _hover ? color : color.withValues(alpha: 0.45),
+        link: true,
+        label: widget.label,
+        excludeSemantics: true,
+        onTap: widget.onPressed,
+        child: FocusableActionDetector(
+          mouseCursor: SystemMouseCursors.click,
+          onShowHoverHighlight: (v) => setState(() => _hover = v),
+          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
+          child: Builder(
+            builder: (context) => GestureDetector(
+              onTap: widget.onPressed,
+              child: FocusRing(
+                focused: Focus.of(context).hasFocus,
+                child: NoSelect(
+                  child: Text(
+                    widget.label,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: Fs.sm,
+                      fontWeight: widget.dim ? FontWeight.w400 : FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                      decorationColor: _hover ? color : color.withValues(alpha: 0.45),
+                    ),
+                  ),
                 ),
-              ),
               ),
             ),
           ),
-        ),
       )),
       ),
     );
