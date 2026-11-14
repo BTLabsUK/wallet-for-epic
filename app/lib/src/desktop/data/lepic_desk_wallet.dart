@@ -6083,7 +6083,7 @@ class _DeskNameServiceHost implements NameServiceHost {
   Future<core.PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _host.drain(serviceKeyHex, generation);
 
   @override
-  Future<List<core.PaymentsDrainReport>> drainMany(List<ListingDrain> listings) => _host.drainMany(listings);
+  Future<List<core.ListingDrainResult>> drainMany(List<ListingDrain> listings) => _host.drainMany(listings);
 }
 
 /// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now. While the

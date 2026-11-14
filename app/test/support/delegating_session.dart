@@ -33,7 +33,7 @@ class DelegatingWalletSession implements WalletSession, ListingKeys {
   Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation) => _inner.listingKeys!.drainListing(serviceKeyHex, generation);
 
   @override
-  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings) => _inner.listingKeys!.drainListings(listings);
+  Future<List<ListingDrainResult>> drainListings(List<(String, int)> listings) => _inner.listingKeys!.drainListings(listings);
 
   @override
   StoreOpenOutcome get storeOpen => _inner.storeOpen;

@@ -76,9 +76,9 @@ abstract interface class NameServiceHost {
   /// Reads that listing's address once.
   Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation);
 
-  /// Reads each of [listings] once, one report per listing in the order given. At most
-  /// [listingDrainBatch] at a time; fails on the first listing that failed.
-  Future<List<PaymentsDrainReport>> drainMany(List<ListingDrain> listings);
+  /// Reads each of [listings] once, one result per listing in the order given. At most
+  /// [listingDrainBatch] at a time; fails as a whole only before any relay is contacted.
+  Future<List<ListingDrainResult>> drainMany(List<ListingDrain> listings);
 }
 
 /// A listing to read: the service's key in hex and the listing's generation.
@@ -122,7 +122,7 @@ class SessionNameServiceHost implements NameServiceHost {
   Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _keys.drainListing(serviceKeyHex, generation);
 
   @override
-  Future<List<PaymentsDrainReport>> drainMany(List<ListingDrain> listings) => _keys.drainListings([for (final l in listings) (l.serviceKeyHex, l.generation)]);
+  Future<List<ListingDrainResult>> drainMany(List<ListingDrain> listings) => _keys.drainListings([for (final l in listings) (l.serviceKeyHex, l.generation)]);
 }
 
 /// The net byte of a chain.
@@ -636,13 +636,13 @@ class NameService implements NameServiceMembership, NameServiceReceipts {
       if (_disposed) return;
       final batch = all.sublist(i, min(i + listingDrainBatch, all.length));
       try {
-        final reports = await _host.drainMany(batch);
-        for (final r in reports) {
-          _drained(r);
+        for (final r in await _host.drainMany(batch)) {
+          if (r.report case final report?) _drained(report);
+          if (r.error case final error?) logWarn('name service', 'listing drain failed: ${error.kind.name}');
         }
       } on Object catch (e) {
-        // The call fails on the first listing that failed, the others' reports with it: this
-        // batch is left for the next drain, the next batch goes on.
+        // The call failed as a whole, before any relay was contacted: this batch is left for the
+        // next drain, the next batch goes on.
         logWarn('name service', 'listing drain failed: ${e.runtimeType}');
       }
     }

@@ -3727,13 +3727,19 @@ class LepicWalletSession
   });
 
   @override
-  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings) => _epicboxGuard('listing drain', () async {
+  Future<List<ListingDrainResult>> drainListings(List<(String, int)> listings) => _epicboxGuard('listing drain', () async {
     _watchEvents();
-    final reports = await _wallet.drainEpicboxListings(
+    final drains = await _wallet.drainEpicboxListings(
       listings: [for (final (key, generation) in listings) lepic.ListingRef(serviceKey: key, generation: generation)],
     );
     await _sweep();
-    return [for (final r in reports) PaymentsDrainReport(received: r.received, finalized: r.finalized, bounced: r.bounced)];
+    return [
+      for (final d in drains)
+        if (d.report case final r?)
+          (report: PaymentsDrainReport(received: r.received, finalized: r.finalized, bounced: r.bounced), error: null)
+        else
+          (report: null, error: mapLepicError(d.error!)),
+    ];
   });
 }
 

@@ -37,7 +37,7 @@ import '../../seed_contacts.dart';
 import '../../slate_files.dart' show isSealedText, responseFileName, sealedFileName, sendFileName;
 import '../../pairing_text.dart' show pairingName;
 import '../../finished_payment.dart' show readFinishedPayment;
-import '../../wallet_service.dart' show FakeListingKeys, FakeWalletService, FakeWalletSession, qrFragmentLen, qrSingleCodeMaxLen, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
+import '../../wallet_service.dart' show FakeListingKeys, FakeWalletService, FakeWalletSession, qrFragmentLen, qrSingleCodeMaxLen, ListingDrainResult, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
 import '../../name_service/name_service.dart' show NameServiceMembership, NameServiceVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
 import '../../history/name_service_pins.dart';
 import '../../history/meta_store.dart' show Meta;
@@ -1749,7 +1749,7 @@ class _MockNameServiceHost implements NameServiceHost {
   Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _keys.drainListing(serviceKeyHex, generation);
 
   @override
-  Future<List<PaymentsDrainReport>> drainMany(List<ListingDrain> listings) => _keys.drainListings([for (final l in listings) (l.serviceKeyHex, l.generation)]);
+  Future<List<ListingDrainResult>> drainMany(List<ListingDrain> listings) => _keys.drainListings([for (final l in listings) (l.serviceKeyHex, l.generation)]);
 }
 
 class _MockDeviceHost implements DeviceHost {

@@ -806,9 +806,13 @@ abstract interface class ListingKeys {
   Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation);
 
   /// Reads each of [listings] (service key hex, generation) once, at most 16, as [drainListing]
-  /// does for one; one report per listing in the order given. Fails on the first listing that failed.
-  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings);
+  /// does for one; one result per listing in the order given, its report or its error. Fails as a
+  /// whole only before any relay is contacted (too many listings, a bad key, no Epicbox).
+  Future<List<ListingDrainResult>> drainListings(List<(String, int)> listings);
 }
+
+/// What draining one listing gave: its report, or the error that listing failed with.
+typedef ListingDrainResult = ({PaymentsDrainReport? report, WalletError? error});
 
 extension ListingKeysOf on WalletSession {
   /// The listing keys of this session, or null for one without them.
@@ -843,17 +847,20 @@ class FakeListingKeys implements ListingKeys {
   }
 
   /// The batches drained: one list per call, in call order, a failed one included. The listings
-  /// of a batch that went through are in [drains] too.
+  /// of a batch that went through are in [drains] too, the failed ones among them.
   final List<List<(String, int)>> batches = [];
 
-  /// What the next [drainListings] throws, once, as LEPIC does for the first listing that failed.
+  /// What the next [drainListings] throws, once, as LEPIC does when a call fails as a whole.
   Object? drainFailure;
+
+  /// The error a listing drain answers with, in place of its report.
+  final Map<(String, int), WalletError> failures = {};
 
   /// The report a listing drain answers with; none is an empty one.
   final Map<(String, int), PaymentsDrainReport> reports = {};
 
   @override
-  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings) async {
+  Future<List<ListingDrainResult>> drainListings(List<(String, int)> listings) async {
     batches.add(listings);
     final failure = drainFailure;
     if (failure != null) {
@@ -861,7 +868,13 @@ class FakeListingKeys implements ListingKeys {
       throw failure;
     }
     drains.addAll(listings);
-    return [for (final l in listings) reports[l] ?? const PaymentsDrainReport()];
+    return [
+      for (final l in listings)
+        if (failures[l] case final error?)
+          (report: null, error: error)
+        else
+          (report: reports[l] ?? const PaymentsDrainReport(), error: null),
+    ];
   }
 }
 
@@ -2152,7 +2165,7 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable {
   Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation) => fakeListing.drainListing(serviceKeyHex, generation);
 
   @override
-  Future<List<PaymentsDrainReport>> drainListings(List<(String, int)> listings) => fakeListing.drainListings(listings);
+  Future<List<ListingDrainResult>> drainListings(List<(String, int)> listings) => fakeListing.drainListings(listings);
 
   /// What [unmatchedNotices] streams; a test adds to it as LEPIC's event would.
   final StreamController<UnmatchedNotice> unmatchedController = StreamController<UnmatchedNotice>.broadcast();

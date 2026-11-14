@@ -356,7 +356,18 @@ void main() {
       expect(rig.drained.map((r) => (r.received, r.finalized, r.bounced)), [(2, 0, 0), (0, 1, 1)]);
     });
 
-    test('a failed batch is logged and left for the next drain: the next batch goes on, nothing is retried', () async {
+    test('a failed listing is logged; the others of its batch still report', () async {
+      final rig = await eighteenListings();
+      final keys = rig.session.fakeListing;
+      keys.failures[(_serviceKeyHex, 3)] = const WalletError(kind: WalletErrorKind.transportFailed, message: 'cut off');
+      keys.reports[(_serviceKeyHex, 4)] = const PaymentsDrainReport(received: 1);
+      keys.reports[(_serviceKeyHex, 16)] = const PaymentsDrainReport(finalized: 1);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
+      expect(keys.batches.map((b) => b.length), [16, 2], reason: 'one call for each batch, none repeated');
+      expect(rig.drained.map((r) => (r.received, r.finalized)), [(1, 0), (0, 1)]);
+    });
+
+    test('a batch that failed as a whole is logged and left for the next drain: the next batch goes on, nothing is retried', () async {
       final rig = await eighteenListings();
       final keys = rig.session.fakeListing;
       keys.drainFailure = StateError('relay down');
