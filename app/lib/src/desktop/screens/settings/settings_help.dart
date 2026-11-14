@@ -297,7 +297,7 @@ class _HelpLanguageSwitch extends ConsumerWidget {
       size: EBtnSize.sm,
       semanticLabel: context.l10n.helpLanguageLabel,
       value: current,
-      items: [for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14))],
+      items: [for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14.u))],
       onChanged: (code) {
         final n = ref.read(deskProvider.notifier);
         // The interface's own language is the default, not a pin: Help then follows it.

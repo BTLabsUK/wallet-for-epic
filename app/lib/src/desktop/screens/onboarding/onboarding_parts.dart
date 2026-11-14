@@ -111,8 +111,8 @@ const deskSystemLanguage = '';
 /// language first, then each of `appLanguages` by its flag and its own name. A value is a
 /// language code, or [deskSystemLanguage].
 List<ESelectItem<String>> deskLanguageItems(AppLocalizations l) => [
-  ESelectItem(deskSystemLanguage, l.languageSystem, leading: Icon(EIcons.themeSystem, size: 14)),
-  for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14)),
+  ESelectItem(deskSystemLanguage, l.languageSystem, leading: Icon(EIcons.themeSystem, size: 14.u)),
+  for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14.u)),
 ];
 
 /// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.

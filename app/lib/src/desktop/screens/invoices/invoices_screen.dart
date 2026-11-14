@@ -84,7 +84,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     final status = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (checking) ...[SizedBox.square(dimension: Ctl.iconSm, child: const ESpinner(size: 14)), SizedBox(width: Sp.x2)],
+        if (checking) ...[SizedBox.square(dimension: Ctl.iconSm, child: ESpinner(size: 14.u)), SizedBox(width: Sp.x2)],
         Text(
           checking
               ? l.deskInvChecking
