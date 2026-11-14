@@ -454,9 +454,8 @@ void main() {
 
       expect(h.session.lastStart, mainnetHeightForDate(DateTime(2021, 7)));
       expect(find.text(_l.restoreDoneTitle), findsOneWidget);
-      // Linking another device is offered in Settings, not on this screen.
-      expect(find.text(_l.offerLinkRestore), findsNothing);
-      expect(find.text(_l.devicesLink), findsNothing);
+      // The restored wallet may live on another device too: the offer to link one stays here.
+      expect(find.text(_l.offerLinkRestore), findsOneWidget);
       expect(find.textContaining('come back from a wallet data file'), findsOneWidget);
 
       h.files.picks.add(await h.session.exportHistory());
@@ -2161,6 +2160,8 @@ void main() {
       expect(find.text(_l.scanStartInfoTitle), findsOneWidget);
       // Under the row the restore note stands; the sheet carries the full text.
       expect(find.text(_l.phoneRestoreStartNote), findsOneWidget);
+      // It says what an earlier month costs: a longer search.
+      expect(find.textContaining('An older month means a longer search.'), findsOneWidget);
       expect(find.text(_l.scanStartInfo), findsOneWidget);
       await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
