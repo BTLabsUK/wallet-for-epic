@@ -41,10 +41,21 @@ List<Contact> homeFieldMatches(List<Contact> all, String typed, {int max = 4}) {
 final homeFieldFocusProvider = NotifierProvider<HomeFieldFocus, int>(HomeFieldFocus.new);
 
 class HomeFieldFocus extends Notifier<int> {
+  /// The count the field last answered.
+  int _answered = 0;
+
   @override
   int build() => 0;
 
   void request() => state++;
+
+  /// Whether a press waits for the field, answering it: one press focuses the field once, not
+  /// again each time Home is opened after it.
+  bool take() {
+    if (state == _answered) return false;
+    _answered = state;
+    return true;
+  }
 }
 
 /// Ctrl+K outside Settings: Home, with its field focused.
@@ -68,7 +79,9 @@ class _HomeFieldState extends ConsumerState<HomeField> {
   void initState() {
     super.initState();
     // Opened by Ctrl+K: the request came before this field was built.
-    if (ref.read(homeFieldFocusProvider) > 0) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? _focus.requestFocus() : null);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && ref.read(homeFieldFocusProvider.notifier).take()) _focus.requestFocus();
+    });
   }
 
   @override
@@ -89,7 +102,9 @@ class _HomeFieldState extends ConsumerState<HomeField> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
-    ref.listen(homeFieldFocusProvider, (_, _) => _focus.requestFocus());
+    ref.listen(homeFieldFocusProvider, (_, _) {
+      if (ref.read(homeFieldFocusProvider.notifier).take()) _focus.requestFocus();
+    });
     final matches = homeFieldMatches(ref.watch(deskProvider.select((s) => s.contacts)) ?? const [], _text.text);
     // The page's one place to type: 58 high, as the canvas draws it.
     final field = ConstrainedBox(

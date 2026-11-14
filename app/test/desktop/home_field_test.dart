@@ -58,4 +58,34 @@ void main() {
     expect((at.arg as SendArgs).contact?.id, first.id);
     await _end(tester);
   });
+
+  testWidgets('Ctrl+K focuses the field once: opening Home again later does not', (tester) async {
+    final container = await _open(tester);
+    final nav = container.read(deskNavProvider.notifier);
+    bool focused() => tester.widget<EditableText>(find.descendant(of: find.byKey(const ValueKey('home-field')), matching: find.byType(EditableText))).focusNode.hasFocus;
+    Future<void> settle() async {
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 60));
+      }
+    }
+
+    expect(focused(), isFalse);
+    container.read(homeFieldFocusProvider.notifier).request();
+    await settle();
+    expect(focused(), isTrue);
+    // Away and back: a new field, and no press since.
+    nav.go(DeskRoute.activity);
+    await settle();
+    nav.go(DeskRoute.overview);
+    await settle();
+    expect(focused(), isFalse);
+    // Pressed on another page: the field takes the focus when Home opens.
+    nav.go(DeskRoute.activity);
+    await settle();
+    container.read(homeFieldFocusProvider.notifier).request();
+    nav.go(DeskRoute.overview);
+    await settle();
+    expect(focused(), isTrue);
+    await _end(tester);
+  });
 }
