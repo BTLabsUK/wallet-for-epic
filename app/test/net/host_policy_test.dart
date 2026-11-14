@@ -22,18 +22,21 @@ void main() {
   test('hostPolicyOf reads the listener, quarantine and early notice bounds from the config', () {
     final p = LepicWalletService.hostPolicyOf(testConfig());
     expect(p.listenerHeldRounds, 8);
+    expect(p.listenerChallengeRounds, 3);
     expect(p.quarantineMaxBytes, BigInt.from(16777216));
     expect(p.earlyNoticeMaxCount, 256);
     expect(p.earlyNoticeMaxAgeS, BigInt.from(604800));
     final other = LepicWalletService.hostPolicyOf(
       testConfig().withValues({
         'epicbox.listener_held_rounds': 3,
+        'epicbox.listener_challenge_rounds': 5,
         'contacts.quarantine_max_bytes': 1024,
         'notices.early_notice_max_count': 5,
         'notices.early_notice_max_age_s': 60,
       }),
     );
     expect(other.listenerHeldRounds, 3);
+    expect(other.listenerChallengeRounds, 5);
     expect(other.quarantineMaxBytes, BigInt.from(1024));
     expect(other.earlyNoticeMaxCount, 5);
     expect(other.earlyNoticeMaxAgeS, BigInt.from(60));
