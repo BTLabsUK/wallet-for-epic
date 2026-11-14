@@ -430,10 +430,12 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
-      await _tapKey(tester, ScanStart.changeKey);
       // January 2025 until another month is picked.
+      await _reveal(tester, find.byKey(ScanStart.changeKey));
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
-      await _tapKey(tester, StartMonthChoice.buttonKey);
+      // The row opens the shared month sheet at once, not an inline panel.
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
       // Year and month, no day: the picker opens on the chosen month's year; four years back, July.
       expect(find.text('2025'), findsOneWidget);
       for (var i = 0; i < 4; i++) {
@@ -442,17 +444,19 @@ void main() {
       }
       await tester.tap(find.byKey(StartMonthPicker.monthKey(const StartMonth(2021, 7))));
       await tester.pumpAndSettle();
-      final dayStart = DateTime(2021, 7);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('July 2021')), findsOneWidget);
-      expect(find.text('Scanning starts from block ${localInt(englishStrings, mainnetHeightForDate(dayStart))}.'), findsOneWidget);
+      expect(find.byType(StartMonthPicker), findsNothing);
       // An old month: no warning that coins may be missed.
-      expect(find.byKey(StartMonthChoice.recentKey), findsNothing);
+      expect(find.byKey(StartMonthRecent.recentKey), findsNothing);
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
 
-      expect(h.session.lastStart, mainnetHeightForDate(dayStart));
+      expect(h.session.lastStart, mainnetHeightForDate(DateTime(2021, 7)));
       expect(find.text(_l.restoreDoneTitle), findsOneWidget);
+      // Linking another device is offered in Settings, not on this screen.
+      expect(find.text(_l.offerLinkRestore), findsNothing);
+      expect(find.text(_l.devicesLink), findsNothing);
       expect(find.textContaining('come back from a wallet data file'), findsOneWidget);
 
       h.files.picks.add(await h.session.exportHistory());
@@ -1302,9 +1306,12 @@ void main() {
       // only, the height stays behind the Advanced switch; the info holds Scan from the start.
       expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
-      expect(find.byKey(ScanStart.byKey), findsNothing);
-      expect(find.text(_l.restoreStartByHeight), findsNothing);
+      // The same month sheet as Restore's; the height stays behind the Advanced switch, so the
+      // sheet has no link to it.
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsNothing);
+      expect(find.text(_l.phoneRestoreUseHeight), findsNothing);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       await _tapText(tester, _l.settingsRescanButton);
       expect(h.session.lastStart, defaultStartMonth.height);
 
@@ -1342,7 +1349,7 @@ void main() {
 
       await _tapText(tester, _l.settingsRescan);
       await _tapKey(tester, ScanStart.changeKey);
-      await _tapText(tester, _l.restoreStartByHeight);
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       // An empty height is the start; a typed one shows on the line.
       expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
       await _enter(tester, _l.restoreStartHeightLabel, '3000000');
@@ -2039,7 +2046,8 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreStartByHeight), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsOneWidget);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       await _tapText(tester, 'Cancel');
 
       // Off again: the page's own reset.
@@ -2049,7 +2057,8 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreStartByHeight), findsNothing);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsNothing);
     });
 
     // Tester report 26.10.21: Connection servers on the phone, not on the tablet. The tablet had
@@ -2159,14 +2168,15 @@ void main() {
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.byKey(ScanStart.fromStartKey), findsNothing);
       await _tapText(tester, _l.commonClose);
-      // The way back: the calendar opens the month, January 2025 again.
+      // The way back: the row opens the month sheet; choosing January 2025 again.
       await _tapKey(tester, ScanStart.changeKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
       await _tapKey(tester, ScanStart.infoKey);
       await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsNothing, reason: 'the choices fold away');
+      expect(find.byType(StartMonthPicker), findsNothing);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapText(tester, _l.commonContinue);
       await _enter(tester, 'PIN', _pin);
@@ -2184,16 +2194,19 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       expect(find.byKey(ScanStart.changeKey), findsOneWidget);
-      expect(find.byKey(ScanStart.byKey), findsNothing);
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.byKey(ScanStart.byKey), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
+      // The month sheet, with the way to a block height under the months.
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsOneWidget);
       expect(find.text('January 2025'), findsWidgets);
-      await _tapText(tester, 'Block height');
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       expect(
         find.widgetWithText(TextField, _l.restoreStartHeightLabel),
         findsOneWidget,
       );
+      // And back: the month sheet opens again.
+      await _tapKey(tester, ScanStart.monthKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
     });
   });
 }

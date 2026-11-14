@@ -5603,5 +5603,7 @@
   "phoneHomeFirstPayment": "การชำระเงินครั้งแรกของคุณ",
   "phoneHomeFirstPaymentHint": "จะแสดงที่นี่เมื่อมาถึง",
   "phoneSendMaxNoteNoFee": "ทั้งหมดที่คุณมี หักค่าธรรมเนียม",
-  "phoneSendReviewHintOfflineNoName": "กระเป๋าของผู้รับออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง"
+  "phoneSendReviewHintOfflineNoName": "กระเป๋าของผู้รับออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง",
+  "phoneRestoreUseHeight": "ใช้ความสูงบล็อกแทน",
+  "phoneRestoreUseMonth": "เลือกเดือนแทน"
 }

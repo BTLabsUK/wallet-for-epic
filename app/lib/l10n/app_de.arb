@@ -5603,5 +5603,7 @@
   "phoneHomeFirstPayment": "Deine erste Zahlung",
   "phoneHomeFirstPaymentHint": "Erscheint hier, sobald sie ankommt",
   "phoneSendMaxNoteNoFee": "Alles, was du hast, abzüglich der Gebühr",
-  "phoneSendReviewHintOfflineNoName": "Die Wallet darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet."
+  "phoneSendReviewHintOfflineNoName": "Die Wallet darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet.",
+  "phoneRestoreUseHeight": "Stattdessen eine Blockhöhe eingeben",
+  "phoneRestoreUseMonth": "Stattdessen einen Monat wählen"
 }

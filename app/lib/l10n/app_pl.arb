@@ -5603,5 +5603,7 @@
   "phoneHomeFirstPayment": "Twoja pierwsza płatność",
   "phoneHomeFirstPaymentHint": "Pojawi się tutaj, gdy dotrze",
   "phoneSendMaxNoteNoFee": "Wszystko, co masz, minus opłata",
-  "phoneSendReviewHintOfflineNoName": "Portfel odbiorcy może być offline. Płatność zakończy się, gdy portfel zostanie otwarty."
+  "phoneSendReviewHintOfflineNoName": "Portfel odbiorcy może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.",
+  "phoneRestoreUseHeight": "Zamiast tego podaj wysokość bloku",
+  "phoneRestoreUseMonth": "Zamiast tego wybierz miesiąc"
 }

@@ -20311,4 +20311,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get phoneSendReviewHintOfflineNoName => '收款方的钱包可以离线。钱包下次打开时，付款即完成。';
+
+  @override
+  String get phoneRestoreUseHeight => '改用区块高度';
+
+  @override
+  String get phoneRestoreUseMonth => '改选月份';
 }

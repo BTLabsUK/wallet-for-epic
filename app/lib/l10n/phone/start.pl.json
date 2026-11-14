@@ -13,6 +13,8 @@
   "phoneRestoreScan": "Skanuj",
   "phoneRestoreStartGroup": "Od kiedy szukać",
   "phoneRestoreCreated": "Portfel utworzony",
+  "phoneRestoreUseHeight": "Zamiast tego podaj wysokość bloku",
+  "phoneRestoreUseMonth": "Zamiast tego wybierz miesiąc",
   "phoneRestoreRestoring": "Przywracanie",
   "phoneRestoreScanTitle": "Szukamy Twoich monet",
   "phoneRestoreScanBody": "Nie zamykaj aplikacji, dopóki wyszukiwanie się nie skończy. Ekran pozostaje włączony.",

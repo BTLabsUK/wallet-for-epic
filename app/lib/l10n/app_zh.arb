@@ -5603,5 +5603,7 @@
   "phoneHomeFirstPayment": "你的第一笔付款",
   "phoneHomeFirstPaymentHint": "到账后显示在这里",
   "phoneSendMaxNoteNoFee": "你的全部余额,减去手续费",
-  "phoneSendReviewHintOfflineNoName": "收款方的钱包可以离线。钱包下次打开时，付款即完成。"
+  "phoneSendReviewHintOfflineNoName": "收款方的钱包可以离线。钱包下次打开时，付款即完成。",
+  "phoneRestoreUseHeight": "改用区块高度",
+  "phoneRestoreUseMonth": "改选月份"
 }

@@ -534,8 +534,9 @@ void main() {
         200,
         scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first,
       );
+      // The row opens the month sheet; its link goes to the block height.
       await _tap(tester, find.byKey(ScanStart.changeKey));
-      await _tapText(tester, _l.restoreStartByHeight);
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);

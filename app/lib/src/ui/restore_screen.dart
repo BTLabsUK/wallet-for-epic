@@ -38,7 +38,6 @@ import 'settings_sections.dart' show DeleteWalletDialog;
 import 'wallet_delete.dart';
 import 'work_status.dart';
 import 'theme/tokens.dart';
-import 'devices/device_parts.dart' show LinkDeviceOffer;
 
 export '../start_month.dart' show mainnetHeightForDate, mainnetFirstDay, mainnetBlockOneUnix, blockSeconds, restoreMarginBlocks;
 
@@ -752,10 +751,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 const SizedBox(height: 12),
                 Text(l.restoreFinishOnHome, style: KitType.rowSub.copyWith(color: t.dim), textAlign: TextAlign.center),
               ],
-              // The quiet offer: this wallet may live on another device too (hidden while Linked
-              // devices is off).
-              const SizedBox(height: 24),
-              LinkDeviceOffer(text: l.offerLinkRestore),
             ],
           ),
         ),

@@ -21085,4 +21085,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phoneSendReviewHintOfflineNoName =>
       'กระเป๋าของผู้รับออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง';
+
+  @override
+  String get phoneRestoreUseHeight => 'ใช้ความสูงบล็อกแทน';
+
+  @override
+  String get phoneRestoreUseMonth => 'เลือกเดือนแทน';
 }

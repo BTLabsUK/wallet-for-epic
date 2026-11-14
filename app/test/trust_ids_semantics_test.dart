@@ -387,7 +387,7 @@ void main() {
         }
 
         if (start) await tap(find.byKey(ScanStart.changeKey));
-        if (height) await tap(find.text(englishStrings.restoreStartByHeight));
+        if (height) await tap(find.text(englishStrings.phoneRestoreUseHeight));
         if (info) await tap(find.byKey(ScanStart.infoKey));
       }
 
@@ -395,10 +395,11 @@ void main() {
         'g4.restore.phrase', 'g4.restore.start', 'g4.restore.info', 'g4.restore.continue',
         'g4.restore.paste', 'g4.restore.back', 'g4.restore.help',
       ]);
-      await _same(tester, () => open(start: true), () => _closePhone(tester), [
-        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month',
+      // The month is the shared sheet (its link to the height), the height a field with its way back.
+      await _same(tester, () => open(start: true), () => _closePhone(tester), ['g4.restore.by.height']);
+      await _same(tester, () => open(start: true, height: true), () => _closePhone(tester), [
+        'g4.restore.height', 'g4.restore.by.month',
       ]);
-      await _same(tester, () => open(start: true, height: true), () => _closePhone(tester), ['g4.restore.height']);
       await _same(tester, () => open(info: true), () => _closePhone(tester), ['g4.restore.fromStart']);
       // The roles the drivers look for.
       await open(start: true, height: true);
@@ -407,7 +408,7 @@ void main() {
       SemanticsData data(String id) => tester.getSemantics(find.bySemanticsIdentifier(id)).getSemanticsData();
       expect(data('g4.restore.phrase').flagsCollection.isTextField, isTrue);
       expect(data('g4.restore.height').flagsCollection.isTextField, isTrue);
-      for (final id in ['g4.restore.start', 'g4.restore.info', 'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.continue']) {
+      for (final id in ['g4.restore.start', 'g4.restore.info', 'g4.restore.by.month', 'g4.restore.continue']) {
         expect(data(id).hasAction(SemanticsAction.tap), isTrue, reason: id);
       }
       for (final id in ['g4.restore.start', 'g4.restore.info']) {

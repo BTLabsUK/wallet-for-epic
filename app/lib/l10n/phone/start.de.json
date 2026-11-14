@@ -13,6 +13,8 @@
   "phoneRestoreScan": "Scannen",
   "phoneRestoreStartGroup": "Wo die Suche beginnt",
   "phoneRestoreCreated": "Wallet erstellt",
+  "phoneRestoreUseHeight": "Stattdessen eine Blockhöhe eingeben",
+  "phoneRestoreUseMonth": "Stattdessen einen Monat wählen",
   "phoneRestoreRestoring": "Wird wiederhergestellt",
   "phoneRestoreScanTitle": "Deine Coins werden gesucht",
   "phoneRestoreScanBody": "Lass die App offen, bis die Suche fertig ist. Der Bildschirm bleibt dabei an.",

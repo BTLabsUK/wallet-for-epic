@@ -33696,6 +33696,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Their wallet can be offline. The payment finishes when it next opens.'**
   String get phoneSendReviewHintOfflineNoName;
+
+  /// Link in the start-month sheet: enter a block height instead of a month.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a block height instead'**
+  String get phoneRestoreUseHeight;
+
+  /// Link under the block height field: pick a month instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a month instead'**
+  String get phoneRestoreUseMonth;
 }
 
 class _AppLocalizationsDelegate

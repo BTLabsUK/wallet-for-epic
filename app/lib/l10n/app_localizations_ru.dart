@@ -22124,4 +22124,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get phoneSendReviewHintOfflineNoName =>
       'Кошелёк получателя может быть не в сети. Платёж завершится, когда он снова откроется.';
+
+  @override
+  String get phoneRestoreUseHeight => 'Вместо этого указать высоту блока';
+
+  @override
+  String get phoneRestoreUseMonth => 'Вместо этого выбрать месяц';
 }

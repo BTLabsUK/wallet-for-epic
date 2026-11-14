@@ -13,6 +13,8 @@
   "phoneRestoreScan": "Сканировать",
   "phoneRestoreStartGroup": "С чего начать поиск",
   "phoneRestoreCreated": "Кошелёк создан",
+  "phoneRestoreUseHeight": "Вместо этого указать высоту блока",
+  "phoneRestoreUseMonth": "Вместо этого выбрать месяц",
   "phoneRestoreRestoring": "Восстановление",
   "phoneRestoreScanTitle": "Ищем ваши монеты",
   "phoneRestoreScanBody": "Не закрывайте приложение, пока поиск не закончится. Экран остаётся включённым.",

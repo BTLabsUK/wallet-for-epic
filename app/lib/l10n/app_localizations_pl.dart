@@ -22129,4 +22129,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get phoneSendReviewHintOfflineNoName =>
       'Portfel odbiorcy może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.';
+
+  @override
+  String get phoneRestoreUseHeight => 'Zamiast tego podaj wysokość bloku';
+
+  @override
+  String get phoneRestoreUseMonth => 'Zamiast tego wybierz miesiąc';
 }

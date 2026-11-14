@@ -55,6 +55,14 @@
   "@phoneRestoreCreated": {
     "description": "Row that shows the month the wallet was made; it opens the month choice."
   },
+  "phoneRestoreUseHeight": "Use a block height instead",
+  "@phoneRestoreUseHeight": {
+    "description": "Link in the start-month sheet: enter a block height instead of a month."
+  },
+  "phoneRestoreUseMonth": "Pick a month instead",
+  "@phoneRestoreUseMonth": {
+    "description": "Link under the block height field: pick a month instead."
+  },
   "phoneRestoreRestoring": "Restoring",
   "@phoneRestoreRestoring": {
     "description": "Title of the Restore screen while the search runs."

@@ -5603,5 +5603,7 @@
   "phoneHomeFirstPayment": "Ваш первый платёж",
   "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит",
   "phoneSendMaxNoteNoFee": "Всё, что у вас есть, за вычетом комиссии",
-  "phoneSendReviewHintOfflineNoName": "Кошелёк получателя может быть не в сети. Платёж завершится, когда он снова откроется."
+  "phoneSendReviewHintOfflineNoName": "Кошелёк получателя может быть не в сети. Платёж завершится, когда он снова откроется.",
+  "phoneRestoreUseHeight": "Вместо этого указать высоту блока",
+  "phoneRestoreUseMonth": "Вместо этого выбрать месяц"
 }

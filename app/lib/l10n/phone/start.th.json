@@ -13,6 +13,8 @@
   "phoneRestoreScan": "สแกน",
   "phoneRestoreStartGroup": "จุดเริ่มค้นหา",
   "phoneRestoreCreated": "สร้างกระเป๋าเมื่อ",
+  "phoneRestoreUseHeight": "ใช้ความสูงบล็อกแทน",
+  "phoneRestoreUseMonth": "เลือกเดือนแทน",
   "phoneRestoreRestoring": "กำลังกู้คืน",
   "phoneRestoreScanTitle": "กำลังค้นหาเหรียญของคุณ",
   "phoneRestoreScanBody": "เปิดแอปค้างไว้จนกว่าจะเสร็จ หน้าจอจะติดอยู่ระหว่างทำงาน",

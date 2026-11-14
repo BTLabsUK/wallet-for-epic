@@ -13,6 +13,8 @@
   "phoneRestoreScan": "扫描",
   "phoneRestoreStartGroup": "从哪里开始查找",
   "phoneRestoreCreated": "钱包创建于",
+  "phoneRestoreUseHeight": "改用区块高度",
+  "phoneRestoreUseMonth": "改选月份",
   "phoneRestoreRestoring": "正在恢复",
   "phoneRestoreScanTitle": "正在查找你的币",
   "phoneRestoreScanBody": "请在完成前保持应用打开。运行期间屏幕会保持常亮。",

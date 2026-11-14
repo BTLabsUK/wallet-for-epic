@@ -21750,4 +21750,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get phoneSendReviewHintOfflineNoName =>
       'Die Wallet darf offline sein. Die Zahlung wird abgeschlossen, sobald sie sich wieder öffnet.';
+
+  @override
+  String get phoneRestoreUseHeight => 'Stattdessen eine Blockhöhe eingeben';
+
+  @override
+  String get phoneRestoreUseMonth => 'Stattdessen einen Monat wählen';
 }

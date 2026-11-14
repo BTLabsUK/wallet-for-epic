@@ -21501,4 +21501,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phoneSendReviewHintOfflineNoName =>
       'Their wallet can be offline. The payment finishes when it next opens.';
+
+  @override
+  String get phoneRestoreUseHeight => 'Use a block height instead';
+
+  @override
+  String get phoneRestoreUseMonth => 'Pick a month instead';
 }
