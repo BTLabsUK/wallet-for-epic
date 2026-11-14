@@ -316,7 +316,7 @@ void main() {
       expect(_dot(tester, torIconKey), t.faint);
       expect(find.byKey(directIconKey), findsOneWidget);
       expect(_label(tester, directIconKey), 'Link, Off');
-      expect(_hint(tester, directIconKey), contains('Turn on in Settings\u00a0›\u00a0Transactions'));
+      expect(_hint(tester, directIconKey), contains('Turn on in Settings\u00a0›\u00a0Payments'));
       expect(_label(tester, nodeStatusKey), isNot(contains('Tor')));
     });
 
@@ -443,7 +443,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
       expect(
         _tip_(tester, epicboxStatusKey),
-        'Off. Turn on in Settings\u00a0›\u00a0Transactions.',
+        'Off. Turn on in Settings\u00a0›\u00a0Payments.',
       );
     });
 
@@ -604,12 +604,13 @@ void main() {
       final container = ProviderScope.containerOf(
         tester.element(find.byKey(directIconKey)),
       );
-      expect(container.read(shellTabProvider), ShellTab.wallet);
+      expect(container.read(shellFlowProvider), isNull);
       await tester.tap(find.byKey(directIconKey));
       await tester.pumpAndSettle();
       await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.text(_label(tester, directIconKey))));
       await tester.pumpAndSettle();
-      expect(container.read(shellTabProvider), ShellTab.receive);
+      // No shell here to take the request: Receive is asked for.
+      expect(container.read(shellFlowProvider), ShellFlow.receive);
       expect(container.read(receiveTabProvider), ReceiveTab.direct);
     });
   });

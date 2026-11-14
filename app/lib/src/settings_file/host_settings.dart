@@ -194,6 +194,10 @@ class AppConfig {
   Duration get nodeStaleAfter => _s('node.stale_after_s');
   Duration get nodeFailoverAfter => _s('node.failover_after_s');
   Duration get nodeFailoverProbe => _s('node.failover_probe_s');
+  Duration get nodeFailoverTorProbe => _s('node.failover_tor_probe_s');
+  Duration get nodeFailoverPrefer => Duration(milliseconds: _int('node.failover_prefer_ms'));
+  Duration get nodeFailoverRetryMin => _s('node.failover_retry_min_s');
+  Duration get nodeFailoverRetryMax => _s('node.failover_retry_max_s');
   Duration get ownNodeAsk => _s('node.own_node_ask_s');
 
   // [contacts]
@@ -315,6 +319,7 @@ class AppConfig {
 
   // [support]
   Duration get supportTimeout => _s('support.timeout_s');
+  Duration get supportTorTimeout => _s('support.tor_timeout_s');
 
   /// Where a report is sent; null: no Send report.
   String? get supportReport => _orNull(_text('support.report'));
@@ -330,6 +335,7 @@ class AppConfig {
   String? get linkCommunity => _orNull(_text('links.community'));
   String? get linkSource => _orNull(_text('links.source'));
   String? get linkPrivacy => _orNull(_text('links.privacy'));
+  String? get linkLicences => _orNull(_text('links.licences'));
 
   // [explorer]
 
@@ -505,6 +511,7 @@ class HostSettings {
   String? get linkCommunity => config.linkCommunity;
   String? get linkSource => config.linkSource;
   String? get linkPrivacy => config.linkPrivacy;
+  String? get linkLicences => config.linkLicences;
   String? explorerBlock(int height) => config.explorerBlock(height);
   String? explorerIndexed(int height) => config.explorerIndexed(height);
   String get importGuiNode => config.importGuiNode;

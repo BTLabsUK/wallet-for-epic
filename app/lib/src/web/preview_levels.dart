@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The levels' parts of the web preview: the first-start step on every visit, and the Epicbox
+/// The first-start and relay parts of the web preview: the Welcome step on every visit, and the Epicbox
 /// relay going quiet with the offer to move (the real notifier waits two minutes
 /// and asks the status site; the preview plays it in seconds against [PreviewDirectory]'s
 /// list). Same API as `relay_switch_providers.dart`, so the screens do not know the difference.
@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../connection_state.dart';
 import '../desktop/data/mock_hosts.dart';
 import '../levels/first_start.dart';
-import '../levels/level_providers.dart' show levelFeaturesProvider;
 import '../levels/relay_switch.dart';
 import '../levels/relay_switch_providers.dart';
 import '../network.dart' show EpicboxRelay;
@@ -31,7 +30,7 @@ bool get previewRelayMove => Uri.base.queryParameters.containsKey('relaymove');
 /// sealed through her pairing.
 bool get previewEpic1 => Uri.base.queryParameters.containsKey('epic1');
 
-/// How long after Home opens the fake relay goes quiet (level 1), and how long it must have
+/// How long after Home opens the fake relay goes quiet, and how long it must have
 /// been quiet before the move is offered.
 const Duration previewRelayDownAfter = Duration(seconds: 45);
 const Duration previewOfferAfter = Duration(seconds: 6);
@@ -59,12 +58,11 @@ class PreviewRelaySwitch extends RelaySwitchNotifier {
   @override
   RelaySwitchOffer? build() {
     final session = ref.watch(sessionProvider);
-    final prompt = ref.watch(levelFeaturesProvider.select((f) => f.relaySwitchPrompt));
     ref.onDispose(() {
       _drop?.cancel();
       _offer?.cancel();
     });
-    if (session is! PreviewSession || !prompt) return null;
+    if (session is! PreviewSession) return null;
     ref.listen(walletStatusProvider.select((s) => s.epicbox), (_, epicbox) {
       if (epicbox == EpicboxState.offline) {
         _arm();

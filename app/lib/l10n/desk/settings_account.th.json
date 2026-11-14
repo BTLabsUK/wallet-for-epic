@@ -14,7 +14,6 @@
   "deskSetAcctNetwork": "เครือข่าย",
   "deskSetAcctNetworkHint": "กำหนดตอนสร้างกระเป๋าเงิน",
   "deskSetAcctRunSetup": "เริ่มตั้งค่า…",
-  "deskSetAcctSecurity": "ความปลอดภัย",
   "deskSetAcctRemembered": "จำไว้บนคอมพิวเตอร์นี้",
   "deskSetAcctRememberedHint": "เปิดได้โดยไม่ต้องใส่รหัสผ่าน 30 วันนับจากวันที่ตั้ง การส่งยังถามรหัสผ่าน {who}",
   "deskSetAcctForget": "ลืมคอมพิวเตอร์นี้",

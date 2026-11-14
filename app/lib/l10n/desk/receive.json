@@ -51,21 +51,9 @@
   "@deskRecvTorStartingText": {
     "description": "Text of the notice on Receive while Tor connects. \"it\" is Tor."
   },
-  "deskRecvTurnTorOff": "Turn Tor off",
-  "@deskRecvTurnTorOff": {
-    "description": "Button in the Tor failed notice on Receive: switches Tor off."
-  },
   "deskRecvTryAgain": "Try again",
   "@deskRecvTryAgain": {
     "description": "Retry button on the HTTP panel on Receive when the HTTP listener failed."
-  },
-  "deskRecvStateOn": "on",
-  "@deskRecvStateOn": {
-    "description": "Spoken state of a receiving method for screen readers, lowercase: the method is on."
-  },
-  "deskRecvStateOff": "off",
-  "@deskRecvStateOff": {
-    "description": "Spoken state of a receiving method for screen readers, lowercase: the method is off."
   },
   "deskRecvStateChecking": "checking",
   "@deskRecvStateChecking": {
@@ -173,6 +161,34 @@
   "@deskRecvCheckSix": {
     "description": "Caption under the Epicbox address on Receive."
   },
+  "deskRecvAskOpen": "Ask for an amount",
+  "@deskRecvAskOpen": {
+    "description": "Button on Receive that opens the amount fields; the code then holds the Epicbox address with an amount."
+  },
+  "deskRecvAskAmount": "Amount",
+  "@deskRecvAskAmount": {
+    "description": "Label of the amount field under Ask for an amount on Receive."
+  },
+  "deskRecvAskNote": "Note",
+  "@deskRecvAskNote": {
+    "description": "Label of the optional note field under Ask for an amount on Receive."
+  },
+  "deskRecvAskHint": "The code now holds your address and this amount. Whoever scans or pastes it gets a normal send to you with the amount filled in.",
+  "@deskRecvAskHint": {
+    "description": "Line under the amount fields on Receive: what the changed code does."
+  },
+  "deskRecvAskCopy": "Copy link",
+  "@deskRecvAskCopy": {
+    "description": "Button that copies the payment link (address with the amount)."
+  },
+  "deskRecvAskCopied": "Link copied",
+  "@deskRecvAskCopied": {
+    "description": "Toast after the payment link was copied."
+  },
+  "deskRecvAskClose": "Back to the address",
+  "@deskRecvAskClose": {
+    "description": "Button that closes the amount fields and shows the plain address code again."
+  },
   "deskRecvHttpAddress": "Link · HTTP address",
   "@deskRecvHttpAddress": {
     "description": "Title of the HTTP panel on Receive and of its QR code."
@@ -185,10 +201,6 @@
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
-  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
-  "@deskRecvHttpTorHint": {
-    "description": "Caption at the bottom of the HTTP panel on Receive."
-  },
   "deskRecvHttpTorHintNet": "Turn on Link · Tor in Settings › Payments for a Tor address instead.",
   "@deskRecvHttpTorHintNet": {
     "description": "Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy)."
@@ -196,10 +208,6 @@
   "deskRecvDirectTor": "Link · Tor address",
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
-  },
-  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
-  "@deskRecvTorIntro": {
-    "description": "Intro text of the Tor panel on Receive."
   },
   "deskRecvTorIntroNet": "Straight from another wallet over Tor while this one is open. Link · Tor is set in Settings › Payments.",
   "@deskRecvTorIntroNet": {
@@ -225,10 +233,6 @@
   "@deskRecvSignTitle": {
     "description": "Row title in the transaction files panel: opens the page that signs a file the sender gave."
   },
-  "deskRecvSignText": "Sign the sender’s transaction file and save the response file.",
-  "@deskRecvSignText": {
-    "description": "Row text under Sign a transaction file."
-  },
   "deskRecvOpen": "Open",
   "@deskRecvOpen": {
     "description": "Button on the rows of the transaction files panel."
@@ -236,10 +240,6 @@
   "deskRecvFinalizeTitle": "Finalize a response file",
   "@deskRecvFinalizeTitle": {
     "description": "Row title in the transaction files panel: opens the page that finalizes a response file."
-  },
-  "deskRecvFinalizeText": "Finalize the recipient’s response file to post the payment.",
-  "@deskRecvFinalizeText": {
-    "description": "Row text under Finalize a response file."
   },
   "deskRecvSwitchLabel": "{title}, receiving",
   "@deskRecvSwitchLabel": {
@@ -250,18 +250,6 @@
         "example": "Epicbox address"
       }
     }
-  },
-  "deskRecvTorOffTitle": "Link · Tor needs Tor.",
-  "@deskRecvTorOffTitle": {
-    "description": "Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs."
-  },
-  "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
-  "@deskRecvTorOffText": {
-    "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy)."
-  },
-  "deskRecvTorOffTextNet": "The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.",
-  "@deskRecvTorOffTextNet": {
-    "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Network & privacy)."
   },
   "deskRecvHeaderTip": "Receiving: {methods}",
   "@deskRecvHeaderTip": {

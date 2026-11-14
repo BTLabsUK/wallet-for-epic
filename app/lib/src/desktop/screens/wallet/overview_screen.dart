@@ -8,6 +8,7 @@ import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
 import '../../../trust_ids.dart';
+import '../../app/desk_failover.dart' show deskNodeHealthProvider;
 import '../../app/relay_offer.dart' show DeskRelayNotice;
 import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
 import '../../app/tour.dart';
@@ -108,7 +109,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     // is not news.
     final netBlock = shot == null ? deskNetBlock(s, nodeOnly: true) : NetBlock.none;
     final offline = netBlock.byMode;
-    final nodeDown = shot == OverviewShot.nodeDown || (shot == null && netBlock == NetBlock.none && s.status?.nodeHealth == ServiceHealth.down);
+    final nodeDown = shot == OverviewShot.nodeDown || (shot == null && netBlock == NetBlock.none && ref.watch(deskNodeHealthProvider) == ServiceHealth.down);
     // Its notice waits out the connection grace after the start or a return (item 11): the
     // status icon alone says Connecting meanwhile.
     final nodeDownSaid = nodeDown && (shot != null || !ref.watch(connectionGraceProvider));

@@ -1,0 +1,228 @@
+{
+  "phoneTabHome": "Home",
+  "@phoneTabHome": {
+    "description": "Tab bar: the first tab, the wallet's home screen. One word."
+  },
+  "phoneTabScan": "Scan",
+  "@phoneTabScan": {
+    "description": "Screen reader label of the round button in the middle of the tab bar that opens the QR scanner."
+  },
+  "phoneReview": "Review",
+  "@phoneReview": {
+    "description": "Button on a card that needs the user's decision (an invoice, a contact's request); opens it for checking"
+  },
+  "phoneLater": "Later",
+  "@phoneLater": {
+    "description": "Quiet button that puts a needs-you card away for now"
+  },
+  "phoneHomeRecent": "Recent",
+  "@phoneHomeRecent": {
+    "description": "Heading over the latest payments on Home"
+  },
+  "phoneHomeSeeAll": "See all",
+  "@phoneHomeSeeAll": {
+    "description": "Link at the end of Home's Recent heading; opens the Activity tab"
+  },
+  "phoneHomeArriving": "+{amount} arriving",
+  "@phoneHomeArriving": {
+    "description": "Info chip under Home's balance: the amount that is on its way in",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "37.0"
+      }
+    }
+  },
+  "phoneHomeInSends": "{amount} in sends",
+  "@phoneHomeInSends": {
+    "description": "Quiet chip under Home's balance: the amount held by payments being sent",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "15.713"
+      }
+    }
+  },
+  "phoneHomeSyncing": "Syncing {percent}%",
+  "@phoneHomeSyncing": {
+    "description": "The status pill on Home while the node is catching up",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "42"
+      }
+    }
+  },
+  "phoneHomeOffline": "Offline",
+  "@phoneHomeOffline": {
+    "description": "The status pill on Home when the wallet reaches neither the node nor Epicbox"
+  },
+  "phoneHomeInvoiceTitle": "Invoice from {name}",
+  "@phoneHomeInvoiceTitle": {
+    "description": "Title of the card on Home when an invoice waits for the user's approval",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Northwind Exchange"
+      }
+    }
+  },
+  "phoneHomeInvoiceBody": "{amount}. Nothing is paid until you approve.",
+  "@phoneHomeInvoiceBody": {
+    "description": "Body of the invoice card on Home; the amount may include a fiat value",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "42.5 EPIC"
+      }
+    }
+  },
+  "phoneHomeBalanceLastKnown": "Available · last known",
+  "@phoneHomeBalanceLastKnown": {
+    "description": "Caption over Home's balance when the figure is the last one known (no connection)"
+  },
+  "phoneHomeBalanceSheetHint": "Balance details",
+  "@phoneHomeBalanceSheetHint": {
+    "description": "Spoken name of Home's balance, which opens the sheet with every part of the balance"
+  },
+  "phoneHomeFirstPayment": "Your first payment",
+  "@phoneHomeFirstPayment": {
+    "description": "Empty Home, under the Recent heading: the title of the first, still empty row of the payment list. Names what will stand there. Two or three words, no full stop."
+  },
+  "phoneHomeFirstPaymentHint": "Appears here when it arrives",
+  "@phoneHomeFirstPaymentHint": {
+    "description": "Empty Home: the line under 'Your first payment' in the empty row. Says the payment shows in this place once it comes in. Short, no full stop."
+  },
+  "phoneTourOffer": "Want a quick tour of the wallet?",
+  "phoneTourOfferShow": "Show me",
+  "@phoneTourOffer": {
+    "description": "Toast shown once after the first unlock: offers the wallet tour. Short question."
+  },
+  "@phoneTourOfferShow": {
+    "description": "Button on the tour offer toast: starts the tour. One or two words."
+  },
+  "phoneBackupReminderText": "Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.",
+  "phoneBackupReminderAction": "Back up now",
+  "@phoneBackupReminderText": {
+    "description": "Home slot card while the recovery phrase is not backed up: what is at risk, in two short sentences. Shown beside a shield icon, two lines at most."
+  },
+  "@phoneBackupReminderAction": {
+    "description": "Gold link under the text of the recovery phrase reminder card on Home: opens the back-up. Two or three words."
+  },
+  "phoneChangeWaitingFor": "{amount} confirming · waiting for {name}",
+  "@phoneChangeWaitingFor": {
+    "description": "Info chip under Home's balance: the change of a send comes back once it confirms; the send waits for the named contact to accept. 'confirming' is the word of the balance sheet's Confirming row. Keep short.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "994.992"
+      },
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneChangeWaitingReply": "{amount} confirming · waiting for reply",
+  "@phoneChangeWaitingReply": {
+    "description": "Info chip under Home's balance: as phoneChangeWaitingFor, for a send to an address with no contact name.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "994.992"
+      }
+    }
+  },
+  "phoneChangeWaitingReplies": "{amount} confirming · waiting for {count} replies",
+  "@phoneChangeWaitingReplies": {
+    "description": "Info chip under Home's balance: the change of several sends, none accepted yet. count is 2 or more.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,152.492"
+      },
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "phoneChangeAbout": "{amount} confirming · about {minutes} min",
+  "@phoneChangeAbout": {
+    "description": "Info chip under Home's balance: the change of one send can be spent in about this many minutes. 'min' is minutes, abbreviated.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "994.992"
+      },
+      "minutes": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "phoneChangeNextIn": "{amount} confirming · next in {minutes} min",
+  "@phoneChangeNextIn": {
+    "description": "Info chip under Home's balance: the change of several sends; the soonest can be spent in about this many minutes.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,152.492"
+      },
+      "minutes": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "phoneChangeRowReply": "waiting for them to accept",
+  "@phoneChangeRowReply": {
+    "description": "Balance sheet, under a send's name in the Confirming part: the other side has not accepted the send yet."
+  },
+  "phoneChangeRowBlock": "waiting for a block · about {minutes} min",
+  "@phoneChangeRowBlock": {
+    "description": "Balance sheet, under a send's name: the payment is posted and waits for a block; its change can be spent in about this many minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "phoneChangeRowConfirming": "about {minutes} min · {count} of {target} confirmations",
+  "@phoneChangeRowConfirming": {
+    "description": "Balance sheet, under a send's name: the payment is in a block; its change can be spent in about this many minutes. count of target confirmations so far.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "3"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "target": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "phoneBalanceAvailableNow": "Available now",
+  "@phoneBalanceAvailableNow": {
+    "description": "Balance sheet: first row, the amount that can be spent now (the figure on Home)."
+  },
+  "phoneBalanceArriving": "Arriving",
+  "@phoneBalanceArriving": {
+    "description": "Balance sheet: payments to this wallet that are in a block and confirming."
+  },
+  "phoneBalanceChangeNote": "A send spends whole coins. The rest comes back and can be spent after {target} confirmations, about {target} min after the payment is in a block. If a send is cancelled, the full amount comes back.",
+  "@phoneBalanceChangeNote": {
+    "description": "Balance sheet: note under the rows while a send's change is confirming. target is the confirmations setting; one block is about a minute.",
+    "placeholders": {
+      "target": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  }
+}

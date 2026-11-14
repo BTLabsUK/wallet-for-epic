@@ -22,9 +22,8 @@ import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayP
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/app_dialog.dart' show DialogButton;
-import 'package:epic_wallet/src/ui/home_parts.dart';
-import 'package:epic_wallet/src/ui/network_menu.dart' show networkMenuEpicboxKey, networkMenuNetworkKey;
+import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey, homePillKey;
+import 'package:epic_wallet/src/ui/network_menu.dart' show networkMenuEpicboxKey;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
     show
         serverListAddKey,
@@ -33,7 +32,6 @@ import 'package:epic_wallet/src/ui/server_list_sheet.dart'
         serverListRowKey,
         serverListSwitchKey;
 import 'package:epic_wallet/src/ui/shell_header.dart';
-import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/foundation.dart';
@@ -41,9 +39,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
-import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/shell_where.dart';
+
+import 'package:epic_wallet/src/ui/kit/kit_status_pill.dart' show KitStatusPill;
+import 'package:epic_wallet/src/ui/pin.dart' show PinPad;
+
+import 'support/pin_pad.dart';
 
 final _l = englishStrings;
 
@@ -163,18 +169,8 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
     await tester.scrollUntilVisible(
       finder,
       200,
-      scrollable: find
-          .descendant(
-            // The balance tiles are a ListView too, but they run sideways; Home's list is a
-            // CustomScrollView (room for the lattice under a short list).
-            of: find
-                .byWidgetPredicate(
-                  (w) => w is ScrollView && w.scrollDirection == Axis.vertical,
-                )
-                .last,
-            matching: find.byType(Scrollable),
-          )
-          .first,
+      // The vertical scrollable on top: Home's list, a pushed screen's, or a sheet's.
+      scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axis == Axis.vertical).last,
     );
   }
   await tester.ensureVisible(finder);
@@ -196,6 +192,29 @@ void _holdStill(WidgetTester tester) {
   addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
 }
 
+Future<void> _openSettings(WidgetTester tester) async {
+  await _clearNotices(tester);
+  await shellGo(tester, 'Settings');
+}
+
+/// Opens the connections sheet from Home's pill, runs [check] and closes it.
+Future<void> _connectionsSheet(WidgetTester tester, void Function() check) async {
+  await _clearNotices(tester);
+  await tester.tap(find.byKey(homePillKey));
+  await tester.pumpAndSettle();
+  check();
+  await tester.tapAt(const Offset(5, 5));
+  await tester.pumpAndSettle();
+}
+
+/// Settings tab › Security › Lock wallet.
+Future<void> _lock(WidgetTester tester) async {
+  await _openSettings(tester);
+  await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.security)));
+  await tester.scrollUntilVisible(find.text(_l.phoneSettingsLockNow), 200, scrollable: find.byType(Scrollable).last);
+  await _tap(tester, find.text(_l.phoneSettingsLockNow));
+}
+
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await _reveal(tester, finder);
   await tester.pumpAndSettle();
@@ -206,8 +225,24 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 Future<void> _tapText(WidgetTester tester, String text) =>
     _tap(tester, find.text(text));
 
+/// The restore screen's phrase box has no label of its own (its hint sits inside it).
+Finder _fieldOf(String label) =>
+    label == _l.restorePhraseLabel ? find.byType(TextField) : find.widgetWithText(TextField, label);
+
+/// The PIN steps (unlock, choose, repeat) take their digits on the wallet's keypad.
+bool _onPad(String label) =>
+    pinPad.evaluate().isNotEmpty &&
+    (label == 'PIN' || label == 'Repeat PIN' || label == _l.pinRepeatLabel || label == _l.pinLabel);
+
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  if (_onPad(label)) {
+    await typePin(tester, text);
+    // The step after the sixth digit: a beat on the full dots, then the next step.
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
+    return;
+  }
+  final field = _fieldOf(label);
   await _reveal(tester, field);
   await tester.enterText(field, text);
   await tester.pumpAndSettle();
@@ -215,14 +250,23 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 
 /// [_enter] without waiting for animations to end.
 Future<void> _enterNow(WidgetTester tester, String label, String text) async {
-  await tester.enterText(find.widgetWithText(TextField, label), text);
+  if (_onPad(label)) {
+    await typePin(tester, text);
+    await tester.pump(const Duration(milliseconds: 200));
+    await _pumpFrames(tester);
+    return;
+  }
+  await tester.enterText(_fieldOf(label), text);
   await _pumpFrames(tester);
 }
 
 /// Starts on a mainnet wallet with a PIN and unlocks it.
-Future<void> _unlockToHome(WidgetTester tester) async {
+Future<void> _unlockToHome(WidgetTester tester, {bool keepNotices = false}) async {
   expect(find.text(_l.unlockTitle), findsOneWidget);
   await _enter(tester, 'PIN', _pin);
+  // The backup reminder shows at the top and would sit over taps by position; a test of its
+  // Back up button keeps it.
+  if (!keepNotices) await _clearNotices(tester);
 }
 
 FakeWalletService _existing({FakeWalletSession? session}) =>
@@ -304,21 +348,19 @@ void main() {
         final theme = Theme.of(tester.element(find.text(_l.workCreating)));
         expect(drawn.decoration, isNot(TextDecoration.underline));
         expect(drawn.fontFamily, theme.textTheme.bodyMedium!.fontFamily);
-        expect(drawn.color, theme.textTheme.bodyMedium!.color);
-        expect(find.byKey(balanceFigureKey), findsNothing);
+        expect(find.byKey(homeFigureKey), findsNothing);
 
         service.createGate!.complete();
         await tester.pumpAndSettle();
-        expect(find.byKey(balanceFigureKey), findsOneWidget);
-        expect(find.text(_l.homeBackupCardText), findsOneWidget);
+        expect(find.byKey(homeFigureKey), findsOneWidget);
+        expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
 
         expect(service.createdConfig?.chain, Chain.mainnet);
         expect(service.createdConfig?.dataDir, _mainnetDir);
         expect(service.createdMnemonic, isNull);
         expect(service.createdPin, _pin);
         // Only the sealed text is stored; the biometric copy is the PIN.
-        // The phrase reminder's time aside (home_screen.dart).
-        expect({...device.store.values}..remove('app.level')..remove('wallet.mainnet.backupNoticeAt'), {
+        expect({...device.store.values}..remove('app.level'), {
           'wallet.mainnet.pinSealed': fakeSealedPassword(_pin),
           'wallet.mainnet.pinBiometrics': '1',
           onionNoticeKey('mainnet', null): onionNoticeSeen,
@@ -326,6 +368,24 @@ void main() {
         expect(device.bio.values, {'wallet.mainnet.pin': _pin});
       },
     );
+
+    // A fresh install opens Welcome before the launch has chosen a wallet config (nothing
+    // connects until the first step is answered). Create then went to a PIN step with no config,
+    // and the second PIN entry did nothing.
+    testWidgets('a fresh install: Create, the PIN twice, then Home', (tester) async {
+      NetGate.holdFirstStart();
+      addTearDown(NetGate.releaseFirstStart);
+      final service = FakeWalletService();
+      final device = _Device();
+      await _pumpApp(tester, service, device);
+      await _tapText(tester, _l.firstRunCreate);
+      await _enter(tester, 'PIN', _pin);
+      await _enter(tester, _l.pinRepeatLabel, _pin);
+      await tester.pumpAndSettle();
+      expect(find.byKey(homeFigureKey), findsOneWidget);
+      expect(service.createdConfig?.dataDir, _mainnetDir);
+      expect(service.createdPin, _pin);
+    });
 
     testWidgets('skips the biometric question where there are none', (
       tester,
@@ -336,7 +396,7 @@ void main() {
       await _tapText(tester, _l.firstRunCreate);
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, _l.pinRepeatLabel, _pin);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       expect(device.bio.values, isEmpty);
       expect(device.store.values['wallet.mainnet.pinBiometrics'], isNull);
     });
@@ -357,13 +417,13 @@ void main() {
         // Removing it is the user's step.
         await _tapText(tester, _l.pinForgot);
         await _tapText(tester, _l.pinResetConfirm);
-        await _tap(tester, find.widgetWithText(DialogButton, _l.pinResetDelete));
+        await _tap(tester, find.widgetWithText(KitButton, _l.pinResetDelete));
         expect(service.deletedWallets, [_mainnetDir]);
         expect(find.text(_l.firstRunTitle), findsOneWidget);
         await _tapText(tester, 'Create a new wallet');
         await _enter(tester, 'PIN', _pin);
         await _enter(tester, 'Repeat PIN', _pin);
-        expect(find.byKey(balanceFigureKey), findsOneWidget);
+        expect(find.byKey(homeFigureKey), findsOneWidget);
         expect(service.createdPin, _pin);
         expect(
           device.store.values['wallet.mainnet.pinSealed'],
@@ -414,9 +474,9 @@ void main() {
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, _l.pinRepeatLabel, _pin);
       await _tapText(tester, _l.pinBiometricsNotNow);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       // The old wallet's backed-up flag does not carry over to the new one.
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
       for (final e in old.entries) {
         expect(device.store.values[e.key], e.value);
       }
@@ -436,10 +496,10 @@ void main() {
       await tester.tap(find.byKey(restoreScanKey));
       await tester.pumpAndSettle();
       expect(find.text(_l.restoreScanNoPhrase), findsNothing);
-      final field = tester.widget<TextField>(find.widgetWithText(TextField, _l.restorePhraseLabel));
+      final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.controller!.text, service.phrase);
       await _tapText(tester, _l.commonContinue);
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(pinPad, findsOneWidget);
     });
 
     testWidgets('restore creates the wallet from the phrase under the PIN', (
@@ -467,56 +527,41 @@ void main() {
       // into view may push it out of sight, so look past the viewport).
       expect(find.text('Not in the word list: not (1), a (2).', skipOffstage: false), findsNothing);
       // The start choice is offered to everyone behind the calendar button.
+      // The phrase step's own list scrolls to the start row (the phrase box has a scrollable too).
+      await tester.scrollUntilVisible(
+        find.byKey(ScanStart.changeKey),
+        200,
+        scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first,
+      );
+      // The row opens the month sheet; its link goes to the block height.
       await _tap(tester, find.byKey(ScanStart.changeKey));
-      await _tapText(tester, _l.restoreStartByHeight);
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
-      await _tapText(tester, 'Not now');
+      await _tapText(tester, _l.restoreOpenWallet);
 
       expect(service.deletedWallets, isEmpty);
       expect(service.createdMnemonic == service.phrase, isTrue);
       expect(service.createdPin, _pin);
       expect(service.session.scanCalls, 1);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
-      expect(find.text(_l.homeBackupCardText), findsNothing);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
       expect(
         device.store.values['wallet.mainnet.pinSealed'],
         fakeSealedPassword(_pin),
       );
-    });
-
-    testWidgets('network settings switch the first run to usernet', (
-      tester,
-    ) async {
-      final service = FakeWalletService();
-      await _pumpApp(tester, service, _Device());
-      await _tap(tester, find.bySemanticsLabel(_l.setupNetworkSettingsTooltip));
-      // Development builds only: the menu's Network item, then the network.
-      await _tap(tester, find.byKey(networkMenuNetworkKey));
-      await _tapText(tester, 'Local test network');
-      await tester.pumpAndSettle();
-
-      expect(find.text('Welcome (Local test network)'), findsOneWidget);
-      await _tapText(tester, 'Create a new wallet');
-      await _enter(tester, 'PIN', _pin);
-      await _enter(tester, 'Repeat PIN', _pin);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
-      expect(service.createdConfig?.chain, Chain.usernet);
-      // Its node and Epicbox server come from usernet's own settings file; a test opens none, so
-      // the settings in use stay.
-      expect(service.createdConfig?.nodeUrl, hostSettings.nodeUse);
     });
   });
 
   testWidgets('network settings pick another relay of the list (the monitor gives its health)', (
     tester,
   ) async {
-    final service = FakeWalletService();
-    final device = _Device();
+    final service = _existing();
+    final device = _Device(sealedMainnet: true);
     await _pumpApp(tester, service, device);
-    await _tap(tester, find.bySemanticsLabel(_l.setupNetworkSettingsTooltip));
+    await _tap(tester, find.byType(KitStatusPill));
     await _tap(tester, find.byKey(networkMenuEpicboxKey));
 
     final row = find.byKey(serverListRowKey('box.net.invalid'));
@@ -547,13 +592,12 @@ void main() {
     await _tap(tester, row);
     await _tap(tester, find.byKey(serverListSwitchKey));
     expect(ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first)).read(hostSettingsProvider).epicboxUse, 'box.net.invalid');
-    await _tapText(tester, 'Create a new wallet');
+    // The Welcome has no network button; the status pill on the unlock screen keeps this sheet.
     await _enter(tester, 'PIN', _pin);
-    await _enter(tester, 'Repeat PIN', _pin);
     // The relay comes from the config the wallet opens with, which is what the address and
     // the listener use.
     final container = ProviderScope.containerOf(
-      tester.element(find.byKey(balanceFigureKey)),
+      tester.element(find.byKey(homeFigureKey)),
     );
     final config = container.read(walletConfigProvider)!;
     expect(config.epicboxDomain, 'box.net.invalid');
@@ -573,7 +617,7 @@ void main() {
         find.text('Wrong PIN. 2 tries left before a pause.'),
         findsOneWidget,
       );
-      expect(find.byKey(balanceFigureKey), findsNothing);
+      expect(find.byKey(homeFigureKey), findsNothing);
       await _enter(tester, 'PIN', '000000');
       await _enter(tester, 'PIN', '000000');
       expect(service.pinFailureCount, 3);
@@ -582,10 +626,7 @@ void main() {
         findsOneWidget,
       );
       // LEPIC does the waiting, inside the next try, so the field stays usable.
-      final field = tester.widget<TextField>(
-        find.widgetWithText(TextField, 'PIN'),
-      );
-      expect(field.enabled, isTrue);
+      expect(tester.widget<PinPad>(find.byType(PinPad)).enabled, isTrue);
       await _enter(tester, 'PIN', '000000');
       expect(
         find.text('Wrong PIN. The next try is checked after 60 seconds.'),
@@ -601,7 +642,7 @@ void main() {
         findsOneWidget,
       );
       await _unlockToHome(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       expect(service.pinFailureCount, 0);
     });
 
@@ -609,7 +650,7 @@ void main() {
       final service = _existing();
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('biometrics unlock on start when enabled', (tester) async {
@@ -619,7 +660,7 @@ void main() {
       device.bio.values['wallet.mainnet.pin'] = _pin;
       await _pumpApp(tester, service, device);
       expect(device.bio.prompts, 1);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('a PIN count the Keystore cannot read now still starts biometrics', (tester) async {
@@ -630,7 +671,7 @@ void main() {
       await _pumpApp(tester, service, device);
       expect(tester.takeException(), isNull);
       expect(device.bio.prompts, 1);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('a PIN key the Keystore holds back says so, with Try again in place of Forgot PIN', (
@@ -644,7 +685,7 @@ void main() {
       expect(service.pinFailureCount, 0);
       await tester.tap(find.text(_l.unlockTryAgain));
       await tester.pumpAndSettle();
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('a dismissed biometric prompt leaves the PIN', (tester) async {
@@ -654,10 +695,10 @@ void main() {
       device.bio.values['wallet.mainnet.pin'] = _pin;
       device.bio.succeed = false;
       await _pumpApp(tester, service, device);
-      expect(find.byKey(balanceFigureKey), findsNothing);
-      expect(find.text(_l.pinUseBiometrics), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsNothing);
+      expect(pinBiometricsKey, findsOneWidget);
       await _unlockToHome(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('a biometric read that fails says so under the field and leaves the PIN usable', (
@@ -669,7 +710,7 @@ void main() {
       await _pumpApp(tester, service, device);
       expect(tester.takeException(), isNull);
       await _unlockToHome(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('a biometric prompt that never answers leaves the PIN usable', (
@@ -682,13 +723,13 @@ void main() {
       final hold = device.bio.hold = Completer<void>();
       await _pumpApp(tester, service, device);
       expect(device.bio.prompts, 1);
-      expect(find.byKey(balanceFigureKey), findsNothing);
+      expect(find.byKey(homeFigureKey), findsNothing);
       await _unlockToHome(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       // The prompt answering late changes nothing.
       hold.complete();
       await tester.pumpAndSettle();
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('a biometric copy that no longer opens turns biometrics off', (
@@ -699,15 +740,15 @@ void main() {
       device.store.values['wallet.mainnet.pinBiometrics'] = '1';
       device.bio.values['wallet.mainnet.pin'] = '999999';
       await _pumpApp(tester, service, device);
-      expect(find.byKey(balanceFigureKey), findsNothing);
+      expect(find.byKey(homeFigureKey), findsNothing);
       expect(
         find.text('Wrong PIN. 2 tries left before a pause.'),
         findsOneWidget,
       );
-      expect(find.text('Use biometrics'), findsNothing);
+      expect(pinBiometricsKey, findsNothing);
       expect(device.bio.values, isEmpty);
       await _unlockToHome(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('forgot PIN deletes the wallet only after confirmation', (
@@ -717,8 +758,8 @@ void main() {
       final device = _Device(sealedMainnet: true);
       await _pumpApp(tester, service, device);
       await _tapText(tester, _l.pinForgot);
-      final delete = find.widgetWithText(DialogButton, 'Delete wallet');
-      expect(tester.widget<DialogButton>(delete).onPressed, isNull);
+      final delete = find.widgetWithText(KitButton, 'Delete wallet');
+      expect(tester.widget<KitButton>(delete).onPressed, isNull);
       await _tapText(tester, _l.pinResetKeep);
       expect(service.deletedWallets, isEmpty);
 
@@ -743,55 +784,45 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      // The balance: 12.5 spendable and 1 confirming.
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '13.5');
+      // The figure is what can be spent now: 12.5.
+      expect(tester.widget<Text>(find.byKey(homeFigureKey)).textSpan!.toPlainText(), '12.5');
       final handle = tester.ensureSemantics();
       await tester.pump();
-      // Offline shows once it lasts (walletStatusProvider).
+      // Offline shows once it lasts (walletStatusProvider); the connections sheet names it.
       await tester.pump(statusSettle);
+      await tester.tap(find.byKey(homePillKey));
+      await tester.pumpAndSettle();
       expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
       handle.dispose();
-      // Total 16, balance 13.5: the parts are in the tiles under the figure; the row scrolls.
-      for (final (kind, label, value) in [
-        // One precision across the tiles.
-        (BalanceKind.confirming, 'Confirming', '1.0'),
-        (BalanceKind.locked, 'Locked in sends', '2.0'),
-        (BalanceKind.total, 'Total', '16.0'),
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      // The chips under the figure name what is arriving and the change of the open send,
+      // and the balance sheet lists every part.
+      expect(find.text('+1.5 arriving'), findsOneWidget);
+      expect(find.text(_l.phoneChangeWaitingReply('3.992')), findsOneWidget);
+      expect(find.textContaining('in sends'), findsNothing);
+      await _clearNotices(tester);
+      await tester.tap(find.byKey(homeFigureKey));
+      await tester.pumpAndSettle();
+      for (final (label, value) in [
+        (_l.phoneBalanceAvailableNow, '12.5'),
+        (_l.homeBalanceConfirming, '3.992'),
+        (_l.phoneBalanceArriving, '1.0'),
+        (_l.homeBalanceImmature, '0.5'),
+        (_l.balanceTotal, '17.992'),
       ]) {
-        // The row builds the tiles near the edge only: drag until this one is there.
-        for (var i = 0; i < 10; i++) {
-          if (find.byKey(balanceTileKey(kind)).evaluate().isNotEmpty) break;
-          await tester.drag(find.byKey(balanceTilesKey), const Offset(-100, 0));
-          await tester.pumpAndSettle();
-        }
-        expect(
-          find.descendant(
-            of: find.byKey(balanceTileKey(kind)),
-            matching: find.text(label),
-          ),
-          findsOneWidget,
-          reason: label,
-        );
-        expect(
-          find.descendant(
-            of: find.byKey(balanceTileKey(kind)),
-            matching: find.text(value),
-          ),
-          findsOneWidget,
-          reason: label,
-        );
+        expect(find.descendant(of: find.byKey(balanceSheetKey), matching: find.text(label)), findsOneWidget, reason: label);
+        expect(find.descendant(of: find.byKey(balanceSheetKey), matching: find.textContaining(value)), findsWidgets, reason: label);
       }
-      // Nothing waits to finish, so that tile is left out.
-      expect(
-        find.byKey(balanceTileKey(BalanceKind.waitingSender)),
-        findsNothing,
-      );
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
 
-      await _reveal(tester, find.text('+5.0\u00a0EPIC'));
+      await _reveal(tester, find.text('+5.0'));
       expect(find.text(_l.txIncomingPayment), findsOneWidget);
-      expect(find.text('\u22121.0\u00a0EPIC'), findsOneWidget);
+      expect(find.text('\u22121.0'), findsOneWidget);
       expect(find.textContaining(_l.txStatusWaitingRecipient), findsOneWidget);
-      expect(find.textContaining(_l.txStatusReceived), findsOneWidget);
+      // A received row shows its date and the word: "21 Sep · Received".
+      expect(find.textContaining('\u00b7 ${_l.txStatusReceived}'), findsOneWidget);
       // No actions on rows: cancel lives in the details.
       expect(find.byTooltip('Cancel payment'), findsNothing);
     });
@@ -805,28 +836,29 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
+      await _clearNotices(tester);
       await _tap(tester, find.byKey(const ValueKey('tx-s:b')));
-      // No address was recorded, so this is a send by transaction file.
-      expect(find.textContaining('response file'), findsOneWidget);
-      // The label tile above the rows pushes the fee below a short screen's first page.
-      await _reveal(tester, find.text('Fee'));
-      expect(find.text('Fee'), findsOneWidget);
+      // No address was recorded: the steps wait for the recipient's answer.
+      expect(find.textContaining(_l.phoneProgAnswersLive), findsOneWidget);
+      // The fee sits below a short screen's first page.
+      await _reveal(tester, find.text(_l.phonePayFee));
+      expect(find.text(_l.phonePayFee), findsOneWidget);
       expect(find.text('0.008\u00a0EPIC'), findsOneWidget);
-      final cancel = find.widgetWithText(DangerButton, 'Cancel payment');
+      final cancel = find.widgetWithText(KitButton, 'Cancel payment');
       await _tap(tester, cancel.first);
       await _tapText(tester, 'Keep');
       expect(session.cancelledTxIds, isEmpty);
-      await _tap(tester, cancel.first);
+      await _tap(tester, cancel);
       await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').last);
       expect(session.cancelledTxIds, [2]);
       expect(find.text(_l.txDetailsPaymentCancelled), findsOneWidget);
 
       // A confirmed receive has no cancel.
       await _clearNotices(tester);
-      await tester.pageBack();
+      await tester.tap(find.byIcon(KitIcons.backLink).first);
       await tester.pumpAndSettle();
       await _tap(tester, find.byKey(const ValueKey('tx-s:a')));
-      expect(find.text(_l.txDetailsCompleted), findsOneWidget);
+      expect(find.textContaining(_l.phonePayCompleted), findsWidgets);
       expect(cancel, findsNothing);
     });
 
@@ -836,14 +868,14 @@ void main() {
         final service = _existing();
         final device = _Device(sealedMainnet: true);
         await _pumpApp(tester, service, device);
-        await _unlockToHome(tester);
+        await _unlockToHome(tester, keepNotices: true);
 
-        await tester.tap(find.text(_l.homeBackupCardButton));
+        await tester.tap(find.text(_l.phoneBackupReminderAction));
         await _pumpFrames(tester);
         // No PIN, and no phrase, until the user agrees to keep any copy private.
         expect(find.text(_l.pinPromptTitle), findsNothing);
-        final show = find.widgetWithText(FilledButton, _l.backupShowPhrase);
-        expect(tester.widget<FilledButton>(show).onPressed, isNull);
+        final show = find.widgetWithText(KitButton, _l.backupShowPhrase);
+        expect(tester.widget<KitButton>(show).onPressed, isNull);
         await tester.tap(
           find.text(_l.backupCopyAgree),
         );
@@ -851,13 +883,7 @@ void main() {
         await tester.tap(show);
         await _pumpFrames(tester);
         expect(find.text(_l.pinPromptTitle), findsOneWidget);
-        await tester.enterText(
-          find.descendant(
-            of: find.byType(AlertDialog),
-            matching: find.byType(TextField),
-          ),
-          _pin,
-        );
+        await typePin(tester, _pin);
         await tester.pumpAndSettle();
 
         final words = service.phrase.split(' ');
@@ -865,7 +891,7 @@ void main() {
         await _tapText(tester, _l.commonDone);
 
         expect(find.text(_l.homeBackedUpNotice), findsOneWidget);
-        expect(find.text(_l.homeBackupCardText), findsNothing);
+        expect(find.text(_l.phoneBackupReminderText), findsNothing);
         expect(device.store.values['wallet.mainnet.backedUp'], '1');
       },
     );
@@ -875,22 +901,16 @@ void main() {
       Future<String> openPhrase(WidgetTester tester) async {
         final service = _existing();
         await _pumpApp(tester, service, _Device(sealedMainnet: true));
-        await _unlockToHome(tester);
-        await tester.tap(find.text(_l.homeBackupCardButton));
+        await _unlockToHome(tester, keepNotices: true);
+        await tester.tap(find.text(_l.phoneBackupReminderAction));
         await _pumpFrames(tester);
         await tester.tap(
           find.text(_l.backupCopyAgree),
         );
         await tester.pump();
-        await tester.tap(find.widgetWithText(FilledButton, _l.backupShowPhrase));
+        await tester.tap(find.widgetWithText(KitButton, _l.backupShowPhrase));
         await _pumpFrames(tester);
-        await tester.enterText(
-          find.descendant(
-            of: find.byType(AlertDialog),
-            matching: find.byType(TextField),
-          ),
-          _pin,
-        );
+        await typePin(tester, _pin);
         await tester.pumpAndSettle();
         return service.phrase;
       }
@@ -929,7 +949,7 @@ void main() {
         tester.view.physicalSize = const Size(1080, 1920);
         await tester.pumpAndSettle();
         final first = find.text('1. ${phrase.split(' ').first}');
-        final copy = find.widgetWithText(TextButton, 'Copy');
+        final copy = find.widgetWithText(KitButton, 'Copy');
         final done = find.text('Done');
         expect(tester.getRect(copy).bottom, lessThan(tester.getRect(first).top));
         expect(tester.getRect(done).bottom, lessThanOrEqualTo(640));
@@ -1055,16 +1075,10 @@ void main() {
       await _pumpApp(tester, service, device);
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip(_l.homeSettingsTooltip));
+      await _openSettings(tester);
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.security)));
-      await _tapText(tester, 'Unlock with biometrics');
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(AlertDialog),
-          matching: find.byType(TextField),
-        ),
-        _pin,
-      );
+      await _tapText(tester, _l.phoneSettingsBiometrics);
+      await enterPin(tester, _pin);
       await tester.pumpAndSettle();
       expect(device.bio.values['wallet.mainnet.pin'], _pin);
       expect(device.store.values['wallet.mainnet.pinBiometrics'], '1');
@@ -1080,7 +1094,7 @@ void main() {
       );
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip(_l.homeSettingsTooltip));
+      await _openSettings(tester);
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
       await _tapText(tester, 'Recheck balance');
       // From the start: the info beside the start line holds it.
@@ -1089,11 +1103,10 @@ void main() {
       await _tapText(tester, 'Recheck');
       expect(service.session.scanCalls, 1);
       await _clearNotices(tester);
-      await tester.pageBack();
+      await tester.state<NavigatorState>(find.byType(Navigator).first).maybePop();
       await tester.pumpAndSettle();
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      await shellGo(tester, 'Home');
+      expect(find.byKey(homeFigureKey), findsOneWidget);
     });
 
     testWidgets('a failed scan shows the core message on home too', (
@@ -1111,17 +1124,16 @@ void main() {
       );
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip(_l.homeSettingsTooltip));
+      await _openSettings(tester);
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
       await _tapText(tester, 'Recheck balance');
       // From the start: the info beside the start line holds it.
       await _tap(tester, find.byKey(ScanStart.infoKey));
       await _tapText(tester, _l.restoreScanFromStart);
       await _tapText(tester, 'Recheck');
-      await tester.pageBack();
+      await tester.state<NavigatorState>(find.byType(Navigator).first).maybePop();
       await tester.pumpAndSettle();
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await shellGo(tester, 'Home');
       expect(find.text('The scan failed. node unreachable'), findsOneWidget);
       expect(find.byType(ErrorText), findsWidgets);
     });
@@ -1133,7 +1145,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip(_l.homeLockTooltip));
+      await _lock(tester);
       expect(service.session.disposeCalls, 1);
       expect(find.text(_l.unlockTitle), findsOneWidget);
     });
@@ -1146,23 +1158,22 @@ void main() {
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
-      expect(
-        find.bySemanticsLabel(RegExp('^Epicbox, Connecting')),
-        findsOneWidget,
-      );
+      final handle = tester.ensureSemantics();
+      await _connectionsSheet(tester, () {
+        expect(find.bySemanticsLabel(RegExp('^Epicbox, Connecting')), findsOneWidget);
+      });
 
       session.listenerEvents.add(
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
-      expect(find.bySemanticsLabel(RegExp('^Epicbox, Connected')), findsOneWidget);
-      // Balances the node did not check count as the node being offline, and say why.
-      expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
-      expect(
-        tester.getSemantics(find.byKey(nodeStatusKey).first).hint,
-        startsWith('Not validated with node. Balances may be out of date.'),
-      );
+      // Balances the node did not check count as the node being offline.
+      await _connectionsSheet(tester, () {
+        expect(find.bySemanticsLabel(RegExp('^Epicbox, Connected')), findsOneWidget);
+        expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
+      });
+      handle.dispose();
 
       session.summaryValue = FakeWalletSession.emptySummary;
       session.listenerEvents.add(
@@ -1180,10 +1191,10 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Received 3.0\u00a0EPIC from zz…'), findsNothing);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0');
+      expect(tester.widget<Text>(find.byKey(homeFigureKey)).textSpan!.toPlainText(), '0.0');
 
       await _clearNotices(tester);
-      await _tap(tester, find.byTooltip('Lock wallet'));
+      await _lock(tester);
       expect(session.disposeCalls, 1);
     });
 
@@ -1208,7 +1219,7 @@ void main() {
           .deliver(const SlateFile(name: 'shared.tx', json: incoming));
       await _unlockToHome(tester);
       await tester.pumpAndSettle();
-      expect(find.text('Someone is sending you 2.0\u00a0EPIC.'), findsOneWidget);
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
     });
   });
 
@@ -1252,6 +1263,7 @@ void main() {
       expect(find.text(_l.restoreUnfinishedTitle), findsOneWidget);
       expect(find.textContaining('The scan stopped and is retried by itself.'), findsOneWidget);
       session.scanEvents = const [ScanProgress(percent: 100, message: 'Done', finished: true)];
+      await _clearNotices(tester);
       await _tap(tester, find.byKey(RestoreCard.retryKey));
       expect(session.scanCalls, 2);
       expect(find.text(_l.restoreUnfinishedTitle), findsNothing);
@@ -1269,9 +1281,9 @@ void main() {
       final session = _fundedSession();
       final service = _existing(session: session)..damageOnNextOpen = true;
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
-      await _unlockToHome(tester);
+      await _unlockToHome(tester, keepNotices: true);
 
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       expect(find.textContaining('The wallet database was damaged and has been rebuilt'), findsOneWidget);
       // The rebuilt database carries the flag: the scan from block 0 ran by itself.
       expect(session.scanStarts, [null]);
@@ -1298,7 +1310,7 @@ void main() {
       expect(tester.widget<LinearProgressIndicator>(find.descendant(of: find.byKey(const ValueKey('store-copy')), matching: find.byType(LinearProgressIndicator))).value, 0.42);
       gate.complete();
       await _pumpFrames(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       // Migrated: no notice at all.
       expect(find.textContaining('unencrypted'), findsNothing);
     });
@@ -1306,8 +1318,8 @@ void main() {
     testWidgets('a copy that fell back to the plain records says so once after unlock', (tester) async {
       final service = _existing(session: _fundedSession())..storeOutcome = StoreOpenOutcome.plainFallback;
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
-      await _unlockToHome(tester);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      await _unlockToHome(tester, keepNotices: true);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       expect(find.text(_l.storeRecordsPlain), findsOneWidget);
     });
 
@@ -1316,7 +1328,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
       expect(find.text(_l.errorStoreWrongKey), findsOneWidget);
-      expect(find.byKey(balanceFigureKey), findsNothing);
+      expect(find.byKey(homeFigureKey), findsNothing);
       expect(find.text(_l.unlockTitle), findsOneWidget);
     });
 
@@ -1346,7 +1358,7 @@ void main() {
       await _enter(tester, 'PIN', _pin);
       await _enterNow(tester, 'Repeat PIN', _pin);
 
-      expect(find.text(_l.restoreScanScreenOn), findsOneWidget);
+      expect(find.text(_l.phoneRestoreScanBody), findsOneWidget);
       expect(calls.where((c) => c.method == 'keepScreenOn').map((c) => c.arguments), [true]);
       await tester.tap(find.byKey(restoreStopKey));
       await _pumpFrames(tester);
@@ -1363,8 +1375,8 @@ void main() {
       await _tap(tester, find.byKey(restoreRetryKey));
       expect(session.scanCalls, 2);
       expect(find.text(_l.restoreImportButton), findsOneWidget);
-      await _tapText(tester, 'Not now');
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      await _tapText(tester, _l.restoreOpenWallet);
+      expect(find.byKey(homeFigureKey), findsOneWidget);
       expect(containerOf(tester).read(autoLockHoldProvider), 0);
     });
 

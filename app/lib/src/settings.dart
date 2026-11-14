@@ -20,8 +20,6 @@ import 'settings_file/network_mode_file.dart' show networkModeIn, saveNetworkMod
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'models.dart' show SelectionStrategy;
 import 'secret_store.dart';
-import 'levels/level_features.dart' show effectiveAdvanced;
-import 'levels/level_providers.dart' show currentLevelProvider;
 import 'wallet_backend.dart' show hostIsPhone;
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 
@@ -417,7 +415,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     // main.dart set the mode at launch.
     NetGate.set(settings.advanced.networkMode);
     NetGate.setPayments(settings.payments);
-    NetGate.setExperimental(effectiveAdvanced(ref.read(currentLevelProvider), settings.advanced));
+    NetGate.setExperimental(settings.advanced);
     return settings;
   }
 
@@ -509,7 +507,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     }
     state = AsyncData((await _current()).copyWith(advanced: prefs));
     NetGate.set(prefs.networkMode);
-    NetGate.setExperimental(effectiveAdvanced(ref.read(currentLevelProvider), prefs));
+    NetGate.setExperimental(prefs);
   }
 
   /// Settings › Transactions changed. The Epicbox switch reaches the gate before anything
@@ -522,8 +520,15 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> setFeature(AdvancedFeature f, bool on) async =>
       setAdvanced((await _current()).advanced.withFeature(f, on));
 
-  Future<void> setNetworkMode(NetworkMode mode) async =>
-      setAdvanced((await _current()).advanced.withMode(mode));
+  /// One mode change at a time, in the order of the taps: each reads the settings as the one
+  /// before left them, so the last mode chosen is the one that stays.
+  Future<void> _modeChain = Future.value();
+
+  Future<void> setNetworkMode(NetworkMode mode) {
+    final run = _modeChain.then((_) async => setAdvanced((await _current()).advanced.withMode(mode)));
+    _modeChain = run.catchError((Object _) {});
+    return run;
+  }
 
   /// The first-unlock tour was shown: written first, and the state copied after the write from
   /// what the settings are then, so a setting saved meanwhile is not undone.

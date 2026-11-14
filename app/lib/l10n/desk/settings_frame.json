@@ -43,22 +43,6 @@
   "@deskSetFrameHelp": {
     "description": "Settings sidebar entry and page name for the Help page. Narrow."
   },
-  "deskSetFrameHealthOn": "On",
-  "@deskSetFrameHealthOn": {
-    "description": "Status word of a service that works normally."
-  },
-  "deskSetFrameHealthSlow": "Slow",
-  "@deskSetFrameHealthSlow": {
-    "description": "Status word of a service that answers slowly."
-  },
-  "deskSetFrameNotResponding": "Not responding",
-  "@deskSetFrameNotResponding": {
-    "description": "Status word of a service or node that does not answer."
-  },
-  "deskSetFrameOff": "Off",
-  "@deskSetFrameOff": {
-    "description": "Status word of a service that is switched off."
-  },
   "deskSetFrameChecking": "Checking…",
   "@deskSetFrameChecking": {
     "description": "Status word while a service is being checked."

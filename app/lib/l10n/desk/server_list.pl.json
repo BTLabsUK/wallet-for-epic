@@ -1,7 +1,6 @@
 {
   "deskSlRemoveHost": "Usuń {host}",
   "deskSlInUse": "W użyciu",
-  "deskSlHealthUnknown": "Stan nieznany",
   "deskSlNodeNoAnswer": "Ten węzeł nie odpowiada. Nic nie dodano.",
   "deskSlTorWait": "Tor nie jest jeszcze połączony. Nic nie dodano.",
   "deskSlLatency": "{ms} ms",

@@ -31,18 +31,6 @@
   "@deskInvIssuerMessage": {
     "description": "Field label: optional text the payer sees with the request."
   },
-  "deskInvIssuerMessageCount": "{used} / {max} bytes",
-  "@deskInvIssuerMessageCount": {
-    "description": "Counter under the message field.",
-    "placeholders": {
-      "used": {
-        "type": "int"
-      },
-      "max": {
-        "type": "int"
-      }
-    }
-  },
   "deskInvIssuerMessageLong": "The message is too long.",
   "@deskInvIssuerMessageLong": {
     "description": "Error: the message is over 256 bytes."

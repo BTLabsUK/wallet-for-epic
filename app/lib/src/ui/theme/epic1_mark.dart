@@ -12,6 +12,8 @@
 /// the pack's grid ([Epic1Art.grid]).
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -134,12 +136,15 @@ class Epic1Mark extends StatelessWidget {
 }
 
 /// The epic1 blocks alone, for icon slots, in one colour: grid columns 0 to 4 (the pack's icon)
-/// at 24 px and up, columns 0 to 2 (the 1 alone) below. The blocks fill 0.8 of [size] in
+/// at 24 px and up (all 7 with the noise when [columns] says so), columns 0 to 2 (the 1 alone) below. The blocks fill 0.8 of [size] in
 /// height and are centred. Decorative unless it gets a [semanticLabel].
 class Epic1Glyph extends StatelessWidget {
-  const Epic1Glyph({super.key, this.size = 20, this.color, this.semanticLabel});
+  const Epic1Glyph({super.key, this.size = 20, this.color, this.semanticLabel, this.columns});
 
   final double size;
+
+  /// How many grid columns to draw (3: the 1 alone, 5: the pack's icon); by default 3 under 24 px.
+  final int? columns;
   final Color? color;
   final String? semanticLabel;
 
@@ -150,10 +155,13 @@ class Epic1Glyph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final columns = size < 24 ? 3 : 5;
+    final columns = this.columns ?? (size < 24 ? 3 : 5);
     final h = size * 0.8;
-    final art = SizedBox.square(
-      dimension: size,
+    // Wider than the box when it draws more columns than fit a square (all seven, with the noise).
+    final w = math.max(size, h * _aspect(columns));
+    final art = SizedBox(
+      width: w,
+      height: size,
       child: Center(
         child: CustomPaint(
           size: Size(h * _aspect(columns), h),

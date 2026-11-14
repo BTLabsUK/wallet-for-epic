@@ -6,9 +6,9 @@
 /// at the top only when what a step lights is low on the screen.
 ///
 /// Screens mark what a step lights with [PhoneTourTarget] (`tour_target.dart`); the steps are
-/// in `tour_steps.dart`. [PhoneTourAnchor] wraps Home: it opens the tour once, after the first
-/// unlock when Home is idle ([PhoneTourController.openIfUnseen]), and shows the overlay over
-/// every screen the tour opens. Help › Show the tour again calls [startPhoneTour]. A step
+/// in `tour_steps.dart`. [PhoneTourAnchor] wraps Home: once, after the first unlock when Home
+/// is idle, it offers the tour in a toast ("Show me", [PhoneTourController.offerIfUnseen]); the
+/// tour opens only on that tap. It shows the overlay over every screen the tour opens. Help › Show the tour again calls [startPhoneTour]. A step
 /// never switches a setting on.
 library;
 
@@ -22,8 +22,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import '../../epic1.dart' show PaymentMode;
-import '../../levels/level_features.dart' show LevelWording;
-import '../../levels/level_providers.dart' show levelFeaturesProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart' show invoicesShownProvider;
 import '../../providers.dart';
@@ -33,6 +31,8 @@ import '../devices/linked_devices_screen.dart';
 import '../help_screen.dart';
 import '../history_screen.dart';
 import '../invoices_screen.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_tokens.dart';
 import '../receive_screen.dart' show ReceiveTab, receiveTabProvider;
 import '../settings_sections.dart';
 import '../theme/tokens.dart';
@@ -44,6 +44,9 @@ export 'tour_target.dart';
 
 /// The visible card, for tests.
 const Key phoneTourCardKey = ValueKey('phone-tour-card');
+
+/// The close mark on the tour offer, for tests.
+const Key phoneTourOfferCloseKey = ValueKey('phone-tour-offer-close');
 
 /// Tests: the steps the overlay shows instead of [phoneTourSteps].
 @visibleForTesting
@@ -66,7 +69,7 @@ class PhoneTourState {
 }
 
 /// Whether the tour is open, and the seen flag ([AppSettings.phoneTourSeen]) it saves when it
-/// opens: it opens by itself once, never again after it was shown or skipped.
+/// is offered: the offer comes once, never again after it was shown or skipped.
 class PhoneTourController extends Notifier<PhoneTourState> {
   /// Set by the open overlay: one step back, or the end on the first step. System Back asks it.
   VoidCallback? back;
@@ -83,12 +86,13 @@ class PhoneTourController extends Notifier<PhoneTourState> {
     unawaited(ref.read(appSettingsProvider.notifier).markPhoneTourSeen());
   }
 
-  /// Opens it unless it was seen, by the flag the settings hold now. True when it opened.
-  Future<bool> openIfUnseen() async {
+  /// Whether the tour is to be offered now: unseen by the flag the settings hold. It is marked
+  /// seen at once, so the offer comes once; the tour itself opens only on the user's "Show me".
+  Future<bool> offerIfUnseen() async {
     if (state.open) return false;
     final settings = await ref.read(appSettingsProvider.future);
     if (settings.phoneTourSeen || state.open) return false;
-    open();
+    await ref.read(appSettingsProvider.notifier).markPhoneTourSeen();
     return true;
   }
 
@@ -152,7 +156,7 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
   void _tryStart() {
     if (!mounted || _gaveUp) return;
     final route = ModalRoute.of(context);
-    if (route == null || !route.isCurrent || ref.read(shellTabProvider) != ShellTab.wallet) {
+    if (route == null || !route.isCurrent || ref.read(shellTabProvider) != ShellTab.home) {
       if (_touched) {
         _gaveUp = true;
       } else if (++_waits < 30) {
@@ -160,10 +164,62 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
       }
       return;
     }
-    // Level 1 is the quiet shell: its Home has none of the tour's tiles, icons or servers, so
-    // the tour never starts by itself there (Help still offers it). Levels 2 and 3 as before.
-    if (ref.read(levelFeaturesProvider).wording == LevelWording.plain) return;
-    unawaited(_tour.openIfUnseen());
+    unawaited(_offer());
+  }
+
+  /// Once, when the saved flag says unseen: a toast asks, with "Show me" and a close mark. It is
+  /// marked seen as it shows, so it never comes again; left alone it goes by itself. Help ›
+  /// Show the tour again opens the tour any time.
+  Future<void> _offer() async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null || !await _tour.offerIfUnseen() || !mounted) return;
+    final l = context.l10n;
+    // The close mark is a quieter shade of the toast's own text colour, in both themes.
+    final ink = Theme.of(context).snackBarTheme.contentTextStyle?.color ?? context.tokens.text;
+    messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 12),
+        // The close mark's target reaches the toast's edge; the words keep their 16. With the
+        // 44 tall buttons, 6 above and below make the toast's 56.
+        padding: const EdgeInsetsDirectional.only(start: 16, end: 4, top: (Kit.toastMin - Kit.hitMin) / 2, bottom: (Kit.toastMin - Kit.hitMin) / 2),
+        content: Row(
+          children: [
+            Expanded(
+              // The kit's toast type, over the theme's style so the fallback fonts (Thai, Chinese) stay.
+              child: Text(l.phoneTourOffer, style: Theme.of(context).textTheme.bodyMedium?.merge(KitType.toast).copyWith(color: ink)),
+            ),
+            trustId(
+              TrustIds.tourOfferShow,
+              TextButton(
+                // As the kit toast's button: 8 in at the sides, so the question keeps one line.
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge?.merge(KitType.toastAction),
+                  minimumSize: const Size(0, Kit.hitMin),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () {
+                  messenger.hideCurrentSnackBar();
+                  _tour.open();
+                },
+                child: Text(l.phoneTourOfferShow),
+              ),
+            ),
+            trustId(
+              TrustIds.tourOfferClose,
+              IconButton(
+                key: phoneTourOfferCloseKey,
+                tooltip: l.commonClose,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: Kit.hitMin, minHeight: Kit.hitMin),
+                icon: Icon(KitIcons.close, size: 18, color: ink.withValues(alpha: 0.6)),
+                onPressed: () => messenger.hideCurrentSnackBar(reason: SnackBarClosedReason.dismiss),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _show(int start) {
@@ -212,7 +268,7 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
     });
     // A tab the user picked before the tour opened (a payment link moves to Send untouched).
     ref.listen(shellTabProvider, (_, tab) {
-      if (_touched && tab != ShellTab.wallet) _gaveUp = true;
+      if (_touched && tab != ShellTab.home) _gaveUp = true;
     });
     final open = ref.watch(phoneTourProvider.select((s) => s.open));
     return PopScope(
@@ -336,18 +392,18 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
   /// Opens [place]: a Home tab (closing the screen the tour had open), or a screen pushed over
   /// Home, replacing the previous step's screen.
   void _navigate(TourPlace place) {
-    final tab = switch (place) {
-      TourPlace.wallet => ShellTab.wallet,
-      TourPlace.send => ShellTab.send,
-      TourPlace.receive => ShellTab.receive,
+    final flow = switch (place) {
+      TourPlace.send => ShellFlow.send,
+      TourPlace.receive => ShellFlow.receive,
       _ => null,
     };
-    if (tab != null) {
+    if (place == TourPlace.wallet || flow != null) {
       _leaveScreens();
       if (place == TourPlace.receive) {
         ref.read(receiveTabProvider.notifier).choose(ReceiveTab.epicbox);
       }
-      ref.read(shellTabProvider.notifier).go(tab);
+      ref.read(shellTabProvider.notifier).go(ShellTab.home);
+      if (flow != null) ref.read(shellFlowProvider.notifier).open(flow);
       return;
     }
     final route = MaterialPageRoute<void>(
@@ -397,7 +453,7 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
     _closing = true;
     _gen++;
     _leaveScreens();
-    ref.read(shellTabProvider.notifier).go(ShellTab.wallet);
+    ref.read(shellTabProvider.notifier).go(ShellTab.home);
     if (!_reduce && _fade.value > 0) {
       await _fade.animateBack(0, curve: Curves.easeIn);
     }

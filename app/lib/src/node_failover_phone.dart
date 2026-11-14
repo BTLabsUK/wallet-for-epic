@@ -1,21 +1,25 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Node failover on the phone (`node_failover.dart` has the rules): watches the node status
-/// Home shows ([walletStatusProvider]) and, once the node in use has not answered for
-/// [nodeFailoverAfter], moves the open wallet to the next working node of the user's list for
-/// this session ([switchNodeForSession]). [nodeFailoverProvider] holds the move, or null while
-/// the wallet is on the chosen node; the app says it in a notice (`app.dart`) and the status
-/// card names the chosen node beside the one in use.
+/// Node failover on the phone: the adapter between the app and the engine both apps run
+/// (`node_failover_engine.dart`; `node_failover.dart` has the rules). It feeds the engine what
+/// the node status sees ([rawWalletStatusProvider], the refreshes), and gives it a way to ask a
+/// node, a way to move the open wallet for this session ([switchNodeForSession]) and the plan of
+/// a round. [nodeFailoverProvider] holds the move, or null while the wallet is on the chosen
+/// node; the status card names the chosen node beside the one in use. The search shows in the
+/// status ([nodeFailoverSearchProvider]): connecting while it runs, offline when nothing answers.
 library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart';
 import 'btlabs_onions.dart';
 import 'connection_state.dart';
 import 'log.dart';
+import 'net/tor_switch.dart';
 import 'node_failover.dart';
+import 'node_failover_engine.dart';
 import 'phone_tor.dart';
 import 'providers.dart';
 import 'network.dart' show NetworkPreset;
@@ -28,15 +32,7 @@ import 'tor_routes.dart';
 import 'wallet_service.dart';
 import 'settings_file/host_settings.dart' show appConfig;
 import 'ui/server_picker.dart' show publicNodeStatusProvider;
-import 'ui/status.dart' show NodeState;
-
-/// While the shown status reads offline, how much longer before the move: the shown status
-/// already waited [statusSettle], so the node has not answered for [nodeFailoverAfter].
-Duration get _afterShown => nodeFailoverAfter - statusSettle;
-
-/// How often a move held back (a payment being sent, nothing working) is tried again while the
-/// node still does not answer; with nothing working, longer each time ([failoverRetryAfter]).
-Duration get nodeFailoverRetry => appConfig.nodeFailoverAfter;
+import 'ui/status.dart' show NodeState, WalletStatus;
 
 /// The move node failover made for this session, or null on the chosen node. Screens watch
 /// this; [nodeFailoverWatchProvider] makes the moves.
@@ -67,19 +63,13 @@ class NodeFailoverState extends Notifier<NodeFailover?> {
   void moved(NodeFailover to) => state = to;
 }
 
-/// The watcher: alive for the app's life (`app.dart`), it times the node's silence and moves.
+/// The watcher: alive for the app's life (`app.dart`), one engine per open wallet.
 final nodeFailoverWatchProvider = NotifierProvider<NodeFailoverWatch, void>(
   NodeFailoverWatch.new,
 );
 
 class NodeFailoverWatch extends Notifier<void> {
-  Timer? _timer;
-
-  /// A move is running: a second one waits for the next offline.
-  bool _moving = false;
-
-  /// Tries in a row that found no other node answering.
-  int _failed = 0;
+  FailoverEngine? _engine;
 
   /// The app is on screen (`app.dart` says when it is not): no node is asked meanwhile.
   bool _onScreen = true;
@@ -90,87 +80,174 @@ class NodeFailoverWatch extends Notifier<void> {
 
   bool _current(int gen) => gen == _build && ref.mounted;
 
+  /// Follows the Tor phase once the phone's Tor controller runs (the watcher never starts it).
+  ProviderSubscription<Object?>? _tor;
+
   @override
   void build() {
     // A new wallet starts over.
-    ref.watch(sessionProvider);
-    ++_build;
-    _failed = 0;
-    _answered = false;
-    ref.onDispose(() {
-      _timer?.cancel();
-      _timer = null;
+    final session = ref.watch(sessionProvider);
+    final gen = ++_build;
+    _engine?.dispose();
+    _engine = null;
+    _tor = null;
+    if (session == null) return;
+    final engine = FailoverEngine(
+      probe: (url) => _probe(session, url),
+      switchTo: (url, {required behind}) => _switchTo(gen, url, behind: behind),
+      plan: () => _plan(gen, session),
+      timings: () => failoverTimings,
+      stay: () => _stay(gen),
+      onState: (s) {
+        if (_current(gen)) ref.read(nodeFailoverSearchProvider.notifier).set(s);
+      },
+      log: (line) => logInfo('network', line),
+      freshConnections: () => ref.read(sessionProvider)?.dropNodeConnections(),
+    );
+    _engine = engine;
+    if (!_onScreen) engine.pause();
+    ref.onDispose(engine.dispose);
+
+    // The status may be rebuilt while a widget builds, when no provider may change: what it
+    // says reaches the engine a microtask later.
+    void later(void Function() run) => scheduleMicrotask(() {
+      if (_current(gen)) run();
     });
-    ref.listen(walletStatusProvider.select((s) => s.node.state), (_, node) => _follow(node));
-    // A node already answering when this build began has answered.
-    final now = ref.read(walletStatusProvider).node;
-    _answered = now.state == NodeState.online || now.state == NodeState.syncing || now.tip != null;
-    final network = ref.watch(networkChangesProvider).listen((available) {
-      if (available) _startOver();
+    ref.listen(
+      rawWalletStatusProvider.select((s) => (s.node.state, s.node.behind != null)),
+      (_, _) => later(_feed),
+    );
+    // Each answer or failure of the tip ask counts, also one that leaves the status as it was.
+    ref.listen(nodeTipProvider, (_, tip) {
+      if (!tip.isLoading) later(_feed);
     });
-    ref.onDispose(network.cancel);
+    ref.listen(homeProvider, (before, now) {
+      if (before == null || !homeRefreshing(before) || homeRefreshing(now)) return;
+      later(() {
+        // A node behind the wallet leaves its balances unchecked: that is behind, not down.
+        if (ref.read(rawWalletStatusProvider).node.behind != null) return;
+        _engine?.refreshEnded(validated: !now.hasError && (now.value?.summary.validatedWithNode ?? false));
+      });
+    });
+    ref.listen(
+      appSettingsProvider.select((s) => s.value?.advanced.nodeFailover),
+      (before, now) {
+        if (before == false && now == true) later(() => _engine?.kick('failover on'));
+      },
+    );
+    ref.listen(autoLockHoldProvider, (before, now) {
+      if ((before ?? 0) > 0 && now == 0) later(() => _engine?.kick('payment done'));
+    });
+    ref.listen(networkModeProvider, (_, _) => later(() => _engine?.kick('network mode')));
+    // A node added or taken out, here or in the settings file: a waiting round runs now.
+    ref.listen(serverListProvider((ServerKind.node, session.chain)).select((l) => l.value?.entries), (before, now) {
+      if (before != null && now != null && !listEquals(before, now)) later(() => _engine?.kick('node list'));
+    });
+    later(() {
+      _feed();
+      _engine?.kick('wallet opened');
+    });
   }
 
-  bool get _offline => ref.read(walletStatusProvider).node.state == NodeState.offline;
-
-  /// The node answered since this wallet opened. One that never did (a name this network
-  /// filters) is left as soon as it reads offline: no silence to wait out.
-  bool _answered = false;
-
-  void _follow(NodeState node) {
-    if (node != NodeState.offline) {
-      if (node == NodeState.online || node == NodeState.syncing) _answered = true;
-      _failed = 0;
-      _timer?.cancel();
-      _timer = null;
-      return;
+  /// Tells the engine what the node status reads now.
+  void _feed() {
+    final engine = _engine;
+    if (engine == null) return;
+    _followTor();
+    final node = ref.read(rawWalletStatusProvider).node;
+    switch (node.state) {
+      case NodeState.offline when node.behind != null:
+        engine.nodeBehind();
+      case NodeState.offline:
+        engine.nodeFailed();
+      // A refresh after a failure, a stay or a move is not an answer: the stay or the move
+      // starts it, and it may end unchecked again. Online is, so the backoff goes on till then.
+      case NodeState.syncing when engine.awaitsAnswer:
+        break;
+      case NodeState.online || NodeState.syncing:
+        engine.nodeAnswered();
+      case _:
     }
-    // Offline with a tip (balances it could not check) is a node that answers.
-    if (ref.read(walletStatusProvider).node.tip != null) _answered = true;
-    if (_onScreen) _timer ??= Timer(_answered ? _afterShown : Duration.zero, _fire);
   }
 
-  void _fire() {
-    _timer = null;
-    if (!ref.mounted || !_onScreen) return;
+  void _followTor() {
+    if (_tor != null || !ref.exists(phoneTorProvider)) return;
     final gen = _build;
-    unawaited(_tryMove().then((tryAgain) {
-      if (!tryAgain || !_current(gen) || !_onScreen) return;
-      if (_offline) _timer ??= Timer(failoverRetryAfter(_failed, nodeFailoverRetry), _fire);
-    }));
-  }
-
-  /// A new network: a retry that waits longer than the first comes at the first wait again.
-  /// The first move keeps its time.
-  void _startOver() {
-    if (_failed == 0) return;
-    _failed = 0;
-    if (!_onScreen || _moving) return;
-    _timer?.cancel();
-    _timer = _offline ? Timer(nodeFailoverRetry, _fire) : null;
+    _tor = ref.listen(phoneTorProvider.select((s) => s.phase), (_, _) {
+      scheduleMicrotask(() {
+        if (_current(gen)) _engine?.kick('tor');
+      });
+    });
   }
 
   /// The app left the screen: nothing is asked until it is back.
   void paused() {
     _onScreen = false;
-    _timer?.cancel();
-    _timer = null;
+    _engine?.pause();
   }
 
-  /// Back on screen: a node still not answering is tried again after the first wait.
+  /// Back on screen: a node still not answering is asked again at once.
   void resumed() {
     _onScreen = true;
-    _failed = 0;
-    if (!ref.mounted || _moving) return;
-    if (_offline) _timer ??= Timer(nodeFailoverRetry, _fire);
+    _engine?.resume();
   }
 
-  /// One try: true when it should be tried again while the node stays offline.
-  Future<bool> _tryMove() async {
-    final session = ref.read(sessionProvider);
+  /// A network change, a resume, tor renewed: a waiting round runs now.
+  void kick(String why) => _engine?.kick(why);
+
+  /// The user picked a node: what failover was doing is dropped.
+  void userPicked() => _engine?.userPicked();
+
+  /// [url]'s tip through the open wallet (so it follows its Tor), through the gate.
+  Future<FailoverAnswer> _probe(WalletSession session, String url) async {
     final config = ref.read(walletConfigProvider);
-    if (session == null || config == null || _moving) return false;
-    final gen = _build;
+    if (config == null) throw StateError('No wallet open');
+    final tip = await askNodeTip(
+      ref.read(walletServiceProvider),
+      session,
+      WalletConfig(
+        dataDir: config.dataDir,
+        chain: config.chain,
+        nodeUrl: url,
+        epicboxDomain: config.epicboxDomain,
+        epicboxPort: config.epicboxPort,
+        walletId: config.walletId,
+      ),
+    );
+    return FailoverAnswer(height: tip.height.toInt(), ready: tip.readyForTxs);
+  }
+
+  Future<bool> _switchTo(int gen, String url, {required bool behind}) async {
+    if (!_current(gen)) return false;
+    final choice = await ref.read(networkChoiceProvider.future);
+    if (!_current(gen)) return false;
+    final chosen = ref.read(nodeFailoverProvider)?.chosen ?? choice.nodeUrl;
+    try {
+      if (!await switchNodeForSession(ref, url)) return false;
+    } on Object catch (e) {
+      logWarn('network', 'node failover refused: ${e.runtimeType}');
+      return false;
+    }
+    if (!_current(gen)) return true;
+    // Back on the chosen node there is no move to name.
+    if (!sameServer(ServerKind.node, url, chosen)) {
+      ref.read(nodeFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url, behind: behind));
+    }
+    return true;
+  }
+
+  void _stay(int gen) {
+    if (!_current(gen)) return;
+    ref.invalidate(nodeTipProvider);
+    if (ref.exists(homeProvider)) {
+      unawaited(ref.read(homeProvider.notifier).reload().catchError((Object _) {}));
+    }
+  }
+
+  Future<FailoverPlan?> _plan(int gen, WalletSession session) async {
+    final config = ref.read(walletConfigProvider);
+    if (!_current(gen) || ref.read(sessionProvider) != session || config == null) return null;
+    _followTor();
     final settings = ref.read(appSettingsProvider).value;
     final mode = ref.read(networkModeProvider);
     final tor = ref.exists(phoneTorProvider) ? phoneTorState(ref.read(phoneTorProvider)) : TorState.off;
@@ -181,87 +258,52 @@ class NodeFailoverWatch extends Notifier<void> {
       nodeUrl: config.nodeUrl,
       busy: ref.read(autoLockHoldProvider) > 0,
     );
-    if (hold != null) {
-      // Nothing is asked while held: the next try comes at the first wait.
-      _failed = 0;
-      if (hold != FailoverHold.off) logInfo('network', 'node failover held: ${hold.name}');
-      return hold == FailoverHold.busy || hold == FailoverHold.waitingForTor;
+    if (hold != null && hold != FailoverHold.off) logInfo('network', 'node failover held: ${hold.name}');
+    final scope = failoverScope(hold, mode);
+    final WalletStatus raw = ref.read(rawWalletStatusProvider);
+    final height = raw.node.tip?.height.toInt();
+    if (scope != FailoverScope.all) {
+      return FailoverPlan(inUse: config.nodeUrl, chosen: config.nodeUrl, candidates: const [], scope: scope, overTor: TorSwitch.on, height: height);
     }
-    _moving = true;
-    try {
-      final choice = await ref.read(networkChoiceProvider.future);
-      if (!_current(gen)) return false;
-      final chosen = ref.read(nodeFailoverProvider)?.chosen ?? choice.nodeUrl;
-      final list = await ref.read(serverListProvider((ServerKind.node, config.chain)).future);
-      final listed = await _monitor(choice.preset);
-      if (!_current(gen)) return false;
-      final onions = onionLookupOf(ref.read(onionDirectoryProvider));
-      final candidates = failoverCandidates(
-        entries: list.entries,
-        current: config.nodeUrl,
-        chosen: chosen,
-        mode: mode,
-        overTor: (url) => failoverOverTor(url, hasOnion: (h, p) => onions(h, p) != null),
-        health: (url) => switch (directory.nodeStatusFor(listed, url)?.state) {
-          directory.NodeHealthState.healthy => FailoverHealth.healthy,
-          directory.NodeHealthState.down => FailoverHealth.down,
-          _ => FailoverHealth.unknown,
-        },
-      );
-      for (final url in candidates) {
-        if (!_current(gen) || ref.read(sessionProvider) != session) return false;
-        // Still not answering, and nothing being sent: a payment going out waits for no move.
-        if (ref.read(walletStatusProvider).node.state != NodeState.offline) return false;
-        if (ref.read(autoLockHoldProvider) > 0) return true;
-        if (!await _answers(session, config, url)) continue;
-        if (!_current(gen) || ref.read(autoLockHoldProvider) > 0) return _current(gen);
-        try {
-          if (!await switchNodeForSession(ref, url)) return false;
-        } on Object catch (e) {
-          logWarn('network', 'node failover refused: ${e.runtimeType}');
-          continue;
-        }
-        ref.read(nodeFailoverProvider.notifier).moved(NodeFailover(chosen: chosen, inUse: url));
-        return false;
-      }
-      logInfo('network', 'node failover: no other node answers; staying');
-      _failed++;
-      return true;
-    } finally {
-      _moving = false;
-    }
+    final choice = await ref.read(networkChoiceProvider.future);
+    if (!_current(gen)) return null;
+    final chosen = ref.read(nodeFailoverProvider)?.chosen ?? choice.nodeUrl;
+    final list = await ref.read(serverListProvider((ServerKind.node, config.chain)).future);
+    final listed = await _monitor(choice.preset);
+    if (!_current(gen)) return null;
+    final onions = onionLookupOf(ref.read(onionDirectoryProvider));
+    final candidates = failoverCandidates(
+      entries: list.entries,
+      current: config.nodeUrl,
+      chosen: chosen,
+      mode: mode,
+      overTor: (url) => failoverOverTor(url, hasOnion: (h, p) => onions(h, p) != null),
+      health: (url) => switch (directory.nodeStatusFor(listed, url)?.state) {
+        directory.NodeHealthState.healthy => FailoverHealth.healthy,
+        directory.NodeHealthState.down => FailoverHealth.down,
+        _ => FailoverHealth.unknown,
+      },
+    );
+    return FailoverPlan(
+      inUse: config.nodeUrl,
+      chosen: chosen,
+      candidates: candidates,
+      scope: scope,
+      overTor: TorSwitch.on,
+      height: height,
+    );
   }
 
-  /// The monitor's view of the public nodes, or none when it does not answer.
+  /// The monitor's view of the public nodes, or none when it does not answer at once: it only
+  /// orders the list, so a round does not wait for it longer than the prefer window.
   Future<List<directory.NodeStatus>> _monitor(NetworkPreset preset) async {
     final sub = ref.listen(publicNodeStatusProvider(preset).future, (_, _) {});
     try {
-      return await sub.read().timeout(nodeFailoverProbe);
+      return await sub.read().timeout(appConfig.nodeFailoverPrefer);
     } on Object {
       return const [];
     } finally {
       sub.close();
-    }
-  }
-
-  /// Whether [url] answers a tip request through the open wallet (so it follows its Tor).
-  Future<bool> _answers(WalletSession session, WalletConfig config, String url) async {
-    try {
-      await session
-          .nodeTipFor(
-            config: WalletConfig(
-              dataDir: config.dataDir,
-              chain: config.chain,
-              nodeUrl: url,
-              epicboxDomain: config.epicboxDomain,
-              epicboxPort: config.epicboxPort,
-              walletId: config.walletId,
-            ),
-          )
-          .timeout(nodeFailoverProbe);
-      return true;
-    } on Object {
-      return false;
     }
   }
 }

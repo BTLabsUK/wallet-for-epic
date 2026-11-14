@@ -19,17 +19,20 @@ import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../providers.dart' show sessionProvider;
-import '../../pairing_text.dart' show isUnnamed, sameNamedContact;
+import '../../pairing_text.dart' show isUnnamed, pairingPeerAddress, sameNamedContact, unnamedPeerLabel;
 import '../../wallet_service.dart';
-import '../app_dialog.dart';
 import '../common.dart';
 import '../contact_page.dart' show ContactPage;
 import '../contact_label_mark.dart' show ContactLabelGlyph, contactLabelName;
 import '../contact_label_picker.dart' show showContactLabelPicker;
 import '../contacts_screen.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_tokens.dart';
 import '../status_icons.dart';
-import '../theme/brand.dart';
 import '../theme/tokens.dart';
+import '../../trust_ids.dart';
+import 'pair_flow.dart';
 import 'name_service_parts.dart';
 import 'add_to_contacts_button.dart';
 import 'pairing_notices.dart' show pairingWordsOnScreen;
@@ -48,18 +51,19 @@ const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 
 /// Asks before removing the pairing with [name]: Keep, or Remove in risk. Undoing it
 /// means pairing again.
-Future<bool> confirmRemovePairing(BuildContext context, String name) async {
+Future<bool> confirmRemovePairing(BuildContext context, String name) {
   final l = context.l10n;
-  return confirmAppDialog(
+  return confirmPairSheet(
     context,
     title: l.contactRemovePairingTitle(name),
-    icon: Icons.link_off,
-    tone: DialogTone.risk,
-    description: l.contactRemovePairingBody(name),
-    cancelLabel: l.contactKeep,
-    confirmLabel: l.contactRemove,
-    risk: true,
-    confirmKey: confirmRemovePairingKey,
+    body: l.contactRemovePairingBody(name),
+    action: l.contactRemove,
+    cancel: l.contactKeep,
+    risky: true,
+    actionKey: confirmRemovePairingKey,
+    sheetId: TrustIds.pairflowRemoveSheet,
+    actionId: TrustIds.pairflowRemoveConfirm,
+    cancelId: TrustIds.pairflowRemoveKeep,
   );
 }
 
@@ -71,7 +75,9 @@ const Key confirmRemovePairingKey = ValueKey('confirm-remove-pairing');
 /// the contact, so no address is needed. The contact saved, or null.
 Future<Contact?> savePairingAsNewContact(BuildContext context, PairingRecord r) {
   final count = ProviderScope.containerOf(context).read(contactsProvider).value?.length ?? 0;
-  final name = isUnnamed(r.name) ? context.l10n.pairDefaultLabel(count + 1) : r.name;
+  // No name: the start of its address when the app has it, else "Contact {n}".
+  final tag = pairingPeerAddress(r);
+  final name = !isUnnamed(r.name) ? r.name : (tag == null ? context.l10n.pairDefaultLabel(count + 1) : unnamedPeerLabel(context.l10n, tag));
   return Navigator.of(context).push<Contact>(
     MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: name, address: r.paymentsAddress, addressOptional: true)),
   );
@@ -98,15 +104,16 @@ Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRec
   }
   if (!context.mounted) return null;
   final l = context.l10n;
-  final asNew = await confirmAppDialog(
+  final asNew = await confirmPairSheet(
     context,
     title: l.pairOtherAddressTitle(contact.name),
-    icon: Icons.person_add_alt_1_outlined,
-    tone: DialogTone.warn,
-    description: l.pairOtherAddressBody(contact.name),
-    cancelLabel: l.commonCancel,
-    confirmLabel: l.pairSaveNewContact,
-    confirmKey: pairOtherAddressNewKey,
+    body: l.pairOtherAddressBody(contact.name),
+    action: l.pairSaveNewContact,
+    cancel: l.commonCancel,
+    actionKey: pairOtherAddressNewKey,
+    sheetId: TrustIds.pairflowOtherSheet,
+    actionId: TrustIds.pairflowOtherNew,
+    cancelId: TrustIds.pairflowOtherCancel,
   );
   if (!asNew || !context.mounted) return null;
   final saved = await savePairingAsNewContact(context, r);
@@ -149,7 +156,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     final api = ref.read(pairingApiProvider);
     // The other wallet's verdict is heard within seconds, as on the desktop, not at the next
     // foreground tick.
-    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 10));
+    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, boostMinInterval);
     _events = api.events().listen((e) {
       // Ended while the words are open (the other wallet said they do not match): nothing is
       // left to check; the ended notice says why.
@@ -242,16 +249,17 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
 
   Future<void> _noMatch() async {
     final l = context.l10n;
-    final stop = await confirmAppDialog(
+    final stop = await confirmPairSheet(
       context,
       title: l.sasNoMatchTitle,
-      icon: Icons.gpp_bad_outlined,
-      tone: DialogTone.risk,
-      description: l.sasNoMatchBody,
-      cancelLabel: l.pairBack,
-      confirmLabel: l.sasNoMatch,
-      risk: true,
-      confirmKey: checkStopKey,
+      body: l.sasNoMatchBody,
+      action: l.sasNoMatch,
+      cancel: l.pairBack,
+      risky: true,
+      actionKey: checkStopKey,
+      sheetId: TrustIds.pairflowCheckStopSheet,
+      actionId: TrustIds.pairflowCheckStop,
+      cancelId: TrustIds.pairflowCheckStopBack,
     );
     if (stop && mounted && !_left) await _answer(PairingCheck.mismatch);
   }
@@ -260,10 +268,9 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
     if (record == null) {
-      return SlotScaffold(appBar: AppBar(title: Text(l.sasTitle)), body: const SizedBox.shrink());
+      return PairFlowPage(title: l.sasTitle, leadingId: TrustIds.pairflowCheckClose, children: const []);
     }
     final name = ref.watch(pairingNameProvider(record.id));
     if (_nameService != null) {
@@ -289,57 +296,51 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     // A name service confirms by itself once this side matched: nothing to confirm on its page.
     final service = statedAutomated(record.peerProfile) && record.peerFeatures & featureNameService == 0;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.sasTitle)),
-      body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            FilledButton(
-              key: checkMatchKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: _busy ? null : () => _answer(PairingCheck.match),
-              child: Text(l.sasMatch),
-            ),
-            const SizedBox(height: 8),
-            // Stacked (UP-029). No Skip: Back is later, the row stays Paired.
-            OutlinedButton(
-              key: checkNoMatchKey,
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: _busy ? null : _noMatch,
-              child: Text(l.sasNoMatch),
-            ),
-          ],
-        ),
+    return PairFlowPage(
+      title: l.sasTitle,
+      leadingId: TrustIds.pairflowCheckClose,
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              PairAvatar(name: name),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name, style: theme.textTheme.titleMedium?.copyWith(fontFamily: t.headFamily)),
-                  ],
-                ),
-              ),
-            ],
+          KitButton(
+            key: checkMatchKey,
+            label: l.sasMatch,
+            semanticsId: TrustIds.pairflowCheckMatch,
+            onPressed: _busy ? null : () => _answer(PairingCheck.match),
           ),
-          const SizedBox(height: 16),
-          PairLead(lead),
-          const SizedBox(height: 16),
-          PairCard(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
-                child: WordTiles(words: record.sas, label: l.sasWordsLabel, size: WordTileSize.check),
-              ),
-            ],
+          const PairGap(10),
+          // Stacked (UP-029). No Skip: Back is later, the row stays Paired.
+          KitButton(
+            key: checkNoMatchKey,
+            label: l.sasNoMatch,
+            kind: KitButtonKind.quiet,
+            semanticsId: TrustIds.pairflowCheckNoMatch,
+            onPressed: _busy ? null : _noMatch,
           ),
         ],
       ),
+      children: [
+        const PairGap(6),
+        Row(
+          children: [
+            PairAvatar(name: name),
+            const SizedBox(width: 12),
+            Expanded(child: Text(name, style: KitType.sheetTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+        const PairGap(14),
+        PairLead(lead),
+        const PairGap(16),
+        PairCard(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
+              child: WordTiles(words: record.sas, label: l.sasWordsLabel, size: WordTileSize.check),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -436,11 +437,10 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
     if (record == null) {
       if (ref.watch(pairingsProvider).hasValue) _leave();
-      return SlotScaffold(appBar: AppBar(title: Text(l.pairWaitingTitleShort)), body: const SizedBox.shrink());
+      return PairFlowPage(title: l.pairWaitingTitleShort, leadingId: TrustIds.pairflowResultClose, children: const []);
     }
     final name = ref.watch(pairingNameProvider(record.id));
     final verified = record.state == PairingState.verified;
@@ -460,145 +460,116 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
             epicboxOf: (c) => c.epicbox,
           );
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id);
-    final done = FilledButton(
-      key: checkDoneKey,
-      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-      onPressed: () => Navigator.pop(context),
-      child: Text(l.commonDone),
-    );
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.pairWaitingTitleShort)),
-      body: ScreenBody(
-        // Stacked, the primary first (UP-029).
-        bottom: verified
-            ? done
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  done,
-                  const SizedBox(height: 8),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    onPressed: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id)),
-                    ),
-                    child: Text(l.sasCheckNow),
-                  ),
-                ],
-              ),
-        children: [
-          const SizedBox(height: 16),
-          Center(child: GlyphTile(size: 72, child: Icon(verified ? EpicGlyphs.verified : EpicGlyphs.paired))),
-          const SizedBox(height: 16),
-          Semantics(
-            header: true,
-            liveRegion: true,
-            child: Text(
-              verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(fontFamily: t.headFamily, fontSize: 22),
-            ),
-          ),
-          // Verified needs no line when no payments go through it: the badges below say it.
-          if (verified && !noPayments) ...[
-            const SizedBox(height: 8),
-            Text(
-              l.sasMatchedBody(name),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-            ),
-          ],
-          if (!verified) ...[
-            const SizedBox(height: 8),
-            Text(
-              l.sasSkippedBody(name),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-            ),
-          ],
-          const SizedBox(height: 12),
-          // The result's badge is the big one: the same badge, scaled up.
-          Center(
-            child: SizedBox(
-              height: 30,
-              child: FittedBox(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [TrustBadge(record), if (noPayments) ...[const SizedBox(width: 6), const NoPaymentsBadge()]],
-                ),
-              ),
-            ),
-          ),
-          if (verified) ...[
-            const SizedBox(height: 8),
-            Text(
-              statedAutomated(record.peerProfile)
-                  ? l.pairIsService
-                  : record.peerVerifiedAt != null
-                      ? l.pairConfirmedToo(who)
-                      : l.pairNotChecked(who),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-            ),
-          ],
-          // Where it goes first: at 360 dp the choices show without scrolling.
-          if (!saved) ...[
-            const SizedBox(height: 20),
-            PairCard(
+    final done = KitButton(key: checkDoneKey, label: l.commonDone, semanticsId: TrustIds.pairflowResultDone, onPressed: () => Navigator.pop(context));
+    return PairFlowPage(
+      title: l.pairWaitingTitleShort,
+      leadingId: TrustIds.pairflowResultClose,
+      // Stacked, the primary first (UP-029).
+      bottom: verified
+          ? done
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(l.pairSaveContactTitle(name), style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 6),
-                      ListTile(
-                        key: resultLabelRowKey,
-                        contentPadding: EdgeInsets.zero,
-                        enabled: !_busy,
-                        leading: ContactLabelGlyph(_label, size: 24, color: _label == ContactLabel.wallet ? t.faint : t.dim),
-                        title: Text(l.deskConLabelTitle),
-                        subtitle: Text(contactLabelName(l, _label)),
-                        trailing: Icon(Icons.chevron_right, color: t.faint),
-                        onTap: _pickLabel,
-                      ),
-                      const SizedBox(height: 6),
-                      if (suggested != null) ...[
-                        FilledButton(
-                          key: resultAddToNamedKey,
-                          onPressed: _busy ? null : () => _attach(record, suggested),
-                          child: Text(l.pairAddToNamed(suggested.name), textAlign: TextAlign.center),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      AddToContactsButton(
-                        key: resultSaveNewKey,
-                        onNew: _busy ? null : () => _saveNew(record),
-                        onExisting: _busy ? null : () => _addTo(record),
-                      ),
-                    ],
-                  ),
+                done,
+                const PairGap(10),
+                KitButton(
+                  label: l.sasCheckNow,
+                  kind: KitButtonKind.quiet,
+                  semanticsId: TrustIds.pairflowResultCheckNow,
+                  onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id))),
                 ),
               ],
             ),
-          ],
-          if (verified && !noPayments) ...[
-            const SizedBox(height: 20),
-            PairMatchedCard(
-              name: name,
-              seal: record.seal != SealMode.off,
-              onSeal: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setSeal(record.id, v)), row: BusyRow.seal),
-              allow: record.allowInvoices,
-              offLine: l.sasAllowOffLine(name),
-              onAllow: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setAllowInvoices(record.id, v)), row: BusyRow.allow),
-              busy: _busyRow,
-              allowKey: resultAllowKey,
+      children: [
+        // Verified needs no line when no payments go through it: the badges below say it.
+        PairOutcome(
+          icon: verified ? EpicGlyphs.verified : EpicGlyphs.paired,
+          title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
+          body: verified ? (noPayments ? null : l.sasMatchedBody(name)) : l.sasSkippedBody(name),
+          good: verified,
+        ),
+        const PairGap(12),
+        // The result's badge is the big one: the same badge, scaled up.
+        Center(
+          child: SizedBox(
+            height: 30,
+            child: FittedBox(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [TrustBadge(record), if (noPayments) ...[const SizedBox(width: 6), const NoPaymentsBadge()]],
+              ),
             ),
-          ],
+          ),
+        ),
+        if (verified) ...[
+          const PairGap(8),
+          PairNote(
+            statedAutomated(record.peerProfile)
+                ? l.pairIsService
+                : record.peerVerifiedAt != null
+                    ? l.pairConfirmedToo(who)
+                    : l.pairNotChecked(who),
+            center: true,
+          ),
         ],
-      ),
+        // Where it goes first: at 360 dp the choices show without scrolling.
+        if (!saved) ...[
+          const PairGap(20),
+          PairCard(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 4),
+                child: Text(l.pairSaveContactTitle(name), style: KitType.rowTitle.copyWith(color: t.text)),
+              ),
+              KitRow(
+                key: resultLabelRowKey,
+                title: l.deskConLabelTitle,
+                value: contactLabelName(l, _label),
+                leading: KitIconWell.child(ContactLabelGlyph(_label, size: 22, color: _label == ContactLabel.wallet ? t.faint : t.dim)),
+                chevron: true,
+                semanticsId: TrustIds.pairflowResultLabel,
+                onTap: _busy ? null : _pickLabel,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (suggested != null) ...[
+                      KitButton(
+                        key: resultAddToNamedKey,
+                        label: l.pairAddToNamed(suggested.name),
+                        semanticsId: TrustIds.pairflowResultAddNamed,
+                        onPressed: _busy ? null : () => _attach(record, suggested),
+                      ),
+                      const PairGap(8),
+                    ],
+                    AddToContactsButton(
+                      key: resultSaveNewKey,
+                      onNew: _busy ? null : () => _saveNew(record),
+                      onExisting: _busy ? null : () => _addTo(record),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+        if (verified && !noPayments) ...[
+          const PairGap(20),
+          PairMatchedCard(
+            name: name,
+            seal: record.seal != SealMode.off,
+            onSeal: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setSeal(record.id, v)), row: BusyRow.seal),
+            allow: record.allowInvoices,
+            offLine: l.sasAllowOffLine(name),
+            onAllow: _busy ? null : (v) => _run(() => pairingCall(ref, (api) => api.setAllowInvoices(record.id, v)), row: BusyRow.allow),
+            busy: _busyRow,
+            allowKey: resultAllowKey,
+          ),
+        ],
+      ],
     );
   }
 }

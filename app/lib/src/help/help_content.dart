@@ -465,7 +465,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         else
           const HelpBlock.ul(['**Public node** (the default): one of the public nodes others run. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about.', '**Local node**: runs on this computer as a separate program that starts and stops with the app. It first downloads the whole chain, then a little every day; on disk it takes about 5 GB and grows slowly. While it syncs, the wallet shows its progress and uses a public node. See "Running the local node".']),
         if (phone)
-          HelpBlock.p('Tap the node icon on the Wallet tab to see the node’s state and switch to another. Sending needs a synced node; a state such as **12 behind** or **Not answering** means pick another. To add a node by its address, open $nodePlace and type the address in the field above the list.')
+          HelpBlock.p('Tap the node icon on the Wallet tab to see the node’s state and switch to another. Sending needs a synced node; in a state such as **12 behind** or **Not answering** the wallet moves to another node in your list by itself, unless Node failover is off: then pick another. To add a node by its address, open $nodePlace and type the address in the field above the list.')
         else
           HelpBlock.p('Change it in $nodePlace: the nodes are listed with their state. Click one to switch to it at once, or type an address to filter the list or add a node. Sending needs a synced node; if the node falls behind, the wallet offers another one.'),
       ],
@@ -584,7 +584,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           'Back here the payment shows **To be posted elsewhere**, then **Confirming** once the wallet sees it on chain after you leave Kill switch.',
         ]),
         HelpBlock.p('Services a mode turns off show as **Off (Node only)** in grey: that is the mode, not an error. Nothing is cancelled when you switch; a send waiting for its recipient over Epicbox continues when you leave${tor ? ' (or switch to Tor only)' : ''}.'),
-        HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
+        HelpBlock.p('**Node failover** is on by default. When your node stops answering or falls behind, the wallet moves to the best working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. While no node in your list answers, the wallet keeps trying and connects as soon as one does. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -702,19 +702,17 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         id: HelpId.cleanup,
       ),
     HelpTopic(
-      'maintenance',
-      'The settings file',
-      'One file holds your Node and Epicbox lists. A mistake in it never costs the last good settings.',
+      phone ? 'network' : 'maintenance',
+      phone ? 'Server lists' : 'The settings file',
+      phone ? 'Which node and Epicbox server the wallet uses.' : 'One file holds your Node and Epicbox lists. A mistake in it never costs the last good settings.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'The app keeps a file of your Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. The file is changed in the app, for example under $nodePlace and $epicboxPlace, not by hand.',
+            'Your Node and Epicbox lists are changed under $nodePlace and $epicboxPlace.',
           ),
           HelpBlock.ul([
             '**The first server of each list is the one in use.** Picking a server moves it to the top; reordering the list changes the one in use. When the first node does not answer, the next one is tried.',
             '**The first Epicbox server is in the Epicbox address of every wallet.** Moving another one to the top gives each wallet a new address; payments sent to an old address do not arrive.',
-            '**A file that cannot be read:** the last good settings stay in use. Before the app writes a new file, it saves the old one as **settings.toml.bad-<time>**.',
-            'A deleted file is written again.',
           ]),
         ] else ...[
           HelpBlock.p(

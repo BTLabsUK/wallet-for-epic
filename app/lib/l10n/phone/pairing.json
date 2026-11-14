@@ -1,0 +1,34 @@
+{
+  "phoneLinkScanSub": "Scan the code on your other device",
+  "@phoneLinkScanSub": {
+    "description": "Subtitle of the Scan row in Link a device."
+  },
+  "phoneLinkShowSub": "Your other device scans it",
+  "@phoneLinkShowSub": {
+    "description": "Subtitle of the Show my code row in Link a device."
+  },
+  "phoneLinkPasteSub": "Paste a code or link you were sent",
+  "@phoneLinkPasteSub": {
+    "description": "Subtitle of the Paste code row in Link a device."
+  },
+  "phonePairUnnamedShort": "Wallet {code}",
+  "phonePairSeenAsEmptyShows": "Left empty, they see {label}.",
+  "@phonePairUnnamedShort": {
+    "description": "What an unnamed wallet is called: the first characters of its address, so the user can match it by eye with a link or address. Never translated into a name.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "A7F3xy"
+      }
+    }
+  },
+  "@phonePairSeenAsEmptyShows": {
+    "description": "Helper line under the name field when it is empty: the label the other side shows for this wallet.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Wallet A7F3xy"
+      }
+    }
+  }
+}

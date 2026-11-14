@@ -57,15 +57,12 @@ bool epic1Shaped(String text) {
 final RegExp _epic1Link = RegExp(r'^epic:(//)?t?epic1');
 final RegExp _epic1Bare = RegExp(r'^t?epic1[0-9a-z]{20,}');
 
-/// Whether [text] is a bare epic1 address (no `epic:` scheme), which cannot be paid alone.
 /// Whether [text] names an epic1 address with no way to reach it: the bare address, or an
 /// `epic:` link with no query (no server). LEPIC pays only a link that names a server.
 bool epic1AddressOnly(String text) {
   final t = text.trim().toLowerCase();
   return _epic1Bare.hasMatch(t) || (_epic1Link.hasMatch(t) && !t.contains('?'));
 }
-
-bool epic1Bare(String text) => _epic1Bare.hasMatch(text.trim().toLowerCase());
 
 /// Whether [text] has the shape of an epic1 link a contact holds (`epic:epic1…`), with no
 /// whitespace; of [network] when one is named (`tepic1` off mainnet). A contacts file and a

@@ -4,7 +4,9 @@ import 'package:epic_wallet/src/help/help_i18n.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/ui/help_language_switch.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,6 +55,18 @@ Future<void> _see(WidgetTester tester, Finder finder) async {
   await tester.scrollUntilVisible(finder, 300, scrollable: _list.last);
   expect(finder, findsOneWidget);
 }
+
+/// The phone index names the six sections as the design does; any other keeps its title.
+String _phoneTitle(String id, String fallback) =>
+    const {
+      'start': 'Getting started',
+      'how': 'How payments work',
+      'network': 'Networks and privacy',
+      'safety': 'Keeping it safe',
+      'maintenance': 'Upkeep',
+      'trouble': 'When something is wrong',
+    }[id] ??
+    fallback;
 
 void main() {
   group('shared help content', () {
@@ -155,17 +169,23 @@ void main() {
       expect(find.text('Contact'), findsNothing);
     });
 
-    testWidgets('the index lists every section with a phone topic, and its topics', (tester) async {
+    testWidgets('the index lists every section with a phone topic; a section lists its topics', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
       // The phone's index skips a section none of its topics uses.
       final used = helpTopics(3, platform: HelpPlatform.phone).map((t) => t.section).toSet();
       for (final s in helpSections.where((s) => used.contains(s.id))) {
-        await tester.scrollUntilVisible(find.text(s.title), 300, scrollable: _list);
-        expect(find.text(s.title), findsOneWidget);
+        final title = _phoneTitle(s.id, s.title);
+        await tester.scrollUntilVisible(find.text(title), 300, scrollable: _list.last);
+        expect(find.text(title), findsOneWidget);
       }
-      // The loop ended at the foot of the page, below the topics: scroll up to them.
-      await tester.scrollUntilVisible(find.text('Troubleshooting'), -300, scrollable: _list.last);
+      final trouble = _phoneTitle('trouble', '');
+      await tester.scrollUntilVisible(find.text(trouble), -300, scrollable: _list.last);
+      await tester.ensureVisible(find.text(trouble));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(trouble));
+      await tester.pumpAndSettle();
+      await _see(tester, find.text(trouble));
       await tester.scrollUntilVisible(find.text('Payments by another wallet'), 300, scrollable: _list.last);
     });
 
@@ -195,13 +215,17 @@ void main() {
     testWidgets('a topic opens as a page with its section, body and the related rows', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      await tester.scrollUntilVisible(find.text('Fees'), 300, scrollable: _list);
+      await tester.scrollUntilVisible(find.text('How payments work'), 300, scrollable: _list.last);
+      await tester.ensureVisible(find.text('How payments work'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('How payments work'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Fees'), 300, scrollable: _list.last);
       await tester.ensureVisible(find.text('Fees'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Fees'));
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsOneWidget);
-      expect(find.text('How Epic Cash works'), findsOneWidget);
       await _see(tester, find.textContaining('Network fee'));
       await _see(tester, find.text(_l.helpMoreInSection));
       await _see(tester, find.text('Confirmations'));
@@ -213,11 +237,43 @@ void main() {
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(find.text('Your recovery phrase'), findsOneWidget);
       await _see(tester, find.textContaining('your PIN'));
-      await tester.pageBack();
+      await tester.tap(find.bySemanticsLabel(_l.helpTitle).first);
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsNothing);
       expect(find.byKey(helpSearchKey), findsOneWidget);
     });
+
+    for (final size in const [Size(360, 640), Size(390, 844)]) {
+      testWidgets('at ${size.width.round()}x${size.height.round()}: the language switch is first; at the end the feedback entry and About are in view and tappable', (tester) async {
+        final h = AppHarness();
+        await h.pump(tester, const HelpScreen());
+        tester.view.physicalSize = size * 3;
+        await tester.pumpAndSettle();
+        final lang = find.byType(HelpLanguageSwitch);
+        expect(lang, findsOneWidget);
+        // First: above every row of the list.
+        final firstRow = find.byType(KitRow).first;
+        expect(tester.getTopLeft(lang).dy, lessThan(tester.getTopLeft(firstRow).dy));
+        // To the end of the list.
+        await tester.drag(_list.last, const Offset(0, -3000));
+        await tester.pumpAndSettle();
+        final view0 = Offset.zero & size;
+        expect(view0.contains(tester.getTopLeft(lang)), isTrue, reason: 'the switch stays in view');
+        final view = Offset.zero & size;
+        for (final k in [find.byKey(helpFeedbackKey), find.text(_l.phoneSettingsAboutRow)]) {
+          expect(k, findsOneWidget);
+          final rect = tester.getRect(k);
+          expect(view.contains(rect.topLeft) && view.contains(rect.bottomRight), isTrue, reason: '$rect inside $size');
+        }
+        // Hittable: the feedback entry is not under the list or its fade.
+        final feedback = tester.getCenter(find.byKey(helpFeedbackKey));
+        final hit = tester.hitTestOnBinding(feedback);
+        expect(hit.path.map((e) => e.target), contains(tester.renderObject(find.byKey(helpFeedbackKey))));
+        await tester.tap(find.byKey(helpFeedbackKey));
+        await tester.pumpAndSettle();
+        expect(find.byKey(helpSearchKey), findsNothing, reason: 'the tap opened the feedback sheet');
+      });
+    }
 
     testWidgets('the handshake topic offers the animated sheet', (tester) async {
       final h = AppHarness();

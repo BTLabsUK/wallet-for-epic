@@ -12,6 +12,7 @@ import '../state_language.dart' show torShownState;
 import 'status.dart' show StateDot, StatusDot, toneColor;
 import '../l10n.dart';
 import '../phone_tor.dart';
+import '../settings.dart' show networkModeProvider;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../wallet_service.dart';
@@ -26,17 +27,6 @@ const IconData torIcon = EpicGlyphs.tor;
 /// onion, and nothing Tor shows, so no tab flashes on a phone without Tor.
 bool torShown(PhoneTorState s) =>
     s.phase != PhoneTorPhase.unavailable && s.onion != null;
-
-/// The key of the Tor switch in Settings › Network & privacy, for tests.
-const Key torReceivingSwitchKey = ValueKey('tor-receiving-switch');
-
-/// The key of the line under the Tor switch that names the locking mode, for tests.
-const Key torLockedLineKey = ValueKey('tor-locked-line');
-
-/// Former keys of the tap area over the switch locked by Tor only and its Change Undercover
-/// link: the line under the switch names the mode, which is changed right above it.
-const Key torUndercoverTapKey = ValueKey('tor-undercover-tap');
-const Key torUndercoverChangeKey = ValueKey('tor-undercover-change');
 
 /// The key of the Tor status line, for tests.
 const Key torStatusKey = ValueKey('tor-status');
@@ -228,7 +218,8 @@ class TorStateLine extends ConsumerWidget {
 
 /// What [route] does under the Tor switch right now: "Over Tor", "Waiting for Tor" (info) or
 /// "Waiting for Tor" in the risk colour when Tor is not connected; nothing (SizedBox.shrink) on
-/// the clearnet or with Tor off. Reads phoneTorProvider.
+/// the clearnet, with Tor off, or when the connection mode turns the route off. Reads
+/// phoneTorProvider and networkModeProvider.
 class TorWayLine extends ConsumerWidget {
   const TorWayLine({super.key, required this.route});
 
@@ -237,10 +228,11 @@ class TorWayLine extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = phoneTorState(ref.watch(phoneTorProvider));
+    final mode = ref.watch(networkModeProvider);
     final words = torWayWords(
       context.l10n,
       context.tokens,
-      torWay(route, state),
+      torWayIn(route, state, mode),
     );
     if (words == null) return const SizedBox.shrink();
     return Semantics(

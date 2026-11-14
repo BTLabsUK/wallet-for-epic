@@ -287,10 +287,6 @@
   "@deskSetGrpConnections": {
     "description": "Settings: heading of the “Connections” group of rows (on its page and over search results)."
   },
-  "deskSetGrpTor": "Tor",
-  "@deskSetGrpTor": {
-    "description": "Settings: heading of the “Tor” group of rows (on its page and over search results)."
-  },
   "deskSetGrpServerStatus": "Server status",
   "@deskSetGrpServerStatus": {
     "description": "Settings: heading of the “Server status” group of rows (on its page and over search results)."

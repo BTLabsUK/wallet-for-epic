@@ -16,7 +16,6 @@ import '../../settings_file/host_settings.dart' show appConfig;
 import '../../stale_open.dart';
 import '../../trust_ids.dart';
 import '../desk_l10n.dart';
-import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../notice_digest.dart' show DigestPlace, HeldNotice, NoticeDigest, raiseNotice;
@@ -272,11 +271,12 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // The clipboard is never read here: a pairing link is pasted on the Pair page by a press.
     _focus = AppLifecycleListener(
       onResume: () {
+        // First, so no request below goes out on a node connection the system cut: kept-open ones
+        // are dropped, and a node still not answering is asked again at once.
+        ref.read(deskFailoverWatchProvider.notifier).resumed();
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
         unawaited(ref.read(deskNameServiceProvider)?.sync(NameServiceSyncTrigger.resume));
-        // A node failover that waits longer each time tries again soon.
-        ref.read(deskFailoverWatchProvider.notifier).resumed();
         // The contacts' mailboxes too, as the phone does on resume (the shell exists only
         // unlocked; the collect itself stays off in Node only, Kill switch and with Epicbox off).
         if (mounted) _open().ignore();
@@ -478,17 +478,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // Linked devices: the service lives while the shell is up (it reads the channel every 5 s,
     // minimized too).
     ref.watch(deskDeviceServiceProvider);
-    // Node failover moved the wallet to another node for this session: said wherever the
-    // user is, never asked.
+    // Node failover keeps the wallet on a node that answers while the shell shows; the rail
+    // names the node in use, nothing else is said.
     ref.listen(deskFailoverWatchProvider, (_, _) {});
     // A contact whose keys came back docks the notice on its page, whenever that opens.
     ref.listen(deskKeysBackProvider, (_, _) {});
-    ref.listen(deskFailoverProvider, (before, now) {
-      if (now != null && now != before && mounted) {
-        final host = nodeHost(now.inUse);
-        showEToast(context, now.behind ? context.l10n.deskNodeFailoverBehind(host) : context.l10n.deskNodeFailoverSwitched(host), tone: ETone.info);
-      }
-    });
     // The old wallet's history differs from details the user typed: the same per-field
     // "Details differ" choice as a history backup, Mine until they say otherwise.
     ref.listen(deskProvider.select((s) => s.oldHistory), (_, next) {

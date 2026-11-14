@@ -12,8 +12,11 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRow;
 import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
@@ -24,6 +27,7 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
 
@@ -55,6 +59,7 @@ Future<void> _pump(
   MemorySecretStore? store,
   bool dev = false,
   bool advanced = false,
+  List<Override> overrides = const [],
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
@@ -70,6 +75,7 @@ Future<void> _pump(
         sessionProvider.overrideWith(_OpenSession.new),
         phoneTorProvider.overrideWith(() => _Tor(tor)),
         devNetworksProvider.overrideWithValue(dev),
+        ...overrides,
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -85,6 +91,16 @@ Future<void> _pump(
 
 Finder _row(TorRoute route) =>
     find.byKey(route == TorRoute.node ? settingsNodeKey : settingsEpicboxKey);
+
+/// The mode the test flips.
+final _modeSource = NotifierProvider<_ModeSource, NetworkMode>(_ModeSource.new);
+
+class _ModeSource extends Notifier<NetworkMode> {
+  @override
+  NetworkMode build() => NetworkMode.standard;
+
+  void set(NetworkMode mode) => state = mode;
+}
 
 const _states = [
   (PhoneTorState(phase: PhoneTorPhase.off), null, null),
@@ -161,6 +177,8 @@ void main() {
     ]) {
       testWidgets('${kind.name}: a tap opens its picker sheet, not a page', (tester) async {
         await openPage(tester);
+        await tester.ensureVisible(find.byKey(key));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(key));
         await tester.pumpAndSettle();
         final sheet = find.byType(ServerListSheet);
@@ -168,7 +186,7 @@ void main() {
         expect(tester.widget<ServerListSheet>(sheet).kind, kind);
         // The sheet is a modal route over the page: closing it lands on the same page.
         // The header's close comes before the field's clear button, which is a close icon too.
-    await tester.tap(find.byIcon(Icons.close).first);
+        await tester.tap(find.byIcon(KitIcons.close).first);
         await tester.pumpAndSettle();
         expect(sheet, findsNothing);
         expect(find.byKey(key), findsOneWidget);
@@ -190,7 +208,10 @@ void main() {
           200,
           scrollable: find.byType(Scrollable).first,
         );
-        final row = find.widgetWithText(ListTile, 'Network');
+        // The page is a lazy list: scroll to its end so the row is built where there is one.
+        await tester.fling(find.byType(Scrollable).first, const Offset(0, -3000), 3000);
+        await tester.pumpAndSettle();
+        final row = find.widgetWithText(KitRow, _l.settingsAboutNetwork);
         expect(row, dev && advanced ? findsOneWidget : findsNothing);
         if (dev && advanced) {
           await tester.tap(row);
@@ -270,4 +291,43 @@ void main() {
       );
     }
   }
+
+  // The bug: "Over Tor" stayed on the rows after the connection mode changed.
+  testWidgets('the badges follow the connection mode as it changes, Tor up', (tester) async {
+    const up = PhoneTorState(receiving: true, phase: PhoneTorPhase.ready);
+    await _pump(
+      tester,
+      const SettingsScreen(section: SettingsSection.privacyNetwork),
+      up,
+      overrides: [networkModeProvider.overrideWith((ref) => ref.watch(_modeSource))],
+    );
+    await tester.scrollUntilVisible(_row(TorRoute.node), 200, scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(tester.element(_row(TorRoute.node)));
+
+    bool badge(TorRoute route) =>
+        find.descendant(of: _row(route), matching: find.text('Over Tor')).evaluate().isNotEmpty;
+
+    // Every switch direction, one after another: node, epicbox badge after each.
+    const steps = [
+      (NetworkMode.standard, true, true),
+      (NetworkMode.nodeOnly, true, false),
+      (NetworkMode.killSwitch, false, false),
+      (NetworkMode.torOnly, true, true),
+      (NetworkMode.nodeOnly, true, false),
+      (NetworkMode.standard, true, true),
+      (NetworkMode.killSwitch, false, false),
+      (NetworkMode.nodeOnly, true, false),
+      (NetworkMode.torOnly, true, true),
+      (NetworkMode.killSwitch, false, false),
+      (NetworkMode.standard, true, true),
+      (NetworkMode.torOnly, true, true),
+    ];
+    for (final (mode, node, epicbox) in steps) {
+      container.read(_modeSource.notifier).set(mode);
+      await tester.pumpAndSettle();
+      expect(badge(TorRoute.node), node, reason: 'node badge in ${mode.name}');
+      expect(badge(TorRoute.epicbox), epicbox, reason: 'epicbox badge in ${mode.name}');
+    }
+  });
 }

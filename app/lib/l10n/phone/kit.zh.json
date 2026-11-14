@@ -1,0 +1,14 @@
+{
+  "phoneKitReady": "就绪",
+  "phoneKitReconnecting": "正在重新连接",
+  "phoneKitAvailable": "可用",
+  "phoneKitLeaves": "扣除 {fee} 手续费后剩余 {amount}",
+  "phoneKitBack": "返回",
+  "phoneKitDeleteDigit": "删除最后一位数字",
+  "phoneKitPinDigits": "已输入 {count} / {total} 位",
+  "phoneKitSwapCurrency": "切换货币",
+  "phoneKitStepDone": "已完成",
+  "phoneKitStepNow": "进行中",
+  "phoneKitStepLater": "未开始",
+  "phoneKitPickerSaveFailed": "未保存。请重试。"
+}

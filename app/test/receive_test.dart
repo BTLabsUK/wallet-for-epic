@@ -12,16 +12,18 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/file_exchange_help.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
 import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import 'support/real_time.dart';
@@ -146,9 +148,11 @@ class _Harness {
     await tester.pumpAndSettle();
   }
 
-  /// Shows the Payment file tab.
-  Future<void> byFile(WidgetTester tester) =>
-      _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip(_l.methodShortFile)));
+  /// Opens "Other ways to receive" and then With a file.
+  Future<void> byFile(WidgetTester tester) async {
+    await _tap(tester, find.text(_l.phoneRecvOther));
+    await _tap(tester, find.text(_l.phoneSettingsWithFile));
+  }
 
   Future<void> listener(WidgetTester tester, ListenerEventKind kind) async {
     session.listenerEvents.add(ListenerEvent(kind: kind, message: 'x'));
@@ -157,6 +161,12 @@ class _Harness {
     await tester.pump(statusSettle);
     await tester.pumpAndSettle();
   }
+}
+
+/// Waits for the toast to leave: it floats over the top of the screen and takes the touches there.
+Future<void> _toastGone(WidgetTester tester) async {
+  await tester.pump(noticeDuration(NoticeLevel.success));
+  await tester.pumpAndSettle();
 }
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -181,102 +191,45 @@ Future<void> _untilRendered(WidgetTester tester, bool Function() done) async {
 }
 
 void main() {
-  group('tabs', () {
-    testWidgets('two tabs without Tor with Send\'s look; Epicbox address by default', (
-      tester,
-    ) async {
+  group('screen', () {
+    testWidgets('one screen: the code, the address, the epicbox line, Ask and Other ways', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      final tabs = tester.widget<SegmentedButton<ReceiveTab>>(
-        find.byKey(receiveTabsKey),
-      );
-      expect(tabs.selected, {ReceiveTab.epicbox});
-      expect(tabs.showSelectedIcon, isFalse);
-      expect(tabs.expandedInsets, EdgeInsets.zero);
-      expect(
-        [
-          for (final s in tabs.segments)
-            // The whole name: a long one wraps in two lines on the tab (PH-1).
-            (s.value, s.tooltip),
-        ],
-        // The phone's Link is Tor only: no Tor in this harness, no Link tab.
-        [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'Direct · File')],
-      );
-      // The icon above the label, on every tab.
-      expect(
-        [
-          for (final s in tabs.segments)
-            tester.widget<Icon>(find.descendant(of: find.byWidget(s.label!), matching: find.byType(Icon))).icon,
-        ],
-        [EpicGlyphs.epicbox, Icons.description_outlined],
-      );
-      // Full width: as wide as the address card under it.
-      expect(
-        tester.getSize(find.byKey(receiveTabsKey)).width,
-        tester.getSize(find.byKey(receiveAddressKey)).width,
-      );
-      // Epicbox address: the card, the epicbox line, the request button, the code, the help.
-      for (final key in [receiveAddressKey, receiveEpicboxKey, receiveRequestKey]) {
+      for (final key in [receiveAddressKey, receiveEpicboxKey, receiveRequestKey, receiveShareKey]) {
         expect(find.byKey(key), findsOneWidget);
       }
       expect(find.byType(LogoQr), findsOneWidget);
+      expect(find.byType(SegmentedButton<ReceiveTab>), findsNothing);
+      expect(find.text(_l.phoneRecvAsk), findsOneWidget);
+      expect(find.text(_l.phoneRecvOther), findsOneWidget);
       expect(find.text(_l.receiveFileTitle), findsNothing);
-      expect(find.text(_l.receiveHelpButton), findsOneWidget);
-      // Payment file: the file card and the help, nothing else.
-      await h.byFile(tester);
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
-      expect(find.text(_l.receiveHelpButton), findsOneWidget);
-      for (final key in [
-        receiveAddressKey,
-        receiveEpicboxKey,
-        receiveRequestKey,
-      ]) {
-        expect(find.byKey(key), findsNothing);
-      }
-      expect(find.byType(LogoQr), findsNothing);
-      // The help ends both tabs.
-      expect(
-        tester.getRect(find.text(_l.receiveHelpButton)).top,
-        greaterThan(tester.getRect(find.text(_l.receiveFileOpen)).bottom),
-      );
-      // Under 360 dp the tabs are icons alone: the name is the tooltip.
-      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Epicbox')));
-      expect(find.byKey(receiveAddressKey), findsOneWidget);
+      // Top to bottom: the code, the address, the epicbox line, the two rows.
+      final tops = [
+        for (final f in [find.byType(LogoQr), find.byKey(receiveAddressKey), find.byKey(receiveEpicboxKey), find.byKey(receiveRequestKey)])
+          tester.getRect(f).top,
+      ];
+      expect(tops, orderedEquals([...tops]..sort()));
+      expect(tester.getRect(find.byKey(receiveRequestKey)).top, lessThan(tester.getRect(find.text(_l.phoneRecvOther)).top));
     });
 
-    testWidgets('the choice outlives the view while the app runs', (
-      tester,
-    ) async {
-      final shown = ValueNotifier(true);
-      addTearDown(shown.dispose);
+    testWidgets('Other ways lists With a file, which opens its page and its help', (tester) async {
       final h = _Harness();
-      await h.pump(
-        tester,
-        screen: SlotScaffold(
-          body: ValueListenableBuilder<bool>(
-            valueListenable: shown,
-            builder: (_, on, _) =>
-                on ? const ReceiveView() : const SizedBox.shrink(),
-          ),
-        ),
-      );
-      await h.byFile(tester);
-      // The view goes and is built again, as after a lock and unlock.
-      shown.value = false;
-      await tester.pumpAndSettle();
-      expect(find.byType(ReceiveView), findsNothing);
-      shown.value = true;
-      await tester.pumpAndSettle();
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
+      await h.pump(tester);
+      await _tap(tester, find.text(_l.phoneRecvOther));
+      expect(find.text(_l.phoneSettingsWithFile), findsOneWidget);
+      await _tap(tester, find.text(_l.phoneSettingsWithFile));
+      expect(find.text(_l.phoneFileTitleReceive), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
+      expect(find.byType(LogoQr), findsNothing);
+      await tester.tap(find.byTooltip(_l.sendHelp));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(tester.widget<FileExchangeHelp>(find.byType(FileExchangeHelp)).role, FileExchangeRole.receiver);
     });
 
     testWidgets('the code keeps its size where there is room', (tester) async {
       await _Harness().pump(tester);
-      expect(
-        tester.getSize(find.byType(LogoQr)),
-        const Size.square(receiveQrMaxSize),
-      );
+      expect(tester.getSize(find.byType(LogoQr)), const Size.square(Kit.qr - 24));
     });
   });
 
@@ -294,7 +247,7 @@ void main() {
       expect(find.byType(ErrorText), findsNothing, reason: 'no raw core error');
     });
 
-    testWidgets('the full address comes first, the QR code below it', (
+    testWidgets('the QR code comes first, the full address below it', (
       tester,
     ) async {
       final h = _Harness();
@@ -303,76 +256,51 @@ void main() {
       expect(_addressText, findsOneWidget);
       final card = tester.getRect(find.byKey(receiveAddressKey));
       final qr = tester.getRect(find.byType(LogoQr));
-      expect(card.bottom, lessThan(qr.top));
-      expect(
-        find.descendant(
-          of: find.byKey(receiveAddressKey),
-          matching: find.byIcon(Icons.copy),
-        ),
-        findsOneWidget,
-      );
+      expect(qr.bottom, lessThan(card.top));
     });
 
-    testWidgets('a tap anywhere on the card copies the whole address', (
+    testWidgets('a tap on the address, or on Copy, copies the whole address', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      // On the caption, on the copy icon, and on the address text itself. The docked notice
-      // moves the content down, so it goes before the next tap.
-      for (final target in [
-        find.text('Epicbox address'),
-        find.byIcon(Icons.copy),
-        _addressText,
-      ]) {
+      // The notice floats over the top and leaves with the next tap.
+      for (final target in [_addressText, find.text(_l.commonCopy)]) {
         await _tap(tester, target);
         expect(find.text(_l.receiveAddressCopied), findsOneWidget);
         h.container.read(noticeProvider.notifier).clear();
         await tester.pumpAndSettle();
       }
-      expect(h.copied, [_address, _address, _address]);
+      expect(h.copied, [_address, _address]);
     });
 
-    testWidgets('the card takes the full width, copy above share inside it', (
+    testWidgets('Copy and Share sit side by side under the address, as wide as the view allows', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      final card = tester.getRect(
-        find.ancestor(
-          of: find.byKey(receiveAddressKey),
-          matching: find.byType(Card),
-        ),
-      );
-      final qr = tester.getRect(find.byType(LogoQr));
-      final view = tester.getRect(find.byType(ReceiveView));
-      // Nothing beside the card: it spans the view, less the view's own padding.
-      expect(card.width, greaterThan(view.width - 40));
-      final copy = tester.getRect(find.byIcon(Icons.copy));
+      final address = tester.getRect(find.byKey(receiveAddressKey));
+      final copy = tester.getRect(find.widgetWithText(KitButton, _l.commonCopy));
       final share = tester.getRect(find.byKey(receiveShareKey));
-      expect(card.contains(copy.center), isTrue);
-      expect(
-        card.contains(share.topLeft) && card.contains(share.bottomRight),
-        isTrue,
-      );
-      expect(share.top, greaterThanOrEqualTo(copy.bottom));
-      expect(share.center.dx, closeTo(copy.center.dx, 1));
-      expect(share.size, const Size(48, 48));
-      expect(card.bottom, lessThan(qr.top));
+      expect(copy.top, greaterThanOrEqualTo(address.bottom));
+      expect(share.top, closeTo(copy.top, 1));
+      expect(share.left, greaterThan(copy.right));
+      expect(share.height, greaterThanOrEqualTo(Kit.hitTarget));
+      expect(copy.width, closeTo(share.width, 1));
       // Share shares; it does not copy.
       await tester.tap(find.byKey(receiveShareKey));
       await _untilRendered(tester, () => h.files.sharedImages.isNotEmpty);
       expect(h.copied, isEmpty);
     });
 
-    testWidgets('where nothing can be shared, only the copy icon shows', (
+    testWidgets('where nothing can be shared, only Copy shows', (
       tester,
     ) async {
       final h = _Harness(files: _NoShareFiles());
       await h.pump(tester);
       expect(find.byKey(receiveShareKey), findsNothing);
-      expect(find.byTooltip(_l.commonShare), findsNothing);
-      expect(find.byIcon(Icons.copy), findsOneWidget);
+      expect(find.text(_l.commonShare), findsNothing);
+      expect(find.text(_l.commonCopy), findsOneWidget);
       await _tap(tester, _addressText);
       expect(h.copied, [_address]);
     });
@@ -401,7 +329,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await tester.tap(find.byTooltip(_l.commonShare));
+      await tester.tap(find.byKey(receiveShareKey));
       await _untilRendered(tester, () => h.files.sharedImages.isNotEmpty);
       final shared = h.files.sharedImages.single;
       expect(shared.text, _address);
@@ -416,7 +344,7 @@ void main() {
     ) async {
       final h = _Harness()..files.canShare = false;
       await h.pump(tester);
-      await _tap(tester, find.byTooltip(_l.commonShare));
+      await _tap(tester, find.byKey(receiveShareKey));
       expect(h.files.sharedTexts, [_address]);
       expect(h.files.sharedImages, isEmpty);
     });
@@ -521,20 +449,46 @@ void main() {
       final patch = LogoQr.patchModules(n);
       expect(patch * patch, lessThan(n * n * 0.1));
     });
+
+    testWidgets('is there as soon as Receive opens: no tap, no cover, no secure screen', (tester) async {
+      final calls = <MethodCall>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('epic_wallet/secure_screen'),
+        (call) async {
+          calls.add(call);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('epic_wallet/secure_screen'), null),
+      );
+      // setSecureScreen only calls the platform on Android and iOS.
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final h = _Harness();
+        await h.pump(tester);
+        // The address is there, so is the code, with nothing to press first.
+        expect(find.byType(LogoQr), findsOneWidget);
+        expect(tester.widget<LogoQr>(find.byType(LogoQr)).data, _address);
+        expect(find.text(_l.qrShow), findsNothing);
+        expect(calls.where((c) => c.method == 'setSecure'), isEmpty);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
   });
 
   group('epicbox', () {
     testWidgets('each state is one line; offline says what it means', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       expect(find.text(_l.statusEpicboxConnecting), findsOneWidget);
       expect(find.text(_l.commonRetry), findsNothing);
 
       await h.listener(tester, ListenerEventKind.connected);
       expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
-      expect(find.byIcon(EpicGlyphs.epicbox), findsWidgets);
       expect(find.text(_l.commonRetry), findsNothing);
 
       await h.listener(tester, ListenerEventKind.disconnected);
@@ -555,7 +509,7 @@ void main() {
     testWidgets('Retry stops the listener, waits for it, and starts it again', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       expect(h.session.listenerStarts, 1);
       await h.listener(tester, ListenerEventKind.disconnected);
@@ -581,7 +535,7 @@ void main() {
     testWidgets(
       'Retry starts anyway if the old listener never says it stopped',
       (tester) async {
-        final h = _Harness();
+        final h = _Harness(advanced: true);
         await h.pump(tester);
         await h.listener(tester, ListenerEventKind.disconnected);
         await tester.tap(find.text(_l.commonRetry));
@@ -596,7 +550,7 @@ void main() {
     testWidgets('a stream that ends without a word counts as stopped', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       expect(find.text(_l.statusEpicboxConnecting), findsOneWidget);
       // LEPIC's stream when a listener runs already: it closes with no event.
@@ -610,7 +564,7 @@ void main() {
     testWidgets('an error stays offline when its stream then ends', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       h.session.listenerEvents.addError(StateError('relay gone'));
       await h.session.listenerEvents.close();
@@ -622,14 +576,31 @@ void main() {
       expect(find.text(_l.commonRetry), findsOneWidget);
     });
 
-    testWidgets('the relay readout is for Advanced options only', (
+    testWidgets('without Advanced the line says Listening and names no server', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.listener(tester, ListenerEventKind.connected);
+      expect(find.text(_l.phoneRecvListening), findsOneWidget);
+      expect(find.text('Connected · box.epic.invalid'), findsNothing);
+      expect(find.text('Not connected · box.epic.invalid'), findsNothing);
+      await h.listener(tester, ListenerEventKind.disconnected);
+      expect(find.text(_l.statusEpicboxOffline), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsOneWidget);
+    });
+
+    testWidgets('the relay shows once, in the status line, for Advanced only', (
       tester,
     ) async {
-      await _Harness().pump(tester);
-      expect(find.text('Server: box.epic.invalid:443'), findsNothing);
+      final h = _Harness();
+      await h.pump(tester);
+      await h.listener(tester, ListenerEventKind.connected);
+      expect(find.text('Connected · box.epic.invalid'), findsNothing);
       await tester.pumpWidget(const SizedBox());
-      await _Harness(advanced: true).pump(tester);
-      expect(find.text('Server: box.epic.invalid:443'), findsOneWidget);
+      final a = _Harness(advanced: true);
+      await a.pump(tester);
+      await a.listener(tester, ListenerEventKind.connected);
+      expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
+      expect(find.textContaining('Server:'), findsNothing);
     });
 
     // Report gwuouzfy: a network filter refuses every handshake with box.epic.invalid.
@@ -638,7 +609,7 @@ void main() {
     testWidgets('blocked by the network: says so and switches to another relay in one tap', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       for (var i = 0; i < 2; i++) {
         h.session.listenerEvents.add(
@@ -677,7 +648,7 @@ void main() {
     testWidgets('one refused handshake, or an ordinary outage, is not blocked', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       for (final reason in [
         refused,
@@ -704,11 +675,11 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      expect(find.text(_l.receiveFileTitle), findsOneWidget);
-      expect(find.text(_l.receiveFileOpen), findsOneWidget);
-      expect(find.text(_l.commonPaste), findsOneWidget);
+      expect(find.text(_l.phoneFileTitleReceive), findsOneWidget);
+      expect(find.text(_l.phoneFileOpenFile), findsOneWidget);
+      expect(find.text(_l.phoneFilePasteText), findsOneWidget);
       // The sheet loops its animation, so it never settles.
-      await tester.tap(find.byTooltip(_l.fileHelpTitle));
+      await tester.tap(find.byTooltip(_l.sendHelp));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       final help = tester.widget<FileExchangeHelp>(
@@ -724,7 +695,7 @@ void main() {
       await h.pump(tester);
       await h.byFile(tester);
       h.files.picks.add(const SlateFile(name: 'photo.jpg', json: 'nope'));
-      await _tap(tester, find.text(_l.receiveFileOpen));
+      await _tap(tester, find.text(_l.phoneFileOpenFile));
       expect(find.text(_l.slateNotTransactionFile), findsOneWidget);
       await tester.pageBack();
       await tester.pumpAndSettle();
@@ -737,15 +708,17 @@ void main() {
         stage: SlateStage.send,
       );
       h.files.picks.add(const SlateFile(name: 'from-bob.tx', json: incoming));
-      await _tap(tester, find.text(_l.receiveFileOpen));
-      expect(find.text('from-bob.tx'), findsOneWidget);
-      await _tap(tester, find.text(_l.slateAcceptPayment));
+      await _tap(tester, find.text(_l.phoneFileOpenFile));
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+      await _tap(tester, find.text(_l.phoneAcceptAccept));
       expect(h.session.receivedSlates, [incoming]);
       await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'from-bob.tx.response');
-      await _tap(tester, find.text(_l.commonShare));
+      await _toastGone(tester);
+      await _tap(tester, find.text(_l.phoneFileShareReply));
       expect(h.files.shared.single.name, 'from-bob.tx.response');
-      expect(find.text(_l.slateCopyReply), findsNothing);
+      // The frame has Copy as text beside Share reply, for a file as for pasted text.
+      expect(find.text(_l.phoneFileCopyText), findsOneWidget);
     });
 
     testWidgets('paste: an empty clipboard and text that is no payment', (
@@ -754,13 +727,15 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      await _tap(tester, find.text(_l.commonPaste));
+      await _tap(tester, find.text(_l.phoneFilePasteText));
       expect(
         find.text(_l.receivePasteEmpty),
         findsOneWidget,
       );
       h.clipboard = 'hello';
-      await _tap(tester, find.text(_l.commonPaste));
+      // The first toast floats over the page's top rows: it leaves before the next tap.
+      await _toastGone(tester);
+      await _tap(tester, find.text(_l.phoneFilePasteText));
       expect(find.text(_l.slateNotTransactionFile), findsOneWidget);
       expect(find.byType(SlateFileScreen), findsNothing);
     });
@@ -779,17 +754,17 @@ void main() {
         stage: SlateStage.send,
       );
       h.clipboard = '  $incoming\n';
-      await _tap(tester, find.text(_l.commonPaste));
-      expect(find.text(_l.slatePastedTitle), findsOneWidget);
-      expect(find.text('Someone is sending you 3.0\u00a0EPIC.'), findsOneWidget);
-      await _tap(tester, find.text(_l.slateAcceptPayment));
+      await _tap(tester, find.text(_l.phoneFilePasteText));
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+      await _tap(tester, find.text(_l.phoneAcceptAccept));
       expect(h.session.receivedSlates, [incoming]);
       expect(
-        find.text('Accepted. Return incoming.response to the sender.'),
+        find.text(_l.phoneFileReplyHint),
         findsOneWidget,
       );
-      await _tap(tester, find.text(_l.slateCopyReply));
+      await _tap(tester, find.text(_l.phoneFileCopyText));
       expect(h.copied, [h.session.responseSlate.json]);
+      await _toastGone(tester);
       await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'incoming.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
@@ -810,7 +785,7 @@ void main() {
         expect(tester.takeException(), isNull);
         await h.byFile(tester);
         expect(tester.takeException(), isNull);
-        expect(find.text(_l.receiveFileOpen), findsOneWidget);
+        expect(find.text(_l.phoneFileOpenFile), findsOneWidget);
       });
 
       testWidgets('tap targets and contrast, ${state.name}', (tester) async {
@@ -818,12 +793,13 @@ void main() {
         final h = _Harness();
         await h.pump(tester);
         await h.listener(tester, state);
-        for (final tab in ['Epicbox', 'Direct · File']) {
-          await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip(tab)));
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(textContrastGuideline));
-        }
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        // The file page's back and help buttons are the shared header's (48 x 44): only its
+        // own controls are measured.
+        await h.byFile(tester);
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
         handle.dispose();
       });
     }

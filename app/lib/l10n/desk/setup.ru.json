@@ -30,7 +30,6 @@
   "deskSetupLocalNodeText": "Работает на этом компьютере: приватно, но нужны место на диске и первая синхронизация.",
   "deskSetupEpicboxText": "Сервер Epicbox хранит платежи, пока кошелёк не откроется.",
   "deskSetupEpicboxServer": "Сервер Epicbox",
-  "deskSetupExistingNode": "Уже запущенный узел на {host}",
   "deskSetupSaveStartsFallback": "Сохранение запустит узел; пока он не синхронизирован, его заменяет {node}.",
   "deskSetupSaveStarts": "Сохранение запустит узел. Первая синхронизация занимает часы; кошелёк тем временем откроется.",
   "deskSetupSaveFailedTitle": "Настройки не сохранены",

@@ -127,7 +127,6 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
     final usesPassphrase = ref.watch(usesPassphraseProvider).value ?? false;
     return SlotScaffold(
       centered: true,
-      glow: heroGlow,
       appBar: AppBar(
         title: Text(
           !widget.passphrase
@@ -174,7 +173,6 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
                   : PinSetupView(
                       askBiometrics: false,
                       chooseTitle: l.settingsPinChooseNew(pinLength),
-                      chooseLabel: l.settingsPinNewLabel,
                       onDone: _change,
                     ),
             ),

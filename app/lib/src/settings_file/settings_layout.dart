@@ -298,6 +298,10 @@ const List<SettingsKey> configKeys = [
   SettingsKey('node.stale_after_s', _seconds),
   SettingsKey('node.failover_after_s', _seconds),
   SettingsKey('node.failover_probe_s', _seconds),
+  SettingsKey('node.failover_tor_probe_s', _seconds),
+  SettingsKey('node.failover_prefer_ms', _ms),
+  SettingsKey('node.failover_retry_min_s', _seconds),
+  SettingsKey('node.failover_retry_max_s', _seconds),
   SettingsKey('node.own_node_ask_s', _seconds),
   SettingsKey('node.local.api_port', _port),
   SettingsKey('node.local.p2p_port', _port),
@@ -373,6 +377,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('updates.pages', _urls, byDefault: <String>[]),
   // [support]
   SettingsKey('support.timeout_s', _seconds, requiredWith: ['support.report']),
+  SettingsKey('support.tor_timeout_s', _seconds, requiredWith: ['support.report']),
   SettingsKey('support.report', _url, byDefault: ''),
   SettingsKey('support.donation', TextKind(_donation), byDefault: ''),
   SettingsKey('support.signed_file', _url, byDefault: ''),
@@ -381,6 +386,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('links.community', _url, byDefault: ''),
   SettingsKey('links.source', _url, byDefault: ''),
   SettingsKey('links.privacy', _url, byDefault: ''),
+  SettingsKey('links.licences', _url, byDefault: ''),
   // [explorer]: a block by its height; no kernel page.
   SettingsKey('explorer.block', TextKind(_explorerBlock), byDefault: ''),
   SettingsKey('explorer.indexed', TextKind(_explorerBlock), byDefault: ''),

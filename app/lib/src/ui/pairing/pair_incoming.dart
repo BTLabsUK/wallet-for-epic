@@ -7,7 +7,6 @@
 library;
 
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,19 +18,26 @@ import '../../key_picture.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../providers.dart' show sessionProvider;
-import 'pair_screen.dart' show seenAsForWire;
+import 'pair_screen.dart' show editSeenAs, ownWalletLabel, seenAsForWire, seenAsLine;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../tor_build.dart';
 import '../../updater.dart' show updateProvider;
 import '../../wallet_service.dart';
-import '../app_dialog.dart';
 import '../common.dart';
 import '../address_view.dart' show ShortAddressText;
 import '../key_picture.dart';
-import '../phone_sheet.dart';
-import '../theme/logo_qr.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_chip.dart';
+import '../kit/kit_group.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_sheet.dart';
+import '../kit/kit_support.dart' show kitId;
+import '../kit/kit_tokens.dart';
 import '../theme/tokens.dart';
+import '../../trust_ids.dart';
+import 'pair_flow.dart';
 import 'invite_links.dart';
 import 'pair_check.dart';
 import 'pairing_clip_offer.dart';
@@ -43,6 +49,7 @@ const Key incomingPairKey = ValueKey('incoming-pair');
 const Key incomingNotNowKey = ValueKey('incoming-not-now');
 const Key incomingServerKey = ValueKey('incoming-server');
 const Key incomingSourceKey = ValueKey('incoming-source');
+const Key incomingSeenAsKey = ValueKey('incoming-seen-as');
 const Key incomingExpiresKey = ValueKey('incoming-expires');
 const Key waitingCancelKey = ValueKey('waiting-cancel');
 const Key waitingAnswerBoxKey = ValueKey('waiting-answer-box');
@@ -140,11 +147,8 @@ Future<void> showIncomingInvite(
   bool replace = false,
   InviteSource? source,
 }) async {
-  final answered = await showPhoneSheet<PairingRecord>(
+  final answered = await showKitSheet<PairingRecord>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: true,
     builder: (_) => IncomingInviteSheet(preview: preview, contact: contact, source: source),
   );
   if (answered == null || !context.mounted) return;
@@ -217,7 +221,6 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final p = widget.preview;
     final sender = p.isRequest ? _sender() : null;
     // A key on the BT Labs list is a service of ours: its listed name replaces the claimed one.
@@ -225,127 +228,93 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
     final btlabs = sender == null && key != null ? btLabsKeyOf(key) : null;
     final name = sender?.name ?? btlabs?.name ?? p.name;
     final noName = sender == null && btlabs == null && isUnnamed(p.name);
-    // The keyboard too: a modal sheet is not lifted by it on edge-to-edge Android.
-    final media = MediaQuery.of(context);
-    final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 16 + foot),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              if (key != null)
-                KeyPictureView(picture: KeyPicture.of(key), size: 72, framed: true)
-              else
-                PairAvatar(name: noName ? l.pairUnnamed : name, size: 72),
-              // 24, less the bracket offset on a key picture: about 18 from bracket to text.
-              SizedBox(width: key != null ? 24 - KeyPictureView.frameOffsetOf(72) + 1 : 24),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            ..._titleSpans(l.pairIncomingTitle('\u0000'), noName ? l.commonUnknown : name),
-                            if (btlabs != null) ...[
-                              const TextSpan(text: ' '),
-                              WidgetSpan(alignment: PlaceholderAlignment.middle, child: VerifiedCheck(label: l.pairVerifiedService, colour: t.ok)),
-                            ],
-                          ],
-                        ),
-                        style: theme.textTheme.titleLarge,
-                      ),
-                    ),
-                    if (sender != null) ...[
-                      const SizedBox(height: 6),
-                      EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (p.fromAddress case final from?) ...[
-            const SizedBox(height: 12),
-            ShortAddressText(from, style: const TextStyle(fontSize: 13)),
-          ],
-          const SizedBox(height: 16),
-          Text(
-            p.isRequest ? l.pairIncomingBodyRequest(noName ? l.commonUnknown : name) : l.pairIncomingBody(noName ? l.commonUnknown : name),
-            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
-          const SizedBox(height: 12),
-          if (relayHostOf(p.homeRelay) case final host when host.isNotEmpty)
-            _Fact(key: incomingServerKey, label: l.pairIncomingServer, value: Text(host, style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.text))),
-          if (inviteSourceText(l, widget.source, request: p.isRequest) case final source?)
-            _Fact(key: incomingSourceKey, label: l.pairIncomingSource, value: Text(source)),
-          _Fact(key: incomingExpiresKey, label: l.pairExpiresIn, value: PairTimeLeft(until: p.expiresAt)),
-          const SizedBox(height: 20),
-          // The primary over the secondary, as every foot on the phone (UP-029).
-          FilledButton(
-            key: incomingPairKey,
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: _busy ? null : _pair,
-            child: _busy ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)) : Text(l.pairTitle),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            key: incomingNotNowKey,
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: _busy ? null : () => Navigator.pop(context),
-            child: Text(l.pairNotNow),
-          ),
-          SizedBox(height: t.radiusSmall),
-        ],
-      ),
-    );
-  }
-}
-
-/// One fact of the sheet: the label, dim, at the start; the value at the end.
-class _Fact extends StatelessWidget {
-  const _Fact({super.key, required this.label, required this.value});
-
-  final String label;
-  final Widget value;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final style = Theme.of(context).textTheme.bodyMedium;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: style?.copyWith(color: t.dim)),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: DefaultTextStyle.merge(style: style?.copyWith(color: t.text), textAlign: TextAlign.end, child: value),
+    // No name at all: the start of the sender's address when a request carries it, else Unknown.
+    final tag = walletTag(p.fromAddress);
+    final unnamedLabel = tag == null ? l.commonUnknown : l.phonePairUnnamedShort(tag);
+    final shown = noName ? unnamedLabel : name;
+    final seenAs = ref.watch(pairingSeenAsProvider).value ?? '';
+    final ownLabel = ownWalletLabel(l, ref);
+    final host = relayHostOf(p.homeRelay);
+    final source = inviteSourceText(l, widget.source, request: p.isRequest);
+    return kitId(
+      TrustIds.pairflowInviteSheet,
+      KitSheet(
+        title: l.pairIncomingTitle(shown),
+        primary: KitButton(key: incomingPairKey, label: l.pairTitle, semanticsId: TrustIds.pairflowInvitePair, onPressed: _busy ? null : _pair),
+        secondary: KitButton(
+          key: incomingNotNowKey,
+          label: l.pairNotNow,
+          kind: KitButtonKind.quiet,
+          semanticsId: TrustIds.pairflowInviteNotNow,
+          onPressed: _busy ? null : () => Navigator.pop(context),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: key != null
+                  ? KeyPictureView(picture: KeyPicture.of(key), size: 72, framed: true)
+                  : PairAvatar(name: noName ? unnamedLabel : name, size: 72),
             ),
-          ),
-        ],
+            const PairGap(10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(child: Text(shown, textAlign: TextAlign.center, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                if (btlabs != null) ...[
+                  const SizedBox(width: 6),
+                  VerifiedCheck(label: l.pairVerifiedService, colour: t.ok),
+                ],
+              ],
+            ),
+            if (sender != null) ...[
+              const PairGap(8),
+              Center(child: KitChip(l.pairInContacts, icon: KitIcons.contact, info: true)),
+            ],
+            if (p.fromAddress case final from?) ...[
+              const PairGap(8),
+              Center(child: ShortAddressText(from, style: KitType.rowSub.copyWith(color: t.dim))),
+            ],
+            const PairGap(14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(p.isRequest ? l.pairIncomingBodyRequest(shown) : l.pairIncomingBody(shown), style: KitType.body.copyWith(color: t.dim)),
+            ),
+            const PairGap(14),
+            KitGroup(
+              onSheet: true,
+              dividerInset: Kit.dividerInsetPlain,
+              children: [
+                if (host.isNotEmpty)
+                  KitRow(
+                    key: incomingServerKey,
+                    title: l.pairIncomingServer,
+                    size: KitRowSize.sheet,
+                    trailing: Flexible(child: Text(host, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  ),
+                KitRow(
+                  key: incomingSeenAsKey,
+                  title: seenAsLine(l, seenAs, ownLabel),
+                  value: seenAs.isEmpty && ownLabel == null ? l.pairSeenAsAdd : l.pairChange,
+                  chevron: true,
+                  size: KitRowSize.sheet,
+                  semanticsId: TrustIds.pairflowInviteNameRow,
+                  onTap: _busy ? null : () => editSeenAs(context, ref),
+                ),
+                if (source != null) KitRow(key: incomingSourceKey, title: l.pairIncomingSource, size: KitRowSize.sheet, value: source),
+                KitRow(
+                  key: incomingExpiresKey,
+                  title: l.pairExpiresIn,
+                  size: KitRowSize.sheet,
+                  trailing: PairTimeLeft(until: p.expiresAt, style: KitType.rowSub.copyWith(color: t.text)),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-/// The sheet title with [name] set in bold: [template] is the localised title formatted with a
-/// NUL in the name's place, so any language puts the name where its grammar wants it.
-List<TextSpan> _titleSpans(String template, String name) {
-  final at = template.indexOf('\u0000');
-  if (at < 0) return [TextSpan(text: template.replaceAll('\u0000', name))];
-  return [
-    if (at > 0) TextSpan(text: template.substring(0, at), style: const TextStyle(fontWeight: FontWeight.w400)),
-    TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.w700)),
-    if (at + 1 < template.length) TextSpan(text: template.substring(at + 1), style: const TextStyle(fontWeight: FontWeight.w400)),
-  ];
 }
 
 /// The answerer's wait for the confirm (RFC 7.3, 8.2): "Pairing with Anna…", Cancel,
@@ -387,7 +356,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     final api = ref.read(pairingApiProvider);
     if (ref.read(pairNetProvider) == PairNet.online) {
-      _unboost = boostRelays(ref.read(sessionProvider)?.boosts, const Duration(seconds: 10));
+      _unboost = boostRelays(ref.read(sessionProvider)?.boosts, boostMinInterval);
       _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     } else {
       _late = true;
@@ -496,7 +465,6 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
     final loaded = ref.watch(pairingsProvider).hasValue;
     // Nothing to wait for any more (the confirm came another way, or the pairing was
@@ -522,109 +490,126 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     final byHand = _late || (record?.relayDown ?? false) || net != PairNet.online;
     final canShare = ref.watch(slateFilesProvider).canShareText;
     final link = _link;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.pairWaitingTitleShort)),
-      body: ScreenBody(
-        bottom: OutlinedButton(
-          key: waitingCancelKey,
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: t.risk),
-          onPressed: _cancel,
-          child: Text(l.commonCancel),
-        ),
-        children: [
-          const SizedBox(height: 16),
-          Semantics(
-            header: true,
-            liveRegion: true,
-            child: Row(
-              children: [
-                const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2.5)),
-                const SizedBox(width: 12),
-                Expanded(child: Text(l.pairPairingWith(name), style: theme.textTheme.titleLarge)),
-              ],
-            ),
+    return PairFlowPage(
+      title: l.pairWaitingTitleShort,
+      leadingId: TrustIds.pairflowWaitingClose,
+      bottom: KitButton(
+        key: waitingCancelKey,
+        label: l.commonCancel,
+        kind: KitButtonKind.quiet,
+        semanticsId: TrustIds.pairflowWaitingCancel,
+        onPressed: _cancel,
+      ),
+      children: [
+        const PairGap(10),
+        Semantics(
+          header: true,
+          liveRegion: true,
+          child: Row(
+            children: [
+              const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2.5)),
+              const SizedBox(width: 12),
+              Expanded(child: Text(l.pairPairingWith(name), style: KitType.sheetTitle.copyWith(color: t.text))),
+            ],
           ),
-          if (byHand) ...[
-            const SizedBox(height: 20),
-            PairCard(
-              key: waitingAnswerBoxKey,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(l.pairByHandYourAnswer, style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 6),
-                      PairSmallPrint(l.pairYourAnswerBody),
-                      if (link != null) ...[
-                        const SizedBox(height: 12),
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(t.radiusSmall)),
-                            child: LogoQr(data: link, size: 180, logo: QrLogo.epic1),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            FilledButton.icon(
+        ),
+        if (byHand) ...[
+          const PairGap(18),
+          PairCard(
+            key: waitingAnswerBoxKey,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(l.pairByHandYourAnswer, style: KitType.rowTitle.copyWith(color: t.text)),
+                    const PairGap(6),
+                    PairSmallPrint(l.pairYourAnswerBody),
+                    if (link != null) ...[
+                      const PairGap(14),
+                      PairQr(data: link, size: 180, label: l.pairByHandYourAnswer),
+                      const PairGap(14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: KitButton(
                               key: waitingShareKey,
-                              icon: Icon(canShare ? Icons.ios_share : Icons.copy, size: 18),
-                              label: Text(canShare ? l.commonShare : l.commonCopy),
+                              label: canShare ? l.commonShare : l.commonCopy,
+                              icon: canShare ? KitIcons.share : KitIcons.copy,
+                              small: true,
+                              semanticsId: TrustIds.pairflowWaitingShare,
                               onPressed: () => _share(copy: !canShare),
                             ),
-                            if (canShare) OutlinedButton.icon(icon: const Icon(Icons.copy, size: 18), label: Text(l.commonCopy), onPressed: () => _share(copy: true)),
+                          ),
+                          if (canShare) ...[
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: KitButton(
+                                label: l.commonCopy,
+                                icon: KitIcons.copy,
+                                small: true,
+                                kind: KitButtonKind.quiet,
+                                semanticsId: TrustIds.pairflowWaitingCopy,
+                                onPressed: () => _share(copy: true),
+                              ),
+                            ),
                           ],
-                        ),
-                      ],
-                      const SizedBox(height: 14),
-                      TextField(
-                        key: waitingFinishFieldKey,
-                        controller: _finish,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        minLines: 1,
-                        maxLines: 3,
-                        onSubmitted: (_) => _openFinish(),
-                        decoration: InputDecoration(
-                          labelText: l.pairPasteFinishField,
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(tooltip: l.pairPaste, icon: const Icon(Icons.content_paste), onPressed: _pasteFinish),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: OutlinedButton(key: waitingFinishGoKey, onPressed: _openFinish, child: Text(l.pairTitle)),
+                        ],
                       ),
                     ],
-                  ),
+                    const PairGap(16),
+                    PairField(
+                      key: waitingFinishFieldKey,
+                      controller: _finish,
+                      label: l.pairPasteFinishField,
+                      maxLines: 3,
+                      semanticsId: TrustIds.pairflowWaitingFinishField,
+                      onSubmitted: (_) => _openFinish(),
+                    ),
+                    const PairGap(8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: KitButton(
+                            label: l.pairPaste,
+                            icon: KitIcons.paste,
+                            small: true,
+                            kind: KitButtonKind.quiet,
+                            semanticsId: TrustIds.pairflowWaitingPaste,
+                            onPressed: _pasteFinish,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: KitButton(key: waitingFinishGoKey, label: l.pairTitle, small: true, semanticsId: TrustIds.pairflowWaitingFinishGo, onPressed: _openFinish),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }
 
 /// Asks before cancelling the pairing with [name]; true to cancel.
-Future<bool> confirmCancelPairing(BuildContext context, String name) async {
+Future<bool> confirmCancelPairing(BuildContext context, String name) {
   final l = context.l10n;
-  return confirmAppDialog(
+  return confirmPairSheet(
     context,
     title: l.pairCancelPairingTitle,
-    icon: Icons.link_off,
-    tone: DialogTone.risk,
-    description: l.pairCancelPairingBody(name),
-    cancelLabel: l.contactKeep,
-    confirmLabel: l.pairCancelPairing,
-    risk: true,
+    body: l.pairCancelPairingBody(name),
+    action: l.pairCancelPairing,
+    cancel: l.contactKeep,
+    risky: true,
+    sheetId: TrustIds.pairflowCancelSheet,
+    actionId: TrustIds.pairflowCancelConfirm,
+    cancelId: TrustIds.pairflowCancelKeep,
   );
 }
 
@@ -675,42 +660,44 @@ class _FinishCodeScreenState extends ConsumerState<FinishCodeScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     final name = ref.watch(pairingNameProvider(widget.pairingId));
     final link = _link;
     final canShare = ref.watch(slateFilesProvider).canShareText;
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.pairWaitingTitleShort)),
-      body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            FilledButton.icon(
-              key: finishScreenShareKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              icon: Icon(canShare ? Icons.ios_share : Icons.copy, size: 18),
-              label: Text(canShare ? l.commonShare : l.commonCopy),
-              onPressed: link == null ? null : () => _share(copy: !canShare),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              key: finishScreenCheckKey,
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: record == null || record.sas.isEmpty ? null : _check,
-              child: Text(l.pairCheckWords),
-            ),
-          ],
-        ),
+    return PairFlowPage(
+      title: l.pairWaitingTitleShort,
+      leadingId: TrustIds.pairflowFinishClose,
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(header: true, child: Text(l.pairFinishCodeTitle, style: Theme.of(context).textTheme.titleLarge)),
-          const SizedBox(height: 8),
-          PairLead(l.pairFinishCodeBody(name)),
-          const SizedBox(height: 16),
-          if (_error != null) ErrorText(_error!),
-          if (link != null) ShareBox(text: l.pairFinishLinkMessage(link)),
+          KitButton(
+            key: finishScreenShareKey,
+            label: canShare ? l.commonShare : l.commonCopy,
+            icon: canShare ? KitIcons.share : KitIcons.copy,
+            semanticsId: TrustIds.pairflowFinishScreenShare,
+            onPressed: link == null ? null : () => _share(copy: !canShare),
+          ),
+          const PairGap(10),
+          KitButton(
+            key: finishScreenCheckKey,
+            label: l.pairCheckWords,
+            kind: KitButtonKind.quiet,
+            semanticsId: TrustIds.pairflowFinishScreenCheck,
+            onPressed: record == null || record.sas.isEmpty ? null : _check,
+          ),
         ],
       ),
+      children: [
+        const PairGap(10),
+        Semantics(header: true, child: Text(l.pairFinishCodeTitle, style: KitType.sheetTitle.copyWith(color: t.text))),
+        const PairGap(8),
+        PairLead(l.pairFinishCodeBody(name)),
+        const PairGap(16),
+        if (_error != null) PairEdgeNotice(tone: BadgeTone.risk, title: _error!),
+        if (link != null) ShareBox(text: l.pairFinishLinkMessage(link)),
+      ],
     );
   }
 }
@@ -732,47 +719,38 @@ class PairingOutcomeScreen extends ConsumerWidget {
       PairingFailure.cancelled || PairingFailure.newerVersion || PairingFailure.crossed => BadgeTone.info,
       _ => BadgeTone.warn,
     };
-    final close = FilledButton(
-      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-      onPressed: () => Navigator.pop(context),
-      child: Text(l.pairClosed),
-    );
+    final close = KitButton(label: l.pairClosed, semanticsId: TrustIds.pairflowOutcomeClose, onPressed: () => Navigator.pop(context));
     // No in-app updates in the build without Tor: Close alone.
     final Widget bottom = failure == PairingFailure.newerVersion && inAppUpdates
         ? Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              KitButton(
+                label: l.pairCheckForUpdates,
+                semanticsId: TrustIds.pairflowOutcomeUpdate,
                 onPressed: () {
                   ref.read(updateProvider.notifier).check();
                   ref.read(noticeProvider.notifier).show(l.updateChecking, level: NoticeLevel.info);
                 },
-                child: Text(l.pairCheckForUpdates),
               ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: () => Navigator.pop(context),
-                child: Text(l.pairClosed),
-              ),
+              const PairGap(10),
+              KitButton(label: l.pairClosed, kind: KitButtonKind.quiet, semanticsId: TrustIds.pairflowOutcomeClose, onPressed: () => Navigator.pop(context)),
             ],
           )
         : close;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.pairWaitingTitleShort)),
-      body: ScreenBody(
-        bottom: bottom,
-        children: [
-          SizedBox(height: MediaQuery.sizeOf(context).height * 0.18),
-          PairEdgeNotice(
-            tone: tone,
-            title: pairingFailureText(l, failure, name: name),
-            body: pairingFailureBody(l, failure, name: name, file: file),
-          ),
-        ],
-      ),
+    return PairFlowPage(
+      title: l.pairWaitingTitleShort,
+      leadingId: TrustIds.pairflowOutcomeBack,
+      bottom: bottom,
+      children: [
+        SizedBox(height: MediaQuery.sizeOf(context).height * 0.14),
+        PairEdgeNotice(
+          tone: tone,
+          title: pairingFailureText(l, failure, name: name),
+          body: pairingFailureBody(l, failure, name: name, file: file),
+        ),
+      ],
     );
   }
 }

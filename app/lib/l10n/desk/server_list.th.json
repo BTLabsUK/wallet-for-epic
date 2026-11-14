@@ -1,7 +1,6 @@
 {
   "deskSlRemoveHost": "นำ {host} ออก",
   "deskSlInUse": "ใช้อยู่",
-  "deskSlHealthUnknown": "ไม่ทราบสถานะ",
   "deskSlNodeNoAnswer": "โหนดนี้ไม่ตอบสนอง ไม่ได้เพิ่มอะไร",
   "deskSlTorWait": "Tor ยังไม่ได้เชื่อมต่อ ไม่ได้เพิ่มอะไร",
   "deskSlLatency": "{ms} มิลลิวินาที",

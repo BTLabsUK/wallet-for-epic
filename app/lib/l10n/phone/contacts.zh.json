@@ -1,0 +1,14 @@
+{
+  "phoneContactsSearchHint": "搜索，或粘贴地址",
+  "phoneContactsAtoZ": "按字母",
+  "phoneContactsNoPayments": "暂无付款",
+  "phoneContactsAsks": "请求 {amount}",
+  "phoneContactsFaces": "联系人",
+  "phoneContactPaired": "已配对 · 你们之间的付款已加密封存",
+  "phoneContactRequest": "请求",
+  "phoneContactsYouPaid": "你已支付",
+  "phoneContactsPaidYou": "已向你付款",
+  "phoneContactsArriving": "{count} 笔付款在途中",
+  "phoneContactsNow": "刚刚",
+  "phoneContactsWaitingAnswer": "等待 {who} 的钱包回应"
+}

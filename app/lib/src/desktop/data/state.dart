@@ -14,7 +14,7 @@ import 'api.dart';
 import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
 import 'mock_wallet.dart';
-import 'node_switch.dart' show NodeSwitchStep, deskNodeSwitchProvider;
+import 'node_switch.dart' show NodeSwitchStep, deskNodePicksProvider, deskNodeSwitchProvider;
 import 'models.dart';
 import '../../providers.dart' show defaultMinimumConfirmations, messageCheckStream;
 import '../../relay_directory.dart' show statusSite;
@@ -458,16 +458,27 @@ class DeskController extends Notifier<DeskState> {
     return s;
   }
 
-  /// The switch says what happens from the first moment ([deskNodeSwitchProvider]).
-  Future<void> useNode(String url) =>
-      ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.connecting, url, () => _reopening(() => api.useNode(url)));
+  /// The switch says what happens from the first moment ([deskNodeSwitchProvider]). A pick
+  /// drops what node failover was doing; the latest pick wins.
+  Future<void> useNode(String url) {
+    _picked();
+    return ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.connecting, url, () => _reopening(() => api.useNode(url)));
+  }
+
+  /// Counts the node picks: a caller tells by it whether a later pick overtook its own.
+  int get picks => ref.read(deskNodePicksProvider);
+
+  void _picked() => ref.read(deskNodePicksProvider.notifier).bump();
 
   /// Node failover's move: [url] for this session, the chosen node kept (`desk_failover.dart`).
   Future<void> useNodeForSession(String url) => _reopening(() => api.useNodeForSession(url));
 
-  Future<void> useBuiltInNode(bool on) => on
+  Future<void> useBuiltInNode(bool on) {
+    _picked();
+    return on
       ? ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.starting, null, () => _reopening(() => api.useBuiltInNode(on)))
       : _reopening(() => api.useBuiltInNode(on));
+  }
 
   Future<void> followBuiltInNode() => _reopening(() => api.followBuiltInNode());
 
@@ -688,6 +699,29 @@ final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.
 final deskPaymentModeProvider = Provider<PaymentMode>((ref) {
   ref.watch(deskProvider.select((s) => (s.account, s.session)));
   return ref.read(deskApiProvider).epic1?.inUse == true ? PaymentMode.epic1 : PaymentMode.classic;
+});
+
+/// The epic1 switch as stored during this unlock, or null while it has not moved. The switch
+/// sets it, so a turn-off reaches Receive at once.
+final deskEpic1StoredProvider = NotifierProvider<DeskEpic1StoredNotifier, bool?>(DeskEpic1StoredNotifier.new);
+
+class DeskEpic1StoredNotifier extends Notifier<bool?> {
+  @override
+  bool? build() {
+    ref.watch(deskProvider.select((s) => (s.account, s.session)));
+    return null;
+  }
+
+  void set(bool on) => state = on;
+}
+
+/// What Receive offers: epic1 only while this unlock is in epic1 mode and the switch is still
+/// on. Turned off, Receive shows the Epicbox address at once (the wallet takes classic payments
+/// in either mode); turned on, it waits for the next unlock.
+final deskReceiveModeProvider = Provider<PaymentMode>((ref) {
+  if (ref.watch(deskPaymentModeProvider) != PaymentMode.epic1) return PaymentMode.classic;
+  final stored = ref.watch(deskEpic1StoredProvider) ?? ref.read(deskApiProvider).epic1?.storedOn ?? true;
+  return stored ? PaymentMode.epic1 : PaymentMode.classic;
 });
 
 /// The confirmations the open wallet's balance counts a coin spendable with (LEPIC's), or the

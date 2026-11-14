@@ -72,10 +72,6 @@
   "@deskSetNodeServerHint": {
     "description": "Settings > Node: hint under the Node server row."
   },
-  "deskSetNodeChecking": "Checking the node…",
-  "@deskSetNodeChecking": {
-    "description": "Settings > Node: shown while a chosen node is checked."
-  },
   "deskSetNodeBackground": "Sync in background",
   "@deskSetNodeBackground": {
     "description": "Settings > Node: switch title and screen reader name."

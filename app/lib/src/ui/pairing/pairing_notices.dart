@@ -11,8 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
 import '../../connection_grace.dart';
-import '../../connection_state.dart' show walletStatusProvider;
-import '../status.dart' show NodeState;
+import '../../connection_state.dart' show rawWalletStatusProvider, walletStatusProvider;
+import '../status.dart' show EpicboxState, NodeState;
 import '../../contact_check.dart';
 import '../../contacts.dart';
 import '../../epicbox_mux.dart';
@@ -33,7 +33,6 @@ import '../common.dart';
 import '../contact_page.dart';
 import '../history_screen.dart';
 import '../invoices_screen.dart';
-import '../levels/shell_pairing.dart' show offerPairRequest;
 import '../scan_route.dart' show showPairingSheet;
 import '../tx_details_screen.dart';
 import 'invite_links.dart';
@@ -199,8 +198,6 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     if (!mounted) return;
     // A core without pairing: the sheet that says so, never the pairing calls.
     if (!ref.read(pairingSupportedProvider)) return showPairingSheet(context, link.invite, origin: CodeOrigin.link);
-    // Just send and receive: a notice with See request, not the sheet over the screen.
-    if (await offerPairRequest(context, ref, link.invite) || !mounted) return;
     await openPairingLink(context, ref, link.invite, source: InviteSource.opened);
   }
 
@@ -318,6 +315,12 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // Item 11: no server warning during the connection grace after start and resume; the
     // contact's page still says it.
     if (event.kind == PairingEventKind.homeRelayUnreachable && ref.read(connectionGraceProvider)) return;
+    // Nor while our own Epicbox connection is down (no network, say): the status at the top
+    // already says so, and the contact's server is not the one to blame.
+    if (event.kind == PairingEventKind.homeRelayUnreachable &&
+        (ref.read(walletStatusProvider).epicbox != EpicboxState.online || ref.read(rawWalletStatusProvider).epicbox != EpicboxState.online)) {
+      return;
+    }
     final id = event.pairingId;
     // An answer or a confirm gives the record its words: the list read before the event does
     // not have them yet, and the action would be missing.

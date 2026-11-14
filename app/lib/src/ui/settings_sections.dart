@@ -7,21 +7,15 @@ library;
 
 import 'dart:async';
 
-import 'phone_sheet.dart';
-import '../address_format.dart' show shownUrl;
 import 'address_view.dart' show HostText;
-import '../seed_contacts.dart' show projectRepoUrl;
 import 'package:flutter/material.dart';
-import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_info.dart';
 import '../app_log.dart';
-import '../settings_file/host_settings.dart' show appConfig, hostSettings;
+import '../settings_file/host_settings.dart' show hostSettings;
 import '../dev_networks.dart';
-import '../dist_build.dart';
 import '../epic1.dart' show PaymentMode;
-import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
@@ -34,44 +28,43 @@ import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
 import '../restore_scan.dart' show restoreScanProvider;
 import '../settings.dart';
-import '../smart_outputs.dart' show OutputLabel, outputWord;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
+import '../help/help_content.dart' show HelpId;
 import '../trust_ids.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
+import 'about_phone.dart';
 import 'app_dialog.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'confirmations_row.dart';
-import 'contacts_screen.dart';
 import 'epic1/epic1_settings.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
-import 'level_step_screen.dart';
-import 'levels/change_level_screen.dart';
-import '../levels/level_features.dart' show AdvancedPageKind;
-import '../levels/level_providers.dart' show currentLevelProvider, levelFeaturesProvider;
-import 'licences_screen.dart';
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
-import 'network_mode_text.dart' show blockMode, networkModeName;
 import 'net_block.dart';
 import 'payment_gate.dart' show pendingEpicboxSends;
 import 'network_status.dart';
 import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
-import 'restore_screen.dart' show RestoreScreen, ScanSlotLine;
+import 'restore_screen.dart' show RestoreScreen;
 import 'scan_start.dart';
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
-import 'settings_rows.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_settings.dart';
+import 'kit/kit_sheet.dart';
+import 'kit/kit_tokens.dart';
+import 'settings_phone.dart';
 import 'status.dart' show serverHost;
 import 'theme/advanced.dart';
-import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
@@ -132,7 +125,7 @@ String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
       SettingsSection.security => l.settingsSectionSecurity,
       SettingsSection.privacyNetwork => l.settingsSectionNetworkPrivacy,
       SettingsSection.wallet => l.settingsSectionWallet,
-      SettingsSection.transactions => l.settingsSectionTransactions,
+      SettingsSection.transactions => l.phoneSettingsPayments,
       SettingsSection.display => l.settingsSectionDisplay,
       SettingsSection.advanced => l.advTitle,
       SettingsSection.about => l.settingsSectionAbout,
@@ -140,13 +133,13 @@ String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
 
 /// The group's glyph on the hub.
 IconData settingsSectionIcon(SettingsSection section) => switch (section) {
-  SettingsSection.security => Icons.shield_outlined,
-  SettingsSection.privacyNetwork => Icons.hub_outlined,
-  SettingsSection.wallet => Icons.account_balance_wallet_outlined,
-  SettingsSection.transactions => Icons.swap_horiz,
-  SettingsSection.display => Icons.tune,
-  SettingsSection.advanced => Icons.terminal,
-  SettingsSection.about => Icons.info_outline,
+  SettingsSection.security => KitIcons.security,
+  SettingsSection.privacyNetwork => KitIcons.network,
+  SettingsSection.wallet => KitIcons.wallet,
+  SettingsSection.transactions => KitIcons.exchange,
+  SettingsSection.display => KitIcons.tuning,
+  SettingsSection.advanced => KitIcons.code,
+  SettingsSection.about => KitIcons.info,
 };
 
 /// A feature's name as the Advanced page shows it (the hub's state line reuses it).
@@ -164,9 +157,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.invoices => l.invoicesTitle,
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
-
-/// The key of the Tor header on the Network & privacy page, for tests.
-const Key settingsPrivacyKey = ValueKey('settings-privacy');
 
 /// The key of the Servers header on the Network & privacy page, for tests.
 const Key settingsServersKey = ValueKey('settings-servers');
@@ -187,18 +177,21 @@ Key settingsSectionKey(SettingsSection section) =>
     ValueKey('settings-section-${section.name}');
 
 /// Opens [section]'s page over the current route.
-Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toNetwork = false}) =>
+Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toNetwork = false, String? backLabel}) =>
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SettingsSectionScreen(section: section, toNetwork: toNetwork),
+        builder: (_) => SettingsSectionScreen(section: section, toNetwork: toNetwork, backLabel: backLabel),
       ),
     );
 
 /// One group's page: its rows under the group's title, with the actions they need.
 class SettingsSectionScreen extends ConsumerStatefulWidget {
-  const SettingsSectionScreen({super.key, required this.section, this.toNetwork = false});
+  const SettingsSectionScreen({super.key, required this.section, this.toNetwork = false, this.backLabel});
 
   final SettingsSection section;
+
+  /// The back link's words when the page is not opened from the Settings hub (About from Help).
+  final String? backLabel;
 
   /// Network & privacy opened from the mode mark or an Off (mode) status: scrolled to the
   /// Network section (its first group, so the page opens on it).
@@ -265,102 +258,60 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   AppSettingsNotifier get _settings => ref.read(appSettingsProvider.notifier);
 
-  Future<T?> _choose<T>({
-    required String title,
-    required IconData icon,
-    required List<({T value, String label})> options,
-    required T current,
-    Widget? Function(T value)? leadingOf,
-    String? Function(T value)? idOf,
-  }) {
-    return showAppDialog<T>(
-      context,
-      builder: (context) => AppDialog(
-        title: title,
-        icon: icon,
-        body: RadioGroup<T>(
-          groupValue: current,
-          onChanged: (value) => Navigator.pop(context, value),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final option in options)
-                RadioRow<T>(
-                  value: option.value,
-                  title: option.label,
-                  leading: leadingOf?.call(option.value),
-                  semanticsId: idOf?.call(option.value),
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          DialogButton.secondary(label: context.l10n.commonCancel, onPressed: () => Navigator.pop(context)),
-        ],
-      ),
-    );
-  }
-
   // Display.
 
-  Future<void> _pickCurrency(AppSettings s) async {
+  Future<void> _pickCurrency(AppSettings s) {
     final l = context.l10n;
-    final code = await _choose(
+    return KitPickerSheet.show<String>(
+      context: context,
       title: l.settingsCurrency,
-      icon: Icons.payments_outlined,
-      current: s.fiatCurrency,
-      options: [
-        for (final c in fiatCurrencies) (value: c, label: currencyLabel(l, c)),
-      ],
+      selected: s.fiatCurrency,
+      choices: [for (final c in fiatCurrencies) KitChoice(value: c, title: currencyLabel(l, c), semanticsId: TrustIds.appearanceCurrencyChoiceAt(c))],
+      onSelected: _settings.setFiatCurrency,
     );
-    if (code != null) await _settings.setFiatCurrency(code);
   }
 
-  Future<void> _pickTheme(AppSettings s) async {
+  Future<void> _pickTheme(AppSettings s) {
     final l = context.l10n;
-    final mode = await _choose(
+    return KitPickerSheet.show<ThemeMode>(
+      context: context,
       title: l.settingsTheme,
-      icon: Icons.palette_outlined,
-      current: s.themeMode,
-      options: [
-        for (final m in ThemeMode.values) (value: m, label: themeLabel(l, m)),
+      selected: s.themeMode,
+      choices: [
+        for (final m in ThemeMode.values)
+          KitChoice(
+            value: m,
+            title: themeLabel(l, m),
+            semanticsId: switch (m) {
+              ThemeMode.system => TrustIds.appearanceThemeSystem,
+              ThemeMode.dark => TrustIds.appearanceThemeDark,
+              ThemeMode.light => TrustIds.appearanceThemeLight,
+            },
+          ),
       ],
-      idOf: (m) => switch (m) {
-        ThemeMode.system => TrustIds.appearanceThemeSystem,
-        ThemeMode.dark => TrustIds.appearanceThemeDark,
-        ThemeMode.light => TrustIds.appearanceThemeLight,
-      },
+      onSelected: _settings.setThemeMode,
     );
-    if (mode != null) await _settings.setThemeMode(mode);
   }
 
-  Future<void> _pickLanguage(AppSettings s) async {
-    // A sentinel, because the dialog returns null when dismissed and null also means the
-    // system's language.
+  Future<void> _pickLanguage(AppSettings s) {
+    // A sentinel, because null is the system's language and a picker row needs a value.
     const system = '';
-    final code = await _choose<String>(
+    return KitPickerSheet.show<String>(
+      context: context,
       title: context.l10n.languageSetting,
-      icon: Icons.translate,
-      current: s.language ?? system,
-      options: [
-        (value: system, label: context.l10n.languageSystem),
-        for (final a in appLanguages) (value: a.code, label: a.name),
+      selected: s.language ?? system,
+      choices: [
+        KitChoice(
+          value: system,
+          title: context.l10n.languageSystem,
+          semanticsId: TrustIds.appearanceLanguageChoiceAt('system'),
+          // A neutral globe, as wide as a flag, so the names line up.
+          leading: SizedBox(width: 16 * 4 / 3, child: Icon(KitIcons.language, size: 16, color: context.tokens.dim)),
+        ),
+        for (final a in appLanguages) KitChoice(value: a.code, title: a.name, leading: LanguageFlag(a.code), semanticsId: TrustIds.appearanceLanguageChoiceAt(a.code)),
       ],
-      // The system row gets a neutral globe, as wide as a flag, so the names line up.
-      leadingOf: (code) => code == system
-          ? SizedBox(
-              width: 16 * 4 / 3,
-              child: Icon(
-                Icons.language,
-                size: 16,
-                color: context.tokens.dim,
-              ),
-            )
-          : LanguageFlag(code),
+      onSelected: (code) => _settings.setLanguage(code == system ? null : code),
     );
-    if (code != null) {
-      await _settings.setLanguage(code == system ? null : code);
-    }
   }
 
   Future<void> _setShowFiat(bool on) async {
@@ -372,23 +323,25 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   // Security.
 
-  Future<void> _pickAutoLock(AppSettings s) async {
+  /// The picker's value for Never (no minutes).
+  static const int _autoLockNever = 0;
+
+  Future<void> _pickAutoLock(AppSettings s) {
     final l = context.l10n;
-    // A sentinel, because the dialog returns null when dismissed and null also means never.
-    const never = -1;
     final current = s.autoLockMinutes;
-    final minutes = await _choose<int>(
+    return KitPickerSheet.show<int>(
+      context: context,
       title: l.settingsAutoLock,
-      icon: Icons.lock_clock_outlined,
-      current: current == null ? never : autoLockChoice(current),
-      options: [
-        for (final m in autoLockChoices) (value: m, label: autoLockLabel(l, m)),
-        (value: never, label: autoLockLabel(l, null)),
+      subtitle: l.phoneSettingsAutoLockSub,
+      note: l.phoneSettingsPickerNote,
+      // Never is the stored "none" (`autoLockMinutes` null), as on main and the desktop; 0 stands for it in the list.
+      selected: current == null ? _autoLockNever : autoLockChoice(current),
+      choices: [
+        for (final m in autoLockChoices) KitChoice(value: m, title: autoLockDuration(l, m), semanticsId: TrustIds.securityAutoLockChoiceAt(m)),
+        KitChoice(value: _autoLockNever, title: l.autoLockNever, semanticsId: TrustIds.securityAutoLockChoiceAt('never')),
       ],
+      onSelected: (m) => _settings.setAutoLockMinutes(m == _autoLockNever ? null : m),
     );
-    if (minutes != null) {
-      await _settings.setAutoLockMinutes(minutes == never ? null : minutes);
-    }
   }
 
   Future<void> _setBiometrics(bool on) async {
@@ -518,10 +471,59 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     );
   }
 
+  /// What the page's "?" shows: the lines that used to sit behind the page's info icons.
+  SettingsPageHelp? _help(AppLocalizations l) => switch (widget.section) {
+    SettingsSection.security => SettingsPageHelp(
+      title: l.settingsSectionSecurity,
+      lines: [l.phoneSettingsSecurityHelp1, l.phoneSettingsSecurityHelp2, l.phoneSettingsSecurityHelp3],
+      topic: HelpId.phrase,
+      sheetId: TrustIds.settingsHelpSheet,
+      moreId: TrustIds.settingsHelpMore,
+    ),
+    SettingsSection.privacyNetwork => SettingsPageHelp(
+      title: l.settingsSectionNetworkPrivacy,
+      lines: [l.advNodeFailoverHint, l.phoneSettingsNetworkHelp, if (statusSiteConfigured) l.settingsUseStatusSiteSubtitle],
+      topic: HelpId.modes,
+      sheetId: TrustIds.settingsHelpSheet,
+      moreId: TrustIds.settingsHelpMore,
+    ),
+    SettingsSection.wallet => SettingsPageHelp(
+      title: l.settingsSectionWallet,
+      lines: [l.phoneSettingsWalletHelp1, l.phoneSettingsWalletHelp2, l.backupFileRestoreOrder],
+      topic: HelpId.backup,
+      sheetId: TrustIds.settingsHelpSheet,
+      moreId: TrustIds.settingsHelpMore,
+    ),
+    SettingsSection.transactions => SettingsPageHelp(
+      title: l.phoneSettingsPayments,
+      lines: [l.phoneSettingsPaymentsHelp1, l.phoneSettingsPaymentsHelp2, l.phoneSettingsPaymentsHelp3],
+      topic: HelpId.methods,
+      sheetId: TrustIds.settingsHelpSheet,
+      moreId: TrustIds.settingsHelpMore,
+    ),
+    SettingsSection.display => SettingsPageHelp(
+      title: l.settingsSectionDisplay,
+      lines: [l.phoneSettingsAppearanceHelp1, l.phoneSettingsAppearanceHelp2],
+      sheetId: TrustIds.settingsHelpSheet,
+      moreId: TrustIds.settingsHelpMore,
+    ),
+    SettingsSection.advanced => SettingsPageHelp(
+      title: l.advTitle,
+      lines: [l.advIntro, l.advOutputsHint, l.advTechnicalHint, l.advSendOptionsHint, l.advServerDetailsHint, l.advRecheckHeightHint],
+      topic: HelpId.advanced,
+      sheetId: TrustIds.settingsHelpSheet,
+      moreId: TrustIds.settingsHelpMore,
+    ),
+    SettingsSection.about => SettingsPageHelp(
+      title: l.phoneAboutHelpTitle,
+      lines: [l.phoneAboutHelp1, l.phoneAboutHelp2],
+      sheetId: TrustIds.aboutHelpSheet,
+    ),
+  };
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final scan = ref.watch(scanProvider);
     final rows = switch (widget.section) {
       SettingsSection.security => _security(l),
       SettingsSection.privacyNetwork => _privacyNetwork(l),
@@ -531,290 +533,331 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       SettingsSection.advanced => _advanced(l),
       SettingsSection.about => _about(l),
     };
-    return SlotScaffold(
-      key: settingsSectionKey(widget.section),
-      // A running scan shows in the slot. `_busy` shows nothing: most of its time is spent
-      // waiting on a sheet or dialog, where a progress bar would say the wrong thing.
-      idle: scan.running ? ScanSlotLine(scan: scan) : null,
-      appBar: AppBar(title: Text(settingsSectionTitle(l, widget.section))),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Builder(
-              builder: (context) => ListView(
-              controller: _scroll,
-              padding: DockSlack.pad(context, const EdgeInsets.only(top: 8, bottom: 24)),
-              children: [
-                if (!scan.running && scan.error != null)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: ErrorText(describeError(l, scan.error!)),
-                  ),
-                ...rows,
-              ],
-            ),
-            ),
-          ),
-        ),
-      ),
+    return SettingsPhonePage(
+      pageKey: settingsSectionKey(widget.section),
+      title: settingsSectionTitle(l, widget.section),
+      backLabel: widget.backLabel,
+      controller: _scroll,
+      help: _help(l),
+      helpId: widget.section == SettingsSection.about ? TrustIds.aboutHelp : TrustIds.settingsPageHelp,
+      backId: widget.section == SettingsSection.about ? TrustIds.aboutBack : TrustIds.settingsPageBack,
+      children: rows,
     );
   }
 
   /// Security: the phrase first (the one thing that guards the funds), then how the wallet
-  /// unlocks, then Lock wallet on its own at the end.
+  /// unlocks, then Lock now on its own at the end.
   List<Widget> _security(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final biometrics = ref.watch(biometricsProvider).value;
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final t = context.tokens;
+    final minutes = s.autoLockMinutes;
     return [
-      ListTile(
-        leading: const Icon(Icons.key),
-        title: TrustId(TrustIds.backupRow, child: Text(l.settingsBackupPhrase)),
-        // The one state that matters here: not done yet, in the warning colour.
-        subtitle: backedUp
-            ? null
-            : Text(
-                l.settingsStateNotBackedUp,
-                style: TextStyle(color: t.warn),
-              ),
-        trailing: const NavChevron(),
-        onTap: _showPhrase,
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          KitRow(
+            size: KitRowSize.list,
+            title: l.backupTitle,
+            subtitle: l.phoneSettingsPhraseLine,
+            value: backedUp ? l.phoneSettingsBackedUp : l.settingsStateNotBackedUp,
+            valueIcon: backedUp ? KitIcons.check : null,
+            valueColor: backedUp ? t.ok : t.warn,
+            chevron: true,
+            semanticsId: TrustIds.backupRow,
+            onTap: _showPhrase,
+          ),
+        ],
       ),
-      ListTile(
-        leading: const Icon(Icons.lock_clock),
-        title: Text(l.settingsAutoLock),
-        subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
-        onTap: () => _pickAutoLock(s),
+      KitGroupLabel(l.phoneSettingsUnlocking),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          if (biometrics?.available ?? false)
+            KitRow.toggle(
+              title: l.phoneSettingsBiometrics,
+              subtitle: l.phoneSettingsBiometricsLine,
+              value: biometrics!.enabled,
+              onChanged: _setBiometrics,
+              semanticsId: TrustIds.securityBiometrics,
+            ),
+          KitRow(
+            size: KitRowSize.settings,
+            title: l.settingsAutoLock,
+            value: autoLockValue(l, minutes),
+            chevron: true,
+            semanticsId: TrustIds.securityAutoLock,
+            onTap: () => _pickAutoLock(s),
+          ),
+          if (!previewNoLock)
+            KitRow(
+              size: KitRowSize.settings,
+              title: l.settingsChangePin,
+              chevron: true,
+              semanticsId: TrustIds.securityChangePin,
+              onTap: () => _push(const ChangePinScreen()),
+            ),
+          // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
+          if (!previewNoLock)
+            KitRow(
+              size: KitRowSize.list,
+              title: l.phoneSettingsPassphrase,
+              subtitle: l.phoneSettingsPassphraseLine,
+              value: (ref.watch(usesPassphraseProvider).value ?? false) ? l.netStatusOn : l.netStatusOff,
+              chevron: true,
+              semanticsId: TrustIds.securityPassphrase,
+              onTap: () => _push(const ChangePinScreen(passphrase: true)),
+            ),
+        ],
       ),
-      if (!previewNoLock) ListTile(
-        leading: const Icon(Icons.pin),
-        title: Text(l.settingsChangePin),
-        trailing: const NavChevron(),
-        onTap: () => _push(const ChangePinScreen()),
-      ),
-      // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
-      if (!previewNoLock) ListTile(
-        leading: const Icon(Icons.password),
-        title: Text(
-          ref.watch(usesPassphraseProvider).value ?? false
-              ? l.settingsChangePassphrase
-              : l.settingsUsePassphrase,
-        ),
-        trailing: const NavChevron(),
-        onTap: () => _push(const ChangePinScreen(passphrase: true)),
-      ),
-      if (biometrics?.available ?? false)
-        HintSwitchTile(
-          icon: Icons.fingerprint,
-          title: l.settingsBiometrics,
-          value: biometrics!.enabled,
-          onChanged: _setBiometrics,
-        ),
+      if (minutes != null) KitFootnote(l.phoneSettingsAutoLockFootnote(autoLockDuration(l, minutes))),
       if (!previewNoLock) ...[
-        const Divider(height: 24),
-        ListTile(
-          leading: const Icon(Icons.lock),
-          title: Text(l.settingsLockWallet),
-          onTap: () => lockWallet(context, ref),
+        const SizedBox(height: 22),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow(
+              size: KitRowSize.settings,
+              title: l.phoneSettingsLockNow,
+              titleColor: t.accentText,
+              semanticsId: TrustIds.homeLock,
+              onTap: () => lockWallet(context, ref),
+            ),
+          ],
         ),
       ],
     ];
   }
 
   /// Network & privacy: the servers first (Epicbox, then Node, the status card from Home with
-  /// its rows opening the pickers), Node failover under them, then the network mode (Tor only
-  /// is the one whole-wallet Tor control) and the status site.
+  /// its rows opening the pickers), Node failover under them, then the connection mode (Tor
+  /// only is the one whole-wallet Tor control) and the status site.
   List<Widget> _privacyNetwork(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final walletOpen = ref.watch(sessionProvider) != null;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    final mode = ref.watch(networkModeProvider);
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
-    final adv = s.advanced;
+    final dim = context.tokens.dim;
     // One page for how the wallet reaches the network (B-03): the servers (Epicbox and Node
     // with their host and health, each opening its picker; with no wallet open, plain rows
     // open the same pickers), Node failover, the mode, then the status site.
+    // On by default: the one switch here that keeps the simple app working.
+    final failover = KitRow.toggle(
+      key: advNodeFailoverKey,
+      title: l.phoneSettingsFailover,
+      subtitle: l.phoneSettingsFailoverLine,
+      subtitleLines: 3,
+      size: KitRowSize.list,
+      value: s.advanced.nodeFailover,
+      onChanged: _settings.setNodeFailover,
+      semanticsId: TrustIds.networkFailover,
+    );
     return [
-      SettingsHeader(l.netPageServers, key: settingsServersKey),
+      KitGroupLabel(l.netPageServers, key: settingsServersKey, top: 0),
       if (walletOpen)
-        const PhoneTourTarget(
-          id: 'tour-privacy-servers',
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: NetworkStatusCard(showTor: false),
-          ),
-        )
-      else ...[
-        ListTile(
-          key: settingsEpicboxKey,
-          leading: const Icon(EpicGlyphs.epicbox),
-          title: Text(l.serverEpicboxTitle),
-          subtitle: withTorWay(
-            switch (network?.relay.label ??
-                (config == null ? null : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label)) {
-              final host? => HostText(host, style: TextStyle(color: context.tokens.dim)),
-              null => Text(l.commonUnknown),
-            },
-            torWay(TorRoute.epicbox, torState),
-          ),
-          onTap: () => showEpicboxPicker(context),
+        PhoneTourTarget(id: 'tour-privacy-servers', child: NetworkStatusCard(showTor: false, extraRows: [failover]))
+      else
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow(
+              key: settingsEpicboxKey,
+              size: KitRowSize.settings,
+              title: l.serverEpicboxTitle,
+              subtitleWidget: withTorWay(
+                switch (network?.relay.label ?? (config == null ? null : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label)) {
+                  final host? => HostText(host, style: TextStyle(color: dim)),
+                  null => Text(l.commonUnknown),
+                },
+                torWayIn(TorRoute.epicbox, torState, mode),
+                TorRoute.epicbox,
+              ),
+              chevron: true,
+              semanticsId: TrustIds.networkEpicbox,
+              onTap: () => showEpicboxPicker(context),
+            ),
+            KitRow(
+              key: settingsNodeKey,
+              size: KitRowSize.settings,
+              title: l.serverNodeTitle,
+              subtitleWidget: withTorWay(
+                network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: dim)),
+                nodeTorWay(network?.nodeUrl, torState, mode),
+                TorRoute.node,
+              ),
+              chevron: true,
+              semanticsId: TrustIds.networkNode,
+              onTap: () => showNodePicker(context),
+            ),
+            failover,
+          ],
         ),
-        ListTile(
-          key: settingsNodeKey,
-          leading: const Icon(EpicGlyphs.node),
-          title: Text(l.serverNodeTitle),
-          subtitle: withTorWay(
-            network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: context.tokens.dim)),
-            nodeTorWay(network?.nodeUrl, torState),
-          ),
-          onTap: () => showNodePicker(context),
-        ),
-      ],
-      // On by default: the one switch here that keeps the simple app working.
-      HintSwitchTile(
-        key: advNodeFailoverKey,
-        icon: Icons.alt_route,
-        title: l.advNodeFailover,
-        hint: l.advNodeFailoverHint,
-        value: adv.nodeFailover,
-        onChanged: _settings.setNodeFailover,
-      ),
       NetworkModeSection(
         headerKey: _networkKey,
         tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
       ),
       // No status site in app-config.toml: no switch.
-      if (statusSiteConfigured)
-      HintSwitchTile(
-        icon: Icons.travel_explore,
-        title: l.settingsUseStatusSite(statusSiteHost),
-        hint: l.settingsUseStatusSiteSubtitle,
-        value: s.useStatusSite,
-        onChanged: _settings.setUseStatusSite,
-      ),
-      // Development builds only: the network itself, each with its own wallet.
-      if (advanced.has(AdvancedFeature.serverDetails) && devNetworks)
-        ListTile(
-          leading: const Icon(Icons.hub),
-          title: Text(l.settingsAboutNetwork),
-          subtitle: Text(chain),
-          onTap: () => showNetworkChooser(context),
+      if (statusSiteConfigured) ...[
+        const SizedBox(height: 14),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow.toggle(
+              size: KitRowSize.list,
+              subtitleLines: 3,
+              title: l.phoneSettingsServerStatus,
+              subtitle: l.phoneSettingsServerStatusLine(statusSiteHost),
+              value: s.useStatusSite,
+              onChanged: _settings.setUseStatusSite,
+              semanticsId: TrustIds.networkStatusSite,
+            ),
+          ],
         ),
+      ],
+      // Development builds only: the network itself, each with its own wallet.
+      if (advanced.has(AdvancedFeature.serverDetails) && devNetworks) ...[
+        const SettingsGap(),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow(
+              size: KitRowSize.settings,
+              title: l.settingsAboutNetwork,
+              value: chain,
+              chevron: true,
+              semanticsId: TrustIds.networkChooser,
+              onTap: () => showNetworkChooser(context),
+            ),
+          ],
+        ),
+      ],
     ];
   }
 
-  /// Wallet: the everyday lists, the history files, the technical recheck, and Delete at the
-  /// end on its own.
+  /// This wallet: the phrase, the data files, the upkeep (recheck, outputs, restore) and Delete
+  /// on its own at the end.
   List<Widget> _wallet(AppLocalizations l) {
-    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
-    final walletOpen = ref.watch(sessionProvider) != null;
     final scan = ref.watch(scanProvider);
-    // Invoices only on a core that has them (UP-14); until then no entry at all.
-    final invoices = ref.watch(invoicesShownProvider);
-    final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
-    final outputsSubtitle = outputs == null
-        ? null
-        : Text(
-            l.outputsSettingsSubtitle(
-              outputs.where((o) => outputWord(o) != OutputLabel.spent).length,
-              s.sendStrategy == SelectionStrategy.smallest
-                  ? l.outputsSmallest
-                  : l.outputsAll,
-            ),
-          );
-    final error = Theme.of(context).colorScheme.error;
+    final backedUp = ref.watch(backedUpProvider).value ?? true;
+    final t = context.tokens;
     // Recheck balance asks the node only: Node only lets it run.
     final block = watchNetBlock(context, ref, node: true);
+    final recheckOff = scan.running || block != NetBlock.none;
     return [
-      ListTile(
-        leading: const Icon(Icons.contacts_outlined),
-        title: Text(l.settingsContacts),
-        trailing: const NavChevron(),
-        onTap: () => _push(const ContactsScreen()),
-      ),
-      // Advanced › Outputs; a split or consolidation mid-way keeps the row (never hide what is
-      // in use).
-      if (outputsShown(context, ref))
-        ListTile(
-          leading: const Icon(Icons.grain),
-          title: Text(l.outputsTitle),
-          subtitle: outputsSubtitle,
-          trailing: const NavChevron(),
-          onTap: () => _push(const OutputsScreen()),
-        ),
-      if (invoices)
-        ListTile(
-          leading: const Icon(Icons.request_quote_outlined),
-          title: TitleWithHint(
-            l.settingsInvoices,
-            hint: l.invSetLead,
-            icon: Icons.request_quote_outlined,
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          KitRow(
+            size: KitRowSize.list,
+            title: l.backupTitle,
+            subtitle: l.phoneSettingsPhraseLine,
+            value: backedUp ? l.phoneSettingsBackedUp : l.settingsStateNotBackedUp,
+            valueIcon: backedUp ? KitIcons.check : null,
+            valueColor: backedUp ? t.ok : t.warn,
+            chevron: true,
+            semanticsId: TrustIds.walletPhrase,
+            onTap: _showPhrase,
           ),
-          subtitle: Text(l.settingsInvoicesSubtitle),
-          trailing: const NavChevron(),
-          onTap: () => _push(const InvoiceSettingsScreen()),
-        ),
-      // Linked devices is a hub row of its own (item 10).
-      SettingsHeader(l.settingsSectionHistory),
-      ListTile(
-        leading: const Icon(Icons.upload_file),
-        title: TitleWithHint(
-          l.settingsExportHistory,
-          hint: '${l.backupFileHolds} ${l.backupFileRestoreOrder}',
-          icon: Icons.upload_file,
-        ),
-        onTap: _busy
-            ? null
-            : () => _run(() => exportHistoryBackup(context, ref)),
+        ],
       ),
-      ListTile(
-        leading: const Icon(Icons.table_view),
-        title: Text(l.settingsExportCsv),
-        onTap: _busy ? null : () => _run(() => exportHistoryCsv(context, ref)),
+      KitGroupLabel(l.settingsSectionHistory),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          KitRow(
+            size: KitRowSize.list,
+            title: l.phoneSettingsExport,
+            subtitle: l.phoneSettingsExportLine,
+            chevron: true,
+            semanticsId: TrustIds.walletExport,
+            onTap: _busy ? null : () => _run(() => exportHistoryBackup(context, ref)),
+          ),
+          KitRow(
+            size: KitRowSize.settings,
+            title: l.phoneSettingsImport,
+            chevron: true,
+            semanticsId: TrustIds.walletImport,
+            onTap: _busy ? null : () => _run(() => importHistoryBackup(context, ref)),
+          ),
+          KitRow(
+            size: KitRowSize.list,
+            title: l.phoneSettingsCsv,
+            subtitle: l.phoneSettingsCsvLine,
+            chevron: true,
+            semanticsId: TrustIds.walletCsv,
+            onTap: _busy ? null : () => _run(() => exportHistoryCsv(context, ref)),
+          ),
+        ],
       ),
-      ListTile(
-        leading: const Icon(Icons.download),
-        title: TitleWithHint(
-          l.settingsImportHistory,
-          hint: l.backupImportLead,
-          icon: Icons.download,
-        ),
-        onTap: _busy
-            ? null
-            : () => _run(() => importHistoryBackup(context, ref)),
+      KitGroupLabel(l.phoneSettingsUpkeep),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          // Recheck balance is the fix for a wrong balance: for everyone. From a height is Advanced.
+          // It reads the chain, so it waits for the network.
+          KitRow(
+            size: KitRowSize.list,
+            title: l.settingsRescan,
+            subtitle: scan.running
+                ? l.workChecking
+                : block == NetBlock.none
+                    ? l.phoneSettingsRecheckLine
+                    : (block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
+            subtitleLines: 2,
+            trailing: scan.running
+                ? SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, value: MediaQuery.disableAnimationsOf(context) ? 0.3 : null),
+                  )
+                : null,
+            semanticsId: TrustIds.walletRecheck,
+            enabled: !recheckOff,
+            onTap: recheckOff ? null : _rescan,
+          ),
+          // Advanced › Outputs; a split or consolidation mid-way keeps the row (never hide what is
+          // in use).
+          if (outputsShown(context, ref))
+            KitRow(
+              size: KitRowSize.list,
+              title: l.outputsTitle,
+              subtitle: l.phoneSettingsOutputsLine,
+                            chevron: true,
+              semanticsId: TrustIds.walletOutputs,
+              onTap: () => _push(const OutputsScreen()),
+            ),
+          // Restore from a phrase replaces this wallet (one per network), so it goes through its
+          // warning and PIN once the phrase checks out. Help names this place.
+          KitRow(
+            key: settingsRestoreKey,
+            size: KitRowSize.list,
+            title: l.phoneSettingsRestore,
+            subtitle: l.phoneSettingsRestoreLine,
+            subtitleLines: 2,
+            chevron: true,
+            semanticsId: TrustIds.walletRestore,
+            onTap: _busy ? null : _restoreFromPhrase,
+          ),
+        ],
       ),
-      // Recheck balance is the fix for a wrong balance: for everyone. From a height is Advanced.
-      // It reads the chain, so it waits for the network.
-      ListTile(
-        leading: const Icon(Icons.sync),
-        title: Text(l.settingsRescan),
-        subtitle: block == NetBlock.none
-            ? null
-            : Text(block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
-        enabled: !scan.running && block == NetBlock.none,
-        onTap: block == NetBlock.none ? _rescan : null,
-      ),
-      const Divider(height: 24),
-      // Restore from a phrase replaces this wallet (one per network), so it sits with Delete
-      // and goes through its warning and PIN once the phrase checks out. Help names this place.
-      ListTile(
-        key: settingsRestoreKey,
-        leading: const Icon(Icons.restore),
-        title: Text(l.firstRunRestore),
-        enabled: !_busy,
-        trailing: const NavChevron(),
-        onTap: _restoreFromPhrase,
-      ),
-      ListTile(
-        leading: Icon(Icons.delete_forever, color: error),
-        title: Text(l.settingsDeleteWallet, style: TextStyle(color: error)),
-        enabled: !_busy,
-        onTap: _deleteWallet,
+      const SizedBox(height: 14),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          KitRow(
+            size: KitRowSize.settings,
+            title: l.settingsDeleteWallet,
+            titleColor: t.risk,
+            semanticsId: TrustIds.walletDelete,
+            enabled: !_busy,
+            onTap: _busy ? null : _deleteWallet,
+          ),
+        ],
       ),
     ];
   }
@@ -852,10 +895,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     return yes == true;
   }
 
-  /// Transactions: how payments are made. The methods Send and Receive offer, one switch each,
-  /// grouped by family (Epicbox; Link › HTTP, Tor; Direct › QR Payment, File Transfer), the one
-  /// Send starts on, and, with Advanced › Send options, the defaults a send uses (which outputs
-  /// it spends and whether its change is split).
+  /// Payments: how payments are made. The methods Send and Receive offer, one switch each; with
+  /// Advanced › Send options, the defaults a send uses (which outputs it spends and whether its
+  /// change is split); the experimental epic1 switch; the invoice settings.
   List<Widget> _transactions(AppLocalizations l) {
     // epic1 (spec P1): its own sections in place of the methods, and the switch last.
     final epic1Rows = ref.watch(epic1Provider) == null ? const <Widget>[] : epic1ExperimentalRows(l);
@@ -865,6 +907,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final payments = s.payments;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    // Invoices only on a core that has them (UP-14); until then no entry at all.
+    final invoices = ref.watch(invoicesShownProvider);
     // Send options on shows the defaults; one that is not at its default stays (never hide a
     // choice in use), as Outputs did before they moved here.
     final showDefaults = _txDefaultsShown |=
@@ -889,22 +933,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       MethodKind.directQr => phone,
       MethodKind.directFile => showFile,
     };
-    // Send starts on: the methods on, Link once for the family (the address picks HTTP or
-    // Tor), on the one Send would open on.
-    final start = payments.startMethod;
-    final offered = <MethodKind>[];
-    for (final m in payments.on) {
-      if (!shown(m)) continue;
-      if (m.family == MethodFamily.link) {
-        if (offered.any((o) => o.family == MethodFamily.link)) continue;
-        offered.add(start.family == MethodFamily.link ? start : m);
-      } else {
-        offered.add(m);
-      }
-    }
-    // The desktop's list in the short names (UD-031): Epicbox, Link, Direct · QR, Direct · File.
-    String startName(MethodKind m) =>
-        m.family == MethodFamily.link ? MethodIcons.familyName(l, MethodFamily.link) : MethodIcons.shortName(l, m);
     Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
     // The last method on stays on: Send and Receive always keep a way. The switch does not
     // move; the notice says why.
@@ -922,321 +950,235 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       await save(payments.withMethod(m, on));
     }
 
-    // The row is the label only; what the method does is behind its info icon.
-    Widget methodTile(MethodKind m) {
-      final hint = switch (m) {
-        MethodKind.epicbox => l.txEpicboxHint,
-        MethodKind.linkHttp => torBuilt ? l.txLinkHttpHint('${appConfig.httpListenPort}') : l.txLinkHttpHintNoTor('${appConfig.httpListenPort}'),
-        MethodKind.linkTor => l.deskSetRowTorPayInfo,
-        MethodKind.directQr => l.txQrHint,
-        MethodKind.directFile => l.txFileHint,
+    // The row is the name and one line; what the method does is in the page's help sheet.
+    Widget methodRow(MethodKind m) {
+      final (String title, String? line) = switch (m) {
+        MethodKind.epicbox => (MethodIcons.groupName(l, m), l.phoneSettingsEpicboxLine),
+        MethodKind.directQr => (l.phoneSettingsInPerson, l.phoneSettingsInPersonLine),
+        MethodKind.directFile => (l.phoneSettingsWithFile, l.phoneSettingsWithFileLine),
+        MethodKind.linkTor => (l.phoneSettingsTorAddress, l.phoneSettingsTorAddressLine),
+        MethodKind.linkHttp => (MethodIcons.fullName(l, m), null),
       };
-      return HintSwitchTile(
+      return KitRow.toggle(
         key: txMethodKey(m),
-        icon: MethodIcons.of(m),
-        title: MethodIcons.groupName(l, m),
-        sheetTitle: MethodIcons.fullName(l, m),
-        hint: hint,
+        leading: KitIconWell(
+          switch (m) { MethodKind.directQr => KitIcons.qr, MethodKind.directFile => KitIcons.file, _ => MethodIcons.of(m) },
+          color: context.tokens.accentText,
+          iconSize: 20,
+        ),
+        title: title,
+        size: KitRowSize.list,
+        subtitle: line,
+        subtitleLines: 2,
         value: payments.offers(m),
-        onChanged: m == MethodKind.linkTor && !torPayCanSwitch(ref.watch(phoneTorPayProvider)) ? null : (on) => set(m, on),
+        // Link · Tor starts and stops tor: it waits while a change is being applied.
+        onChanged: m == MethodKind.linkTor && (!torPayCanSwitch(ref.watch(phoneTorPayProvider)) || ref.watch(phoneTorProvider.select((s) => s.changing)))
+            ? null
+            : (on) => set(m, on),
+        semanticsId: _methodId(m),
       );
     }
 
+    final methods = [
+      for (final m in const [MethodKind.epicbox, MethodKind.directQr, MethodKind.directFile, MethodKind.linkTor, MethodKind.linkHttp])
+        if (shown(m)) m,
+    ];
     return [
-      SettingsHeader(l.txMethodsHeader),
-      for (final f in MethodFamily.values) ...[
-        // Epicbox is a family of one: its row stands alone.
-        if (f != MethodFamily.epicbox)
-          SettingsSubHeader(
-            MethodIcons.familyName(l, f),
-            key: ValueKey('tx-family-${f.name}'),
-            icon: MethodIcons.family(f),
-          ),
-        for (final m in MethodKind.values)
-          if (m.family == f && shown(m)) ...[
-            methodTile(m),
-            // Tor for payments (item 2): its state, never a "turn Tor on" card.
-            if (m == MethodKind.linkTor && payments.linkTor) const _TorPayLine(),
-          ],
-      ],
-      // Only a choice when there is one: a single method is what Send opens on.
-      if (offered.length > 1) ...[
-        SettingsHeader(l.txStartHeader),
-        RadioGroup<MethodKind>(
-          groupValue: start,
-          onChanged: (m) {
-            if (m != null) save(payments.copyWith(defaultMethod: m));
-          },
-          child: Column(
-            children: [
-              for (final m in offered)
-                RadioRow<MethodKind>(
-                  key: txStartKey(m),
-                  value: m,
-                  icon: m.family == MethodFamily.link
-                      ? MethodIcons.family(MethodFamily.link)
-                      : MethodIcons.of(m),
-                  title: startName(m),
-                ),
-            ],
-          ),
-        ),
-      ],
+      KitGroupLabel(l.phoneSettingsPayWays, key: const ValueKey('tx-methods'), top: 0),
+      KitGroup(children: [for (final m in methods) methodRow(m)]),
+      // Tor for payments (item 2): its state, never a "turn Tor on" card.
+      if (payments.linkTor && showTor) const _TorPayLine(),
       if (showDefaults) ...[
-        SettingsHeader(l.txDefaultsHeader),
-        ListTile(
-          key: const ValueKey('tx-strategy'),
-          leading: const Icon(Icons.tune),
-          title: TitleWithHint(
-            l.outputsStrategy,
-            hint: l.outputsStrategyHint,
-            icon: Icons.tune,
-          ),
-          subtitle: Text(
-            s.sendStrategy == SelectionStrategy.smallest
-                ? l.outputsSmallest
-                : l.outputsAll,
-          ),
-          onTap: () => _pickStrategy(s.sendStrategy),
-        ),
-        HintSwitchTile(
-          key: const ValueKey('tx-split'),
-          icon: Icons.call_split,
-          title: l.outputsSplitChange,
-          hint: l.outputsSplitChangeText,
-          value: s.splitChange,
-          onChanged: _settings.setSplitChange,
+        KitGroupLabel(l.txDefaultsHeader),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow(
+              key: const ValueKey('tx-strategy'),
+              size: KitRowSize.settings,
+              title: l.outputsStrategy,
+              value: s.sendStrategy == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll,
+              chevron: true,
+              semanticsId: TrustIds.paymentsStrategy,
+              onTap: () => _pickStrategy(s.sendStrategy),
+            ),
+            KitRow.toggle(
+              key: const ValueKey('tx-split'),
+              title: l.outputsSplitChange,
+              subtitle: l.phoneSettingsSplitLine,
+              value: s.splitChange,
+              onChanged: _settings.setSplitChange,
+              semanticsId: TrustIds.paymentsSplit,
+            ),
+          ],
         ),
       ],
       ...epic1Rows,
+      if (invoices) ...[
+        const SizedBox(height: 14),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow(
+              size: KitRowSize.list,
+              title: l.settingsInvoices,
+              subtitle: l.phoneSettingsInvoicesLine,
+              subtitleLines: 2,
+              chevron: true,
+              semanticsId: TrustIds.paymentsInvoices,
+              onTap: () => _push(const InvoiceSettingsScreen()),
+            ),
+          ],
+        ),
+      ],
     ];
   }
 
   /// The strategy a send spends outputs by: the two choices, each with its one line.
-  Future<void> _pickStrategy(SelectionStrategy current) async {
+  Future<void> _pickStrategy(SelectionStrategy current) {
     final l = context.l10n;
-    final picked = await showPhoneSheet<SelectionStrategy>(
+    return KitPickerSheet.show<SelectionStrategy>(
       context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: RadioGroup<SelectionStrategy>(
-          groupValue: current,
-          onChanged: (strategy) => Navigator.pop(context, strategy),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final strategy in SelectionStrategy.values)
-                RadioRow<SelectionStrategy>(
-                  key: ValueKey('tx-strategy-${strategy.name}'),
-                  value: strategy,
-                  title: strategy == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll,
-                  subtitle: strategy == SelectionStrategy.smallest ? l.outputsSmallestText : l.outputsAllText,
-                ),
-            ],
+      title: l.outputsStrategy,
+      selected: current,
+      choices: [
+        for (final strategy in SelectionStrategy.values)
+          KitChoice(
+            value: strategy,
+            title: strategy == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll,
+            subtitle: strategy == SelectionStrategy.smallest ? l.outputsSmallestText : l.outputsAllText,
+            semanticsId: strategy == SelectionStrategy.smallest ? TrustIds.paymentsStrategySmallest : TrustIds.paymentsStrategyAll,
           ),
-        ),
-      ),
+      ],
+      onSelected: _settings.setSendStrategy,
     );
-    if (picked != null) await _settings.setSendStrategy(picked);
   }
 
-  /// Advanced: the switches that show more of the wallet, each explained in a sheet, and the
-  /// one network mode. Nothing here is a value the simple path needs.
+  /// Advanced: the switches that show more of the wallet, each with its one line, and the
+  /// confirmations count. Nothing here is a value the simple path needs. The View level row is
+  /// not on the phone: the switches are all there is.
   List<Widget> _advanced(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final adv = s.advanced;
     final t = context.tokens;
-    Widget feature(
-      AdvancedFeature f,
-      IconData icon,
-      String title,
-      String hint,
-    ) {
-      final tile = HintSwitchTile(
-        key: ValueKey('adv-${f.name}'),
-        icon: icon,
-        title: title,
-        hint: hint,
-        value: adv.has(f),
-        onChanged: (on) => _settings.setFeature(f, on),
-      );
-      return f == AdvancedFeature.technicalDetails ? trustId(TrustIds.advancedTechnical, tile) : tile;
-    }
+    Widget feature(AdvancedFeature f, String title, String line, String id) => KitRow.toggle(
+      key: ValueKey('adv-${f.name}'),
+      title: title,
+      subtitle: line,
+      size: KitRowSize.list,
+      subtitleLines: 2,
+      value: adv.has(f),
+      onChanged: (on) => _settings.setFeature(f, on),
+      semanticsId: id,
+    );
     return [
-      trustId(
-        TrustIds.advancedLevel,
-        ListTile(
-          key: const ValueKey('adv-level'),
-          leading: const Icon(Icons.tune),
-          title: Text(l.levelRowTitle),
-          subtitle: Text(levelTitle(l, ref.watch(currentLevelProvider))),
-          trailing: const NavChevron(),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ChangeLevelScreen())),
-        ),
+      PhoneTourTarget(id: 'tour-advanced-top', child: KitLead(l.phoneSettingsAdvIntro)),
+      KitGroupLabel(l.phoneSettingsAdvShows),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          feature(AdvancedFeature.outputs, l.advOutputs, l.phoneSettingsAdvOutputsLine, TrustIds.advancedOutputs),
+          feature(AdvancedFeature.technicalDetails, l.advTechnical, l.phoneSettingsAdvTechnicalLine, TrustIds.advancedTechnical),
+          feature(AdvancedFeature.sendOptions, l.advSendOptions, l.phoneSettingsAdvSendLine, TrustIds.advancedSendOptions),
+          feature(AdvancedFeature.serverDetails, l.advServerDetails, l.phoneSettingsAdvServersLine, TrustIds.advancedServerDetails),
+          feature(AdvancedFeature.recheckFromHeight, l.advRecheckHeight, l.phoneSettingsAdvRecheckLine, TrustIds.advancedRecheck),
+        ],
       ),
-      // Level 1: the level row alone, and what more levels do.
-      if (ref.watch(levelFeaturesProvider).advancedPage == AdvancedPageKind.changeLevelOnly)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: Text(
-            l.lvShellLevelCaption,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
-        )
-      else ...[
-      PhoneTourTarget(
-        id: 'tour-advanced-top',
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-          child: Text(
-            l.advIntro,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
-        ),
+      // The wallet's own count, stored in the core: how long received coins wait.
+      KitGroupLabel(l.advBalanceHeader),
+      ConfirmationsRow(subtitle: l.phoneSettingsConfirmationsLine, showDefaultTag: false),
+      // The frame draws five switches: this one is a group of its own below Balance.
+      const SizedBox(height: 14),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [feature(AdvancedFeature.transactionFiles, l.advTransactionFiles, l.phoneSettingsAdvFilesLine, TrustIds.advancedFiles)],
       ),
-      SettingsHeader(
-        l.advShowsHeader,
-        // As on the desktop: the way back sits in the section's header (GP-038).
-        trailing: adv.shownFeatures.isEmpty
-            ? null
-            : TextButton(
+      // As on the desktop: the way back (GP-038).
+      if (adv.shownFeatures.isNotEmpty)
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+            child: TrustId(
+              TrustIds.advancedReset,
+              child: TextButton(
                 key: const ValueKey('adv-reset'),
                 onPressed: () => _settings.setAdvanced(adv.withoutShown()),
-                child: Text(l.advReset),
+                child: Text(l.advReset, style: KitType.navLink.copyWith(color: t.accentText)),
               ),
-      ),
-      feature(AdvancedFeature.outputs, Icons.grain, l.advOutputs, l.advOutputsHint),
-      feature(
-        AdvancedFeature.technicalDetails,
-        Icons.data_object,
-        l.advTechnical,
-        l.advTechnicalHint,
-      ),
-      feature(
-        AdvancedFeature.sendOptions,
-        Icons.call_split,
-        l.advSendOptions,
-        l.advSendOptionsHint,
-      ),
-      feature(
-        AdvancedFeature.serverDetails,
-        EpicGlyphs.node,
-        l.advServerDetails,
-        l.advServerDetailsHint,
-      ),
-      feature(
-        AdvancedFeature.recheckFromHeight,
-        Icons.sync,
-        l.advRecheckHeight,
-        l.advRecheckHeightHint,
-      ),
-      feature(
-        AdvancedFeature.transactionFiles,
-        Icons.description_outlined,
-        l.advTransactionFiles,
-        l.advTransactionFilesHint,
-      ),
-      // The network mode and Node failover live on Network & privacy (B-03).
-      // The wallet's own count, stored in the core: how long received coins wait.
-      const SizedBox(height: 8),
-      SettingsHeader(l.advBalanceHeader),
-      const ConfirmationsRow(),
-      ],
+            ),
+          ),
+        ),
     ];
   }
 
+  /// Appearance: theme, language and currency as pickers, then the two display switches.
   List<Widget> _display(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
+    // No price source in app-config.toml, or `[online] price` off in settings.toml: no rows.
+    final prices = pricesOffered(ref.watch(hostSettingsProvider));
     return [
-      trustId(
-        TrustIds.appearanceTheme,
-        ListTile(
-          leading: const Icon(Icons.brightness_6),
-          title: Text(l.settingsTheme),
-          subtitle: Text(themeLabel(l, s.themeMode)),
-          onTap: () => _pickTheme(s),
-        ),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          KitRow(
+            size: KitRowSize.settings,
+            title: l.settingsTheme,
+            value: themeLabel(l, s.themeMode),
+            chevron: true,
+            semanticsId: TrustIds.appearanceTheme,
+            onTap: () => _pickTheme(s),
+          ),
+          KitRow(
+            size: KitRowSize.settings,
+            title: l.languageSetting,
+            value: languageLabel(l, s.language),
+            chevron: true,
+            semanticsId: TrustIds.appearanceLanguage,
+            onTap: () => _pickLanguage(s),
+          ),
+          if (prices)
+            KitRow(
+              size: KitRowSize.settings,
+              title: l.settingsCurrency,
+              value: currencyLabel(l, s.fiatCurrency),
+              chevron: true,
+              semanticsId: TrustIds.appearanceCurrency,
+              onTap: s.showFiat ? () => _pickCurrency(s) : null,
+            ),
+        ],
       ),
-      ListTile(
-        leading: const Icon(Icons.language),
-        title: Text(l.languageSetting),
-        subtitle: Text(languageLabel(l, s.language)),
-        onTap: () => _pickLanguage(s),
+      const SizedBox(height: 14),
+      KitGroup(
+        dividerInset: Kit.dividerInsetPlain,
+        children: [
+          if (prices)
+            KitRow.toggle(
+              size: KitRowSize.list,
+              subtitleLines: 2,
+              title: l.settingsShowPrices,
+              subtitle: l.phoneSettingsShowPricesLine,
+              value: s.showFiat,
+              onChanged: _setShowFiat,
+              semanticsId: TrustIds.appearanceShowPrices,
+            ),
+          KitRow.toggle(
+            size: KitRowSize.list,
+            subtitleLines: 2,
+            title: l.phoneSettingsHideAmounts,
+            subtitle: l.phoneSettingsHideAmountsLine,
+            value: s.hideBalances,
+            onChanged: _settings.setHideBalances,
+            semanticsId: TrustIds.appearanceHideAmounts,
+          ),
+        ],
       ),
-      HintSwitchTile(
-        icon: Icons.visibility_off,
-        title: l.settingsHideBalances,
-        value: s.hideBalances,
-        onChanged: _settings.setHideBalances,
-      ),
-      // No price source in app-config.toml, or `[online] price` off in settings.toml: no rows.
-      if (pricesOffered(ref.watch(hostSettingsProvider))) ...[
-        HintSwitchTile(
-          icon: Icons.show_chart,
-          title: l.settingsShowPrices,
-          value: s.showFiat,
-          onChanged: _setShowFiat,
-        ),
-        ListTile(
-          leading: const Icon(Icons.attach_money),
-          title: Text(l.settingsCurrency),
-          subtitle: Text(currencyLabel(l, s.fiatCurrency)),
-          enabled: s.showFiat,
-          onTap: () => _pickCurrency(s),
-        ),
-      ],
     ];
   }
 
-  /// About: the app, its version and updates, then the rare things: Licences and the links.
-  /// Advanced is a hub row of its own.
-  List<Widget> _about(AppLocalizations l) {
-    final version = ref.watch(appVersionProvider);
-    final updates = ref.read(updateProvider.notifier).supported;
-    final block = watchNetBlock(context, ref);
-    return [
-      const Padding(
-        padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
-        child: BrandLockup(variant: BrandVariant.mobile, size: 40),
-      ),
-      ListTile(
-        leading: const Icon(Icons.info_outline),
-        title: Text(l.settingsVersion),
-        subtitle: Text(
-          [
-            version.hasValue ? version.value ?? l.commonUnknown : '…',
-            // A store build: the store updates it, the app has no updater.
-            if (distStore != null) l.settingsUpdatesFrom(distStore!),
-          ].join('\n'),
-        ),
-      ),
-      if (updates)
-        ListTile(
-          leading: const Icon(Icons.system_update),
-          title: Text(l.settingsCheckUpdates),
-          subtitle: block == NetBlock.none
-              ? null
-              : Text(
-                  blockMode(block) != null ? l.updatesOffMode(networkModeName(l, blockMode(block)!)) : netBlockReason(l, block)!,
-                ),
-          enabled: block == NetBlock.none,
-          onTap: block != NetBlock.none
-              ? null
-              : () {
-                  ref.read(updateProvider.notifier).check();
-                  // The result follows as a notice of its own.
-                  _say(l.updateChecking, level: NoticeLevel.info);
-                },
-        ),
-      // Licences, folded until tapped (item 5); the full texts (the packages', the fonts',
-      // the word lists' and the bundled tor's) are one tap further.
-      const LicencesFold(rowKey: settingsLicencesKey),
-      // The site's address as its name, the same in every language and on the desktop.
-      if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site),
-      if (projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!),
-      if (privacyPolicyUrl case final url?) LinkTile(title: l.settingsPrivacyPolicy, url: url),
-    ];
-  }
+  /// About: the mark and name, the facts about this build, then What is new, Licences and the
+  /// links (`about_phone.dart`). The page's back link reads "Help": About sits in Help's list too.
+  List<Widget> _about(AppLocalizations l) => const [AboutPhoneBody()];
 }
 
 /// `Euro (EUR)`, or the bare code for one the list does not know.
@@ -1261,16 +1203,16 @@ String languageLabel(AppLocalizations l, String? code) {
   return l.languageSystem;
 }
 
-/// [subtitle] with the [TorWayLine] under it while the Epicbox connection goes over Tor or
+/// [subtitle] with the [TorWayLine] for [route] under it while that connection goes over Tor or
 /// waits for it ([way]); [subtitle] alone otherwise.
-Widget? withTorWay(Widget? subtitle, TorWay way) {
+Widget? withTorWay(Widget? subtitle, TorWay way, TorRoute route) {
   if (way != TorWay.overTor && way != TorWay.wait && way != TorWay.blocked) {
     return subtitle;
   }
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
-    children: [?subtitle, const TorWayLine(route: TorRoute.epicbox)],
+    children: [?subtitle, TorWayLine(route: route)],
   );
 }
 
@@ -1281,9 +1223,13 @@ const Key settingsLinkedDevicesKey = ValueKey('settings-linked-devices');
 /// `tx-epicbox`, `tx-http`, `tx-tor`, `tx-qr`, `tx-file`.
 Key txMethodKey(MethodKind m) => ValueKey('tx-${_txKeyName(m)}');
 
-/// The key of a "Send starts on" choice, for tests: Link is one (`tx-start-link`).
-Key txStartKey(MethodKind m) =>
-    ValueKey('tx-start-${m.family == MethodFamily.link ? 'link' : _txKeyName(m)}');
+String _methodId(MethodKind m) => switch (m) {
+  MethodKind.epicbox => TrustIds.paymentsEpicbox,
+  MethodKind.linkHttp => TrustIds.paymentsHttp,
+  MethodKind.linkTor => TrustIds.paymentsTor,
+  MethodKind.directQr => TrustIds.paymentsInPerson,
+  MethodKind.directFile => TrustIds.paymentsFile,
+};
 
 String _txKeyName(MethodKind m) => switch (m) {
   MethodKind.epicbox => 'epicbox',
@@ -1303,34 +1249,31 @@ class _TorPayLine extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final l = context.l10n;
     final p = ref.watch(phoneTorPayProvider);
     final text = p.kind == TorPayKind.ready ? '${torPayLine(l, p)} · ${torPayRestLine(l, p)}' : torPayLine(l, p);
-    return Padding(
-      key: txTorPayLineKey,
-      // Lined up with the switch's title, past its icon.
-      padding: const EdgeInsets.fromLTRB(56, 0, 16, 10),
-      child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
-    );
+    return KitFootnote(text, key: txTorPayLineKey);
   }
 }
 
-/// A web link. The app has no browser launcher, so tapping copies the address.
+/// A web link row. The app has no browser launcher, so tapping copies the address.
 class LinkTile extends StatelessWidget {
-  const LinkTile({super.key, required this.title, required this.url});
+  const LinkTile({super.key, required this.title, required this.url, this.id, this.minHeight});
 
+  final double? minHeight;
   final String title;
   final String url;
+  final String? id;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return ListTile(
-      leading: const Icon(Icons.link),
-      title: Text(title),
-      subtitle: Text(url),
-      trailing: Icon(Icons.copy, semanticLabel: l.settingsCopyLink),
+    return KitRow(
+      size: KitRowSize.settings,
+      minHeight: minHeight,
+      title: title,
+      trailing: Icon(KitIcons.external, size: 16, color: context.tokens.dim, semanticLabel: l.settingsCopyLink),
+      semanticsId: id,
       onTap: () => copyText(context, url, l.settingsLinkCopied),
     );
   }

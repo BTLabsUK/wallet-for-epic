@@ -11,11 +11,7 @@ import '../../l10n.dart' show AppLocalizations, englishStrings;
 import '../../tor_build.dart' show torBuilt;
 import '../../net/http.dart' show httpGet;
 import '../../net/tor_switch.dart' show TorSwitch;
-import '../../settings_file/host_settings.dart' show appConfig, hostSettings;
-
-/// The port the Link · HTTP listener takes unless the user picks another
-/// (`http.listen_port` of `app-config.toml`).
-int get defaultHttpPort => appConfig.httpListenPort;
+import '../../settings_file/host_settings.dart' show hostSettings;
 
 /// [text] as an HTTP(S) address the wallet sends to, trimmed; null when it is not one.
 Uri? parseHttpAddress(String text) {

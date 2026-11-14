@@ -15,7 +15,6 @@ import 'notices.dart';
 
 const Key sendRequestBannerKey = Key('send-request-banner');
 const Key sendRequestDismissKey = Key('send-request-dismiss');
-const Key payeeClaimsKey = Key('payee-claims');
 const Key sendOriginPillKey = Key('send-origin-pill');
 
 /// How long the banner takes to fold away, and to open again for a new code.

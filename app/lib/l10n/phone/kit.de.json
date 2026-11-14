@@ -1,0 +1,14 @@
+{
+  "phoneKitReady": "Bereit",
+  "phoneKitReconnecting": "Verbindet neu",
+  "phoneKitAvailable": "Verfügbar",
+  "phoneKitLeaves": "Es bleiben {amount} nach der Gebühr von {fee}",
+  "phoneKitBack": "Zurück",
+  "phoneKitDeleteDigit": "Letzte Ziffer löschen",
+  "phoneKitPinDigits": "{count} von {total} Ziffern eingegeben",
+  "phoneKitSwapCurrency": "Währung wechseln",
+  "phoneKitStepDone": "Erledigt",
+  "phoneKitStepNow": "In Arbeit",
+  "phoneKitStepLater": "Noch nicht begonnen",
+  "phoneKitPickerSaveFailed": "Nicht gespeichert. Versuche es noch einmal."
+}

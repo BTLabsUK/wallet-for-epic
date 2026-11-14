@@ -18,7 +18,6 @@
   "deskSetRecvHttpText": "Direkt von einer anderen Wallet an der Web-Adresse dieses Computers, solange diese Wallet geöffnet ist.",
   "deskSetRecvHttpOffTitle": "Aus, solange Tor an ist",
   "deskSetRecvHttpOffText": "Zahlungen direkt von einer anderen Wallet kommen stattdessen an der Link · Tor-Adresse an.",
-  "deskSetRecvPrivacySettings": "Datenschutz-Einstellungen",
   "deskSetHttpNotChanged": "Nicht geändert",
   "deskSetHttpPortError": "Port muss zwischen 1024 und 65535 liegen",
   "deskSetHttpGuideHelp": "Aus dem Internet empfangen: So funktioniert es",
@@ -38,6 +37,5 @@
   "deskSetHttpNoRouterText": "Tor funktioniert von überall, ohne etwas weiterzuleiten.",
   "deskSetHttpTurnOnTor": "Tor einschalten",
   "deskSetHttpExposed": "Nur die Empfangs-API ist erreichbar. Einfaches HTTP ist nicht verschlüsselt.",
-  "deskSetHttpBackLocal": "Zurück zu „Nur lokal“",
-  "deskSetRecvTorText": "Direkt von einer anderen Wallet an der Tor-Adresse dieser Wallet, solange sie geöffnet ist."
+  "deskSetHttpBackLocal": "Zurück zu „Nur lokal“"
 }

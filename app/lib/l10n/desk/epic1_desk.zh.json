@@ -18,7 +18,6 @@
   "deskE1LinkTitle": "epic1 链接",
   "deskE1LinkSub": "任何支持 epic1 的人都可通过此链接付款。",
   "deskE1CopyLink": "复制链接",
-  "deskE1LinkCopied": "已复制链接",
   "deskE1AskAmount": "请求金额",
   "deskE1MakeLink": "生成链接",
   "deskE1LinkAsks": "请求 {amount}",

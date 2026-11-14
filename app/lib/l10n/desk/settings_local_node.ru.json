@@ -64,7 +64,6 @@
   "deskSetLnodeStartedAgo": "запущен {duration} назад",
   "deskSetLnodeSettingsChanged": "Настройки изменены.",
   "deskSetLnodeSettingsChangedText": "Они вступят в силу после перезапуска.",
-  "deskSetLnodeRestartNow": "Перезапустить",
   "deskSetLnodeSampled": "Обновляется каждые 30 с, пока открыта эта страница.",
   "deskSetLnodeTomlEdited": "epic-server.toml изменён вручную; настройки пиров и папки здесь не действуют.",
   "deskSetLnodeSyncProgress": "Ход синхронизации",

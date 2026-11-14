@@ -36,6 +36,7 @@ class NoticeLayout extends SlottedMultiChildRenderObjectWidget<NoticeSlot, Rende
     this.textEnd = 0,
     this.minHeight = 0,
     this.actionsBelow = false,
+    this.centered = false,
   });
 
   final Widget icon;
@@ -49,6 +50,11 @@ class NoticeLayout extends SlottedMultiChildRenderObjectWidget<NoticeSlot, Rende
   final double textEnd;
   final double minHeight;
   final bool actionsBelow;
+
+  /// The phone frame's row (HANDOFF 7.6): the icon and [close] centred on the whole row, and a short
+  /// action kept beside the words even when they wrap, so the words take the lines and the action
+  /// never sits alone on a row of its own.
+  final bool centered;
 
   @override
   Iterable<NoticeSlot> get slots => NoticeSlot.values;
@@ -70,6 +76,7 @@ class NoticeLayout extends SlottedMultiChildRenderObjectWidget<NoticeSlot, Rende
     textEnd: textEnd,
     minHeight: minHeight,
     actionsBelow: actionsBelow,
+    centered: centered,
     textDirection: Directionality.of(context),
   );
 
@@ -82,6 +89,7 @@ class NoticeLayout extends SlottedMultiChildRenderObjectWidget<NoticeSlot, Rende
     ..textEnd = textEnd
     ..minHeight = minHeight
     ..actionsBelow = actionsBelow
+    ..centered = centered
     ..textDirection = Directionality.of(context);
 }
 
@@ -97,6 +105,7 @@ class RenderNoticeLayout extends RenderBox with SlottedContainerRenderObjectMixi
     required double textEnd,
     required double minHeight,
     required bool actionsBelow,
+    required bool centered,
     required TextDirection textDirection,
   }) {
     _iconGap = iconGap;
@@ -106,6 +115,7 @@ class RenderNoticeLayout extends RenderBox with SlottedContainerRenderObjectMixi
     _textEnd = textEnd;
     _minHeight = minHeight;
     _actionsBelow = actionsBelow;
+    _centered = centered;
     _textDirection = textDirection;
   }
 
@@ -155,6 +165,13 @@ class RenderNoticeLayout extends RenderBox with SlottedContainerRenderObjectMixi
   set actionsBelow(bool v) {
     if (v == _actionsBelow) return;
     _actionsBelow = v;
+    markNeedsLayout();
+  }
+
+  late bool _centered;
+  set centered(bool v) {
+    if (v == _centered) return;
+    _centered = v;
     markNeedsLayout();
   }
 
@@ -227,13 +244,15 @@ class RenderNoticeLayout extends RenderBox with SlottedContainerRenderObjectMixi
     final words = _words;
     final unwrapped = words == null ? 0.0 : words.getMaxIntrinsicWidth(double.infinity);
     // Beside while the words' longest line fits there unwrapped.
-    final beside = _actions == null || (!_actionsBelow && unwrapped + _actionGap + actions.width <= end);
+    // A centred notice keeps a short action beside wrapped words (up to 45 % of the room).
+    final beside = _actions == null ||
+        (!_actionsBelow && (unwrapped + _actionGap + actions.width <= end || (_centered && actions.width <= end * 0.45)));
     final wordsWidth = _actions != null && beside ? math.max(0.0, end - actions.width - _actionGap) : room;
     final text = words == null ? Size.zero : size(words, BoxConstraints.tightFor(width: wordsWidth));
     final row = math.max(text.height, _actions != null && beside ? actions.height : 0);
     final wordsY = (row - text.height) / 2;
     // The first line's middle: the icon and the close button are centred on it.
-    final line = wordsY + math.min(_firstLine, text.height) / 2;
+    final line = _centered ? row / 2 : wordsY + math.min(_firstLine, text.height) / 2;
     final iconY = line - icon.height / 2;
     final closeY = line - close.height / 2;
     final rects = <NoticeSlot, Rect>{

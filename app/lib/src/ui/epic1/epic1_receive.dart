@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Receive in epic1 mode (spec P4): the epic1 link card (QR covered until tapped, the link
-/// shortened in the middle, Copy link, Share, Ask an amount) and "Other ways to receive".
+/// Receive in epic1 mode (Receive-5): the epic1 link as a QR with the epic1 mark, Copy link and
+/// Share, "Ask for an amount" (a sheet) and "Other ways to receive" (in person).
 library;
 
 import 'package:flutter/material.dart';
@@ -8,31 +8,36 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
+import '../../connection_state.dart' show walletStatusProvider;
+import '../../trust_ids.dart';
 import '../../epic1.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../providers.dart';
 import '../../slate_files.dart' show slateFilesProvider;
 import '../../models.dart' show WalletError, WalletErrorKind;
-import '../app_dialog.dart';
 import '../common.dart';
 import '../in_person/in_person_entry.dart';
-import '../phone_sheet.dart';
-import '../receive_screen.dart' show shareAddress;
+import '../receive_screen.dart' show ReceiveQr, shareAddress;
+import '../kit/kit_button.dart';
+import '../kit/kit_chip.dart';
+import '../kit/kit_group.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_sheet.dart';
+import '../kit/kit_tokens.dart';
 import '../settings_sections.dart';
+import '../status.dart' show EpicboxState;
 import '../theme/logo_qr.dart';
-import '../theme/protocol.dart' show CornerTicksPainter;
 import '../theme/tokens.dart';
 import '../theme/epic1_mark.dart';
-import '../tip.dart';
 import '../tour/tour_target.dart';
 import 'epic1_common.dart';
+import '../kit/kit_qr_glyph.dart';
 
 /// Keys for tests and the screenshot tour.
 const Key epic1LinkCardKey = ValueKey('epic1-link-card');
-const Key epic1QrCoverKey = ValueKey('epic1-qr-cover');
 const Key epic1QrKey = ValueKey('epic1-qr');
-const Key epic1LinkTextKey = ValueKey('epic1-link-text');
 const Key epic1CopyLinkKey = ValueKey('epic1-copy-link');
 const Key epic1ShareLinkKey = ValueKey('epic1-share-link');
 const Key epic1AskAmountKey = ValueKey('epic1-ask-amount');
@@ -41,6 +46,7 @@ const Key epic1MessageFieldKey = ValueKey('epic1-message-field');
 const Key epic1MakeLinkKey = ValueKey('epic1-make-link');
 const Key epic1RelaySettingsKey = ValueKey('epic1-relay-settings');
 const Key epic1RequestInPersonKey = ValueKey('epic1-request-in-person');
+const Key epic1ListeningKey = ValueKey('epic1-listening');
 
 class Epic1ReceiveView extends ConsumerStatefulWidget {
   const Epic1ReceiveView({super.key});
@@ -54,7 +60,6 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
   BigInt? _amount;
   Object? _error;
   bool _busy = false;
-  bool _covered = true;
 
   /// A local network server was accepted for links on this screen.
   bool _lanOk = false;
@@ -79,7 +84,6 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
         _link = made;
         _amount = amount;
         _madeFor = relay;
-        _covered = true;
       });
     } catch (e) {
       if (mounted) setState(() => _error = e);
@@ -92,12 +96,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
       shareAddress(context, ref, address: link, chain: ref.read(walletConfigProvider)?.chain, logo: QrLogo.epic1);
 
   Future<void> _askAmount() async {
-    final asked = await showPhoneSheet<({BigInt amount, String? message})>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => const _AskAmountSheet(),
-    );
+    final asked = await showKitSheet<({BigInt amount, String? message})>(context: context, builder: (_) => const _AskAmountSheet());
     if (asked != null) await _make(amount: asked.amount, message: asked.message);
   }
 
@@ -115,6 +114,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
       });
     }
     final Widget card;
+    var linkShown = false;
     if (place == Epic1RelayPlace.thisDevice || _ownRelayError(_error)) {
       card = _Notice(text: l.deskE1ErrOwnRelayLocal, action: l.deskE1PhSettings, actionKey: epic1RelaySettingsKey, onAction: _settings);
     } else if (place == Epic1RelayPlace.localNetwork && !_lanOk) {
@@ -131,14 +131,12 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
         onSecondary: _settings,
       );
     } else if (_link case final link?) {
+      linkShown = true;
       card = _LinkCard(
         link: link.link,
         amount: _amount,
-        covered: _covered,
-        onCover: (covered) => setState(() => _covered = covered),
         onCopy: () => copyText(context, link.link, l.deskE1PhLinkCopied),
         onShare: ref.watch(slateFilesProvider).canShareText ? () => _share(link.link) : null,
-        onAskAmount: _busy ? null : _askAmount,
       );
     } else if (_error case final error?) {
       card = _Notice(text: describeError(l, error), action: l.deskE1PhMakeLink, actionKey: epic1MakeLinkKey, onAction: _make);
@@ -150,23 +148,49 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
       }
       card = const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()));
     }
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-      children: [
-        PhoneTourTarget(id: 'tour-receive-address', child: card),
-        const SizedBox(height: 8),
-        SettingsHeader(l.deskE1PhOtherWays),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.handshake_outlined),
-          title: Text(l.deskE1PhInPerson),
-          trailing: TextButton(
-            key: epic1RequestInPersonKey,
-            onPressed: () => openRequestInPerson(context),
-            child: Text(l.deskE1PhRequestInPerson),
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Padding(
+              // Frame: the QR 34 under the header; its corner marks take the 14 above it.
+              padding: const EdgeInsets.fromLTRB(Kit.gutter, 20, Kit.gutter, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PhoneTourTarget(id: 'tour-receive-address', child: card),
+                  const SizedBox(height: 22),
+                  KitGroup(
+                    margin: EdgeInsets.zero,
+                    children: [
+                      if (linkShown)
+                        KitRow(
+                          key: epic1AskAmountKey,
+                          leading: KitIconWell(KitIcons.invoice, color: context.tokens.accentText),
+                          title: l.phoneRecvAsk,
+                          subtitle: l.phoneRecvAskLineLink,
+                          chevron: true,
+                          onTap: _busy ? null : _askAmount,
+                        ),
+                      KitRow(
+                        key: epic1RequestInPersonKey,
+                        leading: KitIconWell.child(KitQrGlyph(color: context.tokens.accentText)),
+                        title: l.phoneRecvOther,
+                        subtitle: l.deskE1PhInPerson,
+                        chevron: true,
+                        onTap: () => openRequestInPerson(context),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -195,189 +219,112 @@ class _Notice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (title != null) ...[Text(title!, style: theme.textTheme.titleMedium), const SizedBox(height: 8)],
-            Text(text),
-            const SizedBox(height: 12),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (secondary != null) TextButton(onPressed: onSecondary, child: Text(secondary!)),
-                FilledButton(key: actionKey, onPressed: onAction, child: Text(action)),
-              ],
-            ),
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.all(Kit.gutter),
+      decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rGroup)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (title != null) ...[Text(title!, style: KitType.rowTitle.copyWith(color: t.text)), const SizedBox(height: 6)],
+          Text(text, style: KitType.body.copyWith(color: t.dim)),
+          const SizedBox(height: 14),
+          KitButton(key: actionKey, label: action, onPressed: onAction),
+          if (secondary != null) ...[
+            const SizedBox(height: 10),
+            KitButton(label: secondary!, kind: KitButtonKind.quiet, onPressed: onSecondary),
           ],
-        ),
+        ],
       ),
     );
   }
 }
 
+/// The link: its QR with the epic1 mark, the wordmark and what it asks, Copy link and Share.
 class _LinkCard extends StatelessWidget {
-  const _LinkCard({
-    required this.link,
-    required this.amount,
-    required this.covered,
-    required this.onCover,
-    required this.onCopy,
-    required this.onShare,
-    required this.onAskAmount,
-  });
+  const _LinkCard({required this.link, required this.amount, required this.onCopy, required this.onShare});
 
   final String link;
   final BigInt? amount;
-  final bool covered;
-  final ValueChanged<bool> onCover;
   final VoidCallback onCopy;
   final VoidCallback? onShare;
-  final VoidCallback? onAskAmount;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    return Card(
+    return Column(
       key: epic1LinkCardKey,
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        KeyedSubtree(
+          key: epic1QrKey,
+          child: ReceiveQr(address: link, semanticsLabel: l.deskE1PhLinkQrLabel, logo: QrLogo.epic1),
+        ),
+        // The frame's heading line sits 20 under the QR block (its mark is taller than the text).
+        const SizedBox(height: 20),
+        Center(child: Epic1Text(l.deskE1PhLinkTitle, style: KitType.flowTitle.copyWith(color: t.text, fontSize: 18))),
+        const SizedBox(height: 12),
+        Center(child: KitChip(amount == null ? l.deskE1PhAnyAmount : l.deskE1PhLinkAsks(epicFor(l, amount!)))),
+        const SizedBox(height: 20),
+        Row(
           children: [
-            Epic1Text(l.deskE1PhLinkTitle, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(
-              amount == null ? l.deskE1PhAnyAmount : l.deskE1PhLinkAsks(epicFor(l, amount!)),
-              style: TextStyle(color: t.dim),
+            Expanded(
+              child: KitButton(key: epic1CopyLinkKey, label: l.deskE1PhCopyLink, kind: KitButtonKind.quiet, icon: KitIcons.copy, onPressed: onCopy),
             ),
-            const SizedBox(height: 16),
-            LayoutBuilder(
-              builder: (context, box) {
-                final size = (box.maxWidth - 56).clamp(120.0, 220.0);
-                return covered ? _QrCover(size: size, onShow: () => onCover(false)) : _LinkQr(link: link, size: size, onHide: () => onCover(true));
-              },
-            ),
-            const SizedBox(height: 12),
-            Center(
-              child: Tip.value(
-                link,
-                child: Text(
-                  shortMiddle(link, keep: 34),
-                  key: epic1LinkTextKey,
-                  style: TextStyle(fontFamily: t.monoFamily, color: t.dim),
-                ),
+            if (onShare != null) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: KitButton(key: epic1ShareLinkKey, label: l.commonShare, icon: KitIcons.share, onPressed: onShare),
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilledButton.icon(key: epic1CopyLinkKey, icon: const Icon(Icons.copy), label: Text(l.deskE1PhCopyLink), onPressed: onCopy),
-                if (onShare != null)
-                  OutlinedButton.icon(key: epic1ShareLinkKey, icon: const Icon(Icons.share_outlined), label: Text(l.commonShare), onPressed: onShare),
-                OutlinedButton.icon(
-                  key: epic1AskAmountKey,
-                  icon: const Icon(Icons.request_quote_outlined),
-                  label: Text(l.deskE1PhAskAmount),
-                  onPressed: onAskAmount,
-                ),
-              ],
-            ),
+            ],
           ],
         ),
-      ),
+        const SizedBox(height: 16),
+        const _ListeningLine(),
+      ],
     );
   }
 }
 
-/// The QR's place until tapped: an eye and "Show QR".
-class _QrCover extends StatelessWidget {
-  const _QrCover({required this.size, required this.onShow});
-
-  final double size;
-  final VoidCallback onShow;
+/// The listener's state under the buttons, as Receive's line says it: "Listening for payments"
+/// with a green dot only while Epicbox listens; connecting, offline or blocked otherwise.
+class _ListeningLine extends ConsumerWidget {
+  const _ListeningLine();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final side = size + 56;
-    return Center(
-      child: Semantics(
-        button: true,
-        label: l.qrShow,
-        excludeSemantics: true,
-        child: Material(
-          color: t.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(t.radiusSmall),
-            side: BorderSide(color: t.line),
-          ),
-          child: InkWell(
-            key: epic1QrCoverKey,
-            borderRadius: BorderRadius.circular(t.radiusSmall),
-            onTap: onShow,
-            child: SizedBox.square(
-              dimension: side,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.visibility_outlined, color: t.accentText, size: 32),
-                  const SizedBox(height: 8),
-                  Text(l.qrShow, style: TextStyle(color: t.accentText)),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The link as a QR with the mark, framed as Receive frames the address; a tap covers it.
-class _LinkQr extends StatelessWidget {
-  const _LinkQr({required this.link, required this.size, required this.onHide});
-
-  final String link;
-  final double size;
-  final VoidCallback onHide;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    return Center(
-      child: GestureDetector(
-        key: epic1QrKey,
-        onTap: onHide,
-        child: CustomPaint(
-          foregroundPainter: CornerTicksPainter(t.tick, length: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
+    // As the header shows it: offline only once it lasts; a stopped listener (null) at once.
+    final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
+    final (String word, Color color) = switch (epicbox) {
+      EpicboxState.online => (l.phoneRecvListening, t.ok),
+      EpicboxState.blocked => (l.statusEpicboxBlocked, t.risk),
+      null || EpicboxState.offline => (l.statusEpicboxOffline, t.risk),
+      EpicboxState.connecting => (l.statusEpicboxConnecting, t.dim),
+    };
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Row(
+        key: epic1ListeningKey,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ExcludeSemantics(
             child: Container(
-              padding: const EdgeInsets.all(16),
+              width: 7,
+              height: 7,
               decoration: BoxDecoration(
-                // Dark modules on white scan reliably in either theme.
-                color: protocolLight.surface,
-                borderRadius: BorderRadius.circular(t.radiusSmall),
+                shape: BoxShape.circle,
+                color: color,
+                boxShadow: [BoxShadow(color: color.withValues(alpha: .16), spreadRadius: 3)],
               ),
-              child: Semantics(label: l.deskE1PhLinkQrLabel, image: true, child: LogoQr(data: link, size: size, logo: QrLogo.epic1)),
             ),
           ),
-        ),
+          const SizedBox(width: 9),
+          Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: epicbox == EpicboxState.online ? t.dim : color))),
+        ],
       ),
     );
   }
@@ -419,44 +366,38 @@ class _AskAmountSheetState extends State<_AskAmountSheet> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return Padding(
-      padding: EdgeInsets.fromLTRB(24, 0, 24, 16 + MediaQuery.viewInsetsOf(context).bottom),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l.deskE1PhAskAmount, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 16),
-            TextField(
-              key: epic1AmountFieldKey,
-              controller: _amount,
-              autofocus: true,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-              decoration: InputDecoration(labelText: l.deskE1PhAmount, suffixText: epicUnit, errorText: _amountError),
-              onChanged: (_) {
-                if (_amountError != null) setState(() => _amountError = null);
-              },
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: epic1MessageFieldKey,
-              controller: _message,
-              maxLength: 120,
-              decoration: InputDecoration(labelText: l.deskE1PhMessage),
-              onSubmitted: (_) => _done(),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
-                DialogButton.primary(key: epic1MakeLinkKey, label: l.deskE1PhMakeLink, onPressed: _done),
-              ],
-            ),
-          ],
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: KitSheet(
+        title: l.phoneRecvAsk,
+        primary: KitButton(key: epic1MakeLinkKey, label: l.deskE1PhMakeLink, onPressed: _done),
+        secondary: KitButton(label: l.commonCancel, kind: KitButtonKind.ghost, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.receiveAskCancel),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                key: epic1AmountFieldKey,
+                controller: _amount,
+                autofocus: true,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+                decoration: InputDecoration(labelText: l.deskE1PhAmount, suffixText: epicUnit, errorText: _amountError),
+                onChanged: (_) {
+                  if (_amountError != null) setState(() => _amountError = null);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                key: epic1MessageFieldKey,
+                controller: _message,
+                maxLength: 120,
+                decoration: InputDecoration(labelText: l.deskE1PhMessage),
+                onSubmitted: (_) => _done(),
+              ),
+            ],
+          ),
         ),
       ),
     );

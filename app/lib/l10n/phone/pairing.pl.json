@@ -1,0 +1,7 @@
+{
+  "phoneLinkScanSub": "Zeskanuj kod na drugim urządzeniu",
+  "phoneLinkShowSub": "Drugie urządzenie go zeskanuje",
+  "phoneLinkPasteSub": "Wklej otrzymany kod lub link",
+  "phonePairUnnamedShort": "Portfel {code}",
+  "phonePairSeenAsEmptyShows": "Gdy puste, widzą {label}."
+}

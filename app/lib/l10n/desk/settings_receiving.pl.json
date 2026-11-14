@@ -18,7 +18,6 @@
   "deskSetRecvHttpText": "Prosto z innego portfela na adres internetowy tego komputera, gdy ten portfel jest otwarty.",
   "deskSetRecvHttpOffTitle": "Wyłączone, gdy Tor jest włączony",
   "deskSetRecvHttpOffText": "Płatności prosto z innego portfela docierają wtedy na adres Link · Tor.",
-  "deskSetRecvPrivacySettings": "Ustawienia prywatności",
   "deskSetHttpNotChanged": "Nie zmieniono",
   "deskSetHttpPortError": "Port musi być od 1024 do 65535",
   "deskSetHttpGuideHelp": "Odbieranie z internetu: jak to działa",
@@ -38,6 +37,5 @@
   "deskSetHttpNoRouterText": "Tor działa z każdego miejsca i nie wymaga przekierowań.",
   "deskSetHttpTurnOnTor": "Włącz Tor",
   "deskSetHttpExposed": "Udostępnione jest tylko API odbierania. Zwykłe HTTP nie jest szyfrowane.",
-  "deskSetHttpBackLocal": "Wróć do trybu lokalnego",
-  "deskSetRecvTorText": "Prosto z innego portfela na adres Tor tego portfela, gdy jest otwarty."
+  "deskSetHttpBackLocal": "Wróć do trybu lokalnego"
 }

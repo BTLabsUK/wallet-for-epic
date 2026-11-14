@@ -1,0 +1,367 @@
+{
+  "phonePinChooseHint": "It unlocks the wallet and approves payments.",
+  "@phonePinChooseHint": {
+    "description": "Hint under the title of the first PIN step."
+  },
+  "phonePinBiometricsBody": "Face or fingerprint, whichever this phone has. The PIN still works.",
+  "@phonePinBiometricsBody": {
+    "description": "Text of the biometrics offer sheet after choosing a PIN."
+  },
+  "phoneUnlockResetBody": "The PIN cannot be recovered. You can delete this wallet from the phone and restore it from its recovery phrase. Without the phrase, its coins are lost for good.",
+  "@phoneUnlockResetBody": {
+    "description": "Body of the Forgot PIN sheet on the unlock screen."
+  },
+  "phoneWelcomeBody": "Make a wallet in under a minute, or bring one back with its recovery phrase.",
+  "@phoneWelcomeBody": {
+    "description": "Text under the Welcome title on the first screen."
+  },
+  "phoneWelcomeTorLine": "Connect through Tor from the first second",
+  "@phoneWelcomeTorLine": {
+    "description": "Line under the Tor only switch on the first screen."
+  },
+  "phoneStartPinHelpTitle": "About the PIN",
+  "@phoneStartPinHelpTitle": {
+    "description": "Title of the help sheet on the PIN step of the first start."
+  },
+  "phoneStartPinHelpUnlock": "The PIN unlocks the wallet on this phone and approves every payment. It never leaves the phone.",
+  "@phoneStartPinHelpUnlock": {
+    "description": "First line of the PIN help sheet."
+  },
+  "phoneStartPinHelpLost": "The PIN cannot be recovered. Keep the recovery phrase safe: with it you can restore the wallet and choose a new PIN.",
+  "@phoneStartPinHelpLost": {
+    "description": "Second line of the PIN help sheet."
+  },
+  "phoneRestoreHelpTitle": "Restoring a wallet",
+  "@phoneRestoreHelpTitle": {
+    "description": "Title of the help sheet on the Restore screen."
+  },
+  "phoneRestoreHelpPhrase": "The recovery phrase brings back the balance. Type its words, paste them or scan its QR code.",
+  "@phoneRestoreHelpPhrase": {
+    "description": "First line of the Restore help sheet."
+  },
+  "phoneRestoreHelpStart": "Pick the month you made the wallet. Not sure? An earlier month finds more and takes longer.",
+  "@phoneRestoreHelpStart": {
+    "description": "Second line of the Restore help sheet."
+  },
+  "phoneRestoreScan": "Scan",
+  "@phoneRestoreScan": {
+    "description": "Button at the foot of the phrase box that scans the phrase from a QR code."
+  },
+  "phoneRestoreStartGroup": "Where to start looking",
+  "@phoneRestoreStartGroup": {
+    "description": "Label above the row that picks where the restore search starts."
+  },
+  "phoneRestoreCreated": "Wallet created",
+  "@phoneRestoreCreated": {
+    "description": "Row that shows the month the wallet was made; it opens the month choice."
+  },
+  "phoneRestoreUseHeight": "Use a block height instead",
+  "@phoneRestoreUseHeight": {
+    "description": "Link in the start-month sheet: enter a block height instead of a month."
+  },
+  "phoneRestoreUseMonth": "Pick a month instead",
+  "@phoneRestoreUseMonth": {
+    "description": "Link under the block height field: pick a month instead."
+  },
+  "phoneRestoreRestoring": "Restoring",
+  "@phoneRestoreRestoring": {
+    "description": "Title of the Restore screen while the search runs."
+  },
+  "phoneRestoreScanTitle": "Looking for your coins",
+  "@phoneRestoreScanTitle": {
+    "description": "Heading under the progress ring while the restore searches the chain."
+  },
+  "phoneRestoreScanBody": "Keep the app open until this finishes. The screen stays on while it runs.",
+  "@phoneRestoreScanBody": {
+    "description": "Line under the heading while the restore searches the chain."
+  },
+  "phoneRestoreLookingFrom": "Looking from",
+  "@phoneRestoreLookingFrom": {
+    "description": "Row that shows where the restore search started."
+  },
+  "phoneRestoreScanNote": "Sending and receiving open when the search ends. If you stop, it carries on from Home.",
+  "@phoneRestoreScanNote": {
+    "description": "Dim note under the restore progress."
+  },
+  "phoneRestoreStoppedTitle": "The search stopped",
+  "@phoneRestoreStoppedTitle": {
+    "description": "Heading when the restore search stopped before the end."
+  },
+  "phoneRestoreDoneBody": "The recovery phrase brought back the balance. History, contacts and settings come back from a wallet data file, if you exported one.",
+  "@phoneRestoreDoneBody": {
+    "description": "Text under the Your wallet is restored heading."
+  },
+  "phoneStepOf": "Step {n} of {total}: {title}",
+  "@phoneStepOf": {
+    "description": "Screen reader label of one step in the three-step strip of a two-phone or file payment.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "2"
+      },
+      "total": {
+        "type": "int",
+        "example": "3"
+      },
+      "title": {
+        "type": "String",
+        "example": "Scan their answer"
+      }
+    }
+  },
+  "phoneStepPayShow": "Show your code",
+  "@phoneStepPayShow": {
+    "description": "Step 1 of paying in person: the payer shows a QR code."
+  },
+  "phoneStepPayScan": "Scan their answer",
+  "@phoneStepPayScan": {
+    "description": "Step 2 of paying in person: the payer scans the other phone's answer."
+  },
+  "phoneStepPayFileSend": "Send the file",
+  "@phoneStepPayFileSend": {
+    "description": "Step 1 of paying with a file: the payer sends the payment file."
+  },
+  "phoneStepPayFileReply": "Open their reply",
+  "@phoneStepPayFileReply": {
+    "description": "Step 2 of paying with a file: the payer opens the file that comes back."
+  },
+  "phoneStepRecvScan": "Scan their code",
+  "@phoneStepRecvScan": {
+    "description": "Step 1 of getting paid in person: scan the payer's QR code."
+  },
+  "phoneStepRecvShow": "Show your answer",
+  "@phoneStepRecvShow": {
+    "description": "Step 2 of getting paid in person: show a QR code with the answer."
+  },
+  "phoneStepRecvFileOpen": "Open their file",
+  "@phoneStepRecvFileOpen": {
+    "description": "Step 1 of getting paid with a file: open the payment file."
+  },
+  "phoneStepRecvFileReply": "Send your reply",
+  "@phoneStepRecvFileReply": {
+    "description": "Step 2 of getting paid with a file: send the reply file back."
+  },
+  "phoneQrTitlePay": "Pay in person",
+  "@phoneQrTitlePay": {
+    "description": "Title of the screen that shows the payer's QR code."
+  },
+  "phoneQrTitleReceive": "Receive in person",
+  "@phoneQrTitleReceive": {
+    "description": "Title of the screen that shows the receiver's answer as a QR code."
+  },
+  "phoneQrHidesIn": "Hides in {seconds} s",
+  "@phoneQrHidesIn": {
+    "description": "Chip under a shown QR code: seconds left before it hides.",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "38"
+      }
+    }
+  },
+  "phoneQrHoldHint": "Hold their camera to this code.",
+  "@phoneQrHoldHint": {
+    "description": "Line under a shown QR code: where to point the other phone."
+  },
+  "phoneQrReplyShowing": "The payment is made when they scan it. It then shows in Activity.",
+  "@phoneQrReplyShowing": {
+    "description": "Dim line under the receiver's answer code while it is shown."
+  },
+  "phoneQrAimAnswer": "Point at the answer on their phone.",
+  "@phoneQrAimAnswer": {
+    "description": "Line under the camera when the payer scans the answer on the other phone."
+  },
+  "phoneQrScanAnswer": "Scan their answer",
+  "@phoneQrScanAnswer": {
+    "description": "Button on the payer's QR screen: scan the answer on the other phone."
+  },
+  "phoneQrHelpTitle": "Paying in person",
+  "@phoneQrHelpTitle": {
+    "description": "Title of the help sheet of the QR screens."
+  },
+  "phoneQrDoneTitlePaid": "Paid in person",
+  "@phoneQrDoneTitlePaid": {
+    "description": "Headline once the payment made with QR codes is posted."
+  },
+  "phoneQrDoneTitleReceived": "Received in person",
+  "@phoneQrDoneTitleReceived": {
+    "description": "Headline once the payment received with QR codes is posted."
+  },
+  "phoneQrDoneScanned": "Your code was scanned",
+  "@phoneQrDoneScanned": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's code."
+  },
+  "phoneQrDoneAnswerRead": "Their answer was read",
+  "@phoneQrDoneAnswerRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's answer."
+  },
+  "phoneQrDoneCodeRead": "You scanned their code",
+  "@phoneQrDoneCodeRead": {
+    "description": "A step of the finished in-person payment: this phone read the other phone's code."
+  },
+  "phoneQrDoneAnswerSeen": "They scanned your answer",
+  "@phoneQrDoneAnswerSeen": {
+    "description": "A step of the finished in-person payment: the other phone read this phone's answer."
+  },
+  "phoneQrDoneFinishes": "It finishes by itself. You can put the phone away.",
+  "@phoneQrDoneFinishes": {
+    "description": "The line under the step in progress on the finished in-person payment page."
+  },
+  "phoneQrPaidWhen": "{amount} is paid when the answer is read.",
+  "@phoneQrPaidWhen": {
+    "description": "Dim line under the camera when the payer scans the answer: what happens on a good read.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      }
+    }
+  },
+  "phoneQrShowMine": "Show my code again",
+  "@phoneQrShowMine": {
+    "description": "Quiet button on the payer's scan screen: go back to the QR code that was shown."
+  },
+  "phoneFileTitleReceive": "Receive with a file",
+  "@phoneFileTitleReceive": {
+    "description": "Header of the receiver's file pages."
+  },
+  "phoneFilePayCard": "Payment file",
+  "@phoneFilePayCard": {
+    "description": "Title of the card that holds the payment file the payer made."
+  },
+  "phoneFileMadeSub": "For {amount} · made {time}",
+  "@phoneFileMadeSub": {
+    "description": "Line under the payment file's title: its amount and when it was made.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      },
+      "time": {
+        "type": "String",
+        "example": "18:12"
+      }
+    }
+  },
+  "phoneFileReplyCard": "Your reply",
+  "@phoneFileReplyCard": {
+    "description": "Title of the card that holds the reply file the receiver made."
+  },
+  "phoneFileReplySub": "For the {amount} payment · made {time}",
+  "@phoneFileReplySub": {
+    "description": "Line under the reply's title: which payment it answers and when it was made.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      },
+      "time": {
+        "type": "String",
+        "example": "18:12"
+      }
+    }
+  },
+  "phoneFileCopyText": "Copy as text",
+  "@phoneFileCopyText": {
+    "description": "Button: copy the file's content as text, to send it in a message."
+  },
+  "phoneFileShare": "Share file",
+  "@phoneFileShare": {
+    "description": "Gold button: hand the payment file to another app."
+  },
+  "phoneFileShareReply": "Share reply",
+  "@phoneFileShareReply": {
+    "description": "Gold button: hand the reply file to another app."
+  },
+  "phoneFileSendHint": "Send it in any app. They open it in their wallet and send a reply back.",
+  "@phoneFileSendHint": {
+    "description": "Info line under the payment file's buttons."
+  },
+  "phoneFileReplyHint": "Send it back the same way it came. The payment is made when they open your reply.",
+  "@phoneFileReplyHint": {
+    "description": "Info line under the reply file's buttons."
+  },
+  "phoneFileWhenReply": "When their reply arrives",
+  "@phoneFileWhenReply": {
+    "description": "Small label above the row that opens the reply."
+  },
+  "phoneFileOpenReplySub": "A file, or pasted text",
+  "@phoneFileOpenReplySub": {
+    "description": "Subtitle of the row that opens the other wallet's reply."
+  },
+  "phoneFileHeld": "{amount} is set aside until then. You can leave this screen; the payment waits in Activity.",
+  "@phoneFileHeld": {
+    "description": "Dim line under the open-reply row: the money is held, and the payer may leave.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      }
+    }
+  },
+  "phoneFileOpenIntro": "Someone sent you a payment file. Open it here to see the payment and accept it.",
+  "@phoneFileOpenIntro": {
+    "description": "Text on the receiver's first file page."
+  },
+  "phoneFileOpenFile": "Open a file",
+  "@phoneFileOpenFile": {
+    "description": "Row: pick a payment file."
+  },
+  "phoneFileOpenFileSub": "From Files or another app",
+  "@phoneFileOpenFileSub": {
+    "description": "Subtitle of the Open a file row."
+  },
+  "phoneFilePasteText": "Paste its text",
+  "@phoneFilePasteText": {
+    "description": "Row: paste the payment text."
+  },
+  "phoneFilePasteTextSub": "If it arrived as a message",
+  "@phoneFilePasteTextSub": {
+    "description": "Subtitle of the Paste its text row."
+  },
+  "phoneFileOpenNote": "Opening a file accepts nothing yet. You see who it is from and how much first.",
+  "@phoneFileOpenNote": {
+    "description": "Dim line under the receiver's two rows."
+  },
+  "phoneAcceptTitle": "Someone is paying you",
+  "@phoneAcceptTitle": {
+    "description": "Title of the page that shows an incoming payment before it is accepted."
+  },
+  "phoneAcceptNote": "Note",
+  "@phoneAcceptNote": {
+    "description": "Label of the sender's message row."
+  },
+  "phoneAcceptHintQr": "Accept it, then show your answer to them. Nothing arrives until they scan it.",
+  "@phoneAcceptHintQr": {
+    "description": "Info line on the incoming payment page, in person."
+  },
+  "phoneAcceptHintFile": "Accept it, then send your reply. Nothing arrives until they open it.",
+  "@phoneAcceptHintFile": {
+    "description": "Info line on the incoming payment page, with a file."
+  },
+  "phoneAcceptAccept": "Accept",
+  "@phoneAcceptAccept": {
+    "description": "Gold button that accepts the incoming payment."
+  },
+  "phoneAcceptNotNow": "Not now",
+  "@phoneAcceptNotNow": {
+    "description": "Ghost button that leaves the incoming payment page without accepting."
+  },
+  "phoneRestoreTitle": "Restore a wallet",
+  "@phoneRestoreTitle": {
+    "description": "Title of the Restore screen."
+  },
+  "phoneRestoreWordsHint": "{count, plural, one{1 word so far.} other{{count} words so far.}} A recovery phrase has 12, 15, 18, 21 or 24.",
+  "@phoneRestoreWordsHint": {
+    "description": "Line under the phrase box while it is not yet a full phrase.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.",
+  "@phoneRestoreStartNote": {
+    "description": "Help text under the Wallet created row on the Restore screen."
+  }
+}

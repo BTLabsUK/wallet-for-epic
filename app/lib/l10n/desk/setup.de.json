@@ -30,7 +30,6 @@
   "deskSetupLocalNodeText": "Läuft auf diesem Computer: privat, braucht aber Speicherplatz und eine erste Synchronisierung.",
   "deskSetupEpicboxText": "Der Epicbox-Server hält Zahlungen, bis die Wallet geöffnet wird.",
   "deskSetupEpicboxServer": "Epicbox-Server",
-  "deskSetupExistingNode": "Vorhandener Node unter {host}",
   "deskSetupSaveStartsFallback": "Speichern startet den Node; bis er synchronisiert ist, springt {node} ein.",
   "deskSetupSaveStarts": "Speichern startet den Node. Die erste Synchronisierung dauert Stunden; die Wallet öffnet sich währenddessen.",
   "deskSetupSaveFailedTitle": "Einstellungen nicht gespeichert",

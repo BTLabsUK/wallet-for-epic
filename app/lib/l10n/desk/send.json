@@ -11,10 +11,6 @@
   "@deskSendBalanceAfter": {
     "description": "Summary line on Send: the balance left after this payment."
   },
-  "deskSendSpendableUntil": "Spendable until change confirms",
-  "@deskSendSpendableUntil": {
-    "description": "Summary line on Send: the amount still spendable while the change confirms."
-  },
   "deskSendSpendableWhile": "Available while this confirms",
   "@deskSendSpendableWhile": {
     "description": "Summary line on Send: the amount still spendable while this payment confirms. Plain words, one line."
@@ -118,19 +114,6 @@
       }
     }
   },
-  "deskSendReviewLocksNone": "{count, plural, one{{locked} EPIC in 1 output; no change comes back.} other{{locked} EPIC in {count} outputs; no change comes back.}}",
-  "@deskSendReviewLocksNone": {
-    "description": "Review dialog, fact \"Locks\": the outputs are spent exactly. {locked} is in EPIC.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "locked": {
-        "type": "String",
-        "example": "25.0080"
-      }
-    }
-  },
   "deskSendReviewSetAsideNone": "{locked} EPIC goes out as it is; nothing is set aside.",
   "@deskSendReviewSetAsideNone": {
     "description": "Review dialog, fact \"Locks\": the payment uses the exact amount, nothing is set aside to wait for. {locked} is in EPIC.",
@@ -138,23 +121,6 @@
       "locked": {
         "type": "String",
         "example": "34.7321"
-      }
-    }
-  },
-  "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.}}",
-  "@deskSendReviewLocksAll": {
-    "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "locked": {
-        "type": "String",
-        "example": "1,284.73215"
-      },
-      "blocks": {
-        "type": "int",
-        "example": "6"
       }
     }
   },
@@ -172,23 +138,6 @@
       }
     }
   },
-  "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.}}",
-  "@deskSendReviewLocksEverything": {
-    "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "locked": {
-        "type": "String",
-        "example": "1,284.73215"
-      },
-      "blocks": {
-        "type": "int",
-        "example": "6"
-      }
-    }
-  },
   "deskSendReviewSetAsideEverything": "{locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.",
   "@deskSendReviewSetAsideEverything": {
     "description": "Review dialog, fact \"Locks\": all spendable coins are set aside until this payment confirms. {blocks} is the wallet's minimum confirmations.",
@@ -196,27 +145,6 @@
       "locked": {
         "type": "String",
         "example": "34.7321"
-      },
-      "blocks": {
-        "type": "int",
-        "example": "6"
-      }
-    }
-  },
-  "deskSendReviewLocksSome": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.}}",
-  "@deskSendReviewLocksSome": {
-    "description": "Review dialog, fact \"Locks\": some outputs are locked, the rest stays spendable. Amounts are in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "locked": {
-        "type": "String",
-        "example": "34.73215"
-      },
-      "spendable": {
-        "type": "String",
-        "example": "1,250.0000"
       },
       "blocks": {
         "type": "int",
@@ -362,23 +290,18 @@
   "@deskSendErrEpicbox": {
     "description": "Error under the To field on Send when the Epicbox method is chosen and the address is not an Epicbox address."
   },
-  "deskSendErrNotDirect": "This is not a Link address.",
-  "@deskSendErrNotDirect": {
-    "description": "Error under the To field on Send when the Link method is chosen and the address is an Epicbox address."
-  },
-  "deskSendErrOnion": "This is not a valid onion address.",
-  "@deskSendErrOnion": {
-    "description": "Error under the To field on Send when the address looks like a Tor address but is not complete or valid."
-  },
   "deskSendErrOwn": "This is the wallet’s own address.",
   "@deskSendErrOwn": {
     "description": "Error under the To field on Send when the recipient is this wallet."
   },
   "deskSendErrOwnNamed": "This is “{wallet}”, the wallet open now. To pay it, open another wallet first.",
   "@deskSendErrOwnNamed": {
-    "description": "Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app\u2019s other wallets can be paid; only the open one cannot.",
+    "description": "Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app’s other wallets can be paid; only the open one cannot.",
     "placeholders": {
-      "wallet": {"type": "String", "example": "local 2"}
+      "wallet": {
+        "type": "String",
+        "example": "local 2"
+      }
     }
   },
   "deskSendNoAnswer": "The recipient did not answer. Nothing was sent.",
@@ -421,10 +344,6 @@
   "@deskSendErrAmountMore": {
     "description": "Error under the Amount field on Send when the amount plus the fee is more than the spendable balance."
   },
-  "deskSendSent": "Sent",
-  "@deskSendSent": {
-    "description": "Toast title and notice title after a send went out."
-  },
   "deskSendFileReadyTitle": "Transaction file ready",
   "@deskSendFileReadyTitle": {
     "description": "Result card title on Send after a file send created the transaction file."
@@ -445,15 +364,6 @@
   "@deskSendNodeNotSynced": {
     "description": "Title of the warning notice on Send while the node has not synced."
   },
-  "deskSendNodeSyncingPct": "Sending resumes when the node is synced ({percent}%).",
-  "@deskSendNodeSyncingPct": {
-    "description": "Text of that notice with the sync progress. {percent} is a whole number from 0 to 100.",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "deskSendNodeSyncing": "Sending is possible once the node has synced.",
   "@deskSendNodeSyncing": {
     "description": "Text of that notice when the progress is unknown."
@@ -466,10 +376,6 @@
   "@deskSendTorBlockedText": {
     "description": "Text of that notice."
   },
-  "deskSendTurnTorOff": "Turn Tor off",
-  "@deskSendTurnTorOff": {
-    "description": "Button in the Tor failed notice on Send: switches Tor off."
-  },
   "deskSendTorStarting": "Tor is starting",
   "@deskSendTorStarting": {
     "description": "Title of the notice on Send while Tor connects."
@@ -481,10 +387,6 @@
   "deskSendEpicboxOff": "Epicbox not connected",
   "@deskSendEpicboxOff": {
     "description": "Title of the warning notice on Send when Epicbox receiving is off."
-  },
-  "deskSendEpicboxOffText": "Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.",
-  "@deskSendEpicboxOffText": {
-    "description": "Text of that notice."
   },
   "deskSendEpicboxOffTab": "Turn on Epicbox receiving to send by Epicbox, or use {method}.",
   "@deskSendEpicboxOffTab": {
@@ -519,10 +421,6 @@
   "deskSendReviewAgain": "Review again",
   "@deskSendReviewAgain": {
     "description": "Button in the Send failed notice: opens the review again."
-  },
-  "deskSendMethodHeader": "Payment method",
-  "@deskSendMethodHeader": {
-    "description": "Title of the first panel on Send: the method selector comes first, then the recipient field."
   },
   "deskSendTo": "To",
   "@deskSendTo": {
@@ -700,37 +598,9 @@
   "@deskSendUpdating": {
     "description": "Caption in the Send summary while the wallet rechecks the balance."
   },
-  "deskSendEpicboxLine2": "The Epicbox server holds the payment until they open their wallet.",
-  "@deskSendEpicboxLine2": {
-    "description": "Second line under the method selector for the Epicbox method."
-  },
-  "deskSendDirectLine1": "Straight to their wallet.",
-  "@deskSendDirectLine1": {
-    "description": "Bold first line under the method selector for the Link method."
-  },
-  "deskSendDirectLine2": "Their wallet must be open. An onion address goes over Tor.",
-  "@deskSendDirectLine2": {
-    "description": "Second line under the method selector for the Link method."
-  },
   "deskSendFileLine1": "No connection needed.",
   "@deskSendFileLine1": {
     "description": "Bold first line under the method selector for the File method."
-  },
-  "deskSendFileLine2": "Hand the file over, get their response file back, then finalize it here.",
-  "@deskSendFileLine2": {
-    "description": "Second line under the method selector for the File method."
-  },
-  "deskSendSwitchedDirect": "Link address. Method set to Link.",
-  "@deskSendSwitchedDirect": {
-    "description": "Screen reader announcement when the method switched to Link by itself."
-  },
-  "deskSendSwitchedFile": "File address. Method set to Direct · File.",
-  "@deskSendSwitchedFile": {
-    "description": "Screen reader announcement when the method switched to File."
-  },
-  "deskSendSwitchedEpicbox": "Epicbox address. Method set to Epicbox.",
-  "@deskSendSwitchedEpicbox": {
-    "description": "Screen reader announcement when the method switched to Epicbox by itself."
   },
   "deskSendMatching": "Matching contacts",
   "@deskSendMatching": {
@@ -793,10 +663,6 @@
   "deskSendCheckChars": "Check the highlighted characters against what the recipient gave.",
   "@deskSendCheckChars": {
     "description": "Caption under the recipient address in the review dialog."
-  },
-  "deskSendFactVia": "Via",
-  "@deskSendFactVia": {
-    "description": "Label of the fact that says how the payment goes (Epicbox, Link, file) in the review dialog."
   },
   "deskSendFactPrivacy": "Privacy",
   "@deskSendFactPrivacy": {
@@ -870,18 +736,6 @@
       }
     }
   },
-  "deskSendMessageBytes": "{used} / {max} bytes",
-  "@deskSendMessageBytes": {
-    "description": "Counter next to the Message label on Send: the message length in UTF-8 bytes (an emoji takes 4) and the limit.",
-    "placeholders": {
-      "used": {
-        "type": "int"
-      },
-      "max": {
-        "type": "int"
-      }
-    }
-  },
   "deskSendMessageCount": "{used} / {max}",
   "@deskSendMessageCount": {
     "description": "Counter beside the message field on Send and on a new invoice: how much of the limit the message uses (LEPIC counts bytes; no unit shown).",
@@ -889,15 +743,6 @@
       "used": {
         "type": "int"
       },
-      "max": {
-        "type": "int"
-      }
-    }
-  },
-  "deskSendMessageTooLong": "The message is longer than {max} bytes. Shorten it.",
-  "@deskSendMessageTooLong": {
-    "description": "Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.",
-    "placeholders": {
       "max": {
         "type": "int"
       }
@@ -920,64 +765,12 @@
       }
     }
   },
-  "deskSendContactNoLink": "{name} has no Link address.",
-  "@deskSendContactNoLink": {
-    "description": "Tooltip of the disabled Link · HTTP and Link · Tor segments when the recipient is a paired contact with no address.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
   "deskSendHintNeedsMethod": "Review needs {method}",
   "@deskSendHintNeedsMethod": {
     "description": "Line under the disabled Review button when a method is off or blocked by a mode: names the block only; the banner above explains (UD-014). {method} is Epicbox, Link, Link · Tor…",
     "placeholders": {
       "method": {
         "type": "String"
-      }
-    }
-  },
-  "deskSendEpicboxNodeOnly": "Node only is on: Epicbox is off. Direct · File Transfer works.",
-  "@deskSendEpicboxNodeOnly": {
-    "description": "Send notice and hint while Node only is on and Epicbox is chosen: the desktop has no QR Payment, so only File Transfer works."
-  },
-  "deskSendEpicboxNodeOnlyTab": "Node only is on: Epicbox is off. {method} works.",
-  "@deskSendEpicboxNodeOnlyTab": {
-    "description": "Send page notice on the Epicbox tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
-    "placeholders": {
-      "method": {
-        "type": "String",
-        "example": "Direct · File"
-      }
-    }
-  },
-  "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
-  "@deskSendLinkNodeOnly": {
-    "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
-  },
-  "deskSendLinkNodeOnlyTab": "Node only is on: Link is off. {method} works.",
-  "@deskSendLinkNodeOnlyTab": {
-    "description": "Send page notice on the Link tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
-    "placeholders": {
-      "method": {
-        "type": "String",
-        "example": "Direct · File"
-      }
-    }
-  },
-  "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
-  "@deskSendKillSwitch": {
-    "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
-  },
-  "deskSendKillSwitchTab": "Kill switch is on: nothing connects. {method} works.",
-  "@deskSendKillSwitchTab": {
-    "description": "Send page notice under Kill switch. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
-    "placeholders": {
-      "method": {
-        "type": "String",
-        "example": "Direct · File"
       }
     }
   }

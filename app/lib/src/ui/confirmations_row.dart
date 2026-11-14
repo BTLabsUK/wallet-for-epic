@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Advanced › Confirmations: the open wallet's minimum confirmations as a stepper
-/// (−, the count, +), 1–30. The default (6) carries a Default tag; any other count offers
+/// Settings › Advanced › Confirmations: the open wallet's minimum confirmations as a kit row
+/// with a stepper (−, the count, +), 1–30. The default (6) carries a Default tag; any other count offers
 /// Reset, and a count below the default a quiet line on what it trades. Each tap applies at
 /// once; quick taps are stored as one ([MinimumConfirmationsSetting]).
 library;
@@ -14,11 +14,13 @@ import '../min_confirmations.dart';
 import '../models.dart'
     show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../trust_ids.dart';
-import 'badge.dart';
-import 'info_hint.dart';
+import 'inline_button.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_settings.dart';
+import 'kit/kit_tokens.dart';
 import 'notices.dart';
 import 'theme/tokens.dart';
-import 'inline_button.dart';
 
 /// Keys of the row's parts, for tests and the tour.
 const confirmationsRowKey = ValueKey('adv-confirmations');
@@ -29,13 +31,18 @@ const confirmationsResetKey = ValueKey('adv-confirmations-reset');
 const confirmationsNoteKey = ValueKey('adv-confirmations-note');
 
 class ConfirmationsRow extends ConsumerWidget {
-  const ConfirmationsRow({super.key});
+  const ConfirmationsRow({super.key, this.subtitle, this.showDefaultTag = true});
+
+  /// A phone line in place of the hint with the range.
+  final String? subtitle;
+
+  /// The "Default" tag under the row at the default count; the phone's Advanced page leaves it out.
+  final bool showDefaultTag;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final setting = ref.watch(minimumConfirmationsSettingProvider);
     final count = setting.value;
     final ready = count != null && !setting.hasError;
@@ -51,76 +58,51 @@ class ConfirmationsRow extends ConsumerWidget {
     }
 
     final atDefault = shown == defaultMinimumConfirmations;
-    final valueText = Semantics(
-      label: l.advConfirmations,
-      value: l.advConfirmationsCount(shown),
-      liveRegion: true,
-      excludeSemantics: true,
-      child: SizedBox(
-        width: 32,
-        child: Text(
-          '$shown',
-          key: confirmationsValueKey,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleMedium?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-        ),
-      ),
-    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ListTile(
-          key: confirmationsRowKey,
-          leading: const Icon(Icons.verified_outlined),
-          title: TitleWithHint(
-            l.advConfirmations,
-            hint: l.advConfirmationsHint(defaultMinimumConfirmations, minMinimumConfirmations, maxMinimumConfirmations),
-            icon: Icons.verified_outlined,
-          ),
-          subtitle: !ready
-              ? null
-              : Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: atDefault
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: EBadge(l.advConfirmationsDefault),
-                        )
-                      : InlineTextButton(
-                          key: confirmationsResetKey,
-                          onPressed: () => set(defaultMinimumConfirmations),
-                          child: Text(l.advConfirmationsReset(defaultMinimumConfirmations)),
-                        ),
-                ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                key: confirmationsMinusKey,
-                icon: trustId(TrustIds.confirmationsFewer, const Icon(Icons.remove)),
-                tooltip: l.advConfirmationsFewer,
-                onPressed: ready && shown > minMinimumConfirmations ? () => set(shown - 1) : null,
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow(
+              key: confirmationsRowKey,
+              title: l.advConfirmations,
+              // The count's meaning; the default shows as a tag, any other count offers Reset.
+              subtitle: subtitle ?? l.advConfirmationsHint(defaultMinimumConfirmations, minMinimumConfirmations, maxMinimumConfirmations),
+              subtitleLines: 3,
+              size: subtitle == null ? KitRowSize.settings : KitRowSize.list,
+              trailing: KitStepper(
+                value: shown,
+                valueKey: confirmationsValueKey,
+                minusKey: confirmationsMinusKey,
+                plusKey: confirmationsPlusKey,
+                minusId: TrustIds.confirmationsFewer,
+                plusId: TrustIds.confirmationsMore,
+                minusLabel: l.advConfirmationsFewer,
+                plusLabel: l.advConfirmationsMore,
+                valueLabel: l.advConfirmationsCount(shown),
+                onMinus: ready && shown > minMinimumConfirmations ? () => set(shown - 1) : null,
+                onPlus: ready && shown < maxMinimumConfirmations ? () => set(shown + 1) : null,
               ),
-              valueText,
-              IconButton(
-                key: confirmationsPlusKey,
-                icon: trustId(TrustIds.confirmationsMore, const Icon(Icons.add)),
-                tooltip: l.advConfirmationsMore,
-                onPressed: ready && shown < maxMinimumConfirmations ? () => set(shown + 1) : null,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        if (ready && shown < defaultMinimumConfirmations)
+        if (ready && !(atDefault && !showDefaultTag))
           Padding(
-            key: confirmationsNoteKey,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              l.advConfirmationsLowNote,
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 10, Kit.gutter + 4, 0),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: atDefault
+                  ? KitTag(l.advConfirmationsDefault)
+                  : InlineTextButton(
+                      key: confirmationsResetKey,
+                      onPressed: () => set(defaultMinimumConfirmations),
+                      child: Text(l.advConfirmationsReset(defaultMinimumConfirmations)),
+                    ),
             ),
           ),
+        if (ready && shown < defaultMinimumConfirmations) KitFootnote(l.advConfirmationsLowNote, key: confirmationsNoteKey, color: t.dim),
       ],
     );
   }

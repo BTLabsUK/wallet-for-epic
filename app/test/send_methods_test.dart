@@ -15,15 +15,18 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/send_route.dart' show RecipientInput;
+import 'package:epic_wallet/src/send_reach.dart';
 import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
-import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
 import 'package:epic_wallet/src/ui/settings_sections.dart' show SettingsSectionScreen;
 import 'package:epic_wallet/src/contacts.dart' show contactsProvider;
 import 'package:epic_wallet/src/payment_prefs.dart';
@@ -36,6 +39,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
 
@@ -173,7 +178,11 @@ class _Harness {
     PaymentPrefs payments = PaymentPrefs.defaults,
     String? node,
     int? peers,
+    Future<ReachResult> Function(RecipientInput to)? reach,
   }) async {
+    // The wallet at a Link address answers, unless a test says otherwise; no network is asked.
+    reachCheckForTest = reach ?? (_) async => ReachResult.answers;
+    addTearDown(() => reachCheckForTest = null);
     tester.view.physicalSize = Size(1080, height);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -287,16 +296,22 @@ class _Harness {
   }
 }
 
-Finder get _continue => find.widgetWithText(FilledButton, _l.commonContinue);
+Finder get _continue => continueButton();
 
 /// The review's Method row reading [value].
 Finder _reviewMethod(String value) =>
-    find.descendant(of: find.byType(ListView).last, matching: find.text(value));
+    find.descendant(of: find.byType(KitSheet), matching: find.text(value));
+
+/// Opens "More details" in the review sheet, where the method and the host are.
+Future<void> _moreDetails(WidgetTester tester) async {
+  if (find.text(_l.sendFactVia).evaluate().isNotEmpty) return;
+  await _tap(tester, find.text(_l.phoneSendMoreDetails));
+}
 
 /// Frames and a slice of real time: the Tor controller's work completes on microtasks the
 /// test clock does not flush.
 String _toText(WidgetTester tester) =>
-    tester.widget<TextField>(find.widgetWithText(TextField, 'To')).controller!.text;
+    tester.widget<TextField>(sendTo()).controller!.text;
 
 Future<void> _settle(WidgetTester tester) async {
   for (var round = 0; round < 2; round++) {
@@ -310,18 +325,7 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 Future<void> _reach(WidgetTester tester, Finder finder) async {
-  if (finder.evaluate().isEmpty) {
-    await tester.scrollUntilVisible(
-      finder,
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byType(ListView).last,
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-  }
+  await buildInPage(tester, finder);
   await tester.ensureVisible(finder);
   await tester.pump();
 }
@@ -330,14 +334,14 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await _reach(tester, finder);
   await tester.tap(finder);
   await _settle(tester);
-  if (find.widgetWithText(TextField, _l.pinLabel).evaluate().isNotEmpty) {
+  if (pinAsked.evaluate().isNotEmpty) {
     await answerPin(tester, settle: false);
     await _settle(tester);
   }
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  final field = sendField(label);
   await _reach(tester, field);
   await tester.enterText(field, text);
   await tester.pump(const Duration(milliseconds: 500));
@@ -356,7 +360,7 @@ List<String> _lines() => [
 /// Types [text] into To one character at a time, as a keyboard does, and returns the method
 /// lines shown after each character.
 Future<List<List<String>>> _type(WidgetTester tester, String text) async {
-  final field = find.widgetWithText(TextField, 'To');
+  final field = sendTo();
   final seen = <List<String>>[];
   for (var i = 1; i <= text.length; i++) {
     await tester.enterText(field, text.substring(0, i));
@@ -392,10 +396,9 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
-      expect(find.byKey(sendMethodsKey), findsNothing);
-      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
-      expect(find.text(_l.sendToHint), findsOneWidget);
-      expect(_way(_l.sendPayByFile), findsOneWidget);
+      expect(sendTo(), findsOneWidget);
+      expect(find.text(_l.phoneSendSearchHint), findsOneWidget);
+      expect(find.text(_l.sendNoAddress), findsOneWidget);
       expect(_lines(), isEmpty);
     });
 
@@ -423,12 +426,12 @@ void main() {
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
       expect(_lines(), [_l.methodDirectTor]);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
-      expect(find.widgetWithText(OutlinedButton, 'Turn on Link · Tor'), findsOneWidget);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(sendTurnOnMethodKey), matching: find.text('Turn on Link · Tor')), findsOneWidget);
       await _tap(tester, find.byKey(sendTurnOnMethodKey));
       expect(h.container.read(appSettingsProvider).value!.payments.linkTor, isTrue);
       expect(find.byKey(sendTurnOnMethodKey), findsNothing);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsNothing);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsNothing);
     }, skip: !torBuilt);
 
     testWidgets('a name finds the contact; the pick shows as a chip', (tester) async {
@@ -441,7 +444,7 @@ void main() {
       await _tap(tester, find.text('Alice'));
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       expect(find.text('Alice'), findsOneWidget);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
     });
   });
 
@@ -450,7 +453,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(linkHttp: true, linkTor: true, directFile: false));
       expect(_way('Pay with a file'), findsNothing);
-      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
+      expect(sendTo(), findsOneWidget);
     });
 
     testWidgets('only Epicbox offered: the field and no direct way', (tester) async {
@@ -458,7 +461,7 @@ void main() {
       await h.pump(tester, payments: const PaymentPrefs(directFile: false, directQr: false));
       expect(_way('Pay with a file'), findsNothing);
       expect(_way('Pay in person'), findsNothing);
-      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
+      expect(sendTo(), findsOneWidget);
     });
 
     testWidgets('a pasted onion with Link · Tor off says so and waits', (tester) async {
@@ -469,8 +472,8 @@ void main() {
       await _tap(tester, find.text(_l.commonPaste));
       expect(_lines(), [_l.methodDirectTor]);
       // Never a silent refusal: the note names the method that is off.
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
+      expect(continueOnPressed(tester), isNull);
     }, skip: !torBuilt);
 
     testWidgets('Link · HTTP on, Link · Tor off: an http address goes, an onion waits with its reason', (tester) async {
@@ -479,10 +482,10 @@ void main() {
       await _enter(tester, 'To', _https);
       expect(_lines(), [_l.sendRouteLinkHttps]);
       expect(find.byKey(netBlockNoteKey), findsNothing);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
       await _enter(tester, 'To', _onion);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
+      expect(continueOnPressed(tester), isNull);
     }, skip: !torBuilt);
 
     testWidgets('a saved contact with only an address whose method is off is named, with the way to Settings', (tester) async {
@@ -491,12 +494,11 @@ void main() {
         contact: Contact(id: '', name: 'Tor Tom', address: _onion, note: null),
       );
       await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
-      await _tap(tester, find.text(_l.sendContactsButton));
-      await _tap(tester, find.text('Tor Tom'));
+      await pickContact(tester, 'Tor Tom');
       expect(_lines(), [_l.methodDirectTor]);
-      const line = 'Link · Tor is off in Settings › Transactions. Tor Tom has only a Link · Tor address.';
+      const line = 'Link · Tor is off in the payment settings. Tor Tom has only a Link · Tor address.';
       expect(find.text(line), findsOneWidget);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(continueOnPressed(tester), isNull);
       // The line opens Settings › Transactions.
       await _tap(tester, find.text(line));
       expect(find.byType(SettingsSectionScreen), findsOneWidget);
@@ -511,16 +513,62 @@ void main() {
       await _settle(tester);
       // The address still goes over Epicbox, which is off: Continue waits, with the note.
       expect(_toText(tester), _bob);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(continueOnPressed(tester), isNull);
       expect(find.text(_l.netBlockEpicboxOff), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
     });
 
-    testWidgets('File as the default opens the file route', (tester) async {
+    // The phone never reads the stored Default method: Send opens on the recipient step.
+    for (final stored in [MethodKind.directFile, MethodKind.directQr]) {
+      testWidgets('a stored default of ${stored.name} still opens Send on the recipient step', (tester) async {
+        final h = _Harness();
+        await h.pump(tester, payments: PaymentPrefs(defaultMethod: stored));
+        expect(find.byKey(sendRecipientFieldKey), findsOneWidget);
+        expect(find.text(_l.sendMakeFile), findsNothing);
+        // Reading it never rewrites it.
+        expect(h.container.read(appSettingsProvider).value!.payments.defaultMethod, stored);
+      });
+    }
+  });
+
+  group('a contact with several addresses', () {
+    Future<_Harness> contactWithTwo(WidgetTester tester) async {
       final h = _Harness();
-      await h.pump(tester, payments: const PaymentPrefs(defaultMethod: MethodKind.directFile));
-      expect(find.text(lookupAppLocalizations(const Locale('en')).sendMakeFile), findsOneWidget);
-      expect(find.byKey(sendRecipientFieldKey), findsNothing);
+      await h.session.saveContact(contact: Contact(id: '', name: 'Two Tom', epicbox: _bob, http: _https));
+      // Epicbox is off (Link · HTTP counts as on): the first address has a reason.
+      await h.pump(tester, payments: const PaymentPrefs(epicbox: false, linkHttp: true));
+      await pickContact(tester, 'Two Tom');
+      return h;
+    }
+
+    testWidgets('the route row reads its method, its host and Change', (tester) async {
+      final handle = tester.ensureSemantics();
+      await contactWithTwo(tester);
+      final row = find.bySemanticsLabel(RegExp('^Sends by .*\n?.*${_l.sendRouteChange}\$', dotAll: true));
+      expect(row, findsOneWidget);
+      await _settle(tester);
+      handle.dispose();
+    });
+
+    testWidgets('an address whose method is off is dimmed and cannot be chosen', (tester) async {
+      final handle = tester.ensureSemantics();
+      await contactWithTwo(tester);
+      await _tap(tester, find.bySemanticsLabel(RegExp('${_l.sendRouteChange}\$')));
+      final first = find.byKey(const ValueKey('send-address-0'));
+      final second = find.byKey(const ValueKey('send-address-1'));
+      expect(first, findsOneWidget);
+      expect(second, findsOneWidget);
+      // The off method's reason sits in the choice, which is dimmed, disabled and does nothing.
+      // KitRow carries the flag itself (its Semantics sits under the keyed row).
+      bool enabledFlag(Finder f) => tester
+          .widgetList<Semantics>(find.descendant(of: f, matching: find.byType(Semantics)))
+          .any((w) => w.properties.enabled == false);
+      expect(enabledFlag(first), isTrue);
+      expect(enabledFlag(second), isFalse);
+      await tester.tap(first, warnIfMissed: false);
+      await _settle(tester);
+      expect(first, findsOneWidget, reason: 'the sheet stays open');
+      handle.dispose();
     });
   });
 
@@ -530,7 +578,6 @@ void main() {
       await h.pump(tester);
       final seen = await _type(tester, 'es');
       expect(seen, everyElement(isEmpty));
-      expect(find.byKey(sendSwitchedTagKey), findsNothing);
     });
 
     testWidgets('a whole Epicbox address pasted over a Link one replaces it', (
@@ -573,13 +620,15 @@ void main() {
       expect(seen.sublist(url.indexOf('//') + 1), everyElement([_l.methodDirectHttp]));
     });
 
-    testWidgets('https:// typed names Link · HTTPS at once, with port 3415', (tester) async {
+    testWidgets('https:// typed names Link · HTTPS at once, without a port', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
       final seen = await _type(tester, 'https://203.0');
       expect(seen['https://'.length - 1], [_l.sendRouteLinkHttps]);
       expect(seen.last, [_l.sendRouteLinkHttps]);
-      expect(find.textContaining(':3415', findRichText: true), findsWidgets);
+      // No port typed: https means 443, which the row does not show.
+      expect(find.textContaining(':3415', findRichText: true), findsNothing);
+      expect(find.textContaining(':443', findRichText: true), findsNothing);
     });
 
     testWidgets('picks by method: a contact fills its address whose method is on (qa-next)', (tester) async {
@@ -588,11 +637,12 @@ void main() {
         contact: Contact(id: '', name: 'Two Way', tor: _onion, http: _https, note: null),
       );
       await h.pump(tester, payments: const PaymentPrefs(linkHttp: true));
-      await _tap(tester, find.text(_l.sendContactsButton));
-      await _tap(tester, find.text('Two Way'));
+      await pickContact(tester, 'Two Way');
       expect(_lines(), [_l.sendRouteLinkHttps]);
       expect(find.byKey(netBlockNoteKey), findsNothing);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
+      // The slow-reach timer runs out before the tree goes.
+      await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets('a pasted onion of a contact with another address stays, without "only" (qa-next)', (tester) async {
@@ -606,7 +656,7 @@ void main() {
       await _tap(tester, find.text(_l.commonPaste));
       // Never swapped: what was pasted stays, and the note names the method that is off.
       expect(_toText(tester), _onion);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
       expect(find.textContaining('has only'), findsNothing);
     }, skip: !torBuilt);
 
@@ -637,8 +687,7 @@ void main() {
         contact: Contact(id: '', name: 'Tor Tom', address: _onion, note: null),
       );
       await h.pump(tester);
-      await _tap(tester, find.text(_l.sendContactsButton));
-      await _tap(tester, find.text('Tor Tom'));
+      await pickContact(tester, 'Tor Tom');
       expect(_lines(), [_l.methodDirectTor]);
     });
 
@@ -651,27 +700,66 @@ void main() {
         await h.pump(tester);
         await _tap(tester, find.text(_l.commonPaste));
         expect(_lines(), [_l.methodDirectTor]);
-        expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
-        expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+        expect(find.text('Link · Tor is off in the payment settings.'), findsOneWidget);
+        expect(continueOnPressed(tester), isNull);
         // The phone sends to an http(s) address with no switch on.
         await _tap(tester, find.byKey(sendRecipientClearKey));
         clip = _https;
         await _tap(tester, find.text(_l.commonPaste));
         expect(_lines(), ['Link · HTTPS']);
         expect(find.byKey(netBlockNoteKey), findsNothing);
-        expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+        expect(continueOnPressed(tester), isNotNull);
         await tester.pump(const Duration(seconds: 2));
       }, skip: !torBuilt,
     );
   });
 
   group('HTTP send', () {
+    testWidgets('Continue right after To: the review waits for the wallet to answer', (tester) async {
+      final h = _Harness();
+      final answer = Completer<ReachResult>();
+      await h.pump(tester, payments: _directOn, reach: (_) => answer.future);
+      await _enter(tester, 'To', _https);
+      await _tap(tester, _continue);
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await _tap(tester, _continue);
+      // Asked, not answered: no review to send from (the redesign's button is named Review too).
+      expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);
+      answer.complete(ReachResult.answers);
+      await _settle(tester);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsOneWidget);
+    });
+
+    testWidgets('Continue right after To: no wallet answers, back to To with the notice, nothing sent', (tester) async {
+      final h = _Harness();
+      final answer = Completer<ReachResult>();
+      await h.pump(tester, payments: _directOn, reach: (_) => answer.future);
+      await _enter(tester, 'To', _https);
+      await _tap(tester, _continue);
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await _tap(tester, _continue);
+      answer.complete(ReachResult.noAnswer);
+      await _settle(tester);
+      expect(find.text(_l.sendStepReview), findsNothing);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);
+      expect(find.text(_l.sendReachOpenFirst), findsOneWidget);
+      expect(h.session.httpSends, isEmpty);
+    });
+
+    testWidgets('a wallet that answered before: the review opens at once', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: _directOn);
+      await h.toReview(tester, _https);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsOneWidget);
+    });
+
     testWidgets('delivered: the tracker waits for a block, with no Cancel', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _https);
+      await _moreDetails(tester);
       expect(_reviewMethod(_l.sendRouteLinkHttps), findsOneWidget);
       expect(
         find.text(_l.sendCancelRuleDirect),
@@ -728,7 +816,7 @@ void main() {
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       await _tap(tester, find.byKey(sendCancelPaymentKey));
       expect(h.session.cancelledTxIds, hasLength(1));
-      expect(find.text('2 of 3'), findsOneWidget);
+      expect(sendAmount(), findsOneWidget);
     });
 
     testWidgets('plain HTTP to another device sends without asking', (tester) async {
@@ -746,7 +834,9 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.toReview(tester, _bob);
+      await _moreDetails(tester);
       expect(find.text(_l.sendFactVia), findsOneWidget);
+      await _moreDetails(tester);
       expect(_reviewMethod(_l.methodEpicbox), findsOneWidget);
       expect(
         find.text(_l.sendCancelRuleEpicbox),
@@ -761,6 +851,7 @@ void main() {
       await h.pump(tester, payments: _directOn);
       await h.torOn(tester);
       await h.toReview(tester, _onion);
+      await _moreDetails(tester);
       expect(_reviewMethod(_l.methodDirectTor), findsOneWidget);
       expect(
         find.text(_l.sendCancelRuleDirect),
@@ -777,9 +868,8 @@ void main() {
         await h.pump(tester, payments: _directOn);
         await _enter(tester, 'To', _onion);
         expect(_lines(), [_l.methodDirectTor]);
-        expect(find.text(_l.sendRouteTorStarts), findsOneWidget);
-        expect(find.byKey(sendTurnOnTorKey), findsNothing);
-        expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+        expect(find.textContaining(_l.sendRouteTorStarts), findsOneWidget);
+        expect(continueOnPressed(tester), isNotNull);
         await _tap(tester, _continue);
         await _enter(tester, 'Amount (EPIC)', '1');
         await _tap(tester, _continue);
@@ -827,6 +917,7 @@ void main() {
 
       // The review says it too.
       await h.toReview(tester, _https);
+      await _moreDetails(tester);
       expect(_reviewMethod('Link · HTTPS\u00A0· Over Tor'), findsOneWidget);
     }, skip: !torBuilt);
 
@@ -840,22 +931,22 @@ void main() {
       // Its caption: the switch is for every connection (D-05).
       expect(find.byKey(sendTurnOffTorCaptionKey), findsOneWidget);
       // Continue waits: nothing leads on to a send through a Tor exit.
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(continueOnPressed(tester), isNull);
       await _enter(tester, 'To', _https);
       expect(find.byKey(sendTurnOffTorKey), findsNothing);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
       await _enter(tester, 'To', _plainHttp);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(continueOnPressed(tester), isNull);
       // A device on the local network is not held: it does not go through a Tor exit.
       await _enter(tester, 'To', _lan);
       expect(find.byKey(sendTurnOffTorKey), findsNothing);
       expect(find.text(_l.sendRouteYourNetwork), findsOneWidget);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
       await _enter(tester, 'To', _plainHttp);
       // Turn Tor off: Continue goes on to the consent for plain http.
       await _tap(tester, find.byKey(sendTurnOffTorKey));
       expect(find.byKey(sendTurnOffTorKey), findsNothing);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
     }, skip: !torBuilt);
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {
@@ -863,6 +954,7 @@ void main() {
       await h.pump(tester);
       await h.torOn(tester);
       await h.toReview(tester, _bob);
+      await _moreDetails(tester);
       expect(_reviewMethod('Epicbox\u00A0· Over Tor'), findsOneWidget);
     }, skip: !torBuilt);
 
@@ -879,13 +971,13 @@ void main() {
   group('network modes', () {
     const offline = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
     const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
-    Finder makeFile() => find.widgetWithText(FilledButton, _l.sendMakeFile);
+    Finder makeFile() => find.widgetWithText(KitButton, _l.sendMakeFile);
 
     testWidgets('Standard: Continue works and no reason shows', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'To', _bob);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
       expect(find.byKey(netBlockNoteKey), findsNothing);
     });
 
@@ -894,15 +986,15 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, advanced: offline);
-      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
+      expect(sendTo(), findsOneWidget);
       await _enter(tester, 'To', _bob);
       expect(find.text(_l.sendHeldNodeOnly), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, _l.sendHeldFixNodeOnly), findsOneWidget);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      await _tap(tester, _way(_l.sendPayByFile));
-      expect(find.widgetWithText(TextField, 'To'), findsNothing);
+      expect(continueOnPressed(tester), isNull);
+      await chooseWay(tester);
+      expect(sendTo(), findsNothing);
       await _enter(tester, 'Amount (EPIC)', '1');
-      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(makeFile()).onPressed, isNotNull);
       expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
       expect(find.text(_l.netOfflineNodeLine), findsOneWidget);
       await _tap(tester, find.byKey(offlineNodeNoteKey));
@@ -918,12 +1010,12 @@ void main() {
       // No Epicbox and no Link in Node only, a local address included.
       await _enter(tester, 'To', _lan);
       expect(find.text(_l.sendHeldNodeOnly), findsOneWidget);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      await _tap(tester, _way(_l.sendPayByFile));
+      expect(continueOnPressed(tester), isNull);
+      await chooseWay(tester);
       await _enter(tester, 'Amount (EPIC)', '1');
-      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(makeFile()).onPressed, isNotNull);
       await _tap(tester, makeFile());
-      expect(find.text(_l.sendOpenReply), findsOneWidget);
+      expect(find.text(_l.phoneStepPayFileReply), findsOneWidget);
       expect(find.byKey(offlineNoPeersKey), findsOneWidget);
       expect(find.text(_l.netOfflineNoPeers), findsOneWidget);
     });
@@ -933,16 +1025,15 @@ void main() {
       await h.pump(tester, advanced: offline, payments: _directOn);
       await _enter(tester, 'To', _onion);
       expect(find.text(_l.sendHeldNodeOnly), findsOneWidget);
-      expect(find.byKey(sendTurnOnTorKey), findsNothing);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(continueOnPressed(tester), isNull);
     }, skip: !torBuilt);
 
     testWidgets('Offline with a public node: File runs with the node note; no peers line (that is the local node\'s)', (tester) async {
       final h = _Harness();
       await h.pump(tester, advanced: offline, peers: 0);
-      await _tap(tester, _way(_l.sendPayByFile));
+      await chooseWay(tester);
       await _enter(tester, 'Amount (EPIC)', '1');
-      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(makeFile()).onPressed, isNotNull);
       expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
       expect(find.byKey(offlineNoPeersKey), findsNothing);
     });
@@ -953,12 +1044,12 @@ void main() {
       final h = _Harness();
       await h.pump(tester, advanced: torOnly);
       await _enter(tester, 'To', _bob);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(continueOnPressed(tester), isNull);
       expect(find.text(_l.netBlockWaitingForTorLong), findsOneWidget);
       await _tap(tester, find.byKey(sendRecipientClearKey));
-      await _tap(tester, _way(_l.sendPayByFile));
+      await chooseWay(tester);
       await _enter(tester, 'Amount (EPIC)', '1');
-      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(makeFile()).onPressed, isNotNull);
       expect(find.text('Waiting for Tor.'), findsNothing);
     }, skip: !torBuilt);
 
@@ -968,22 +1059,21 @@ void main() {
       await h.pump(tester, payments: const PaymentPrefs(epicbox: false, directFile: false, directQr: false));
       expect(_way('Pay with a file'), findsNothing);
       await _enter(tester, 'To', _bob);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(continueOnPressed(tester), isNull);
       expect(find.text(_l.netBlockEpicboxOff), findsOneWidget);
       await h.session.saveContact(contact: Contact(id: '', name: 'Alice', address: _bob, note: null));
       h.container.invalidate(contactsProvider);
       await tester.pumpAndSettle();
-      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions. Alice has only an Epicbox address.'), findsOneWidget);
+      expect(find.text('Epicbox is off in the payment settings. Alice has only an Epicbox address.'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
     });
 
     testWidgets('Epicbox off with QR off: Send opens on the file route', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: const PaymentPrefs(epicbox: false, directQr: false));
-      expect(find.byKey(sendMethodsKey), findsNothing);
-      expect(find.widgetWithText(TextField, 'To'), findsNothing);
+      expect(sendTo(), findsNothing);
       await _enter(tester, 'Amount (EPIC)', '1');
-      expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(makeFile()).onPressed, isNotNull);
       expect(find.byKey(netBlockNoteKey), findsNothing);
     });
 
@@ -992,7 +1082,7 @@ void main() {
       await h.pump(tester, advanced: torOnly);
       await h.torOn(tester);
       await _enter(tester, 'To', _bob);
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      expect(continueOnPressed(tester), isNotNull);
       expect(find.byKey(netBlockNoteKey), findsNothing);
     }, skip: !torBuilt);
   });
@@ -1029,76 +1119,36 @@ void main() {
   });
 
   group('receive', () {
-    testWidgets('a strip per tab; Link needs Tor, then the onion', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(
-        tester,
-        body: const ReceiveView(),
-        height: 3600,
-        payments: _directOn,
-      );
-      expect(find.text(_l.methodReceiveEpicboxShort), findsOneWidget);
-      expect(_info('The Epicbox server holds a payment until this wallet opens.'), findsOneWidget);
-      // The caption under the address went for room.
-      expect(
-        find.text(
-          _l.deskRecvCheckSix,
-        ),
-        findsNothing,
-      );
-      for (final label in ['Epicbox', 'Link', 'Direct · File']) {
-        expect(
-          find.descendant(
-            of: find.byKey(receiveTabsKey),
-            // A long label wraps in two lines; the tooltip holds it whole.
-            matching: find.byTooltip(label),
-          ),
-          findsOneWidget,
-          reason: label,
-        );
-      }
-      expect(find.text(_l.methodGroupHttp), findsNothing);
-      expect(find.text(_l.sendFactTor), findsNothing);
+    Future<void> openWay(WidgetTester tester, String label) async {
+      await _tap(tester, find.text(_l.phoneRecvOther));
+      await _tap(tester, find.text(label));
+    }
 
-      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Link')));
-      expect(find.text(_l.methodReceiveDirectTitle), findsOneWidget);
-      expect(_info('Works while the app is open.'), findsOneWidget);
+    testWidgets('Other ways: the Tor address needs Tor, then shows the onion', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, body: const ReceiveView(), height: 3600, payments: _directOn);
+      expect(find.text(_l.phoneRecvOther), findsOneWidget);
+      await openWay(tester, _l.phoneSettingsTorAddress);
       expect(find.text(_l.receiveDirectNeedsTor), findsOneWidget);
-      expect(
-        find.text(_l.receiveDirectMeanwhile),
-        findsOneWidget,
-      );
+      expect(find.text(_l.receiveDirectMeanwhile), findsOneWidget);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       await _tap(tester, find.byKey(receiveTurnOnTorKey));
       expect(h.container.read(phoneTorProvider).receiving, isTrue);
       expect(find.byKey(receiveTorAddressKey), findsOneWidget);
       expect(find.text('Tor\u00A0· Starting'), findsOneWidget);
-      expect(
-        find.text(
-          _l.receiveTorCaption,
-        ),
-        findsOneWidget,
-      );
+      expect(find.text(_l.receiveTorCaption), findsOneWidget);
       // No switch on Receive: the link goes to Settings.
       expect(find.byType(Switch), findsNothing);
       expect(find.text(_l.torSettingsLink), findsOneWidget);
-
-      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
-      expect(find.text(_l.methodReceiveFileTitle), findsOneWidget);
-      expect(
-        _info('Works with no connection between the wallets.'),
-        findsOneWidget,
-      );
     }, skip: !torBuilt);
 
-    testWidgets('Epicbox with Tor on: the strip adds Over Tor', (tester) async {
+    testWidgets('Other ways: With a file opens the file page', (tester) async {
       final h = _Harness();
-      await h.pump(tester, body: const ReceiveView(), height: 3600);
-      await h.torOn(tester);
-      expect(_info('The Epicbox server holds a payment until this wallet opens. Over Tor.'), findsOneWidget);
-    }, skip: !torBuilt);
+      await h.pump(tester, body: const ReceiveView(), height: 3600, payments: _directOn);
+      await openWay(tester, _l.phoneSettingsWithFile);
+      expect(find.text(_l.phoneFileTitleReceive), findsOneWidget);
+      expect(find.text(_l.phoneFileOpenFile), findsOneWidget);
+    });
 
     testWidgets('receiving help opens the Receive topic', (
       tester,
@@ -1114,7 +1164,7 @@ void main() {
 
   group('sealed files', () {
     final l = lookupAppLocalizations(const Locale('en'));
-    Finder makeFile() => find.widgetWithText(FilledButton, _l.sendMakeFile);
+    Finder makeFile() => find.widgetWithText(KitButton, _l.sendMakeFile);
 
     /// Bob as a paired, verified contact whose wallet opens sealed files.
     PairingRecord pairBob(_Harness h, {SealMode seal = SealMode.on, Duration quiet = const Duration(days: 1)}) {
@@ -1135,8 +1185,10 @@ void main() {
 
     Future<void> toFile(WidgetTester tester) async {
       await _enter(tester, 'To', _bob);
-      await _tap(tester, _way(_l.sendPayByFile));
+      await chooseWay(tester);
       await _enter(tester, 'Amount (EPIC)', '1');
+      // Typing scrolls the hidden field into view; the seal strip is at the top.
+      await scrollToTop(tester);
     }
 
     testWidgets('a file to a paired contact is sealed for it; Send as plain instead asks first', (tester) async {
@@ -1160,7 +1212,7 @@ void main() {
       await _tap(tester, find.byKey(sendAsPlainKey));
       await _tap(tester, find.byKey(sendAsPlainConfirmKey));
       expect(find.text(l.sendSealedTitle('Bob'), skipOffstage: false), findsNothing);
-      expect(find.text(l.sendFileShareHint, skipOffstage: false), findsOneWidget);
+      expect(find.text(l.phoneFileSendHint, skipOffstage: false), findsOneWidget);
       expect((await h.session.pairing.pairing('p-bob'))!.seal, SealMode.degraded);
     });
 
@@ -1196,10 +1248,9 @@ void main() {
       await toFile(tester);
       expect(find.text(l.trustSealedFor('Bob')), findsNothing);
       await _tap(tester, makeFile());
-      expect(find.text(l.sendFileShareHint, skipOffstage: false), findsOneWidget);
+      expect(find.text(l.phoneFileSendHint, skipOffstage: false), findsOneWidget);
     });
   });
 }
 
 /// A method strip's ⓘ holding [text]: everything past the strip's one line is behind it.
-Finder _info(String text) => find.byWidgetPredicate((w) => w is InfoHint && w.text == text);

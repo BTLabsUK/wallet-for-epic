@@ -1,0 +1,14 @@
+{
+  "phoneContactsSearchHint": "Поиск или вставьте адрес",
+  "phoneContactsAtoZ": "А–Я",
+  "phoneContactsNoPayments": "Платежей пока нет",
+  "phoneContactsAsks": "Просит {amount}",
+  "phoneContactsFaces": "Контакты",
+  "phoneContactPaired": "Связаны · платежи между вами запечатаны",
+  "phoneContactRequest": "Запросить",
+  "phoneContactsYouPaid": "Вы заплатили",
+  "phoneContactsPaidYou": "Заплатил(а) вам",
+  "phoneContactsArriving": "{count, plural, few{{count} платежа в пути} many{{count} платежей в пути} other{{count} платежа в пути}}",
+  "phoneContactsNow": "Сейчас",
+  "phoneContactsWaitingAnswer": "Ждём ответа кошелька: {who}"
+}

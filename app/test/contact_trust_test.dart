@@ -153,14 +153,14 @@ String _lineText(WidgetTester tester) => tester.widget<Text>(find.byKey(contactT
 
 void main() {
   group('contact page line', () {
-    testWidgets('answered by another wallet app: a line under the Pairing block, the badge stays', (tester) async {
+    testWidgets('answered by another wallet app: a line under the Pairing block, no Verified badge', (tester) async {
       final h = _Harness()
         ..anna()
         ..pair()
         ..learned(marked: _ago(const Duration(days: 40)), unmarked: _ago(const Duration(days: 1)));
       await h.pump(tester, const ContactPage(contactId: 'c1'));
       expect(_lineText(tester), _l.trustLineOtherApp('Anna'));
-      expect(find.text(_l.trustVerified), findsWidgets, reason: 'the badge stays');
+      expect(find.text(_l.trustVerified), findsNothing, reason: 'a verified contact draws as the frame: the paired line, no badge');
     });
 
     testWidgets('not heard for 90 days: the date of the latest sign of life', (tester) async {
@@ -219,7 +219,8 @@ void main() {
         ..pair();
       final tx = h.waiting(_ago(const Duration(hours: 20)));
       await h.pump(tester, TxDetailsScreen(txKey: tx.key));
-      expect(find.text(_l.txStatusWaitingFor('Anna')), findsWidgets);
+      // The steps say whose answer it waits for.
+      expect(find.textContaining(_l.phoneProgAnswersEpicboxNamed('Anna')), findsWidgets);
       expect(find.byKey(mailboxResendCardKey), findsNothing);
     });
 

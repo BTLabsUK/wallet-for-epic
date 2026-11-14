@@ -2,10 +2,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
 import '../errors.dart';
+import '../help/help_content.dart' show HelpId;
 import '../bip39_words.dart';
 import '../levels/first_run_servers_phone.dart';
 import '../l10n.dart';
@@ -17,8 +19,16 @@ import '../secure_screen.dart' show hidePreview, keepScreenOn;
 import '../settings.dart' show autoLockHoldProvider;
 import '../wallet_service.dart';
 import 'app_dialog.dart';
-import 'centered_body.dart';
 import 'common.dart';
+import 'help_screen.dart' show openHelp;
+import 'kit/kit_button.dart';
+import 'kit/kit_empty_state.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_help_sheet.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_progress_ring.dart';
+import 'kit/kit_tokens.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
@@ -27,7 +37,6 @@ import 'settings_history.dart';
 import 'settings_sections.dart' show DeleteWalletDialog;
 import 'wallet_delete.dart';
 import 'work_status.dart';
-import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'devices/device_parts.dart' show LinkDeviceOffer;
 
@@ -62,6 +71,8 @@ const Key restoreOpenKey = ValueKey('restore-open');
 
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _phrase = TextEditingController();
+  // The phrase box takes the gold edge while it has the caret (`.field.on`).
+  final _phraseFocus = FocusNode();
   _RestoreStep _step = _RestoreStep.phrase;
 
   /// Where the scan starts, at every level: restore is a one-off, so the height is not behind
@@ -71,6 +82,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   BigInt? _height;
   String? _error;
   bool _busy = false;
+
+  /// The phrase is being checked after Continue.
+  bool _checking = false;
 
   /// [RestoreScreen.replace]: the old wallet is deleted now, so Back and Continue work as on a
   /// first run.
@@ -90,6 +104,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   @override
   void initState() {
     super.initState();
+    _phraseFocus.addListener(() => setState(() {}));
     // The typed phrase stays out of the app switcher's preview.
     unawaited(hidePreview(true));
     _restoreScan = ref.read(restoreScanProvider.notifier)..hold();
@@ -109,6 +124,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     unawaited(hidePreview(false));
     // Drop the phrase from the controller and the state, so they no longer point at it.
     _phrase.clear();
+    _phraseFocus.dispose();
     _validPhrase = '';
     _phrase.dispose();
     _scanStart.dispose();
@@ -332,96 +348,41 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
-    final steps = switch (_step) {
-      _RestoreStep.phrase => _form(context),
-      _RestoreStep.pin => [
-        // The PIN step stays while the wallet is made, the line above it busy, so nothing
-        // moves; a failure starts the PIN over (the error is its key).
-        SizedBox(height: 4, child: _busy ? const LinearProgressIndicator() : null),
-        AbsorbPointer(
-          absorbing: _busy,
-          child: PinSetupView(key: ValueKey(_error), onDone: _restore),
-        ),
-        // Under the PIN pad, so nothing above it moves: the delete's step, then the restore's.
-        if (_busy)
-          WorkStatus(
-            key: ValueKey(_deleting == null),
-            text: _deleting == null ? null : deleteStepText(l, _deleting!),
-            lines: [l.workRestoring, l.firstRunSecuring, l.workOpening],
-            showAfter: PinCheckBar.showAfter,
-          ),
-        if (_error != null) ...[
-          ErrorText(_error!),
-          TextButton(
-            onPressed: () => setState(() {
-              // The phrase that checked out comes back, so nothing is typed twice.
-              if (_validPhrase.isNotEmpty) _phrase.text = _validPhrase;
-              _error = null;
-              _step = _RestoreStep.phrase;
-            }),
-            child: Text(l.restoreBackToPhrase),
-          ),
-        ],
-      ],
-      _RestoreStep.scan => _scanView(context),
-      _RestoreStep.importOffer => _importOffer(),
+    final Widget body = switch (_step) {
+      _RestoreStep.phrase => _phraseStep(context),
+      _RestoreStep.pin => _pinStep(context),
+      _RestoreStep.scan => _scanStep(context),
+      _RestoreStep.importOffer => _doneStep(context),
     };
-    // The phrase form is long and keeps Continue at the foot; the import offer keeps its
-    // two choices there too; the scan sits in the middle.
-    final form = _step == _RestoreStep.phrase;
-    final offer = _step == _RestoreStep.importOffer;
     final scaffold = SlotScaffold(
-      centered: !form && !offer,
-      glow: _step == _RestoreStep.importOffer ? heroGlow : null,
-      appBar: AppBar(
-        title: Text(l.restoreTitle),
-        leading: _step == _RestoreStep.phrase
-            ? BackButton(onPressed: _back)
-            : null,
-        automaticallyImplyLeading: false,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: body),
+        ),
       ),
-      body: form
-          ? ScreenBody(
-              bottom: BusyButton(
-                label: l.commonContinue,
-                onPressed: _checkPhrase,
-                semanticsId: TrustIds.restoreContinue,
-              ),
-              children: steps,
-            )
-          : offer
-          ? ScreenBody(
-              bottom: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  BusyButton(
-                    label: l.restoreImportButton,
-                    onPressed: () async {
-                      final imported = await importHistoryBackup(context, ref);
-                      if (imported && mounted) _openWallet();
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    onPressed: _openWallet,
-                    child: TrustId(TrustIds.restoreNotnow, child: Text(l.restoreImportNotNow)),
-                  ),
-                ],
-              ),
-              children: steps,
-            )
-          : CenteredBody(children: steps),
     );
     return PopScope(
       canPop: _canPop,
-      // A system Back the screen keeps does what the AppBar's Back does there, if anything.
+      // A system Back the screen keeps does what the header's Back does there, if anything.
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && !_busy && _step == _RestoreStep.phrase) _back();
+        if (didPop || _busy) return;
+        if (_step == _RestoreStep.phrase) _back();
       },
       child: scaffold,
     );
+  }
+
+  void _help(String title, List<String> lines, {VoidCallback? more}) =>
+      showKitHelp(context, title: title, lines: lines, onMore: more);
+
+  void _phraseHelp() {
+    final l = context.l10n;
+    _help(l.phoneRestoreHelpTitle, [l.phoneRestoreHelpPhrase, l.phoneRestoreHelpStart], more: () => openHelp(context, HelpId.phrase));
+  }
+
+  void _pinHelp() {
+    final l = context.l10n;
+    _help(l.phoneStartPinHelpTitle, [l.phoneStartPinHelpUnlock, l.phoneStartPinHelpLost], more: () => openHelp(context, HelpId.phrase));
   }
 
   /// Fills the field from a QR code of the phrase: its words, checked as typed ones are. A code
@@ -441,138 +402,391 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     });
   }
 
-  List<Widget> _form(BuildContext context) {
+  /// Pastes the clipboard's text into the field (read on the press, never before).
+  Future<void> _pastePhrase() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text;
+    if (text == null || text.trim().isEmpty || !mounted) return;
+    setState(() {
+      _phrase.text = normalizePhrase(text.replaceAll(',', ' '));
+      _error = null;
+    });
+  }
+
+  /// Continue on the phrase step: one press at a time while the phrase is checked.
+  Future<void> _continue() async {
+    if (_checking) return;
+    setState(() => _checking = true);
+    try {
+      await _checkPhrase();
+    } finally {
+      if (mounted) setState(() => _checking = false);
+    }
+  }
+
+  /// Back on the PIN step, to the phrase that checked out.
+  void _backToPhrase() {
+    if (_busy) return;
+    setState(() {
+      if (_validPhrase.isNotEmpty) _phrase.text = _validPhrase;
+      _error = null;
+      _step = _RestoreStep.phrase;
+    });
+  }
+
+  /// The space under the foot buttons: 34 in all, of which the phone's own bottom inset counts
+  /// (the SafeArea has taken it from this subtree, so it is read from the route).
+  double _footBottom(BuildContext context) =>
+      (34 - MediaQuery.viewPaddingOf(Navigator.of(context).context).bottom).clamp(0, 34).toDouble();
+
+  Widget _phraseStep(BuildContext context) {
     final l = context.l10n;
-    return [
-      // From Settings: nothing changes before the phrase checks out and the user confirms.
-      if (widget.replace && !_replaced) ...[
-        Text(l.restoreReplaceLead),
-        const SizedBox(height: 16),
+    final t = context.tokens;
+    return Column(
+      children: [
+        KitFlowHeader(title: l.phoneRestoreTitle, back: true, onLeading: _back, onHelp: _phraseHelp, leadingId: TrustIds.restoreBack, helpId: TrustIds.restoreHelp),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: Kit.gutter),
+            children: [
+              // From Settings: nothing changes before the phrase checks out and the user confirms.
+              if (widget.replace && !_replaced)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
+                  child: Text(l.restoreReplaceLead, style: KitType.rowSub.copyWith(color: t.dim)),
+                ),
+              KitGroupLabel(l.restorePhraseLabel, top: 22),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: Kit.gutter), child: _phraseBox(context)),
+              RestoreWordCheck(text: _phrase.text),
+              if (_error != null)
+                Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0), child: ErrorText(_error!)),
+              KitGroupLabel(l.phoneRestoreStartGroup, top: 29),
+              ScanStart(controller: _scanStart, ids: ScanStartIds.restore, rowTitle: l.phoneRestoreCreated, note: l.phoneRestoreStartNote, rowMinHeight: 62),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, _footBottom(context)),
+          child: KitButton(
+            label: l.commonContinue,
+            onPressed: _checking ? null : _continue,
+            semanticsId: TrustIds.restoreContinue,
+          ),
+        ),
       ],
-      trustId(
-        TrustIds.restorePhrase,
-        TextField(
-          controller: _phrase,
-          // A phrase error is about the words as they were: an edit takes it away; the word
-          // chips under the field follow every keystroke.
-          onChanged: (_) => setState(() => _error = null),
-          minLines: 3,
-          maxLines: 5,
-          autocorrect: false,
-          enableSuggestions: false,
-          enableIMEPersonalizedLearning: false,
-          keyboardType: TextInputType.visiblePassword,
-          decoration: InputDecoration(
-            labelText: l.restorePhraseLabel,
-            helperText: l.restorePhraseHelper,
-            alignLabelWithHint: true,
-            // The phrase as a QR code (Show QR on the backup screen).
-            suffixIcon: offersQrScan(ref)
-                ? IconButton(
-                    key: restoreScanKey,
-                    tooltip: l.scanQrTooltip,
-                    icon: const Icon(Icons.qr_code_scanner),
-                    onPressed: _scanPhrase,
-                  )
-                : null,
+    );
+  }
+
+  /// The phrase box (`.field.on`): the words in the mono face, Paste and Scan as gold links at
+  /// its foot.
+  Widget _phraseBox(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: t.field,
+        borderRadius: BorderRadius.circular(Kit.rField),
+        border: Border.all(color: _phraseFocus.hasFocus ? t.goldLine : t.line),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 168),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              trustId(
+                TrustIds.restorePhrase,
+                Semantics(
+                  label: l.restorePhraseLabel,
+                  child: TextField(
+                    controller: _phrase,
+                    focusNode: _phraseFocus,
+                    // A phrase error is about the words as they were: an edit takes it away; the
+                    // count line under the box follows every keystroke.
+                    onChanged: (_) => setState(() => _error = null),
+                    minLines: 3,
+                    maxLines: 6,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    enableIMEPersonalizedLearning: false,
+                    keyboardType: TextInputType.visiblePassword,
+                    style: KitType.body.copyWith(color: t.text, fontFamily: t.monoFamily, fontSize: 15, height: 1.7),
+                    decoration: InputDecoration(
+                      filled: false,
+                      isDense: true,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      hintText: l.restorePhraseHelper,
+                      hintStyle: KitType.body.copyWith(color: t.dim, fontSize: 15, height: 1.7),
+                    ),
+                  ),
+                ),
+              ),
+              // Three lines of phrase, this gap and the links make the frame's 168.
+              const SizedBox(height: 23),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TrustId(TrustIds.restorePaste, child: _PhraseLink(label: l.commonPaste, onPressed: _pastePhrase)),
+                  // The phrase as a QR code (Show QR on the backup screen).
+                  if (offersQrScan(ref)) ...[
+                    const SizedBox(width: 4),
+                    _PhraseLink(key: restoreScanKey, label: l.phoneRestoreScan, icon: KitIcons.scan, onPressed: _scanPhrase),
+                  ],
+                ],
+              ),
+            ],
           ),
         ),
       ),
-      RestoreWordCheck(text: _phrase.text),
-      const SizedBox(height: 8),
-      ScanStart(controller: _scanStart, ids: ScanStartIds.restore),
-      const SizedBox(height: 16),
-      if (_error != null) ErrorText(_error!),
-    ];
+    );
+  }
+
+  Widget _pinStep(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return Column(
+      children: [
+        KitFlowHeader(
+          title: '',
+          back: true,
+          // Not while the wallet is made, and not once the old wallet is gone.
+          onLeading: _canPop ? _backToPhrase : null,
+          onHelp: _pinHelp,
+          leadingId: TrustIds.restoreBack,
+          helpId: TrustIds.restoreHelp,
+        ),
+        if (_error != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Kit.gutter, 4, Kit.gutter, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ErrorText(_error!),
+                KitButton(label: l.restoreBackToPhrase, kind: KitButtonKind.ghost, onPressed: _backToPhrase, semanticsId: TrustIds.restoreBackToPhrase),
+              ],
+            ),
+          ),
+        Expanded(
+          child: _busy
+              // The PIN step stays while the wallet is made; the line says what is going on.
+              ? Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(Kit.gutter),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: Kit.gutter),
+                        WorkStatus(
+                          key: ValueKey(_deleting == null),
+                          text: _deleting == null ? null : deleteStepText(l, _deleting!),
+                          lines: [l.workRestoring, l.firstRunSecuring, l.workOpening],
+                          showAfter: PinCheckBar.showAfter,
+                          style: KitType.body.copyWith(color: t.dim),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.zero,
+                  // A failure starts the PIN over (the error is its key).
+                  child: PinSetupView(key: ValueKey(_error), onDone: _restore, actionsAtFoot: true),
+                ),
+        ),
+      ],
+    );
   }
 
   /// Dates map to heights only on mainnet; test networks have their own history.
-  bool get _datesSupported =>
-      ref.read(walletConfigProvider)?.chain == Chain.mainnet;
+  bool get _datesSupported => ref.read(walletConfigProvider)?.chain == Chain.mainnet;
 
-  List<Widget> _importOffer() {
-    final theme = Theme.of(context);
+  /// The search under way (HANDOFF 7.8, Gap-9), or stopped before the end.
+  Widget _scanStep(BuildContext context) {
     final l = context.l10n;
-    return [
-      Center(
-        child: Semantics(
-          label: l.restoreDoneIconLabel,
-          image: true,
-          child: GlyphTile(
-            size: 88,
-            child: Icon(Icons.check, color: context.tokens.ok),
-          ),
+    final t = context.tokens;
+    final scan = ref.watch(scanProvider);
+    final percent = scan.percent;
+    final waiting = scan.paused || scan.resuming;
+    final running = scan.running;
+    return Column(
+      children: [
+        // The frame's ✕ stops the search, as Stop does; once stopped, the page offers Try again and Open wallet.
+        KitFlowHeader(
+          title: l.phoneRestoreRestoring,
+          showLeading: running,
+          onLeading: running ? () => ref.read(scanProvider.notifier).stop() : null,
+          leadingId: TrustIds.restoreScanClose,
+          onHelp: _phraseHelp,
+          helpId: TrustIds.restoreHelp,
         ),
-      ),
-      const SizedBox(height: 20),
-      Text(
-        l.restoreDoneTitle,
-        style: theme.textTheme.titleLarge,
-        textAlign: TextAlign.center,
-      ),
-      const SizedBox(height: 8),
-      Text(l.restoreImportExplanation, textAlign: TextAlign.center),
-      // The restore is still due after its scan (a wallet whose start the core did not take):
-      // Home finishes it before receiving and sending open.
-      if (ref.watch(restoreScanProvider).required) ...[
-        const SizedBox(height: 8),
-        Text(l.restoreFinishOnHome, textAlign: TextAlign.center),
+        Expanded(
+          child: running
+              ? ListView(
+                  padding: const EdgeInsets.only(top: 44),
+                  children: [
+                    Center(
+                      child: KitProgressRing(
+                        value: percent == null ? null : percent / 100,
+                        label: percent == null ? '…' : '$percent%',
+                        semanticsLabel: l.restoreScanProgressLabel,
+                        // A number: the screen reader reads it as the progress.
+                        semanticsValue: percent == null ? null : '$percent',
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                      child: Semantics(
+                        header: true,
+                        child: Text(l.phoneRestoreScanTitle, style: KitType.pageTitle.copyWith(color: t.text, fontSize: 24, letterSpacing: -0.48), textAlign: TextAlign.center),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        waiting ? l.scanResuming : l.phoneRestoreScanBody,
+                        style: KitType.body.copyWith(color: t.dim, height: 1.45),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    KitGroup(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                          child: Row(
+                            children: [
+                              Expanded(child: Text(l.phoneRestoreLookingFrom, style: KitType.rowTitle.copyWith(fontWeight: FontWeight.w400, color: t.dim))),
+                              Text(ScanStart.value(l, _scanStart), style: KitType.rowAmount.copyWith(color: t.text)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
+                      child: Text(l.phoneRestoreScanNote, style: KitType.rowSub.copyWith(color: t.faint)),
+                    ),
+                    if (_error != null)
+                      Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0), child: ErrorText(_error!)),
+                  ],
+                )
+              // Stopped or failed: the wallet is there, but cannot receive or send until the
+              // scan finishes; Home goes on with it.
+              : KitEmptyState(
+                  icon: KitIcons.warning,
+                  title: l.phoneRestoreStoppedTitle,
+                  message: scan.stopped ? l.restoreScanStopped : l.restoreScanUnfinished,
+                  extra: [
+                    if (scan.error != null) ErrorText(describeError(l, scan.error!)),
+                    if (_error != null) ErrorText(_error!),
+                  ],
+                ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, _footBottom(context)),
+          child: running
+              ? KitButton(key: restoreStopKey, label: l.restoreScanStop, kind: KitButtonKind.quiet, onPressed: () => ref.read(scanProvider.notifier).stop())
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    KitButton(key: restoreRetryKey, label: l.launchTryAgain, onPressed: _scan, semanticsId: TrustIds.restoreRetry),
+                    const SizedBox(height: 12),
+                    KitButton(key: restoreOpenKey, label: l.restoreOpenWallet, kind: KitButtonKind.quiet, onPressed: _openWallet, semanticsId: TrustIds.restoreOpen),
+                  ],
+                ),
+        ),
       ],
-      const SizedBox(height: 16),
-      Text(l.restoreImportLater, textAlign: TextAlign.center),
-      // The quiet offer: this wallet may live on another device too (hidden while Linked
-      // devices is off).
-      const SizedBox(height: 24),
-      LinkDeviceOffer(text: l.offerLinkRestore),
-    ];
+    );
   }
 
-  List<Widget> _scanView(BuildContext context) {
+  /// The restore is done (HANDOFF 7.8, Gap-10): Open wallet, and the offer of a wallet data file.
+  Widget _doneStep(BuildContext context) {
     final l = context.l10n;
-    final scan = ref.watch(scanProvider);
-    final outline = OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48));
-    return [
-      Text(l.restoreScanIntro, style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: 16),
-      ScanProgressView(scan: scan),
-      if (_error != null) ErrorText(_error!),
-      if (scan.running) ...[
-        const SizedBox(height: 8),
-        Text(l.restoreScanScreenOn, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 16),
-        OutlinedButton(
-          key: restoreStopKey,
-          style: outline,
-          onPressed: () => ref.read(scanProvider.notifier).stop(),
-          child: Text(l.restoreScanStop),
+    final t = context.tokens;
+    return Column(
+      children: [
+        KitFlowHeader(title: '', onLeading: _openWallet, leadingId: TrustIds.restoreClose),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(Kit.gutter, 36, Kit.gutter, Kit.gutter),
+            children: [
+              Center(
+                child: Semantics(
+                  label: l.restoreDoneIconLabel,
+                  image: true,
+                  // The frame's `.okring`: a 76 disc at 12 % with a 10 px ring at 5 % around it.
+                  child: Container(
+                    width: Kit.okRing,
+                    height: Kit.okRing,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: t.okSoft,
+                      shape: BoxShape.circle,
+                      boxShadow: [BoxShadow(color: t.ok.withValues(alpha: 0.05), spreadRadius: 10)],
+                    ),
+                    child: Icon(KitIcons.check, size: 36, color: t.ok),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+              Semantics(
+                header: true,
+                child: Text(l.restoreDoneTitle, style: KitType.doneTitle.copyWith(color: t.text), textAlign: TextAlign.center),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(l.phoneRestoreDoneBody, style: KitType.body.copyWith(color: t.dim), textAlign: TextAlign.center),
+              ),
+              // The restore is still due after its scan (a wallet whose start the core did not
+              // take): Home finishes it before receiving and sending open.
+              if (ref.watch(restoreScanProvider).required) ...[
+                const SizedBox(height: 12),
+                Text(l.restoreFinishOnHome, style: KitType.rowSub.copyWith(color: t.dim), textAlign: TextAlign.center),
+              ],
+              // The quiet offer: this wallet may live on another device too (hidden while Linked
+              // devices is off).
+              const SizedBox(height: 24),
+              LinkDeviceOffer(text: l.offerLinkRestore),
+            ],
+          ),
         ),
-      ] else ...[
-        // Stopped or failed: the wallet is there, but cannot receive or send until the scan
-        // finishes; Home goes on with it.
-        const SizedBox(height: 8),
-        Text(scan.stopped ? l.restoreScanStopped : l.restoreScanUnfinished),
-        const SizedBox(height: 16),
-        BusyButton(
-          key: restoreRetryKey,
-          semanticsId: TrustIds.restoreRetry,
-          label: l.launchTryAgain,
-          onPressed: _scan,
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton(
-          key: restoreOpenKey,
-          style: outline,
-          onPressed: _openWallet,
-          child: TrustId(TrustIds.restoreOpen, child: Text(l.restoreOpenWallet)),
+        Padding(
+          padding: EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, _footBottom(context)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              KitButton(key: restoreOpenKey, label: l.restoreOpenWallet, onPressed: _openWallet, semanticsId: TrustIds.restoreOpen),
+              const SizedBox(height: 6),
+              KitButton(
+                label: l.restoreImportButton,
+                kind: KitButtonKind.quiet,
+                onPressed: () async {
+                  final imported = await importHistoryBackup(context, ref);
+                  if (imported && mounted) _openWallet();
+                },
+              ),
+              const SizedBox(height: 12),
+              Text(l.restoreImportLater, style: KitType.rowSub.copyWith(color: t.dim), textAlign: TextAlign.center),
+            ],
+          ),
         ),
       ],
-    ];
+    );
   }
 }
 
-/// The words of the phrase as typed, each checked against the word list, with a count line
-/// (as the desktop's grid): a word the list lacks is in the risk colour; 12 or 24
-/// known words read "All 24 words check out."
+/// The count line under the phrase box, as the desktop's grid says it: "All 24 words check
+/// out." for 12 or 24 known words, else the count; a word the list lacks is named in a risk
+/// coloured chip, so a typo is found without reading every word.
 class RestoreWordCheck extends StatelessWidget {
   const RestoreWordCheck({super.key, required this.text});
 
@@ -587,50 +801,88 @@ class RestoreWordCheck extends StatelessWidget {
     if (words.isEmpty) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    final unknown = words.where((w) => !bip39Words.contains(w)).length;
+    final unknownWords = [for (final (i, w) in words.indexed) if (!bip39Words.contains(w)) (i + 1, w)];
+    final unknown = unknownWords.length;
     final complete = unknown == 0 && (words.length == 12 || words.length == 24);
     final line = complete
         ? l.restoreWordsAllOk(words.length)
         : unknown > 0
         ? l.restoreWordsUnknown(unknown)
-        : l.restoreWordsSoFar(words.length);
+        : l.phoneRestoreWordsHint(words.length);
     return Padding(
       key: restoreWordCheckKey,
-      padding: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, Kit.gutter + 4, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              for (final (i, w) in words.indexed)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: t.surfaceHi,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: bip39Words.contains(w) ? t.line : t.risk),
-                  ),
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: '${i + 1} ', style: TextStyle(color: t.dim, fontSize: 11)),
-                        TextSpan(text: w, style: TextStyle(color: bip39Words.contains(w) ? t.text : t.risk)),
-                      ],
+          Text(line, style: KitType.rowSub.copyWith(color: complete ? t.ok : unknown > 0 ? t.risk : t.faint)),
+          if (unknownWords.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final (position, w) in unknownWords)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: t.riskSoft,
+                      borderRadius: BorderRadius.circular(Kit.rButtonSmall),
+                      border: Border.all(color: t.risk),
                     ),
-                    style: TextStyle(fontFamily: t.monoFamily, fontSize: 13),
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: '$position ', style: TextStyle(color: t.dim)),
+                          TextSpan(text: w, style: TextStyle(color: t.risk)),
+                        ],
+                      ),
+                      style: KitType.chip.copyWith(fontFamily: t.monoFamily),
+                    ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            line,
-            style: theme.textTheme.bodySmall?.copyWith(color: complete ? t.ok : unknown > 0 ? t.risk : t.dim),
-          ),
+              ],
+            ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// A gold text link at the foot of the phrase box (`.field .lnk`: 15/500, 40 px high, with a 44 tap area).
+class _PhraseLink extends StatelessWidget {
+  const _PhraseLink({super.key, required this.label, required this.onPressed, this.icon});
+
+  final String label;
+  final IconData? icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return KitHitReach(
+      child: Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
+        onTap: onPressed,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onPressed,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[Icon(icon, size: 18, color: t.accentText), const SizedBox(width: 6)],
+                  Text(label, style: KitType.rowTitle.copyWith(fontSize: 15, fontWeight: FontWeight.w500, color: t.accentText)),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

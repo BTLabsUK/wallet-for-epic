@@ -21,14 +21,16 @@ import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
-import 'package:epic_wallet/src/ui/send_tracker.dart';
+import 'package:epic_wallet/src/ui/kit/kit_steps.dart';
+import 'package:epic_wallet/src/ui/kit/kit_sheet.dart' show KitSheet;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
-import 'package:epic_wallet/src/ui/theme/protocol.dart' show TimelineState;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/send_finders.dart';
 
 import 'support/send_pin.dart';
 
@@ -230,7 +232,7 @@ class _Harness {
   }
 }
 
-Finder get _continue => find.widgetWithText(FilledButton, _l.commonContinue);
+Finder get _continue => continueButton();
 
 /// Pumps a second of frames and lets a slice of real time pass, twice: the controller's work
 /// and the fake's stream cancel complete on root-zone microtasks the test clock does not
@@ -252,24 +254,24 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pump();
   await tester.tap(finder);
   await _settle(tester);
-  if (find.widgetWithText(TextField, _l.pinLabel).evaluate().isNotEmpty) {
+  if (pinAsked.evaluate().isNotEmpty) {
     await answerPin(tester, settle: false);
     await _settle(tester);
   }
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  final field = sendField(label);
   await tester.ensureVisible(field);
   await tester.enterText(field, text);
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
 }
 
-List<String> _steps(WidgetTester tester, TimelineState state) => [
-  for (final steps in tester.widgetList<RoundSteps>(find.byType(RoundSteps)))
+List<String> _steps(WidgetTester tester, KitStepState state) => [
+  for (final steps in tester.widgetList<KitSteps>(find.byType(KitSteps)))
     for (final step in steps.steps)
-      if (step.state == state) step.label,
+      if (step.state == state) step.title,
 ];
 
 
@@ -305,7 +307,7 @@ void main() {
         await _enter(tester, 'To', form);
         // The method line under the field names the way and, with Tor off, that it starts.
         expect(find.text(_l.methodDirectTor), findsOneWidget, reason: form);
-        expect(find.text(_l.sendRouteTorStarts), findsOneWidget, reason: form);
+        expect(find.textContaining(_l.sendRouteTorStarts), findsOneWidget, reason: form);
         expect(
           find.textContaining('.onion', findRichText: true),
           findsWidgets,
@@ -314,7 +316,7 @@ void main() {
       }
       // A paste normalises the text in the field too.
       await _tap(tester, _continue);
-      expect(find.text('2 of 3'), findsOneWidget);
+      expect(sendAmount(), findsOneWidget);
       expect(find.textContaining('wfe7q3…abcdid.onion'), findsOneWidget);
     });
 
@@ -322,8 +324,9 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'To', _name.substring(2));
-      await _tap(tester, _continue);
-      expect(find.text('1 of 3'), findsOneWidget);
+      // The Who step offers no Continue until the address reads.
+      expect(_continue, findsNothing);
+      expect(sendAmount(), findsNothing);
       expect(find.text('Over Tor'), findsNothing);
     });
 
@@ -334,7 +337,7 @@ void main() {
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
       await _tap(tester, _continue);
-      expect(find.text('1 of 3'), findsOneWidget);
+      expect(sendAmount(), findsNothing);
       expect(
         find.text(
           _l.sendTorUnavailable,
@@ -351,14 +354,13 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
-      expect(find.text(_l.sendRouteTorStarts), findsOneWidget);
-      expect(find.byKey(sendTurnOnTorKey), findsNothing);
+      expect(find.textContaining(_l.sendRouteTorStarts), findsOneWidget);
       await h.toReview(tester);
       // Tor starts as the review opens; the send waits for it.
       expect(h.session.torStarts, hasLength(1));
       await h.emit(tester, TorEventKind.starting, progress: 60);
       await h.emit(tester, TorEventKind.ready);
-      expect(find.text(_l.sendOverTor), findsOneWidget);
+      // An onion needs no "Over Tor" word on the review: the Tor-ready line says it.
       expect(find.text(_l.sendTorReady), findsOneWidget);
       // No epicbox check on a Tor payment.
       expect(find.text(_l.sendListenerDown), findsNothing);
@@ -374,25 +376,19 @@ void main() {
       );
       expect(find.textContaining('minute'), findsNothing);
       // Back waits while it runs.
-      expect(
-        tester
-            .widget<IconButton>(
-              find.widgetWithIcon(IconButton, Icons.arrow_back),
-            )
-            .onPressed,
-        isNull,
-      );
+      await tester.tapAt(Offset(10, tester.getTopLeft(find.byType(KitSheet)).dy - 1));
+      await tester.pump();
+      expect(find.byType(KitSheet), findsOneWidget);
 
       h.answered();
       h.session.torSendGate!.complete();
       await _settle(tester);
       // Their wallet signed and the payment is out: it is confirming already.
-      expect(_steps(tester, TimelineState.done), [
-        _l.txStepStarted,
-        _l.txStepAccepted,
-        'Posted to the network',
+      expect(_steps(tester, KitStepState.done), [
+        _l.phoneProgSent,
+        _l.phoneProgWaitingAnswer,
       ]);
-      expect(_steps(tester, TimelineState.current).single, contains('onfirm'));
+      expect(_steps(tester, KitStepState.now), [_l.phoneProgNetwork]);
       expect(find.text('1.0\u00a0EPIC'), findsOneWidget);
       expect(find.textContaining('wfe7q3…abcdid.onion'), findsOneWidget);
       // Tor stays up for the session; nothing was stopped.
@@ -447,7 +443,7 @@ void main() {
       expect(h.session.torSends, hasLength(2));
       expect(h.session.torSends.last.txId, isNotNull);
       expect(h.session.transactionsValue, hasLength(1));
-      expect(find.byType(RoundSteps), findsOneWidget);
+      expect(find.byType(KitSteps), findsOneWidget);
       expect(find.text(_l.commonDone), findsOneWidget);
     });
 
@@ -468,7 +464,7 @@ void main() {
       await _tap(tester, find.byKey(sendCancelPaymentKey));
       expect(h.session.cancelledTxIds, [101]);
       // Back on the amount with the recipient kept, ready for another go.
-      expect(find.text('2 of 3'), findsOneWidget);
+      expect(sendAmount(), findsOneWidget);
       expect(find.textContaining('wfe7q3…abcdid.onion'), findsOneWidget);
     });
 

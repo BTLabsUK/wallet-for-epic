@@ -30,7 +30,6 @@
   "deskSetupLocalNodeText": "Działa na tym komputerze: prywatnie, ale wymaga miejsca na dysku i pierwszej synchronizacji.",
   "deskSetupEpicboxText": "Serwer Epicbox przechowuje płatności, dopóki portfel się nie otworzy.",
   "deskSetupEpicboxServer": "Serwer Epicbox",
-  "deskSetupExistingNode": "Istniejący węzeł na {host}",
   "deskSetupSaveStartsFallback": "Zapisanie uruchomi węzeł; do czasu synchronizacji zastąpi go {node}.",
   "deskSetupSaveStarts": "Zapisanie uruchomi węzeł. Pierwsza synchronizacja trwa kilka godzin; portfel otworzy się wcześniej.",
   "deskSetupSaveFailedTitle": "Ustawienia nie zostały zapisane",

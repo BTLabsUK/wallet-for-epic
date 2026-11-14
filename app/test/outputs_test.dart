@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/outputs_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -24,6 +25,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/pin_pad.dart';
 
 const String _pin = '123456';
 
@@ -493,7 +496,7 @@ void main() {
     expect(h.session.splits, isEmpty);
     await tester.tap(find.text(_l.outputsSplitInto(5)));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
     expect(h.session.splits, [5]);
     expect(find.text(_l.outputsSplitTitle), findsNothing);
@@ -509,7 +512,7 @@ void main() {
     await tester.tap(find.text(_l.outputsConsolidateAction));
     await tester.pumpAndSettle();
     expect(find.text(_l.outputsConsolidatePin), findsOneWidget);
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
     expect(h.session.consolidations, 1);
   });
@@ -526,7 +529,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(_l.outputsConsolidateAction));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).last, _pin);
+    await enterPin(tester, _pin);
     await tester.pumpAndSettle();
     expect(h.session.consolidations, 1);
     expect(h.session.splits, isEmpty);
@@ -546,7 +549,7 @@ void main() {
     expect(find.text(_l.outputsWaitLocked(3)), findsOneWidget);
   });
 
-  testWidgets('Settings › Wallet lists Outputs with its count and strategy', (
+  testWidgets('Settings › Wallet lists Outputs with its line', (
     tester,
   ) async {
     final h = _Harness();
@@ -561,9 +564,7 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(
-      find.text(_l.outputsSettingsSubtitle(5, _l.outputsAll)),
-      findsOneWidget,
-    );
+    // The phone row carries one line; the strategy moved to Payments.
+    expect(find.text(_l.phoneSettingsOutputsLine), findsOneWidget);
   });
 }

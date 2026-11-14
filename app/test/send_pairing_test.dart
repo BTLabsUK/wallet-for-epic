@@ -3,6 +3,9 @@
 // pairing's state, Send with the pairing as recipient (its card, the mailbox readout, no
 // address), the queue while Epicbox is off, "Waiting for Anna" on the payment's row, and a
 // relay move: the sheet, the contact page's lines and the moved date before Send.
+import 'dart:async';
+
+import 'package:epic_wallet/src/contacts.dart' show contactsProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -24,11 +27,15 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/send_finders.dart';
+
 import 'support/send_pin.dart';
+import 'support/contact_pairing.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -152,7 +159,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 
 /// From the recipient step with a pairing: Continue, 1.5\u00a0EPIC, Continue to the review.
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  final field = sendField(label);
   await _reach(tester, field);
   await tester.enterText(field, text);
   await tester.pump(const Duration(milliseconds: 500));
@@ -160,16 +167,27 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 }
 
 Future<void> _toReview(WidgetTester tester) async {
-  await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
-  final amount = find.widgetWithText(TextField, 'Amount (EPIC)');
+  await _tap(tester, continueButton());
+  final amount = sendAmount();
   await _reach(tester, amount);
   await tester.enterText(amount, '1.5');
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
-  await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
+  await _tap(tester, continueButton());
 }
 
-bool _enabled(WidgetTester tester, Finder button) => tester.widget<ButtonStyleButton>(button).onPressed != null;
+bool _enabled(WidgetTester tester, Finder button) {
+  final w = tester.widget(button);
+  return w is KitButton ? w.onPressed != null : (w as ButtonStyleButton).onPressed != null;
+}
+
+/// The "…" menu, then Addresses: the sheet that holds them.
+Future<void> _openAddresses(WidgetTester tester) async {
+  await tester.tap(find.byKey(contactPageMoreKey));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(contactPageAddressesKey));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   group('contact page of a contact with only a pairing', () {
@@ -186,6 +204,8 @@ void main() {
         h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', state: state, caps: caps);
         await h.pump(tester, const ContactPage(contactId: 'c1'), net: net);
         expect(_enabled(tester, find.byKey(contactPageSendKey)), on);
+        expect(find.byKey(contactPageViaPairingKey), findsNothing);
+        await _openAddresses(tester);
         expect(find.byKey(contactPageViaPairingKey), findsOneWidget);
         expect(find.text(_l.contactNoAddressPaired), findsOneWidget);
         expect(find.text(_l.contactNoAddresses), findsNothing);
@@ -201,6 +221,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const ContactPage(contactId: 'c1'));
       expect(_enabled(tester, find.byKey(contactPageSendKey)), isFalse);
+      expect(find.text(_l.contactNoAddresses), findsNothing);
+      await _openAddresses(tester);
       expect(find.text(_l.contactNoAddresses), findsOneWidget);
       expect(find.byKey(contactPageViaPairingKey), findsNothing);
     });
@@ -212,23 +234,23 @@ void main() {
       h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: 'epicbox.epiccash.com');
       await h.openSend(tester, 'p1');
       expect(find.byKey(sendPairingCardKey), findsOneWidget);
-      expect(find.byKey(sendRecipientFieldKey), findsNothing);
+      expect(sendTo(), findsNothing);
       expect(find.text(_l.sendRecipientPairing('Anna', _l.sendRoutePairedInline)), findsOneWidget);
       expect(find.text(_l.sendRoutePaired), findsOneWidget);
       expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
       // No address, and no Link segment.
       expect(find.textContaining('@'), findsNothing);
       expect(find.text(MethodIcons.familyName(_l, MethodFamily.link)), findsNothing);
-      expect(_enabled(tester, find.widgetWithText(FilledButton, _l.commonContinue)), isTrue);
+      expect(_enabled(tester, continueButton()), isTrue);
       // The review names the contact through the pairing; Send goes through the mailbox.
       await _toReview(tester);
-      expect(find.text(_l.sendRecipientPairing('Anna', _l.sendRoutePairedInline)), findsOneWidget);
+      expect(find.textContaining('Anna'), findsWidgets);
       expect(find.textContaining('@'), findsNothing);
       expect(find.byKey(sendQueuedCardKey), findsNothing);
       await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC'));
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
-      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.phoneProgSent), findsOneWidget);
     });
 
     testWidgets('× goes back to the empty To field', (tester) async {
@@ -257,7 +279,7 @@ void main() {
       expect(find.byKey(sendQueuedHeadlineKey), findsOneWidget);
       expect(find.text(_l.sendQueuedBody('Anna')), findsOneWidget);
       // The send is still the step under way: it waits in the outbox.
-      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.phoneProgSent), findsOneWidget);
       expect(find.text(_l.contactPausedEpicboxOff), findsOneWidget);
       expect(find.text(_l.sendTrackWaitingFor('Anna')), findsNothing);
     });
@@ -272,7 +294,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(_l.contactKeysChangedTitle('Anna')), findsOneWidget);
       expect(find.byKey(sendPairingCheckKey), findsOneWidget);
-      expect(_enabled(tester, find.widgetWithText(FilledButton, _l.commonContinue)), isFalse);
+      expect(_enabled(tester, continueButton()), isFalse);
     });
   });
 
@@ -400,6 +422,7 @@ void main() {
       h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, peerEncKey: FakePairing.serviceKey, requestedRelay: moved);
       await h.session.pairing.refuseRelayMove('p1', moved);
       await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await openContactPairing(tester);
       await _reach(tester, find.byKey(contactPageMoveLineKey));
       expect(find.text(_l.contactMoveRefused(moved)), findsOneWidget);
       expect(find.byKey(contactPageMoveAskedKey), findsNothing);
@@ -411,6 +434,7 @@ void main() {
       final h = _Harness();
       h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', relay: old, requestedRelay: '192.168.1.20');
       await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await openContactPairing(tester);
       await _reach(tester, find.byKey(contactPageMoveLineKey));
       expect(find.text(_l.contactMoveNotPublic('192.168.1.20')), findsOneWidget);
       expect(find.byKey(contactPageMoveAcceptKey), findsNothing);
@@ -423,6 +447,7 @@ void main() {
       expect(p.homeRelay, moved);
       final date = localDayMonth(_l, p.movedAt!);
       await h.pump(tester, const ContactPage(contactId: 'c1'));
+      await openContactPairing(tester);
       await _reach(tester, find.byKey(contactPageMoveLineKey));
       expect(find.text(_l.contactMovedOn(date)), findsOneWidget);
       expect(find.byKey(contactPageMoveAskedKey), findsNothing);
@@ -436,7 +461,8 @@ void main() {
   group('mailbox first', () {
     final now = DateTime(2026, 11, 1, 12);
     final anna = 'es${'a' * 50}@epicbox.epiccash.com';
-    const relay = 'epicbox.epiccash.com';
+    // Not Anna's own server: the paired address and the public one differ (two rows).
+    const relay = 'relay.example.org';
     DateTime ago(Duration d) => now.subtract(d);
 
     /// Anna with her Epicbox address, paired with her card naming it.
@@ -483,7 +509,7 @@ void main() {
       await _tap(tester, sendButton);
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
-      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.phoneProgSent), findsOneWidget);
     });
 
     testWidgets('Seal off does not hide the selector', (tester) async {
@@ -543,14 +569,64 @@ void main() {
     });
 
     testWidgets('relay down on a shared server keeps the paired address, with the server line', (tester) async {
-      final h = paired(relayDown: true);
+      // The paired address and the public one are the same: one row, the line on it.
+      final h = paired(relayDown: true, homeRelay: 'epicbox.epiccash.com');
       await open(tester, h, anna);
-      expect(pairedOn(tester), isTrue);
-      expect(find.text(_l.sendRouteServerDown(relay)), findsOneWidget);
-      // The line stays on either option.
-      await flip(tester);
-      expect(pairedOn(tester), isFalse);
-      expect(find.text(_l.sendRouteServerDown(relay)), findsOneWidget);
+      expect(find.byKey(sendRouteKey), findsNothing);
+      expect(find.text(_l.sendRouteServerDown('epicbox.epiccash.com')), findsOneWidget);
+      expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
+    });
+
+    testWidgets('the same paired and public address: one row, no selector, no "New to you"', (tester) async {
+      final h = paired(homeRelay: 'epicbox.epiccash.com');
+      await open(tester, h, anna);
+      expect(find.byKey(sendRouteKey), findsNothing);
+      expect(find.text(_l.sendRoutePaired), findsNothing);
+      expect(find.text(_l.sendRoutePublic), findsNothing);
+      expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
+      // The payment still goes through the paired address.
+      await _toReview(tester);
+      await _tap(tester, sendButton);
+      expect(h.session.pairing.calls, contains('sendViaMailbox'));
+    });
+
+    testWidgets('different paired and public addresses: two rows', (tester) async {
+      final h = paired();
+      await open(tester, h, anna);
+      expect(find.byKey(sendRouteKey), findsOneWidget);
+      expect(find.text(_l.sendRoutePaired), findsOneWidget);
+      expect(find.text(_l.sendRoutePublic), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
+    });
+
+    testWidgets('Send from the contact (handed over) and the contact\'s face land on the same state', (tester) async {
+      final h = paired(homeRelay: 'epicbox.epiccash.com');
+      await h.pump(tester, SlotScaffold(appBar: AppBar(), body: SendView(onDone: () {})), now: now);
+      // The contact page's Send: the address, handed over to Send already open.
+      h.container(tester).read(sendRecipientProvider.notifier).hand(anna);
+      await tester.pumpAndSettle();
+      // The amount step with Anna's name, no raw address, no "New to you".
+      expect(sendTo(), findsNothing);
+      expect(find.text('Max'), findsOneWidget);
+      expect(find.text('To Anna'), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
+      expect(find.textContaining('aaaaaaaaaa', findRichText: true), findsNothing);
+    });
+
+    testWidgets('Send from the contact, opening Send fresh: the contact\'s name, the amount', (tester) async {
+      final h = paired(homeRelay: 'epicbox.epiccash.com');
+      await h.pump(tester, SlotScaffold(appBar: AppBar(), body: const SizedBox()), now: now);
+      // Contacts › Send runs with the contacts already loaded.
+      await h.container(tester).read(contactsProvider.future);
+      h.container(tester).read(sendRecipientProvider.notifier).hand(anna);
+      unawaited(Navigator.of(tester.element(find.byType(SlotScaffold))).push(
+        MaterialPageRoute<void>(builder: (_) => SlotScaffold(appBar: AppBar(), body: SendView(onDone: () {}))),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('Max'), findsOneWidget);
+      expect(find.text('To Anna'), findsOneWidget);
+      expect(find.textContaining(_l.phoneSendNewToYou, findRichText: true), findsNothing);
     });
 
     testWidgets('relay down on its own server picks the public address, with the reason', (tester) async {

@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../trust_ids.dart';
@@ -33,6 +34,10 @@ import '../../../ui/network_mode_text.dart' show networkModeName, statusOffByMod
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../../../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../../../scan/scan_router.dart' show EpicUri;
+import '../../../l10n.dart' show LocalizedFormatException;
+import '../../../models.dart' show slateMessageMaxBytes;
+import '../../../utf8_limit.dart';
 
 enum RxEpicbox { on, off, down, blocked }
 
@@ -68,6 +73,124 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   String? _http;
   String? _tor;
   final Set<TxMethod> _busy = {};
+
+  /// Ask for an amount: the fields are open, and what they hold. A valid amount puts the
+  /// address with it in the code, as a link to copy.
+  bool _askOpen = false;
+  final _askAmount = TextEditingController();
+  final _askNote = TextEditingController();
+
+  @override
+  void dispose() {
+    _askAmount.dispose();
+    _askNote.dispose();
+    super.dispose();
+  }
+
+  /// The amount typed under Ask for an amount; null while it is empty, zero or refused.
+  int? get _askValue {
+    if (_askAmount.text.trim().isEmpty) return null;
+    try {
+      final v = parseEpicIn(context.l10n, _askAmount.text);
+      return v > 0 ? v : null;
+    } on LocalizedFormatException {
+      return null;
+    }
+  }
+
+  /// [addr] with the asked amount as an `epic:` link, or null when the fields are closed or hold
+  /// no amount: the code then stays the plain address.
+  String? _askLink(String? addr) {
+    final amount = _askOpen ? _askValue : null;
+    if (addr == null || addr.isEmpty || amount == null) return null;
+    return EpicUri.build(addr, amount: BigInt.from(amount), note: _askNote.text.trim());
+  }
+
+  Widget _askBlock(String? addr) {
+    final l = context.l10n;
+    final ts = context.ts;
+    if (addr == null || addr.isEmpty) return const SizedBox.shrink();
+    if (!_askOpen) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: EButton(
+          key: const ValueKey('rx-ask-open'),
+          label: l.deskRecvAskOpen,
+          icon: EIcons.request,
+          size: EBtnSize.sm,
+          onPressed: () => setState(() => _askOpen = true),
+        ),
+      );
+    }
+    final link = _askLink(addr);
+    final bad = _askAmount.text.trim().isNotEmpty && _askValue == null;
+    return Column(
+      key: const ValueKey('rx-ask'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        EField(
+          label: l.deskRecvAskAmount,
+          child: EInput(
+            key: const ValueKey('rx-ask-amount'),
+            controller: _askAmount,
+            mono: true,
+            invalid: bad,
+            hint: '0',
+            semanticLabel: l.deskRecvAskAmount,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+            onChanged: (_) => setState(() {}),
+            trailing: Text(epicUnit, style: ts.small.copyWith(color: context.dc.dim)),
+          ),
+        ),
+        SizedBox(height: Sp.x3),
+        EField(
+          label: l.deskRecvAskNote,
+          optional: true,
+          child: EInput(
+            key: const ValueKey('rx-ask-note'),
+            controller: _askNote,
+            semanticLabel: l.deskRecvAskNote,
+            inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
+            onChanged: (_) => setState(() {}),
+          ),
+        ),
+        SizedBox(height: Sp.x3),
+        if (link != null) ...[
+          Text(l.deskRecvAskHint, key: const ValueKey('rx-ask-hint'), style: ts.small),
+          SizedBox(height: Sp.x3),
+        ],
+        Wrap(
+          spacing: Sp.x3,
+          runSpacing: Sp.x2,
+          children: [
+            EButton(
+              key: const ValueKey('rx-ask-copy'),
+              label: l.deskRecvAskCopy,
+              icon: EIcons.copy,
+              size: EBtnSize.sm,
+              onPressed: link == null
+                  ? null
+                  : () async {
+                      await Clipboard.setData(ClipboardData(text: link));
+                      if (mounted) showEToast(context, l.deskRecvAskCopied, tone: ETone.ok);
+                    },
+            ),
+            EButton.ghost(
+              key: const ValueKey('rx-ask-close'),
+              label: l.deskRecvAskClose,
+              size: EBtnSize.sm,
+              onPressed: () => setState(() {
+                _askOpen = false;
+                _askAmount.clear();
+                _askNote.clear();
+              }),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
   final Map<TxMethod, GlobalKey> _panels = {for (final m in TxMethod.values) m: GlobalKey()};
 
   @override
@@ -211,7 +334,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     // epic1 mode: the link card and In person; no Epicbox address, Link or file rows.
-    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) {
+    if (ref.watch(deskReceiveModeProvider) == PaymentMode.epic1) {
       final box = status?.epicbox;
       return EPage(
         title: l.deskRecvTitle,
@@ -516,6 +639,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           SizedBox(height: Sp.x4),
           if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
           if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), EpicboxDownNotice(sentence: false, status: status)],
+          SizedBox(height: Sp.x4),
+          _askBlock(addr),
         ],
         // Invoices: ask a paired contact to pay.
         if (ref.watch(deskInvoicesShownProvider) && ref.watch(deskPairsProvider)) ...[
@@ -540,7 +665,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final qr = addr == null || addr.isEmpty
         ? SizedBox(width: 184.u, height: 184.u)
         : EQrReveal(
-            address: addr,
+            address: _askLink(addr) ?? addr,
             form: QrRevealForm.covered,
             title: l.deskRecvEpicboxAddress,
             tag: tag,
@@ -672,6 +797,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           Text(l.deskRecvCheckSix, style: ts.caption),
           SizedBox(height: Sp.x4),
           if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
+          SizedBox(height: Sp.x4),
+          _askBlock(addr),
           if (moved != null) ...[
             SizedBox(height: Sp.x3),
             EDetails(
@@ -689,7 +816,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final qr = addr == null || addr.isEmpty || noServer
         ? SizedBox(width: 184.u, height: 184.u)
         : EQrReveal(
-            address: addr,
+            address: _askLink(addr) ?? addr,
             form: QrRevealForm.covered,
             title: l.deskLvSendYourAddress,
             method: 'epicbox',

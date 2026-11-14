@@ -433,10 +433,6 @@
       }
     }
   },
-  "deskKitNodeDownTitle": "Node not answering.",
-  "@deskKitNodeDownTitle": {
-    "description": "Title of the notice on the node card when the node does not answer."
-  },
   "deskKitNodeDownHead": "Node not answering",
   "@deskKitNodeDownHead": {
     "description": "Node card notice title: the node does not answer. A title: no period."
@@ -531,10 +527,6 @@
   "@deskKitMethodWaitingTor": {
     "description": "Bold status word of the Epicbox line (Receive, Settings › Receiving): waits until Tor is connected."
   },
-  "deskKitMethodOn": "On",
-  "@deskKitMethodOn": {
-    "description": "Bold status word of a receiving method line: working. One short word."
-  },
   "deskKitMethodOverTor": "{host}, over Tor",
   "@deskKitMethodOverTor": {
     "description": "Detail of the Epicbox status line: the connection goes through Tor. {host} is the Epicbox server.",
@@ -552,17 +544,9 @@
   "@deskKitMethodEpicboxOffDetail": {
     "description": "Detail of the Epicbox status line when Epicbox is off."
   },
-  "deskKitMethodConnecting": "Connecting",
-  "@deskKitMethodConnecting": {
-    "description": "Bold status word of the Epicbox status line: connecting."
-  },
   "deskKitMethodSlow": "Slow",
   "@deskKitMethodSlow": {
     "description": "Bold status word of the Epicbox status line: the server answers slowly."
-  },
-  "deskKitMethodNotAnswering": "Not answering",
-  "@deskKitMethodNotAnswering": {
-    "description": "Bold status word of the Epicbox status line: the server does not answer."
   },
   "deskKitMethodEpicboxDown": "{host}. Payments wait on the Epicbox server.",
   "@deskKitMethodEpicboxDown": {
@@ -576,10 +560,6 @@
   "deskKitMethodHttpOffDetail": "Straight from another wallet while this one is open.",
   "@deskKitMethodHttpOffDetail": {
     "description": "Detail of the HTTP status line when HTTP is off: how HTTP payments work."
-  },
-  "deskKitMethodStarting": "Starting…",
-  "@deskKitMethodStarting": {
-    "description": "Bold status word of the HTTP status line: the listener is starting."
   },
   "deskKitMethodHttpInternet": "from the internet, port {port}",
   "@deskKitMethodHttpInternet": {
@@ -624,18 +604,6 @@
   "@deskKitMethodTorOffDetail": {
     "description": "Detail of the Tor status line when Tor is off: what Tor means for the user."
   },
-  "deskKitMethodTorPublishing": "Publishing the Tor address…",
-  "@deskKitMethodTorPublishing": {
-    "description": "Bold status word of the Tor status line: Tor is up and the address is being published."
-  },
-  "deskKitMethodTorConnecting": "Connecting to Tor…",
-  "@deskKitMethodTorConnecting": {
-    "description": "Bold status word of the Tor status line while Tor connects; the detail is a percentage."
-  },
-  "deskKitMethodTorOnDetail": "reachable at the Tor address",
-  "@deskKitMethodTorOnDetail": {
-    "description": "Detail of the Tor status line when Tor works."
-  },
   "deskKitMethodTorNotPublished": "Not published",
   "@deskKitMethodTorNotPublished": {
     "description": "Bold status word of the Tor status line: Tor runs but the receiving address is not published yet."
@@ -652,10 +620,6 @@
   "deskKitMethodTorNotReachableYet": "The Tor address is not reachable yet",
   "@deskKitMethodTorNotReachableYet": {
     "description": "Default reason inside the Tor status line when the core gave none."
-  },
-  "deskKitMethodTorStopped": "Stopped",
-  "@deskKitMethodTorStopped": {
-    "description": "Bold status word of the Tor status line: Tor stopped."
   },
   "deskKitMethodTorStoppedDetail": "Tor stopped.",
   "@deskKitMethodTorStoppedDetail": {
@@ -751,10 +715,6 @@
   "deskKitQrHideCode": "Hide QR",
   "@deskKitQrHideCode": {
     "description": "Screen-reader label of the button that hides the QR code."
-  },
-  "deskKitMethodConnected": "Connected",
-  "@deskKitMethodConnected": {
-    "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
   },
   "deskKitReachTorOff": "The check needs Tor off.",
   "@deskKitReachTorOff": {

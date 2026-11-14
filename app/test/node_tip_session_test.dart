@@ -123,4 +123,54 @@ void main() {
       expect(outcome(tor: true), isA<NodeTip>());
     });
   });
+
+  group('the header tip is bounded by the probe budget', () {
+    /// What the header tip reads for a tip that takes [after], with the switch [tor].
+    Object? tipOf(Duration after, {required bool tor, String nodeUrl = 'https://node.example'}) {
+      Object? result;
+      fakeAsync((async) {
+        TorSwitch.on = tor;
+        final slow = _SlowNode(after);
+        final c = ProviderContainer(
+          overrides: [walletServiceProvider.overrideWithValue(slow)],
+          retry: (_, _) => null,
+        );
+        c.read(walletConfigProvider.notifier).select(
+          WalletConfig(
+            dataDir: config.dataDir,
+            chain: config.chain,
+            nodeUrl: nodeUrl,
+            epicboxDomain: config.epicboxDomain,
+            epicboxPort: config.epicboxPort,
+          ),
+        );
+        c.read(sessionProvider.notifier).unlocked(slow.session);
+        final sub = c.listen(nodeTipProvider, (_, _) {});
+        c.read(nodeTipProvider.future).then<void>(
+          (tip) {
+            result = tip;
+          },
+          onError: (Object e) {
+            result = e;
+          },
+        );
+        async.elapse(after + const Duration(seconds: 1));
+        sub.close();
+        c.dispose();
+      });
+      TorSwitch.on = false;
+      return result;
+    }
+
+    test('directly, a tip that never comes in 8 s is an error, not the old value', () {
+      expect(tipOf(const Duration(seconds: 10), tor: false), isA<TimeoutException>());
+      expect(tipOf(const Duration(seconds: 5), tor: false), isA<NodeTip>());
+    });
+
+    test('over Tor the budget is 30 s; a node on this computer keeps the direct one', () {
+      expect(tipOf(const Duration(seconds: 20), tor: true), isA<NodeTip>());
+      expect(tipOf(const Duration(seconds: 35), tor: true), isA<TimeoutException>());
+      expect(tipOf(const Duration(seconds: 10), tor: true, nodeUrl: 'http://127.0.0.1:3413'), isA<TimeoutException>());
+    });
+  });
 }

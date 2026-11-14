@@ -18,11 +18,14 @@ import '../../contact_label.dart';
 import '../contact_label_mark.dart';
 import '../contact_page.dart' show contactInitials;
 import '../info_hint.dart';
+import '../kit/kit_avatar.dart';
+import '../kit/kit_group.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_tokens.dart';
 import '../notices.dart' show InlineNotice, NoticeLevel;
 import '../sas_picture.dart';
 import '../status_icons.dart';
-import '../theme/brand.dart';
-import '../theme/protocol.dart';
+import '../theme/epic1_mark.dart' show Epic1Text;
 import '../theme/tokens.dart';
 
 /// The tile sizes: the words check on the phone, the pairing words, a desktop panel.
@@ -163,12 +166,10 @@ class _WordTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(t.radiusSmall),
           boxShadow: [BoxShadow(color: t.accent.withValues(alpha: dark ? 0.14 : 0.08), blurRadius: side * 0.35, spreadRadius: -side * 0.08)],
         ),
-        child: CustomPaint(
-          foregroundPainter: CornerTicksPainter(t.tick, length: 8, width: 2),
-          child: Center(
-            // The bundled picture, the same on every system; the tile's label says its name.
-            child: SasPicture(w, size: side * 0.6, excludeFromSemantics: true),
-          ),
+        // Corner marks belong to QR, camera, Scan, the needs-you card and the brand tile only.
+        child: Center(
+          // The bundled picture, the same on every system; the tile's label says its name.
+          child: SasPicture(w, size: side * 0.6, excludeFromSemantics: true),
         ),
       );
     }
@@ -313,7 +314,7 @@ class SealedBadge extends StatelessWidget {
   }
 }
 
-/// A contact's avatar: its initials in a corner-ticked tile, in the accent's text colour.
+/// A contact's avatar: the frames' plain initials tile ([KitAvatar]) at [size], with the label mark.
 class PairAvatar extends StatelessWidget {
   const PairAvatar({
     super.key,
@@ -340,19 +341,7 @@ class PairAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    final tile = GlyphTile(
-      size: size,
-      child: Text(
-        contactInitials(name),
-        style: TextStyle(
-          fontFamily: t.headFamily,
-          fontSize: size * 0.35,
-          fontWeight: FontWeight.w600,
-          color: t.accentText,
-        ),
-      ),
-    );
+    final tile = KitAvatar(initials: contactInitials(name), size: size);
     return AvatarLabelMark(avatar: tile, size: size, label: label, onTap: onLabelTap, hit: labelHit, tip: labelTip);
   }
 }
@@ -399,7 +388,6 @@ class _PairCountdownState extends ConsumerState<PairCountdown> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = _l10n(context);
-    final theme = Theme.of(context);
     final left = widget.until.difference(ref.watch(pairingClockProvider)());
     final last = left < const Duration(minutes: 1);
     final color = last ? t.warn : t.info;
@@ -416,13 +404,13 @@ class _PairCountdownState extends ConsumerState<PairCountdown> {
           const SizedBox(width: 8),
           if (last && widget.lastMinute != null)
             Expanded(
-              child: Text(widget.lastMinute!, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: t.text)),
+              child: Text(widget.lastMinute!, style: KitType.rowTitle.copyWith(color: t.text)),
             )
           else if (widget.label != null)
             Expanded(
-              child: Text(widget.label!, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: t.text)),
+              child: Text(widget.label!, style: KitType.rowTitle.copyWith(color: t.text)),
             ),
-          Text(time, style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: last ? t.warn : t.dim)),
+          Text(time, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: last ? t.warn : t.dim)),
         ],
       ),
     );
@@ -466,34 +454,15 @@ class _PairTimeLeftState extends ConsumerState<PairTimeLeft> {
   }
 }
 
-/// A card of rows with hairlines between them, as the pairing block and the settings use.
+/// A card of rows with hairlines between them, as the pairing block and the settings use: a
+/// kit group on the screen's own gutter.
 class PairCard extends StatelessWidget {
   const PairCard({super.key, required this.children});
 
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    // A Material, not a decorated box: the rows are list tiles whose ink paints on it.
-    return Material(
-      color: t.surface,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: t.line),
-        borderRadius: BorderRadius.circular(t.radius),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) Divider(height: 1, thickness: 1, color: t.line),
-            children[i],
-          ],
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => KitGroup(margin: EdgeInsets.zero, dividerInset: Kit.dividerInsetPlain, children: children);
 }
 
 /// A switch row: the label with its info icon (the sheet holds the explanation), a hint under
@@ -521,14 +490,13 @@ class PairSwitchRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final theme = Theme.of(context);
     final on = onChanged;
     // Not merged: a screen reader reaches the info button on its own, and the switch carries
     // the row's label and hint.
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 56),
+      constraints: const BoxConstraints(minHeight: Kit.rowSettings),
       child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 8, 4),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 14, 4),
         child: Row(
           children: [
             Expanded(
@@ -540,14 +508,14 @@ class PairSwitchRow extends StatelessWidget {
                     children: [
                       Flexible(
                         child: ExcludeSemantics(
-                          child: Text(label, style: theme.textTheme.bodyLarge?.copyWith(color: on == null ? t.dim : t.text)),
+                          child: Text(label, style: KitType.rowTitle.copyWith(color: on == null ? t.dim : t.text)),
                         ),
                       ),
                       if (info.isNotEmpty) InfoHint(info, title: label),
                     ],
                   ),
                   if (hint case final h?)
-                    ExcludeSemantics(child: Text(h, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))),
+                    ExcludeSemantics(child: Text(h, style: KitType.rowSub.copyWith(color: t.dim))),
                 ],
               ),
             ),
@@ -555,7 +523,7 @@ class PairSwitchRow extends StatelessWidget {
               label: label,
               hint: hint,
               // Disabled reads as disabled: not the accent of a switch that can be used.
-              child: Opacity(opacity: on == null ? 0.38 : 1, child: Switch(key: switchKey, value: value, onChanged: on)),
+              child: Opacity(opacity: on == null ? 0.38 : 1, child: KitSwitch(key: switchKey, value: value, onChanged: on)),
             ),
           ],
         ),
@@ -606,7 +574,7 @@ class PairEdgeNotice extends StatelessWidget {
   );
 }
 
-/// Text to send in a box: mono where it is a link, selectable.
+/// Text to send in a box: mono where it is a link, selectable, on the kit's quiet ground.
 class ShareBox extends StatelessWidget {
   const ShareBox({super.key, required this.text, this.label});
 
@@ -616,21 +584,17 @@ class ShareBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (label case final lb?) ...[
-          Text(lb, style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
+          Text(lb, style: KitType.rowSub.copyWith(color: t.dim)),
           const SizedBox(height: 6),
         ],
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: t.well,
-          child: SelectableText(
-            text,
-            style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily, fontSize: 12.5, height: 1.45),
-          ),
+          decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(Kit.rButtonSmall)),
+          child: SelectableText(text, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.text, height: 1.45)),
         ),
       ],
     );
@@ -644,8 +608,7 @@ class PairSmallPrint extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) =>
-      Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim));
+  Widget build(BuildContext context) => Text(text, style: KitType.rowSub.copyWith(color: context.tokens.dim));
 }
 
 /// A screen's lead paragraph.
@@ -655,10 +618,10 @@ class PairLead extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => Text(text, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: context.tokens.dim));
+  Widget build(BuildContext context) => Text(text, style: KitType.body.copyWith(color: context.tokens.dim));
 }
 
-/// A section head with the gold rule, as `ProtocolSectionHead`, with room above it.
+/// A group label on a flow step: the kit's small caps head, with room above it.
 class PairSection extends StatelessWidget {
   const PairSection(this.title, {super.key, this.trailing});
 
@@ -667,7 +630,14 @@ class PairSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 20, bottom: 10),
-    child: ProtocolSectionHead(title, trailing: trailing),
+    padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
+    child: Row(
+      children: [
+        Expanded(
+          child: Semantics(header: true, child: Epic1Text(title, style: KitType.groupLabel.copyWith(color: context.tokens.dim))),
+        ),
+        ?trailing,
+      ],
+    ),
   );
 }

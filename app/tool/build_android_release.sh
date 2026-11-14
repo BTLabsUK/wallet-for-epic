@@ -95,9 +95,8 @@ if [[ $tor == 1 && $dist == fdroid ]]; then
   abis_tor=arm64-v8a
   [[ ${#emulator[@]} -gt 0 ]] && abis_tor="arm64-v8a x86_64"
   TOR_ANDROID_ABIS="$abis_tor" "$app_dir/../tools/build-tor-android.sh" "$tor_libs"
-elif [[ $tor == 1 ]]; then
-  "$app_dir/../tools/fetch-tor.sh" android "$tor_libs"
 fi
+# Any other build with Tor: android/app/build.gradle.kts fetches tor itself and checks the APK.
 "$app_dir/../tools/lepic.sh" sync
 # The F-Droid build must come out the same on F-Droid's build server: without this, LEPIC's
 # library names every crate's source path under this host's cargo home (panic locations).

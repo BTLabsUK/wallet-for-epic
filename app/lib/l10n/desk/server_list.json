@@ -12,10 +12,6 @@
   "@deskSlInUse": {
     "description": "First fact of the row of the server in use, in the Node or Epicbox list."
   },
-  "deskSlHealthUnknown": "Status unknown",
-  "@deskSlHealthUnknown": {
-    "description": "A row's health when the status site has nothing on the server."
-  },
   "deskSlNodeNoAnswer": "No answer from this node. Nothing added.",
   "@deskSlNodeNoAnswer": {
     "description": "Under the Node list's field: the typed node did not answer its test, so it was not added."

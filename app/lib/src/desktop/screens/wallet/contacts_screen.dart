@@ -1855,8 +1855,6 @@ class _ContactMoreMenu extends StatelessWidget {
     );
   }
 }
-const Key deskPairHintKey = ValueKey('desk-pair-hint');
-const Key deskPairLearnKey = ValueKey('desk-pair-learn');
 
 /// Pair in the Contacts header.
 class DeskContactsPairButton extends ConsumerWidget {

@@ -10,6 +10,9 @@
 /// After a move the old relay is drained for [relayDrainWindow] ([relayDrainWatchProvider]),
 /// so payments sent to the old address still arrive.
 ///
+/// It runs at every wallet level, level 1 included: the phone has no levels, and moving relays
+/// automatically was allowed by the owner on 2026-11-02 (see levels/level_providers.dart).
+///
 /// Both notifiers run while something listens: `app.dart` keeps them alive beside node
 /// failover and calls [RelaySwitchNotifier.paused] / [RelaySwitchNotifier.resumed].
 library;
@@ -36,7 +39,6 @@ import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../ui/status.dart' show EpicboxState;
 import '../wallet_service.dart';
-import 'level_providers.dart' show levelFeaturesProvider;
 import 'relay_switch.dart';
 
 /// How often the offer is looked at again while the relay stays down (the other relays' health
@@ -109,8 +111,6 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
   RelaySwitchOffer? build() {
     ref.watch(sessionProvider);
     ++_build;
-    // Level 1 only ([LevelFeatures.relaySwitchPrompt]): the other levels pick servers by hand.
-    final prompt = ref.watch(levelFeaturesProvider.select((f) => f.relaySwitchPrompt));
     _since = null;
     _keptWaitingAt = null;
     ref.onDispose(() {
@@ -118,7 +118,6 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
       _stable?.cancel();
       _timer = _stable = null;
     });
-    if (!prompt) return null;
     ref.listen(walletStatusProvider.select((s) => s.epicbox), (_, _) => _follow());
     ref.listen(listenerProvider.select((l) => l.lost), (_, _) => _follow());
     // A relay already down when the wallet opened counts from now (after the build: the state

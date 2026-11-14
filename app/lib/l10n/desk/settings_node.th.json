@@ -13,7 +13,6 @@
   "deskSetNodeGroupComputer": "คอมพิวเตอร์นี้",
   "deskSetNodeServer": "เซิร์ฟเวอร์โหนด",
   "deskSetNodeServerHint": "โหนดที่กระเป๋าเงินใช้อ่านบล็อกเชนและส่งธุรกรรม",
-  "deskSetNodeChecking": "กำลังตรวจโหนด…",
   "deskSetNodeBackground": "ซิงก์เบื้องหลัง",
   "deskSetNodeBackgroundHint": "เมื่อปิดหน้าต่าง โหนดยังซิงก์ต่อ และแอปจะอยู่ในถาดระบบ",
   "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",

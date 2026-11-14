@@ -276,7 +276,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.ul(['**Węzeł publiczny** (domyślnie): jeden z publicznych węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta.', '**Węzeł lokalny**: działa na tym komputerze jako osobny program, który uruchamia się i zatrzymuje razem z aplikacją. Najpierw pobiera cały łańcuch, potem codziennie trochę; na dysku zajmuje około 5 GB i powoli rośnie. Gdy się synchronizuje, portfel pokazuje jego postęp i używa węzła publicznego. Zobacz „Uruchamianie węzła lokalnego”.']),
         if (phone)
-          HelpBlock.p('Dotknij ikony węzła na karcie Portfel, aby zobaczyć stan węzła i przełączyć się na inny. Wysyłanie wymaga zsynchronizowanego węzła; stan taki jak **12 w tyle** lub **Nie odpowiada** oznacza, że trzeba wybrać inny. Aby dodać węzeł po adresie, otwórz $nodePlace i wpisz adres w polu nad listą.')
+          HelpBlock.p('Dotknij ikony węzła na karcie Portfel, aby zobaczyć stan węzła i przełączyć się na inny. Wysyłanie wymaga zsynchronizowanego węzła; przy stanie takim jak **12 w tyle** lub **Nie odpowiada** portfel sam przechodzi na inny węzeł z twojej listy, chyba że automatyczna zmiana węzła jest wyłączona: wtedy trzeba wybrać inny. Aby dodać węzeł po adresie, otwórz $nodePlace i wpisz adres w polu nad listą.')
         else
           HelpBlock.p('Zmienisz go w $nodePlace: węzły są wymienione wraz ze stanem. Kliknij jednego, aby od razu przełączyć się na niego, albo wpisz adres, aby przefiltrować listę lub dodać węzeł. Wysyłanie wymaga zsynchronizowanego węzła; gdy węzeł zostaje w tyle, portfel proponuje inny.'),
       ],
@@ -395,7 +395,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           'Tutaj płatność pokaże **Do wysłania z innego urządzenia**, a po wyjściu z trybu i gdy portfel zobaczy ją w łańcuchu, **Potwierdzanie**.',
         ]),
         HelpBlock.p('Usługi wyłączone przez tryb są szare jako **Wyłączone (Tylko węzeł)**: to tryb, nie błąd. Przy przełączaniu nic nie jest anulowane; płatność czekająca na odbiorcę przez Epicbox wznawia się po wyjściu z trybu${tor ? ' (lub po przejściu na Tylko Tor)' : ''}.'),
-        HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybach Tylko węzeł i Wyłącznik awaryjny${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}${tor ? ', a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor' : ''}.'),
+        HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł przestaje odpowiadać lub zostaje w tyle, portfel przechodzi na najlepszy działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Gdy żaden węzeł z listy nie odpowiada, portfel próbuje dalej i łączy się, gdy tylko któryś odpowie. Nigdy nie zmienia węzła w trybach Tylko węzeł i Wyłącznik awaryjny${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}${tor ? ', a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -513,19 +513,17 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         id: HelpId.cleanup,
       ),
     HelpTopic(
-      'maintenance',
-      'Plik ustawień',
-      'Jeden plik zawiera Twoje listy węzłów i serwerów Epicbox. Błąd w nim nigdy nie kosztuje ostatnich dobrych ustawień.',
+      phone ? 'network' : 'maintenance',
+      phone ? 'Listy serwerów' : 'Plik ustawień',
+      phone ? 'Z którego węzła i serwera Epicbox korzysta portfel.' : 'Jeden plik zawiera Twoje listy węzłów i serwerów Epicbox. Błąd w nim nigdy nie kosztuje ostatnich dobrych ustawień.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'Aplikacja prowadzi plik z Twoimi listami węzłów i serwerów Epicbox oraz trzema przełącznikami: strona stanu, sprawdzanie aktualizacji i ceny. Wszystko inne przychodzi z aplikacją. Plik zmienia się w aplikacji, na przykład w $nodePlace i $epicboxPlace, nie ręcznie.',
+            'Listy węzłów i serwerów Epicbox zmienia się w $nodePlace i $epicboxPlace.',
           ),
           HelpBlock.ul([
             '**Pierwszy serwer każdej listy jest tym używanym.** Wybrany serwer przechodzi na górę; zmiana kolejności zmienia używany. Gdy pierwszy węzeł nie odpowiada, próbowany jest następny.',
             '**Pierwszy serwer Epicbox jest w adresie Epicbox każdego portfela.** Gdy na górę trafi inny, każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
-            '**Plik, którego nie da się odczytać:** ostatnie dobre ustawienia pozostają w użyciu. Zanim aplikacja zapisze nowy plik, zachowuje stary jako **settings.toml.bad-<time>**.',
-            'Usunięty plik jest zapisywany ponownie.',
           ]),
         ] else ...[
           HelpBlock.p(

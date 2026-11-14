@@ -23,6 +23,7 @@ import '../settings.dart';
 import '../slate_files.dart';
 import '../epic1.dart' show Epic1Wallet, PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
 import 'devices/device_parts.dart' show openLinkDevice;
+import 'common.dart' show popToShell;
 import 'epic1/epic1_common.dart' show showEpic1ModeSheet;
 import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 import 'in_person/in_person_entry.dart' show openInPersonText;
@@ -280,10 +281,10 @@ Future<void> _showSlateText(BuildContext context, String text) async {
   );
 }
 
-/// The Send tab, with every screen over the shell closed.
+/// The Send flow over the shell, with every screen over the shell closed first.
 void showSendTab(BuildContext context, WidgetRef ref) {
-  ref.read(shellTabProvider.notifier).go(ShellTab.send);
-  Navigator.of(context).popUntil((route) => route.isFirst);
+  ref.read(shellFlowProvider.notifier).open(ShellFlow.send);
+  popToShell(Navigator.of(context));
 }
 
 /// A payment link came while another screen is open: nothing closes; Open in the notice

@@ -17,9 +17,16 @@ import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
 import '../../settings.dart' show autoLockHoldProvider, clockProvider;
 import '../common.dart';
-import '../pairing/pairing_parts.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_chip.dart';
+import '../kit/kit_group.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_tokens.dart';
+import '../pairing/pair_flow.dart';
+import '../pairing/pairing_parts.dart' show WordTileSize, WordTiles;
 import '../scan_screen.dart' show ScanCode, qrScannerProvider;
-import '../theme/logo_qr.dart';
+import '../../trust_ids.dart';
 import '../theme/tokens.dart';
 import 'device_parts.dart';
 
@@ -33,6 +40,7 @@ const Key linkReplaceKey = ValueKey('link-replace');
 const Key linkRetryKey = ValueKey('link-retry');
 const Key linkPasteAnotherKey = ValueKey('link-paste-another');
 const Key linkConfirmKey = ValueKey('link-confirm');
+const Key linkCopyKey = ValueKey('link-copy');
 
 class LinkDeviceScreen extends ConsumerStatefulWidget {
   const LinkDeviceScreen({super.key, this.code, this.openCamera = true, this.confirm = false});
@@ -150,175 +158,191 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
     final flow = view?.link;
     final active = flow != null && flow.phase != LinkPhase.done && flow.phase != LinkPhase.failed;
     if (flow?.phase == LinkPhase.done) _closeSoon();
+    final (:children, :bottom) = switch (flow) {
+      _ when view == null || !view.supported => (children: [PairNote(l.devicesUnsupported)], bottom: null),
+      null when _toConfirm != null => _confirm(context, _toConfirm!),
+      null => _start(context),
+      LinkFlow(phase: LinkPhase.starting) => _wait(context, null),
+      LinkFlow(phase: LinkPhase.waiting, role: LinkRole.shows) => _showCode(context, flow),
+      LinkFlow(phase: LinkPhase.waiting, otherName: final name?) => _wait(context, l.linkWaitingFor(name)),
+      LinkFlow(phase: LinkPhase.waiting) => _wait(context, l.linkWaiting),
+      LinkFlow(phase: LinkPhase.linking) => _linking(context, flow),
+      LinkFlow(phase: LinkPhase.done) => _done(context, flow),
+      LinkFlow(phase: LinkPhase.failed) => _failed(context, flow),
+    };
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         // Leaving mid-way ends the link on both sides; a finished one stays.
         if (didPop && active) _service?.cancelLink();
         if (didPop && !active) _service?.closeLink();
       },
-      child: SlotScaffold(
-        appBar: AppBar(title: Text(l.devicesLink)),
+      child: PairFlowPage(
+        title: l.devicesLink,
+        leadingId: TrustIds.linkdevClose,
         idle: active && flow.phase != LinkPhase.linking ? const SlotProgress(label: '') : null,
-        body: switch (flow) {
-          _ when view == null || !view.supported => _message(context, l.devicesUnsupported),
-          null when _toConfirm != null => _confirm(context, _toConfirm!),
-          null => _start(context),
-          LinkFlow(phase: LinkPhase.starting) => _wait(context, null),
-          LinkFlow(phase: LinkPhase.waiting, role: LinkRole.shows) => _showCode(context, flow),
-          LinkFlow(phase: LinkPhase.waiting, otherName: final name?) => _wait(context, l.linkWaitingFor(name)),
-          LinkFlow(phase: LinkPhase.waiting) => _wait(context, l.linkWaiting),
-          LinkFlow(phase: LinkPhase.linking) => _linking(context, flow),
-          LinkFlow(phase: LinkPhase.done) => _done(context, flow),
-          LinkFlow(phase: LinkPhase.failed) => _failed(context, flow),
-        },
+        bottom: bottom,
+        children: children,
       ),
     );
   }
-
-  Widget _message(BuildContext context, String text) => ScreenBody(children: [PairLead(text)]);
 
   /// An invite that came in as a link: the user chooses to answer it.
-  Widget _confirm(BuildContext context, String invite) {
+  _Step _confirm(BuildContext context, String invite) {
     final l = context.l10n;
-    return ScreenBody(
-      bottom: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          FilledButton(
-            key: linkConfirmKey,
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: _busy
-                ? null
-                : () {
-                    setState(() => _toConfirm = null);
-                    unawaited(_run((s) => s.startScanned(_invite(invite))));
-                  },
-            child: Text(l.linkGo),
-          ),
-          const SizedBox(height: 8),
-          TextButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(l.commonCancel)),
-        ],
-      ),
-      children: [PairLead(l.linkConfirmInvite)],
+    return (
+      children: [PairNote(l.linkConfirmInvite)],
+      bottom: _Buttons([
+        KitButton(
+          key: linkConfirmKey,
+          label: l.linkGo,
+          semanticsId: TrustIds.linkdevConfirm,
+          onPressed: _busy
+              ? null
+              : () {
+                  setState(() => _toConfirm = null);
+                  unawaited(_run((s) => s.startScanned(_invite(invite))));
+                },
+        ),
+        KitButton(
+          label: l.commonCancel,
+          kind: KitButtonKind.quiet,
+          semanticsId: TrustIds.linkdevConfirmCancel,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ]),
     );
   }
 
-  Widget _cancelButton(BuildContext context) => OutlinedButton(
+  Widget _cancelButton(BuildContext context) => KitButton(
     key: linkCancelKey,
-    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+    label: context.l10n.commonCancel,
+    kind: KitButtonKind.quiet,
+    semanticsId: TrustIds.linkdevCancel,
     onPressed: _cancel,
-    child: Text(context.l10n.commonCancel),
   );
 
   /// A wait with a Cancel: answering, or the other device's turn.
-  Widget _wait(BuildContext context, String? text) => ScreenBody(
-    bottom: _cancelButton(context),
-    children: [if (text != null) PairLead(text)],
-  );
+  _Step _wait(BuildContext context, String? text) =>
+      (children: [if (text != null) PairNote(text)], bottom: _cancelButton(context));
 
-  Widget _start(BuildContext context) {
+  _Step _start(BuildContext context) {
     final l = context.l10n;
     final servers = phoneLinkServers(ref);
     final scanner = ref.watch(qrScannerProvider);
-    return ScreenBody(
+    final showOff = _busy || servers.isEmpty;
+    return (
       children: [
-        PairLead(l.linkLead),
-        const SizedBox(height: 16),
-        if (scanner.supported) ...[
-          FilledButton.icon(
-            key: linkScanKey,
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            icon: const Icon(Icons.qr_code_scanner),
-            label: Text(l.linkScan),
-            onPressed: _busy ? null : _scan,
-          ),
-          const SizedBox(height: 8),
-        ],
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8,
+        PairNote(l.linkLead),
+        const PairGap(Kit.gutter),
+        KitGroup(
+          margin: EdgeInsets.zero,
+          dividerInset: Kit.dividerInsetList,
           children: [
-            TextButton.icon(
+            if (scanner.supported)
+              KitRow(
+                key: linkScanKey,
+                leading: const KitIconWell(KitIcons.scan),
+                title: l.linkScan,
+                subtitle: l.phoneLinkScanSub,
+                chevron: true,
+                semanticsId: TrustIds.linkdevScan,
+                onTap: _busy ? null : _scan,
+              ),
+            KitRow(
               key: linkShowKey,
-              icon: const Icon(Icons.qr_code_2),
-              label: Text(l.linkShowMine),
-              onPressed: _busy || servers.isEmpty ? null : () => _run((s) => s.startShowing(servers)),
+              leading: const KitIconWell(KitIcons.qr),
+              title: l.linkShowMine,
+              subtitle: l.phoneLinkShowSub,
+              chevron: true,
+              semanticsId: TrustIds.linkdevShow,
+              onTap: showOff ? null : () => _run((s) => s.startShowing(servers)),
             ),
-            TextButton.icon(
+            KitRow(
               key: linkPasteOpenKey,
-              icon: const Icon(Icons.content_paste),
-              label: Text(l.linkPaste),
-              onPressed: _busy ? null : () => setState(() => _pasting = true),
+              leading: const KitIconWell(KitIcons.paste),
+              title: l.linkPaste,
+              subtitle: l.phoneLinkPasteSub,
+              chevron: !_pasting,
+              selected: false,
+              semanticsId: TrustIds.linkdevPasteOpen,
+              onTap: _busy ? null : () => setState(() => _pasting = true),
             ),
           ],
         ),
         if (_pasting) ...[
-          const SizedBox(height: 8),
-          TextField(
+          const PairGap(Kit.gutter),
+          PairField(
             key: linkPasteFieldKey,
             controller: _paste,
+            label: l.linkPasteLabel,
             maxLines: 2,
-            minLines: 1,
             autofocus: true,
-            decoration: InputDecoration(labelText: l.linkPasteLabel, border: const OutlineInputBorder()),
+            semanticsId: TrustIds.linkdevPasteField,
             onSubmitted: (_) => _pasteNow(),
           ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: TextButton(key: linkPasteKey, onPressed: _busy ? null : _pasteNow, child: Text(l.linkGo)),
+          const PairGap(),
+          KitButton(
+            key: linkPasteKey,
+            label: l.linkGo,
+            semanticsId: TrustIds.linkdevPasteGo,
+            onPressed: _busy ? null : _pasteNow,
           ),
         ],
       ],
+      bottom: null,
     );
   }
 
-  Widget _showCode(BuildContext context, LinkFlow flow) {
+  _Step _showCode(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
-    final t = context.tokens;
     // The QR and Copy carry the invite as a link when the invite page is set, else bare.
     final code = inviteShareText(InviteLink(InviteKind.deviceLink, flow.code ?? ''), invitePage: ref.watch(invitePageProvider));
-    final width = MediaQuery.sizeOf(context).width;
-    final size = (width - 96).clamp(180.0, 260.0);
     final until = flow.expiresAt;
-    return ScreenBody(
-      bottom: _cancelButton(context),
+    return (
       children: [
-        const SizedBox(height: 8),
+        const PairGap(8),
+        PairQr(data: code, label: l.linkPasteLabel),
+        const PairGap(Kit.gutter),
         Center(
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(t.radiusSmall)),
-            child: Semantics(label: l.linkPasteLabel, image: true, child: LogoQr(data: code, size: size, logo: QrLogo.epic1)),
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              if (until != null) KitChip(l.linkExpires(linkMinutesLeft(until, ref.read(clockProvider)())), icon: KitIcons.info),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        Center(
-          child: OutlinedButton.icon(
-            icon: const Icon(Icons.copy),
-            label: Text(l.linkCopy),
-            onPressed: () => copySecretText(context, code, l.linkCopied),
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (until != null) PairSmallPrint(l.linkExpires(linkMinutesLeft(until, ref.read(clockProvider)()))),
-        const SizedBox(height: 4),
-        PairSmallPrint(l.linkWaiting),
+        const PairGap(8),
+        PairNote(l.linkWaiting, center: true),
       ],
+      bottom: _Buttons([
+        KitButton(
+          key: linkCopyKey,
+          label: l.linkCopy,
+          icon: KitIcons.copy,
+          semanticsId: TrustIds.linkdevCopy,
+          onPressed: () => copySecretText(context, code, l.linkCopied),
+        ),
+        _cancelButton(context),
+      ]),
     );
   }
 
   /// Both devices show the same four pictures while the hellos cross. Nothing to tap.
-  Widget _linking(BuildContext context, LinkFlow flow) {
+  _Step _linking(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
+    final t = context.tokens;
     final name = flow.otherName ?? '';
-    return ScreenBody(
-      bottom: _cancelButton(context),
+    return (
       children: [
-        Text(l.linkLinkingWith(name), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: context.tokens.headFamily)),
-        const SizedBox(height: 16),
-        PairCard(
+        Semantics(
+          header: true,
+          child: Text(l.linkLinkingWith(name), textAlign: TextAlign.center, style: KitType.sheetTitle.copyWith(color: t.text)),
+        ),
+        const PairGap(Kit.gutter),
+        KitGroup(
+          margin: EdgeInsets.zero,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
@@ -326,93 +350,106 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        PairSmallPrint(l.linkLinkingSame(name)),
+        const PairGap(),
+        PairNote(l.linkLinkingSame(name), center: true),
       ],
+      bottom: _cancelButton(context),
     );
   }
 
-  Widget _done(BuildContext context, LinkFlow flow) {
+  _Step _done(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
-    final t = context.tokens;
-    return ScreenBody(
-      children: [
-        Icon(Icons.check_circle_outline, size: 48, color: t.ok),
-        const SizedBox(height: 12),
-        Text(l.linkDone(flow.device?.name ?? flow.otherName ?? ''), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
-      ],
+    return (
+      children: [PairOutcome(icon: KitIcons.success, title: l.linkDone(flow.device?.name ?? flow.otherName ?? ''))],
+      bottom: null,
     );
   }
 
-  Widget _failed(BuildContext context, LinkFlow flow) {
+  _Step _failed(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
-    final t = context.tokens;
     final failure = flow.failure ?? LinkFailure.unreachable;
     final linked = failure == LinkFailure.tooMany ? _service?.book.linked : null;
     // A pasted code that failed: another one can be pasted. A code this device showed that
     // went nowhere: a new one.
     final pasted = flow.role == LinkRole.scans && _pasting;
     final retry = !pasted && (failure == LinkFailure.unreachable || failure == LinkFailure.cancelled || failure == LinkFailure.expired || failure == LinkFailure.notFound);
-    return ScreenBody(
-      bottom: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Two devices at most: a refused link offers to replace the one linked.
-          if (linked != null)
-            FilledButton(
-              key: linkReplaceKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () async {
-                final yes = await confirmDeviceAction(
-                  context,
-                  title: l.linkReplaceTitle(linked.name),
-                  body: l.linkReplaceBody(linked.name),
-                  action: l.linkReplace,
-                  cancel: l.linkKeep(linked.name),
-                  risky: true,
-                  icon: Icons.swap_horiz,
-                );
-                if (!yes || !context.mounted) return;
-                await _run((s) => s.replaceLinked());
-              },
-              child: Text(l.linkReplaceTitle(linked.name)),
-            )
-          else if (pasted)
-            FilledButton(
-              key: linkPasteAnotherKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () {
-                _service?.closeLink();
-                setState(() => _paste.clear());
-              },
-              child: Text(l.linkPasteAnother),
-            )
-          else if (retry)
-            FilledButton(
-              key: linkRetryKey,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () {
-                _service?.closeLink();
-                if (flow.role == LinkRole.shows && flow.servers.isNotEmpty) {
-                  unawaited(_run((s) => s.startShowing(flow.servers)));
-                } else if (ref.read(qrScannerProvider).supported) {
-                  unawaited(_scan());
-                }
-              },
-              child: Text(l.commonRetry),
-            ),
-          const SizedBox(height: 8),
-          TextButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(l.commonClose)),
-        ],
-      ),
+    return (
       children: [
-        Icon(Icons.link_off, size: 48, color: t.warn),
-        const SizedBox(height: 12),
-        Text(l.linkFailedTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
-        const SizedBox(height: 8),
-        PairLead(linkFailureText(l, failure, flow.otherName)),
+        PairOutcome(icon: KitIcons.warning, good: false, title: l.linkFailedTitle, body: linkFailureText(l, failure, flow.otherName)),
       ],
+      bottom: _Buttons([
+        // Two devices at most: a refused link offers to replace the one linked.
+        if (linked != null)
+          KitButton(
+            key: linkReplaceKey,
+            label: l.linkReplaceTitle(linked.name),
+            semanticsId: TrustIds.linkdevReplace,
+            onPressed: () async {
+              final yes = await confirmPairSheet(
+                context,
+                title: l.linkReplaceTitle(linked.name),
+                body: l.linkReplaceBody(linked.name),
+                action: l.linkReplace,
+                cancel: l.linkKeep(linked.name),
+                risky: true,
+                sheetId: TrustIds.linkdevReplaceSheet,
+                actionId: TrustIds.linkdevReplaceYes,
+                cancelId: TrustIds.linkdevReplaceKeep,
+              );
+              if (!yes || !context.mounted) return;
+              await _run((s) => s.replaceLinked());
+            },
+          )
+        else if (pasted)
+          KitButton(
+            key: linkPasteAnotherKey,
+            label: l.linkPasteAnother,
+            semanticsId: TrustIds.linkdevPasteAnother,
+            onPressed: () {
+              _service?.closeLink();
+              setState(() => _paste.clear());
+            },
+          )
+        else if (retry)
+          KitButton(
+            key: linkRetryKey,
+            label: l.commonRetry,
+            semanticsId: TrustIds.linkdevRetry,
+            onPressed: () {
+              _service?.closeLink();
+              if (flow.role == LinkRole.shows && flow.servers.isNotEmpty) {
+                unawaited(_run((s) => s.startShowing(flow.servers)));
+              } else if (ref.read(qrScannerProvider).supported) {
+                unawaited(_scan());
+              }
+            },
+          ),
+        KitButton(
+          label: l.commonClose,
+          kind: KitButtonKind.quiet,
+          semanticsId: TrustIds.linkdevCloseFailed,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ]),
     );
   }
+}
+
+/// One step of the screen: what scrolls, and the buttons pinned under it.
+typedef _Step = ({List<Widget> children, Widget? bottom});
+
+/// Buttons stacked on the bottom of a step, [Kit.groupGap] apart.
+class _Buttons extends StatelessWidget {
+  const _Buttons(this.buttons);
+
+  final List<Widget> buttons;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (var i = 0; i < buttons.length; i++) ...[if (i > 0) const SizedBox(height: 8), buttons[i]],
+    ],
+  );
 }

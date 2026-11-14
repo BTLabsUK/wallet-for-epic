@@ -25,6 +25,8 @@ import 'secret_store.dart';
 import 'advanced.dart' show NetworkMode;
 import 'net/node_peers.dart';
 import 'network_gate.dart';
+import 'net/tor_switch.dart';
+import 'node_failover.dart' show nodeProbeBudget;
 import 'relay_block.dart';
 import 'settings.dart' show appSettingsProvider, clockProvider, networkModeProvider;
 import 'cancel_final.dart';
@@ -234,6 +236,30 @@ final epic1Provider = Provider<Epic1Wallet?>((ref) => ref.watch(sessionProvider)
 final paymentModeProvider = Provider<PaymentMode>(
   (ref) => ref.watch(sessionProvider)?.paymentMode ?? PaymentMode.classic,
 );
+
+/// The epic1 switch as stored during this unlock, or null while it has not moved. The switch
+/// sets it, so a turn-off reaches Receive at once.
+final epic1StoredProvider = NotifierProvider<Epic1StoredNotifier, bool?>(Epic1StoredNotifier.new);
+
+class Epic1StoredNotifier extends Notifier<bool?> {
+  @override
+  bool? build() {
+    ref.watch(sessionProvider);
+    return null;
+  }
+
+  void set(bool on) => state = on;
+}
+
+/// What Receive offers: epic1 only while this unlock is in epic1 mode and the switch is still
+/// on. Turned off, Receive shows the Epicbox address at once: the wallet takes classic payments
+/// in either mode, and an epic1 link is never handed out after the user said no. Turning it on
+/// still waits for the next unlock, as the rest of the epic1 UI does.
+final receiveModeProvider = Provider<PaymentMode>((ref) {
+  if (ref.watch(paymentModeProvider) != PaymentMode.epic1) return PaymentMode.classic;
+  final stored = ref.watch(epic1StoredProvider) ?? ref.watch(epic1Provider)?.storedOn ?? true;
+  return stored ? PaymentMode.epic1 : PaymentMode.classic;
+});
 
 class SessionNotifier extends Notifier<WalletSession?> {
   @override
@@ -703,7 +729,9 @@ final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
   if (ref.watch(networkModeProvider) == NetworkMode.killSwitch) {
     throw const NetBlocked(NetworkMode.killSwitch, 'node tip');
   }
-  return session.nodeTipFor(config: config);
+  // Bounded like a failover probe: a node that went silent reads offline within the budget,
+  // not after the transport gives up.
+  return session.nodeTipFor(config: config).timeout(nodeProbeBudget(config.nodeUrl, torOn: TorSwitch.on));
 });
 
 /// The tip of the node [config] names, for a test of a node typed in: through the open
@@ -1421,10 +1449,11 @@ class PaymentCancelledNotifier extends Notifier<InvoiceEvent?> {
   }
 }
 
-/// The three tabs of the wallet shell, left to right.
-enum ShellTab { send, wallet, receive }
+/// The tabs of the wallet shell, left to right. The Scan button between Activity and Contacts
+/// opens the scanner as a flow, so it is no tab.
+enum ShellTab { home, activity, contacts, settings }
 
-/// The tab the shell shows. Wallet, the middle one, whenever a wallet opens.
+/// The tab the shell shows. Home whenever a wallet opens.
 final shellTabProvider = NotifierProvider<ShellTabNotifier, ShellTab>(
   ShellTabNotifier.new,
 );
@@ -1433,10 +1462,32 @@ class ShellTabNotifier extends Notifier<ShellTab> {
   @override
   ShellTab build() {
     ref.watch(sessionProvider);
-    return ShellTab.wallet;
+    return ShellTab.home;
   }
 
   void go(ShellTab tab) => state = tab;
+}
+
+/// The two full-screen flows that open over the tab bar from Home.
+enum ShellFlow { send, receive }
+
+/// A flow the shell is asked to open, until the shell has taken it. Anything that used to jump
+/// to the Send or Receive tab (a scanned code, a notification, Send again) asks here.
+final shellFlowProvider = NotifierProvider<ShellFlowNotifier, ShellFlow?>(
+  ShellFlowNotifier.new,
+);
+
+class ShellFlowNotifier extends Notifier<ShellFlow?> {
+  @override
+  ShellFlow? build() {
+    ref.watch(sessionProvider);
+    return null;
+  }
+
+  void open(ShellFlow flow) => state = flow;
+
+  /// The shell took the request.
+  void taken() => state = null;
 }
 
 /// A recipient handed to the Send tab, from a scanned QR code or Send again. [id] tells two
@@ -1643,8 +1694,16 @@ class IssuedInvoicesNotifier extends AsyncNotifier<List<IssuedInvoice>> {
   Future<IssuedInvoice> withdraw(String slateId) async {
     final withdrawn = await _session.withdrawInvoice(slateId: slateId);
     logInfo('invoices', 'issued invoice withdrawn');
-    ref.invalidateSelf();
-    await future;
+    // The withdraw is done. Reloading the list is only to show it: a failure or a dispose
+    // here (no screen watching the list) must not turn a withdrawn invoice into an error.
+    if (ref.mounted) {
+      ref.invalidateSelf();
+      try {
+        await future;
+      } catch (error) {
+        logInfo('invoices', 'list reload after a withdraw failed: ${error.runtimeType}');
+      }
+    }
     return withdrawn;
   }
 }

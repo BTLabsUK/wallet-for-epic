@@ -117,10 +117,15 @@ void main() {
       expect(tester.getRect(find.text('Receiving')).top, inInclusiveRange(0, screen));
     });
 
-    testWidgets('the phone Help lists the topic under When something goes wrong', (tester) async {
+    testWidgets('the phone Help lists the topic under When something is wrong', (tester) async {
       await _pump(tester, const HelpScreen());
       final list = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable));
-      await tester.scrollUntilVisible(find.text('Cancelling a payment'), 300, scrollable: list.last);
+      await tester.scrollUntilVisible(find.text('When something is wrong'), 300, scrollable: list.first);
+      await tester.ensureVisible(find.text('When something is wrong'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('When something is wrong'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Cancelling a payment'), 300, scrollable: list.first);
       expect(find.text('Cancelling a payment'), findsOneWidget);
     });
   });

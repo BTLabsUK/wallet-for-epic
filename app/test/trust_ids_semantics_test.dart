@@ -25,11 +25,11 @@ import 'package:epic_wallet/src/trust_ids.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
-import 'package:epic_wallet/src/ui/level_step_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart' show RestoreScreen;
 import 'package:epic_wallet/src/ui/scan_start.dart' show ScanStart;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
-import 'package:epic_wallet/src/ui/settings_history.dart' show FakeHistoryFiles, historyFilesProvider;
+import 'package:epic_wallet/src/ui/settings_history.dart' show historyFilesProvider;
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/advanced.dart' show AdvancedPrefs;
 import 'package:epic_wallet/src/ui/tour/phone_tour.dart';
@@ -322,9 +322,14 @@ void main() {
     testWidgets('Home with the tour: Lock, Settings, Contacts, Skip', (tester) async {
       await _same(
         tester,
-        () => _openPhone(tester, const HomeScreen(), tour: true),
+        () async {
+          await _openPhone(tester, const HomeScreen(), tour: true);
+          // The tour is offered in a toast; its card (and Skip) opens on "Show me".
+          await tester.tap(find.text(AppLocalizations.of(tester.element(find.byType(HomeScreen))).phoneTourOfferShow));
+          await tester.pumpAndSettle();
+        },
         () => _closePhone(tester),
-        ['g4.home.lock', 'g4.home.settings', 'g4.home.contacts', 'g4.tour.skip'],
+        ['g4.tab.home', 'g4.tab.settings', 'g4.tab.contacts', 'g4.tour.skip'],
       );
     });
 
@@ -339,7 +344,7 @@ void main() {
         tester,
         () => _openPhone(tester, const SettingsSectionScreen(section: SettingsSection.advanced)),
         () => _closePhone(tester),
-        ['g4.advanced.level', 'g4.advanced.technical', 'g4.confirmations.fewer', 'g4.confirmations.more'],
+        ['g4.advanced.technical', 'g4.confirmations.fewer', 'g4.confirmations.more'],
       );
     });
 
@@ -382,17 +387,19 @@ void main() {
         }
 
         if (start) await tap(find.byKey(ScanStart.changeKey));
-        if (height) await tap(find.text(englishStrings.restoreStartByHeight));
+        if (height) await tap(find.text(englishStrings.phoneRestoreUseHeight));
         if (info) await tap(find.byKey(ScanStart.infoKey));
       }
 
       await _same(tester, open, () => _closePhone(tester), [
         'g4.restore.phrase', 'g4.restore.start', 'g4.restore.info', 'g4.restore.continue',
+        'g4.restore.paste', 'g4.restore.back', 'g4.restore.help',
       ]);
-      await _same(tester, () => open(start: true), () => _closePhone(tester), [
-        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month',
+      // The month is the shared sheet (its link to the height), the height a field with its way back.
+      await _same(tester, () => open(start: true), () => _closePhone(tester), ['g4.restore.by.height']);
+      await _same(tester, () => open(start: true, height: true), () => _closePhone(tester), [
+        'g4.restore.height', 'g4.restore.by.month',
       ]);
-      await _same(tester, () => open(start: true, height: true), () => _closePhone(tester), ['g4.restore.height']);
       await _same(tester, () => open(info: true), () => _closePhone(tester), ['g4.restore.fromStart']);
       // The roles the drivers look for.
       await open(start: true, height: true);
@@ -401,7 +408,7 @@ void main() {
       SemanticsData data(String id) => tester.getSemantics(find.bySemanticsIdentifier(id)).getSemanticsData();
       expect(data('g4.restore.phrase').flagsCollection.isTextField, isTrue);
       expect(data('g4.restore.height').flagsCollection.isTextField, isTrue);
-      for (final id in ['g4.restore.start', 'g4.restore.info', 'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.continue']) {
+      for (final id in ['g4.restore.start', 'g4.restore.info', 'g4.restore.by.month', 'g4.restore.continue']) {
         expect(data(id).hasAction(SemanticsAction.tap), isTrue, reason: id);
       }
       for (final id in ['g4.restore.start', 'g4.restore.info']) {
@@ -417,10 +424,10 @@ void main() {
       await _closePhone(tester);
     });
 
-    testWidgets('Level step: create, restore and the level stops', (tester) async {
+    testWidgets('Welcome: create and restore', (tester) async {
       await _same(
         tester,
-        () => _openPhone(tester, const LevelStepScreen(), open: false),
+        () => _openPhone(tester, const FirstRunScreen(), open: false),
         () => _closePhone(tester),
         ['g4.welcome.create', 'g4.welcome.restore'],
       );

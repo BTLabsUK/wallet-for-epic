@@ -34,6 +34,7 @@ class NodeStatus {
     this.tip,
     this.height,
     this.validated = true,
+    this.behind,
   });
 
   final NodeState state;
@@ -50,6 +51,11 @@ class NodeStatus {
   /// False when the balances on screen were read from the wallet's files only, because the
   /// refresh against the node failed. Only [NodeState.offline] has it false.
   final bool validated;
+
+  /// Blocks the node's tip lies below the block the wallet already checked: the node answers
+  /// but is behind, so the refresh skips it. Set only with [validated] false; it reads
+  /// "Behind N", not "Not answering", and node failover leaves it as it leaves one that is down.
+  final int? behind;
 }
 
 /// The header's two statuses. [epicbox] is null when the listener does not run.
@@ -91,6 +97,11 @@ WalletStatus walletStatus({
   // refresh runs against it: that refresh only retries a node it can't reach, and as "syncing
   // 0 %" it hid the outage from node failover for good (26.10.26, a network filtering the node).
   final unreachable = tip.hasError && (!tip.isLoading || answer == null);
+  final lag = summary == null || answer == null ? null : (summary.lastConfirmedHeight - answer.height).toInt();
+  final behind = lag != null && lag >= behindAfter ? lag : null;
+  // A stored summary not yet checked against the node, while a refresh checks it, is not
+  // offline by itself: it reads as the node answers (a node behind the wallet still reads so).
+  final unchecked = summary != null && !summary.validatedWithNode && (!syncing || behind != null);
   final NodeStatus node;
   if (unreachable) {
     node = NodeStatus(NodeState.offline, height: checked);
@@ -101,12 +112,13 @@ WalletStatus walletStatus({
       tip: answer,
       height: checked,
     );
-  } else if (summary != null && !summary.validatedWithNode) {
+  } else if (unchecked) {
     node = NodeStatus(
       NodeState.offline,
       tip: answer,
       height: checked,
       validated: false,
+      behind: behind,
     );
   } else if (answer != null) {
     node = NodeStatus(NodeState.online, tip: answer, height: checked);
@@ -171,6 +183,12 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
       l.statusNodeConnecting,
       t.info,
       l.homeSyncContactingNode,
+    ),
+    NodeState.offline when node.behind != null => (
+      Icons.cloud_off,
+      l.netStatusBehind(node.behind!),
+      t.warn,
+      l.homeSyncNotValidated,
     ),
     NodeState.offline => (
       Icons.cloud_off,
@@ -638,6 +656,7 @@ class _SlashPainter extends CustomPainter {
       StatusDot.of(ShownState.behind),
     NodeState.online => StatusDot.ok,
     NodeState.syncing || NodeState.connecting => StatusDot.busy,
+    NodeState.offline when node.behind != null => StatusDot.of(ShownState.behind),
     NodeState.offline => StatusDot.bad,
   };
   return (icon: f.icon, dot: dot, word: net.word, detail: f.detail);
@@ -739,16 +758,6 @@ class _BarsPainter extends CustomPainter {
 /// word that always goes with them.
 typedef NetFace = ({SignalLevel level, Color color, String word});
 
-/// The state dot for a [NetFace] (the faces use the tokens' colours, so the dot follows the
-/// same meaning): off when nothing is lit, green ok, blue in progress, red a problem.
-StatusDot netFaceDot(WalletTokens t, NetFace face) {
-  if (face.level == SignalLevel.none) return StatusDot.off;
-  if (face.color == t.ok) return StatusDot.ok;
-  if (face.color == t.info) return StatusDot.busy;
-  if (face.color == t.warn) return StatusDot.warn;
-  return StatusDot.bad;
-}
-
 /// From this many blocks behind the network's tip a node that answers reads "Behind N".
 const int behindAfter = 3;
 
@@ -770,6 +779,12 @@ NetFace nodeNetFace(BuildContext context, NodeStatus node, {int? behind}) {
       node.percent == null ? null : l.netStatusSyncingPercent(node.percent!),
     ),
     NodeState.connecting => face(SignalLevel.one, ShownState.connecting),
+    // It answers, below what the wallet checked: behind, however long it has been.
+    NodeState.offline when node.behind != null => face(
+      SignalLevel.two,
+      ShownState.behind,
+      l.netStatusBehind(behind != null && behind > node.behind! ? behind : node.behind!),
+    ),
     NodeState.offline => face(SignalLevel.one, ShownState.notAnswering),
   };
 }

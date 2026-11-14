@@ -276,7 +276,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.ul(['**Öffentlicher Node** (Standard): einer der öffentlichen Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt.', '**Lokaler Node**: läuft auf diesem Computer als eigenes Programm, das mit der App startet und stoppt. Er lädt zuerst die ganze Chain herunter, danach täglich ein wenig; auf der Festplatte belegt er etwa 5 GB und wächst langsam. Während er synchronisiert, zeigt die Wallet seinen Fortschritt und nutzt einen öffentlichen Node. Siehe „Den lokalen Node betreiben“.']),
         if (phone)
-          HelpBlock.p('Tippen Sie im Tab Wallet auf das Node-Symbol, um den Zustand des Nodes zu sehen und zu einem anderen zu wechseln. Zum Senden braucht es einen synchronisierten Node; ein Zustand wie **12 zurück** oder **Antwortet nicht** heißt: einen anderen wählen. Um einen Node mit seiner Adresse hinzuzufügen, öffnen Sie $nodePlace und geben Sie die Adresse in das Feld über der Liste ein.')
+          HelpBlock.p('Tippen Sie im Tab Wallet auf das Node-Symbol, um den Zustand des Nodes zu sehen und zu einem anderen zu wechseln. Zum Senden braucht es einen synchronisierten Node; bei einem Zustand wie **12 zurück** oder **Antwortet nicht** wechselt die Wallet von selbst zu einem anderen Node Ihrer Liste, außer der automatische Node-Wechsel ist aus: dann einen anderen wählen. Um einen Node mit seiner Adresse hinzuzufügen, öffnen Sie $nodePlace und geben Sie die Adresse in das Feld über der Liste ein.')
         else
           HelpBlock.p('Ändern Sie ihn unter $nodePlace: Die Nodes sind mit ihrem Zustand aufgelistet. Klicken Sie auf einen, um sofort zu ihm zu wechseln, oder geben Sie eine Adresse ein, um die Liste zu filtern oder einen Node hinzuzufügen. Zum Senden braucht es einen synchronisierten Node; fällt der Node zurück, bietet die Wallet einen anderen an.'),
       ],
@@ -395,7 +395,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           'Zurück hier steht bei der Zahlung **Wird anderswo gesendet**, danach **Bestätigung**, sobald die Wallet sie in der Chain sieht, nachdem Sie „Notaus“ verlassen haben.',
         ]),
         HelpBlock.p('Dienste, die ein Modus abschaltet, erscheinen grau als **Aus (Nur Node)**: Das ist der Modus, kein Fehler. Beim Wechsel wird nichts abgebrochen; eine Zahlung, die über Epicbox auf den Empfänger wartet, läuft weiter, wenn Sie den Modus verlassen${tor ? ' (oder zu „Nur Tor“ wechseln)' : ''}.'),
-        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Bei „Nur Node“ und „Notaus“ wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
+        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node nicht mehr oder fällt er zurück, wechselt die Wallet zum besten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Antwortet kein Node Ihrer Liste, versucht die Wallet es weiter und verbindet sich, sobald einer antwortet. Bei „Nur Node“ und „Notaus“ wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -513,19 +513,17 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         id: HelpId.cleanup,
       ),
     HelpTopic(
-      'maintenance',
-      'Die Einstellungsdatei',
-      'Eine Datei enthält Ihre Node- und Epicbox-Listen. Ein Fehler darin kostet nie die letzten guten Einstellungen.',
+      phone ? 'network' : 'maintenance',
+      phone ? 'Serverlisten' : 'Die Einstellungsdatei',
+      phone ? 'Welchen Node und Epicbox-Server die Wallet nutzt.' : 'Eine Datei enthält Ihre Node- und Epicbox-Listen. Ein Fehler darin kostet nie die letzten guten Einstellungen.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'Die App führt eine Datei mit Ihren Node- und Epicbox-Listen und drei Schaltern: Statusseite, Update-Prüfung und Preise. Alles andere kommt mit der App. Die Datei wird in der App geändert, zum Beispiel unter $nodePlace und $epicboxPlace, nicht von Hand.',
+            'Ihre Node- und Epicbox-Listen ändern Sie unter $nodePlace und $epicboxPlace.',
           ),
           HelpBlock.ul([
             '**Der erste Server jeder Liste ist der verwendete.** Wählen Sie einen Server, rückt er nach oben; eine neue Reihenfolge ändert den verwendeten. Antwortet der erste Node nicht, wird der nächste versucht.',
             '**Der erste Epicbox-Server steht in der Epicbox-Adresse jeder Wallet.** Rückt ein anderer nach oben, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
-            '**Eine Datei, die sich nicht lesen lässt:** Die letzten guten Einstellungen bleiben in Gebrauch. Bevor die App eine neue Datei schreibt, speichert sie die alte als **settings.toml.bad-<time>**.',
-            'Eine gelöschte Datei wird neu geschrieben.',
           ]),
         ] else ...[
           HelpBlock.p(

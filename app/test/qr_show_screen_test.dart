@@ -6,6 +6,8 @@
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/qr_slate.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
@@ -31,6 +33,7 @@ class _Harness {
   Future<void> pump(
     WidgetTester tester, {
     bool reply = false,
+    bool request = false,
     bool reduced = false,
     double textScale = 1,
     Size size = const Size(1080, 2340),
@@ -74,7 +77,14 @@ class _Harness {
               body: Center(
                 child: TextButton(
                   onPressed: () async {
-                    final r = reply
+                    final r = request
+                        ? await showRequestQr(
+                            context,
+                            json: _json,
+                            amount: BigInt.from(150000000),
+                            slateId: 'slate-1',
+                          )
+                        : reply
                         ? await showReplyQr(
                             context,
                             json: _json,
@@ -117,10 +127,11 @@ void main() {
   ) async {
     final h = _Harness();
     await h.pump(tester);
-    expect(find.text(_l.qrShowTitlePayment), findsOneWidget);
+    expect(find.text(_l.phoneQrTitlePay), findsOneWidget);
     expect(find.text(_l.qrHiddenTitle), findsOneWidget);
     expect(find.text(_l.qrShow), findsOneWidget);
-    expect(find.text('1.5\u00a0EPIC to a phone next to you'), findsOneWidget);
+    expect(find.text('+1.5'), findsNothing);
+    expect(find.text('1.5'), findsOneWidget);
     expect(find.textContaining('Part '), findsNothing);
 
     await tester.tap(show());
@@ -152,8 +163,8 @@ void main() {
       ),
       findsNothing,
     );
-    expect(find.text(_l.qrScanReply), findsOneWidget);
-    expect(find.text(_l.qrHoldHint), findsOneWidget);
+    expect(find.text(_l.phoneQrScanAnswer), findsOneWidget);
+    expect(find.text(_l.phoneQrHoldHint), findsOneWidget);
     // The frames cycle at six a second: part 2 after 167 ms.
     await tester.pump(const Duration(milliseconds: qrFrameMs));
     expect(find.textContaining('Part 2 of 3'), findsOneWidget);
@@ -174,33 +185,25 @@ void main() {
     expect(find.text('Hidden after 40 s'), findsOneWidget);
     expect(find.textContaining('Part '), findsNothing);
     expect(find.text(_l.qrShowAgain), findsOneWidget);
-    expect(find.text(_l.qrScanReply), findsOneWidget);
+    expect(find.text(_l.phoneQrScanAnswer), findsOneWidget);
 
     await tester.tap(show());
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('3'), findsOneWidget);
   });
 
-  testWidgets('the last ten seconds turn the seconds amber', (tester) async {
+  testWidgets('the last ten seconds say so once, and the chip counts down', (tester) async {
+    final semantics = tester.ensureSemantics();
     final h = _Harness();
     await h.pump(tester);
     await tester.tap(show());
     await _tick(tester, 3);
     await _tick(tester, 29);
-    Color? colorOf(String text) {
-      Color? found;
-      for (final rich in tester.widgetList<RichText>(find.byType(RichText))) {
-        rich.text.visitChildren((span) {
-          if (span is TextSpan && span.text == text) found = span.style?.color;
-          return true;
-        });
-      }
-      return found;
-    }
-
-    final calm = colorOf('11 s');
+    expect(find.text('Hides in 11 s'), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.qrSecondsLeft(qrLowSeconds)), findsNothing);
     await _tick(tester, 1);
-    expect(colorOf('10 s'), isNot(calm));
+    expect(find.bySemanticsLabel(_l.qrSecondsLeft(qrLowSeconds)), findsOneWidget);
+    semantics.dispose();
   });
 
   testWidgets('leaving the app covers the code and stays covered', (tester) async {
@@ -254,8 +257,13 @@ void main() {
     expect(h.secure, [true]);
     await tester.tap(show());
     await _tick(tester, 3);
-    // The line about screenshots shows with the code, on Android only.
+    // The line about screenshots is in the help of the page, on Android only.
+    expect(find.text(_l.qrSecureLine), findsNothing);
+    await tester.tap(find.byTooltip(_l.sendHelp));
+    await tester.pumpAndSettle();
     expect(find.text(_l.qrSecureLine), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(h.secure, [true, false]);
@@ -271,7 +279,7 @@ void main() {
     await tester.tap(find.byKey(qrNextButtonKey));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text(_l.qrScanReply), findsWidgets);
+    expect(find.text(_l.phoneQrTitlePay), findsWidgets);
     expect(find.text('camera'), findsOneWidget);
     final reply = '{"id":"slate-2","step":"response"}';
     final parts = await h.service.encodeQrSlate(
@@ -326,31 +334,66 @@ void main() {
     await tester.tap(show());
     await _tick(tester, 3);
     expect(
-      tester.widget<FilledButton>(find.byKey(qrNextButtonKey)).onPressed,
+      tester.widget<KitButton>(find.byKey(qrNextButtonKey)).onPressed,
       isNull,
     );
   });
 
-  testWidgets('the reply flavour: Reply QR, a reply cover, Done closes it', (
-    tester,
-  ) async {
+  testWidgets('the reply (receive side) shows its code at once; Done closes it', (tester) async {
     final h = _Harness();
     await h.pump(tester, reply: true);
-    expect(find.text(_l.qrShowTitleReply), findsOneWidget);
-    expect(find.text('To the sender of 1.5\u00a0EPIC'), findsOneWidget);
-    expect(
-      find.text(_l.qrHiddenBodyReply),
-      findsOneWidget,
-    );
-    // The reply gets the same countdown and 40 s.
-    await tester.tap(show());
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('3'), findsOneWidget);
-    await _tick(tester, 3);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
+    expect(find.text('+1.5'), findsOneWidget);
+    expect(find.text(_l.qrHiddenTitle), findsNothing);
+    expect(find.text(_l.qrShow), findsNothing);
+    expect(find.text(_l.qrHide), findsNothing);
+    expect(find.textContaining('Part 1 of 3'), findsOneWidget);
+    // No countdown or timer: the code is still there a minute later.
+    await _tick(tester, 60);
+    expect(find.textContaining('Part '), findsOneWidget);
+    expect(find.text(_l.qrTimedOutBody), findsNothing);
     expect(find.text(_l.commonDone), findsOneWidget);
     await tester.tap(find.byKey(qrNextButtonKey));
     await tester.pump(const Duration(milliseconds: 400));
     expect(h.result, isA<QrShowDone>());
+  });
+
+  testWidgets('an invoice (request) shows its code at once: no cover, chip or Hide', (tester) async {
+    final h = _Harness();
+    await h.pump(tester, request: true);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text(_l.qrShowTitleRequest), findsOneWidget);
+    expect(find.text(_l.qrHiddenTitle), findsNothing);
+    expect(find.text(_l.qrHiddenBodyRequest), findsNothing);
+    expect(find.text(_l.qrShow), findsNothing);
+    expect(find.byKey(qrHideButtonKey), findsNothing);
+    expect(find.textContaining('40 s'), findsNothing);
+    expect(find.textContaining('Part 1 of 3'), findsOneWidget);
+    final painters = tester
+        .widgetList<CustomPaint>(find.descendant(of: find.byKey(qrCardKey), matching: find.byType(CustomPaint)))
+        .map((p) => p.painter.runtimeType.toString());
+    expect(painters, contains('_QrPainter'));
+    expect(find.text(_l.phoneQrScanAnswer), findsOneWidget);
+    // The app leaving does not cover it either; and a minute later it is still shown.
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    await _tick(tester, 60);
+    expect(find.text(_l.qrAwayTitle), findsNothing);
+    expect(find.textContaining('Part '), findsOneWidget);
+  });
+
+  testWidgets('the pay code stays covered until shown, and its words are not clipped at large text', (tester) async {
+    final h = _Harness();
+    await h.pump(tester, size: const Size(1080, 1920), textScale: 2);
+    expect(find.text(_l.qrHiddenTitle), findsOneWidget);
+    expect(find.text(_l.qrHiddenBodyPayment), findsOneWidget);
+    expect(find.textContaining('Part '), findsNothing);
+    expect(tester.takeException(), isNull);
+    // The card grows to hold the words: the last line ends inside it.
+    final card = tester.getRect(find.byKey(qrCardKey));
+    final body = tester.getRect(find.text(_l.qrHiddenBodyPayment));
+    expect(card.width, closeTo(Kit.qr, 0.01));
+    expect(body.bottom, lessThanOrEqualTo(card.bottom));
   });
 
   testWidgets('reduced motion still counts, cycles and hides', (tester) async {
@@ -377,7 +420,7 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byKey(qrCardKey), findsOneWidget);
     final card = tester.getSize(find.byKey(qrCardKey));
-    expect(card.width, 270);
+    expect(card.width, Kit.qr);
     // The seconds and the part stay reachable: the body scrolls, the title is not clipped.
     await tester.dragUntilVisible(
       find.textContaining('Part '),

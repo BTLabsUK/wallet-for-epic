@@ -37,7 +37,7 @@ class CancelNote extends StatelessWidget {
         onTap: () => openHelp(context, HelpId.cancel, anchor),
         borderRadius: BorderRadius.circular(4),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
             l.cancelMoreInHelp,
             style: base.copyWith(

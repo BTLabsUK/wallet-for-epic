@@ -91,7 +91,8 @@ enum RecipientNote {
   /// No scheme: `http://` added.
   httpAdded,
 
-  /// No port: the listener's default ([RecipientInput.port]).
+  /// No port given: the scheme's own (443, 80), or the listener's for a bare local address
+  /// ([RecipientInput.port]). Send's reach check then also asks the listener's port.
   defaultPort,
 
   /// A bare IPv6 address put in brackets.
@@ -222,8 +223,8 @@ class RecipientInput {
   /// in lower-case ASCII, IPv6 without brackets.
   final String host;
 
-  /// The port contacted: as given, else the listener's default for http and https and 80 for an
-  /// onion. Null for Epicbox.
+  /// The port contacted: as given, else 443 for https and 80 for http (the listener's default for
+  /// a bare local address without a scheme) and 80 for an onion. Null for Epicbox.
   final int? port;
 
   /// The URL's path without a trailing `/`, or empty.
@@ -262,8 +263,15 @@ class RecipientInput {
   /// The host in brackets when it is an IPv6 address.
   String get hostShown => host.contains(':') ? '[$host]' : host;
 
-  /// `host:port` as contacted, for the review's Host row.
-  String get contacted => port == null ? hostShown : '$hostShown:$port';
+  /// `host:port` as contacted, for the review's Host row; the port only when it is not the scheme's own.
+  String get contacted => '$hostShown$portShown';
+
+  /// `:port` for a URL, or empty when it is its scheme's own (443 for https, 80 for http).
+  String get portShown {
+    final k = urlKind;
+    if (port == null || (k == RecipientInputKind.https && port == 443) || (k == RecipientInputKind.http && port == 80)) return '';
+    return ':$port';
+  }
 
   /// The address for the wallet, as the rest of the app keeps it.
   Recipient? get recipient => switch (kind) {
@@ -447,12 +455,12 @@ RecipientInput readRecipient(String raw, {required String defaultRelay, required
   } else if (s.substring(0, s.indexOf(':')) != s.substring(0, s.indexOf(':')).toLowerCase()) {
     notes.add(RecipientNote.schemeLower);
   }
-  final read = _readUrl(s, t, notes, listenPort);
-  return read.problem == RecipientProblem.incomplete ? _typingUrl(s, read, listenPort) : read;
+  final read = _readUrl(s, t, notes);
+  return read.problem == RecipientProblem.incomplete ? _typingUrl(s, read) : read;
 }
 
 /// [read] (incomplete) with the kind [s]'s scheme names, the host typed so far and the port.
-RecipientInput _typingUrl(String s, RecipientInput read, int listenPort) {
+RecipientInput _typingUrl(String s, RecipientInput read) {
   final m = RegExp(r'^(https?)://(\[[^\]/]*\]?|[^/?#:@]*)(?::(\d{0,5}))?', caseSensitive: false).firstMatch(s);
   if (m == null) return read;
   final port = int.tryParse(m[3] ?? '');
@@ -462,13 +470,13 @@ RecipientInput _typingUrl(String s, RecipientInput read, int listenPort) {
     problem: read.problem,
     typing: m[1]!.toLowerCase() == 'https' ? RecipientInputKind.https : RecipientInputKind.http,
     host: m[2]!.toLowerCase().replaceAll(RegExp(r'[\[\]]'), ''),
-    port: port != null && port >= 1 && port <= 65535 ? port : listenPort,
+    port: port != null && port >= 1 && port <= 65535 ? port : (m[1]!.toLowerCase() == 'https' ? 443 : 80),
   );
 }
 
 RecipientInput _invalid(String t, RecipientProblem p) => RecipientInput._(RecipientInputKind.invalid, address: t, problem: p);
 
-RecipientInput _readUrl(String s, String given, List<RecipientNote> notes, int listenPort) {
+RecipientInput _readUrl(String s, String given, List<RecipientNote> notes) {
   final m = RegExp(r'^(https?)://([^/?#]*)([^?#]*)(\?[^#]*)?(#.*)?$', caseSensitive: false).firstMatch(s);
   if (m == null) return _invalid(given, RecipientProblem.incomplete);
   final scheme = m[1]!.toLowerCase();
@@ -553,9 +561,10 @@ RecipientInput _readUrl(String s, String given, List<RecipientNote> notes, int l
   }
   if (m[4] != null || m[5] != null) notes.add(RecipientNote.queryLeftOut);
 
-  // No port: the listener's default, written so the address says where it goes.
+  // No port: the scheme's own, written so the address says where it goes (LEPIC reads a plain
+  // http:// without one as the listener's port). The reach check also asks the listener's.
   if (port == null) {
-    port = listenPort;
+    port = scheme == 'https' ? 443 : 80;
     notes.add(RecipientNote.defaultPort);
   }
   final shown = v6 ? '[$host]' : host;

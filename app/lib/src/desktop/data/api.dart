@@ -326,7 +326,6 @@ abstract interface class DeskWalletApi {
   /// to this wallet (cancel_final.dart), which the result tells; with [spendBack] false (the
   /// free "Stop waiting") only cancelled.
   Future<CancelResult> cancelTx(int id, {bool spendBack = true});
-  Future<String> exportProof(int id);
   /// Adds (empty id) or replaces [contact] and returns its id. Only stores: an address is never checked over the network.
   Future<String> saveContact(Contact contact);
   Future<void> deleteContact(String id);
@@ -346,6 +345,10 @@ abstract interface class DeskWalletApi {
   /// moves to the new address when it is on the built-in node, else nothing happens.
   Future<void> followBuiltInNode();
   Future<NodeServer> checkNode(String url);
+
+  /// Kept-open node connections of the open wallet are not reused. Never throws; no I/O; nothing
+  /// with no wallet open.
+  void dropNodeConnections();
   Future<void> addNode(NodeServer node);
   Future<void> useEpicbox(String domain);
 

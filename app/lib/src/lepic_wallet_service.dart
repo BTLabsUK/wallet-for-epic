@@ -2360,6 +2360,15 @@ class LepicWalletSession
   });
 
   @override
+  void dropNodeConnections() {
+    try {
+      _wallet.dropNodeConnections();
+    } catch (_) {
+      // A locked wallet has nothing to drop.
+    }
+  }
+
+  @override
   Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
       _guard(() async {
         // Node only: the node in use alone, not the others of the list (their checks).
@@ -4657,13 +4666,6 @@ class _LepicPairing implements PairingApi {
     ];
     return contactPairingOf(found, contactId);
   });
-
-  // No second answers are kept: the engine refuses a used invite.
-  @override
-  Future<List<PairingStray>> strays() async => const [];
-
-  @override
-  Future<void> removeStray(String id) async {}
 
   @override
   Future<List<KeptMessage>> keptMessages() => _call(() async {

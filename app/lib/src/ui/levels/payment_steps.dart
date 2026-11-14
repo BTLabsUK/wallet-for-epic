@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The payment steps the level-aware screens share: the step word a row shows as its sub-line
+/// The payment steps the phone screens share (the same plain words for everyone): the step word a row shows as its sub-line
 /// ([paymentStepWord]), the steps with their known times ([paymentSteps]) and the live timeline
 /// ([PaymentTimeline]). Derived from the transaction and the node tip, never invented: a step
 /// shows a time only when the wallet knows it.
@@ -12,12 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n.dart';
-import '../../levels/level_features.dart';
 import '../../network_gate.dart' show NetGate;
 import '../../pairing_providers.dart' show PairNet, pairNetProvider;
 import '../../settings.dart' show clockProvider;
 import '../../stall_retry.dart' show invoicePaymentStalled;
-import '../../levels/level_providers.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../finished_not_posted.dart' show isPostElsewhere;
@@ -25,13 +23,11 @@ import '../send_tracker.dart' show RoundSteps;
 import '../theme/protocol.dart' show TimelineState, TimelineStep;
 
 /// The step word of [tx] for a row's sub-line: "Waiting for Alice", "Arriving",
-/// "Confirming 1 of 3", "Received", "Sent". [who] is the other side's name when known. With
-/// [TimelineStyle.technicalSteps] (level 3) it is today's status label, unchanged.
+/// "Confirming 1 of 3", "Received", "Sent". [who] is the other side's name when known.
 String paymentStepWord(
   AppLocalizations l,
   TxEntry tx,
   BigInt? tip, {
-  required TimelineStyle style,
   int? target,
   DateTime? now,
   String? who,
@@ -39,7 +35,6 @@ String paymentStepWord(
   bool paused = false,
 }) {
   final today = txStatusLabel(l, tx, tip, target: target, now: now, pairedWith: pairedWith, paused: paused);
-  if (style == TimelineStyle.technicalSteps) return today;
   return switch (txPhase(tx, tip, target: target)) {
     // Not delivered / stalled keep their own words.
     TxPhase.waitingRecipient when tx.undelivered || pairedWith != null => today,
@@ -59,14 +54,13 @@ String paymentStepWord(
   };
 }
 
-/// The step word for a row, with the level, the name, the target and the clock taken from [ref].
+/// The step word for a row, with the name, the target and the clock taken from [ref].
 String paymentStepWordOf(WidgetRef ref, TxEntry tx, BigInt? tip) {
   final l = ref.context.l10n;
   return paymentStepWord(
     l,
     tx,
     tip,
-    style: ref.watch(levelFeaturesProvider.select((f) => f.timeline)),
     target: confirmationsTargetOf(ref),
     now: ref.watch(clockProvider)(),
     who: txPartyName(ref, tx),

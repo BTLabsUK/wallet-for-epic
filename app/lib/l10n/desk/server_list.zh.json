@@ -1,7 +1,6 @@
 {
   "deskSlRemoveHost": "移除 {host}",
   "deskSlInUse": "使用中",
-  "deskSlHealthUnknown": "状态未知",
   "deskSlNodeNoAnswer": "此节点无应答。未添加任何内容。",
   "deskSlTorWait": "Tor 尚未连接。未添加任何内容。",
   "deskSlLatency": "{ms} 毫秒",

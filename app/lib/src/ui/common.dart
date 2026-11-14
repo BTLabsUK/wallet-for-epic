@@ -8,10 +8,11 @@ import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, Po
 import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 
 import '../address_format.dart' show displayCase;
 import '../address_format.dart' as address_format show shortAddress;
-import '../advanced.dart' show NetworkModeRestricted;
+import '../advanced.dart' show AdvancedFeature, NetworkModeRestricted;
 import '../amount.dart';
 import '../devices/device_ending.dart';
 import 'info_hint.dart' show InfoHint;
@@ -32,6 +33,8 @@ import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'address_view.dart' show ShortAddressText;
 import 'method_names.dart' show methodKindOfTransport;
+import 'kit/kit_ground.dart' show KitGround;
+import 'kit/kit_tokens.dart' show Kit, KitType;
 import 'motion_switches.dart';
 import 'notices.dart';
 import 'badge.dart';
@@ -45,7 +48,7 @@ import 'via.dart';
 import 'tx_label.dart';
 import 'tip.dart';
 import 'levels/payment_steps.dart' show paymentStepWord;
-import '../levels/level_providers.dart' show levelFeaturesProvider;
+import '../levels/level_providers.dart' show effectiveAdvancedProvider;
 
 export '../models.dart' show txAmount;
 export '../text_join.dart';
@@ -53,30 +56,47 @@ export '../text_join.dart';
 export 'badge.dart';
 export 'notices.dart';
 
-/// Replaces the whole navigation stack with the shell of the open wallet, on its Wallet tab.
+/// Replaces the whole navigation stack with the shell of the open wallet, on its Home tab.
 void goHome(BuildContext context) {
   ProviderScope.containerOf(
     context,
     listen: false,
-  ).read(shellTabProvider.notifier).go(ShellTab.wallet);
+  ).read(shellTabProvider.notifier).go(ShellTab.home);
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
     (_) => false,
   );
 }
 
-/// Shows [tab] of the wallet shell and closes every screen over it. With [recipient] (a
-/// scanned code, Send again), the Send form takes it as the recipient; with [pairingTo], the
-/// paired contact with no address, paid through its mailbox.
-void showShellTab(BuildContext context, ShellTab tab, {String? recipient, String? pairingTo}) {
+/// The name of the route that holds the Send flow over the shell.
+const sendFlowRouteName = 'send-flow';
+
+final Set<Object> _sendHolders = {};
+
+/// Send tells here whether it holds a payment that was sent or is being sent ([owner] is its
+/// state): such a Send is not closed by another flow opening over the shell.
+void sendHoldsPayment(Object owner, bool holds) => holds ? _sendHolders.add(owner) : _sendHolders.remove(owner);
+
+/// Closes every screen over the shell, except a Send route that holds a payment (sent or being
+/// sent): that one stays, and a request to open Send brings it forward instead of a new one.
+/// Returns whether such a Send route is left open.
+bool popToShell(NavigatorState navigator) {
+  navigator.popUntil((route) => route.isFirst || (_sendHolders.isNotEmpty && route.settings.name == sendFlowRouteName));
+  return _sendHolders.isNotEmpty;
+}
+
+/// Opens [flow] over the wallet shell and closes every screen over the shell first. With
+/// [recipient] (a scanned code, Send again), the Send form takes it as the recipient; with
+/// [pairingTo], the paired contact with no address, paid through its mailbox.
+void showShellFlow(BuildContext context, ShellFlow flow, {String? recipient, String? pairingTo}) {
   final container = ProviderScope.containerOf(context, listen: false);
   if (recipient != null) {
     container.read(sendRecipientProvider.notifier).hand(recipient);
   } else if (pairingTo != null) {
     container.read(sendRecipientProvider.notifier).handPairing(pairingTo);
   }
-  container.read(shellTabProvider.notifier).go(tab);
-  Navigator.of(context).popUntil((route) => route.isFirst);
+  container.read(shellFlowProvider.notifier).open(flow);
+  popToShell(Navigator.of(context));
 }
 
 /// The web preview build (tool/build_preview.sh) has no lock: a const of its define, false in
@@ -127,7 +147,7 @@ Future<void> copySecretText(BuildContext context, String text, String notice) as
 const double progressSlotHeight = 2;
 
 /// A 2 dp line under the app bar for a screen's own status, such as [SlotProgress]. It
-/// reserves no more, so nothing moves when work starts or ends. Notices dock under it
+/// is laid over the top edge and reserves nothing, so nothing moves when work starts or ends. Notices dock under it
 /// ([NoticeDock]).
 class ProgressSlot extends StatelessWidget {
   const ProgressSlot({super.key, this.idle});
@@ -167,8 +187,8 @@ class SlotProgress extends StatelessWidget {
 /// A [Scaffold] with a [ProgressSlot] under the app bar and the [NoticeDock] under that. With
 /// [centered], [body] sits in the middle of the space left (and scrolls when it does not fit);
 /// otherwise it starts right below the dock, which moves it down while a notice shows. [idle]
-/// is what the slot shows, such as a [SlotProgress]. With [glow], the screen gets the lit
-/// Protocol backdrop, its light at that point.
+/// is what the slot shows, such as a [SlotProgress]. Every phone page stands on the [KitGround]
+/// (the frames' glow and grid); under the home shell it keeps the shell's.
 class SlotScaffold extends StatefulWidget {
   const SlotScaffold({
     super.key,
@@ -176,7 +196,6 @@ class SlotScaffold extends StatefulWidget {
     required this.body,
     this.centered = false,
     this.idle,
-    this.glow,
     this.breathing = false,
     this.floatingActionButton,
     this.bottomNavigationBar,
@@ -186,9 +205,8 @@ class SlotScaffold extends StatefulWidget {
   final Widget body;
   final bool centered;
   final Widget? idle;
-  final Alignment? glow;
 
-  /// With [glow]: the light swells and fades slowly ([ProtocolBackdrop.breathing]).
+  /// The ground's light swells and fades slowly ([ProtocolBackdrop.breathing]).
   final bool breathing;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
@@ -207,28 +225,28 @@ class _SlotScaffoldState extends State<SlotScaffold> {
       appBar: widget.appBar,
       floatingActionButton: widget.floatingActionButton,
       bottomNavigationBar: widget.bottomNavigationBar,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      // The slot is a line laid over the top edge, not a row: the frames have no 2 dp above the
+      // content.
+      body: Stack(
+        fit: StackFit.expand,
         children: [
-          ProgressSlot(idle: widget.idle),
-          MeasureDock(meter: _dock, child: const NoticeDock()),
-          Expanded(
-            child: StillUnderDock(
-              meter: _dock,
-              child: widget.centered ? CenteredScroll(child: body) : body,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              MeasureDock(meter: _dock, child: const NoticeDock()),
+              Expanded(
+                child: StillUnderDock(
+                  meter: _dock,
+                  child: widget.centered ? CenteredScroll(child: body) : body,
+                ),
+              ),
+            ],
           ),
+          Positioned(top: 0, left: 0, right: 0, child: ProgressSlot(idle: widget.idle)),
         ],
       ),
     );
-    final glow = widget.glow;
-    return glow == null
-        ? scaffold
-        : ProtocolBackdrop(
-            focus: glow,
-            breathing: widget.breathing,
-            child: scaffold,
-          );
+    return KitGround(breathing: widget.breathing, child: scaffold);
   }
 }
 
@@ -555,7 +573,7 @@ String shortAddress(String address, {String? ownServer, bool relay = true}) {
   }
   final at = text.indexOf('@');
   final key = at < 0 ? text : text.substring(0, at);
-  // Level 1 names no server ([LevelFeatures.serverNames]): the key alone ([relay] false).
+  // A row names no server unless Server details is on: the key alone ([relay] false).
   var server = at < 0 || !relay ? '' : text.substring(at);
   if (ownServer != null && server.isNotEmpty) {
     final host = server.substring(1).split(':').first.toLowerCase();
@@ -602,6 +620,29 @@ String? approxFiat(
     }
   }
   return approxText(localDigits(l, text));
+}
+
+/// The phone's value of [atomic]: `$1,327.13`, the currency's symbol before the figure (the code
+/// when it has none), with [approx] a leading `≈`. Cents always show. Null when there is no
+/// price or amounts are hidden. Bitcoin keeps its 8 decimals and its code.
+String? phoneFiat(
+  AppLocalizations l,
+  BigInt atomic,
+  ({bool hidden, double? price, String currency}) display, {
+  bool approx = false,
+}) {
+  final price = display.price;
+  if (price == null || display.hidden) return null;
+  final code = display.currency.toUpperCase();
+  final value = (atomic / atomicPerEpic * price).abs();
+  final String text;
+  if (code == 'BTC') {
+    text = fiatText(atomic, price, code);
+  } else {
+    text = NumberFormat.simpleCurrency(locale: 'en', name: code, decimalDigits: 2).format(value).replaceAll('\u00a0', noBreakSpace);
+  }
+  final figure = localDigits(l, text);
+  return approx ? approxText(figure) : figure;
 }
 
 // Dates.
@@ -1006,7 +1047,6 @@ class TxStatusLine extends ConsumerWidget {
                     context.l10n,
                     tx,
                     tip,
-                    style: ref.watch(levelFeaturesProvider.select((f) => f.timeline)),
                     target: target,
                     now: now,
                     who: txPartyName(ref, tx),
@@ -1858,7 +1898,10 @@ String txSpokenLabel(
   // English lower-cases the chip's word mid-sentence; other languages keep it, since German
   // nouns stay capitalised and Chinese has no case.
   // Only the first letter: a name in it keeps its case ("waiting for Anna").
-  final spokenStatus = l.localeName == 'en' && status.isNotEmpty ? status[0].toLowerCase() + status.substring(1) : status;
+  // A finished row's chip says Sent or Received, which the sentence starts with already:
+  // "completed" there, so the word is not said twice.
+  final said = status == l.txStatusSent || status == l.txStatusReceived ? l.txStatusCompleted : status;
+  final spokenStatus = l.localeName == 'en' && said.isNotEmpty ? said[0].toLowerCase() + said.substring(1) : said;
   final row = l.txSpokenRow(what, spokenStatus, date);
   // The row's lock, said once after the rest.
   final sentence = sealed ? l.deskE1SpokenSealed(row) : row;
@@ -1885,8 +1928,8 @@ class TxTile extends ConsumerWidget {
         : approxFiat(l, amount, display, short: true);
     final theme = Theme.of(context);
     final name = txPartyName(ref, tx);
-    // Level 1 names no server: an address is its key alone.
-    final relay = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
+    // A row names no server unless Server details is on: an address is its key alone.
+    final relay = ref.watch(effectiveAdvancedProvider.select((a) => a.has(AdvancedFeature.serverDetails)));
     final title = txTitle(
       l,
       tx,
@@ -1939,7 +1982,6 @@ class TxTile extends ConsumerWidget {
                 l,
                 tx,
                 tip,
-                style: ref.watch(levelFeaturesProvider.select((f) => f.timeline)),
                 target: confirmationsTargetOf(ref),
                 now: now,
                 who: name,
@@ -2118,12 +2160,16 @@ class BusyButton extends StatelessWidget {
     this.busy = false,
     this.busyLabel,
     this.semanticsId,
+    this.kit = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool busy;
   final String? busyLabel;
+
+  /// The phone's button: 52 tall, the kit's 16 px label (`.btn`).
+  final bool kit;
 
   /// The button's id for the drivers ([TrustId]).
   final String? semanticsId;
@@ -2132,7 +2178,9 @@ class BusyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FilledButton(
       onPressed: busy ? null : onPressed,
-      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+      style: kit
+          ? FilledButton.styleFrom(minimumSize: const Size.fromHeight(Kit.button), textStyle: KitType.button)
+          : FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
       child: TrustId(semanticsId, child: busy
           ? Row(
               mainAxisSize: MainAxisSize.min,

@@ -15,10 +15,8 @@ import 'package:epic_wallet/src/notice_digest.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/message_checks.dart';
 import 'package:epic_wallet/src/notice_digest_text.dart';
-import 'package:epic_wallet/src/ui/levels/status_parts.dart';
 import 'package:epic_wallet/src/ui/message_check_panel.dart';
 import 'package:epic_wallet/src/ui/notices.dart';
-import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/web/splash.dart';
@@ -201,13 +199,17 @@ class _PhoneColumn extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          StatusSheetHeader(
-            tile: StatusServiceTile(icon: EpicGlyphs.epicbox, enabled: !check.failed),
-            name: l.netStatusEpicbox,
-            word: check.failed ? l.lvShellBoxNotReachable : l.lvShellBoxListening,
-            dot: check.failed ? StatusDot.bad : StatusDot.ok,
-            second: 'epicbox.epiccash.com',
-            secondMono: true,
+          Row(
+            children: [
+              Icon(EpicGlyphs.epicbox, size: 20, color: t.dim),
+              const SizedBox(width: 8),
+              Text(l.netStatusEpicbox),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(check.failed ? l.lvShellBoxNotReachable : l.lvShellBoxListening,
+                    textAlign: TextAlign.end, maxLines: 2, style: TextStyle(color: check.failed ? t.risk : t.dim)),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           MessageCheckPanel(key: ValueKey(state), check),

@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/common.dart' show DangerButton;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -298,12 +299,12 @@ void main() {
 
     test('an invoice paid: the same words, final or not', () {
       final tx = _send(flow: TxFlow.invoice, cancelled: true, reason: CancelReason.user);
-      expect(say(tx, true), _l.txDetailsCancelledByUser);
-      expect(say(tx, false), _l.txDetailsCancelledByUser);
+      expect(say(tx, true), _l.phoneTxCancelledByUser);
+      expect(say(tx, false), _l.phoneTxCancelledByUser);
     });
 
     test('a plain send keeps its certain words', () {
-      expect(say(_send(cancelled: true, reason: CancelReason.user), null), _l.txDetailsCancelledByUser);
+      expect(say(_send(cancelled: true, reason: CancelReason.user), null), _l.phoneTxCancelledByUser);
     });
 
     test('a released send keeps its released words', () {
@@ -315,7 +316,7 @@ void main() {
   });
 
   group('phone', () {
-    Future<FakeWalletSession> pump(WidgetTester tester, TxEntry tx) async {
+    Future<FakeWalletSession> pump(WidgetTester tester, TxEntry tx, {bool under = false}) async {
       final session = _session(tx);
       final store = MemorySecretStore();
       store.values['wallet.mainnet.backedUp'] = '1';
@@ -339,11 +340,26 @@ void main() {
           child: MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const TxDetailsScreen(txKey: 's:pay-1'),
+            home: under
+                ? Builder(
+                    builder: (context) => Scaffold(
+                      body: TextButton(
+                        onPressed: () => Navigator.of(context).push<void>(
+                          MaterialPageRoute<void>(builder: (_) => const TxDetailsScreen(txKey: 's:pay-1')),
+                        ),
+                        child: const Text('under'),
+                      ),
+                    ),
+                  )
+                : const TxDetailsScreen(txKey: 's:pay-1'),
           ),
         ),
       );
       await tester.pumpAndSettle();
+      if (under) {
+        await tester.tap(find.text('under'));
+        await tester.pumpAndSettle();
+      }
       return session;
     }
 
@@ -351,9 +367,18 @@ void main() {
         ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
 
     Future<void> cancel(WidgetTester tester) async {
-      await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).first);
+      await tester.tap(find.widgetWithText(KitButton, _l.txDetailsCancelPayment).first);
       await tester.pumpAndSettle();
     }
+
+    testWidgets('pushed over another page: the back link goes back to it', (tester) async {
+      await pump(tester, _send(), under: true);
+      expect(find.byType(TxDetailsScreen), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(_l.historyTitle).first);
+      await tester.pumpAndSettle();
+      expect(find.byType(TxDetailsScreen), findsNothing);
+      expect(find.text('under'), findsOneWidget);
+    });
 
     testWidgets('an invoice paid: the note and the dialog say so, the fee in one line; one Cancel does both', (tester) async {
       final s = await pump(tester, _send(flow: TxFlow.invoice));
@@ -402,7 +427,7 @@ void main() {
       final s = _session(tx);
       expect(s.outputsValue.where((o) => o.txId == 9 && o.status == WalletOutputStatus.unspent), isEmpty);
       await pump(tester, tx);
-      expect(find.text(_l.txDetailsCancelledByUser), findsOneWidget);
+      expect(find.text(_l.phoneTxCancelledByUser), findsOneWidget);
     });
   });
 

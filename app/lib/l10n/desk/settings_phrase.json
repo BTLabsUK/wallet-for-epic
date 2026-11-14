@@ -44,10 +44,6 @@
       }
     }
   },
-  "deskSetPhraseHideQr": "Hide QR",
-  "@deskSetPhraseHideQr": {
-    "description": "Settings > Recovery phrase: button that hides the QR code."
-  },
   "deskSetPhraseShowQr": "Show QR",
   "@deskSetPhraseShowQr": {
     "description": "Settings > Recovery phrase: button that shows the phrase as a QR code."
@@ -64,10 +60,6 @@
         "type": "int"
       }
     }
-  },
-  "deskSetPhraseQrLabel": "QR code of the recovery phrase",
-  "@deskSetPhraseQrLabel": {
-    "description": "Screen reader label of the recovery phrase QR code."
   },
   "deskSetPhraseBackUp": "Back up the phrase",
   "@deskSetPhraseBackUp": {

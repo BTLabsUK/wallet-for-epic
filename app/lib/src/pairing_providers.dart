@@ -244,12 +244,6 @@ final contactsInFlightProvider = Provider<List<String>>((ref) {
   return contactsInFlight(ref.watch(pairingsProvider).value ?? const <PairingRecord>[]);
 });
 
-/// Second answers to used codes.
-final pairingStraysProvider = FutureProvider<List<PairingStray>>((ref) {
-  ref.watch(pairingsProvider);
-  return ref.watch(pairingApiProvider).strays();
-});
-
 /// The pairing events of the open wallet, for the notices.
 final pairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(pairingApiProvider).events());
 

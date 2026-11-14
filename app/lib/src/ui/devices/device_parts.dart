@@ -16,6 +16,7 @@ import '../../advanced.dart' show NetworkModeRestricted;
 import '../../settings.dart' show appSettingsProvider, networkModeProvider;
 import '../app_dialog.dart';
 import '../badge.dart';
+import '../inline_button.dart';
 import '../theme/tokens.dart';
 import 'link_device_screen.dart';
 import 'linked_devices_screen.dart' show LinkedDevicesScreen;
@@ -28,15 +29,6 @@ String deviceSeenLine(AppLocalizations l, DateTime? at, DateTime now) {
   if (d.inHours < 1) return l.devicesSeenMinutes(d.inMinutes);
   if (d.inDays < 1) return l.devicesSeenHours(d.inHours);
   return l.devicesSeenDays(d.inDays);
-}
-
-/// The hub row's state line: None, "Desktop · seen 2 min ago", or "2 devices · seen …" (the
-/// device seen last).
-String devicesStateLine(AppLocalizations l, List<LinkedDevice> devices, DateTime now) {
-  if (devices.isEmpty) return l.devicesNone;
-  final last = [...devices]..sort((a, b) => (b.lastSeen ?? b.linkedAt).compareTo(a.lastSeen ?? a.linkedAt));
-  final who = devices.length == 1 ? devices.single.name : l.devicesCount(devices.length);
-  return l.settingsStateJoin(who, deviceSeenLine(l, last.first.lastSeen, now));
 }
 
 /// Why a link did not complete, in a sentence ([name]: the other device, when known).
@@ -191,10 +183,10 @@ class LinkDeviceOffer extends ConsumerWidget {
           spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            TextButton.icon(
+            InlineTextButton(
               key: const ValueKey('link-device-offer-button'),
               icon: const Icon(Icons.devices_outlined),
-              label: Text(linked ? l.expLinkedDevices : l.devicesLink),
+              child: Text(linked ? l.expLinkedDevices : l.devicesLink),
               onPressed: () => linked
                   ? Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LinkedDevicesScreen()))
                   : openLinkDevice(context, ref),

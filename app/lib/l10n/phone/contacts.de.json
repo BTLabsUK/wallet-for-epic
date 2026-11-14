@@ -1,0 +1,14 @@
+{
+  "phoneContactsSearchHint": "Suchen oder Adresse einfügen",
+  "phoneContactsAtoZ": "A bis Z",
+  "phoneContactsNoPayments": "Noch keine Zahlungen",
+  "phoneContactsAsks": "Verlangt {amount}",
+  "phoneContactsFaces": "Kontakte",
+  "phoneContactPaired": "Gekoppelt · Zahlungen zwischen euch sind versiegelt",
+  "phoneContactRequest": "Anfordern",
+  "phoneContactsYouPaid": "Du hast bezahlt",
+  "phoneContactsPaidYou": "Hat dich bezahlt",
+  "phoneContactsArriving": "{count} Zahlungen unterwegs",
+  "phoneContactsNow": "Jetzt",
+  "phoneContactsWaitingAnswer": "Warten auf die Wallet von {who}"
+}

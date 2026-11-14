@@ -44,7 +44,6 @@
   "deskOnbCreateCheckScreen": "Upewnij się, że nikt nie widzi ekranu.",
   "deskOnbCreateHide": "Ukryj",
   "deskOnbCreateShowQr": "Pokaż QR",
-  "deskOnbCreateHideQr": "Ukryj kod QR",
   "deskOnbCreateQrWarn": "Każdy, kto zeskanuje ten kod, może zabrać monety",
   "deskOnbCreateQrWarnText": "Skanuj go tylko do innego portfela, któremu ufasz.",
   "deskOnbCreateQrLabel": "Fraza odzyskiwania jako kod QR",

@@ -26,6 +26,12 @@ import '../wallet_service.dart';
 import 'app_dialog.dart';
 import 'common.dart';
 import 'invoice_rows.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_hero_amount.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_tokens.dart';
 import 'invoices_screen.dart';
 import 'net_block.dart';
 import 'pairing/pairing_parts.dart';
@@ -33,7 +39,6 @@ import 'pin.dart';
 import 'qr_show_screen.dart' show QrShowDone, showPaidReplyQr;
 import '../trust/policy.dart' show statedAutomated;
 import 'slate_file_screen.dart' show SlateFileResult;
-import 'theme/brand.dart' show GlyphTile;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
@@ -44,7 +49,7 @@ Future<bool> _invoiceGate(BuildContext context, WidgetRef ref) async {
   final config = ref.read(walletConfigProvider);
   if (session == null || config == null) return false;
   final vault = ref.read(vaultProvider);
-  final approved = await askPin(
+  final approved = await showPinSheet(
     context,
     reason: usesPassphrase(ref) ? context.l10n.invoicePassphraseReason : context.l10n.invoicePinReason,
     action: (pin) async {
@@ -221,7 +226,6 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
     final t = context.tokens;
     final pairing = _invoice.pairingId == null ? null : ref.watch(pairingByIdProvider(_invoice.pairingId!));
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
@@ -255,11 +259,6 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
       currency: display.currency,
     ));
     final message = invoiceMessageLine(_invoice.message);
-    final mono = TextStyle(
-      fontFamily: t.monoFamily,
-      fontSize: 13,
-      color: t.text,
-    );
 
     final Widget bottom = unsent != null
         ? BusyButton(
@@ -277,11 +276,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
                 busy: _busy,
                 onPressed: canAnswer && gate.ready ? _approve : null,
               ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              const SizedBox(height: 10),
+              KitButton(
+                label: l.invoiceDecline,
+                kind: KitButtonKind.quiet,
                 onPressed: canAnswer ? _decline : null,
-                child: Text(l.invoiceDecline),
               ),
             ],
           );
@@ -291,7 +290,12 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
             children: [
               Icon(Icons.timer_off_outlined, size: 18, color: t.warn),
               const SizedBox(width: 6),
-              Expanded(child: Text(expired ? l.invoiceExpired : l.invoiceGone)),
+              Expanded(
+                child: Text(
+                  expired ? l.invoiceExpired : l.invoiceGone,
+                  style: KitType.rowSub.copyWith(color: t.text),
+                ),
+              ),
             ],
           )
         : Wrap(
@@ -299,132 +303,158 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
             children: [
               Text(
                 invoiceTimeLeft(l, _invoice.timeLeftAt(now)),
-                style: TextStyle(
-                  color: _invoice.timeLeftAt(now) < invoiceWarnUnder
-                      ? t.warn
-                      : t.text,
+                style: KitType.rowSub.copyWith(
+                  color: _invoice.timeLeftAt(now) < invoiceWarnUnder ? t.warn : t.text,
                 ),
               ),
-              Text(
-                l.invoicesUntil(localClock(l, _invoice.expiresAt)),
-                style: TextStyle(color: t.dim),
-              ),
+              Text(l.invoicesUntil(localClock(l, _invoice.expiresAt)), style: KitType.rowSub.copyWith(color: t.dim)),
             ],
           );
+    // One fact of the page: the label above, the value under it.
+    Widget fact(String label, Widget value) => KitRow(
+      title: label,
+      titleColor: t.dim,
+      size: KitRowSize.sheet,
+      subtitleWidget: DefaultTextStyle.merge(style: KitType.rowSub.copyWith(color: t.text), child: value),
+    );
 
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.reqTitle)),
       idle: _busy ? SlotProgress(label: l.reqTitle) : null,
-      body: ScreenBody(
-        bottom: block == NetBlock.none
-            ? bottom
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [NetBlockNote(block), bottom],
-              ),
-        children: [
-          // The contact, by the user's own name for it; its key shortened, never the relay's
-          // name. Sealed: it came through the contact's mailbox, sealed and signed.
-          Row(
-            children: [
-              PairAvatar(name: service, size: 48),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        l.reqRequests(service),
-                        style: theme.textTheme.titleMedium,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KitFlowHeader(
+              title: l.reqTitle,
+              onLeading: () => Navigator.of(context).maybePop(),
+            ),
+            Expanded(
+              child: ScreenBody(
+                bottom: block == NetBlock.none
+                    ? bottom
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [NetBlockNote(block), bottom],
                       ),
-                    ),
-                    if (pairing != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4, bottom: 2),
-                        child: Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: [const SealedBadge(), TrustBadge(pairing)],
+                children: [
+                  // The contact, by the user's own name for it; its key shortened, never the
+                  // relay's name. Sealed: it came through the contact's mailbox, sealed and signed.
+                  Column(
+                    children: [
+                      PairAvatar(name: service, size: 56),
+                      const SizedBox(height: 12),
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          l.reqRequests(service),
+                          textAlign: TextAlign.center,
+                          style: KitType.pageTitle.copyWith(color: t.text),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    // A contact's request names the contact; its mailbox is never shown as an
-                    // address (RFC C-21).
-                    if (pairing == null)
-                      Text(
-                        _shortKey(_invoice.senderAddress),
-                        style: mono.copyWith(color: t.dim),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          ReviewAmount(amount: _invoice.amount),
-          if (fiat != null)
-            Text(
-              fiat,
-              style: theme.textTheme.titleMedium?.copyWith(color: t.dim),
-            ),
-          const SizedBox(height: 20),
-          _Fact(label: l.invoicesExpires, child: expiry),
-          if (invoiceMessageLine(_invoice.reference) case final reference?)
-            // The contact's own words for it, as untrusted as the message.
-            _Fact(label: l.reqReference, child: Text(reference, maxLines: 2)),
-          if (message != null)
-            // Hostile text: plain, its controls and line breaks gone, never a link.
-            _Fact(
-              label: l.invoicesMessage,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(message, maxLines: 3, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text(
-                    l.deskInvPayerMessageCaption(service),
-                    style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                      if (pairing != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: [const SealedBadge(), TrustBadge(pairing)],
+                          ),
+                        ),
+                      // A contact's request names the contact; its mailbox is never shown as an
+                      // address (RFC C-21).
+                      if (pairing == null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            _shortKey(_invoice.senderAddress),
+                            style: KitType.address.copyWith(color: t.dim),
+                          ),
+                        ),
+                    ],
                   ),
+                  const SizedBox(height: 24),
+                  KeyedSubtree(
+                    key: invoiceReviewAmountKey,
+                    child: KitHeroAmount(
+                      amount: epicFor(l, _invoice.amount, surface: AmountSurface.exact, unit: false),
+                      unit: epicUnit,
+                    ),
+                  ),
+                  if (fiat != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        fiat,
+                        textAlign: TextAlign.center,
+                        style: KitType.body.copyWith(color: t.dim),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                  KitGroup(
+                    margin: EdgeInsets.zero,
+                    dividerInset: Kit.dividerInsetPlain,
+                    children: [
+                      fact(l.invoicesExpires, expiry),
+                      if (invoiceMessageLine(_invoice.reference) case final reference?)
+                        // The contact's own words for it, as untrusted as the message.
+                        fact(l.reqReference, Text(reference, maxLines: 2)),
+                      if (message != null)
+                        // Hostile text: plain, its controls and line breaks gone, never a link.
+                        fact(
+                          l.invoicesMessage,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(message, maxLines: 3, overflow: TextOverflow.ellipsis),
+                              const SizedBox(height: 4),
+                              Text(
+                                l.deskInvPayerMessageCaption(service),
+                                style: KitType.rowSub.copyWith(color: t.dim),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (pairing == null)
+                        fact(
+                          l.invoicesFrom,
+                          _AddressText(_invoice.senderAddress, style: KitType.address.copyWith(color: t.text)),
+                        ),
+                      if (unsent == null)
+                        fact(
+                          l.invoicesPaysFrom,
+                          Text(
+                            l.invoicesAvailable(
+                              spendable == null ? '…' : shownEpic(l, spendable, hidden: display.hidden),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (unsent == null && !expired && !gone) ...[
+                    const SizedBox(height: 12),
+                    const _Checks(),
+                  ],
+                  if (short != null && canAnswer) ...[
+                    const SizedBox(height: 16),
+                    InlineNotice(level: NoticeLevel.error, text: l.invoicesShort(epicExact(l, short)), liveRegion: true),
+                  ],
+                  if (unsent != null) ...[
+                    const SizedBox(height: 16),
+                    InlineNotice(
+                      level: NoticeLevel.warning,
+                      title: l.invoiceReplyFailedTitle(service),
+                      text: l.invoiceReplyFailedBody,
+                    ),
+                  ],
                 ],
               ),
             ),
-          if (pairing == null)
-            _Fact(
-              label: l.invoicesFrom,
-              child: _AddressText(_invoice.senderAddress, style: mono),
-            ),
-          if (unsent == null)
-            _Fact(
-              label: l.invoicesPaysFrom,
-              child: Text(
-                l.invoicesAvailable(
-                  spendable == null
-                      ? '…'
-                      : shownEpic(l, spendable, hidden: display.hidden),
-                ),
-              ),
-            ),
-          if (unsent == null && !expired && !gone) ...[
-            const SizedBox(height: 8),
-            const _Checks(),
           ],
-          if (short != null && canAnswer) ...[
-            const SizedBox(height: 16),
-            InlineNotice(level: NoticeLevel.error, text: l.invoicesShort(epicExact(l, short)), liveRegion: true),
-          ],
-          if (unsent != null) ...[
-            const SizedBox(height: 16),
-            InlineNotice(
-              level: NoticeLevel.warning,
-              title: l.invoiceReplyFailedTitle(service),
-              text: l.invoiceReplyFailedBody,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -624,7 +654,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           children: [
             Row(
               children: [
-                GlyphTile(size: 48, child: Icon(Icons.check_circle_outline, color: t.ok)),
+                KitIconWell(Icons.check_circle_outline, color: t.ok, size: 48),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Semantics(
@@ -739,10 +769,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           else ...[
             Row(
               children: [
-                GlyphTile(
-                  size: 48,
-                  child: Icon(widget.scanned ? Icons.qr_code_2 : Icons.description_outlined, color: t.accentText),
-                ),
+                KitIconWell(widget.scanned ? Icons.qr_code_2 : Icons.description_outlined, color: t.accentText, size: 48),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Semantics(
@@ -1169,7 +1196,7 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
     };
 
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 16, Kit.gutter, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

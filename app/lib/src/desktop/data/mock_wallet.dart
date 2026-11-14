@@ -1117,12 +1117,6 @@ class MockDeskWallet implements DeskWalletApi {
   int get _nowUnix => DateTime(2026, 10, 21, 14, 30).millisecondsSinceEpoch ~/ 1000;
 
   @override
-  Future<String> exportProof(int id) async {
-    await _wait();
-    return '~/Documents/epic-proof-$id.json';
-  }
-
-  @override
   Future<String> saveContact(Contact contact) async {
     final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
     _contacts.removeWhere((c) => c.id == id);
@@ -1196,6 +1190,12 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait();
     if (_node.startsWith('http://127.0.0.1:')) _node = 'http://127.0.0.1:${hostSettings.localNodeApiPort}';
   }
+
+  /// Every [dropNodeConnections] call.
+  int nodeConnectionDrops = 0;
+
+  @override
+  void dropNodeConnections() => nodeConnectionDrops++;
 
   @override
   Future<NodeServer> checkNode(String url) async {

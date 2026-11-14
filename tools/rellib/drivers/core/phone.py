@@ -26,27 +26,32 @@ T = tg.T_phone
 
 WELCOME_CREATE = T("g4.welcome.create")
 TOR_ONLY = T("g4.welcome.toronly")
-LEVEL_PICK = T("g4.level.stop.3")
-DEEP_END = T("g4.level.stop.3")
+# The phone has no levels now (the id is the desktop's); the previous release, which the update lanes
+# start from, still asks for one on a fresh install: found by the names that build has.
+DEEP_END = tg.Target("g4.level.stop.3", role="checkbox", keys=("lvPickStopThree",), names=("Deep end",),
+                     match="line", screen="level", family=("android",))
+LEVEL_PICK = DEEP_END
 TOUR_SKIP = T("g4.tour.skip")
 BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 
 PIN_CHOOSE = T("g4.pin.choose")
 PIN_AGAIN = T("g4.pin.again")
 PIN_FIELD = T("g4.pin.field")
+# The wallet's own keypad (the phone's PIN screens); a passphrase wallet and older builds keep the text field.
+PIN_KEYS = {"0": T("g4.pin.key.0"), "1": T("g4.pin.key.1"), "2": T("g4.pin.key.2"), "3": T("g4.pin.key.3"), "4": T("g4.pin.key.4"),
+            "5": T("g4.pin.key.5"), "6": T("g4.pin.key.6"), "7": T("g4.pin.key.7"), "8": T("g4.pin.key.8"), "9": T("g4.pin.key.9")}
 PIN_WRONG = T("g4.pin.wrong")
 UNLOCK_TITLE = T("g4.unlock.title")
 # The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
 UNLOCK_RETRY = T("g4.unlock.retry")
 
-LOCK = T("g4.home.lock")
-SETTINGS = T("g4.home.settings")
+RECEIVE_CLOSE = T("g4.receive.close")   # Receive opens as a flow over the tab bar, with its own close button
+SETTINGS = T("g4.tab.settings")
 TAB_SEND = T("g4.tab.send")
-TAB_WALLET = T("g4.tab.wallet")
+TAB_WALLET = T("g4.tab.home")
 TAB_RECEIVE = T("g4.tab.receive")
 CLOSE = T("g4.common.close")
 DONE = T("g4.common.done")
-SAVE = T("g4.common.save")
 CONTINUE = T("g4.common.continue")
 
 SECTION = {
@@ -70,7 +75,6 @@ THEME = {
     "Dark": T("g4.appearance.theme.dark"),
     "Light": T("g4.appearance.theme.light"),
 }
-LEVEL_ROW = T("g4.advanced.level")
 TECHNICAL = T("g4.advanced.technical")
 CONF_FEWER = T("g4.confirmations.fewer")
 
@@ -80,11 +84,11 @@ SERVER = {
     "relay": {"status": T("g4.status.epicbox"),
               "field": T("g4.server.relay.field")},
 }
-STATUS_ANY = T("g4.status.network")  # level 1's Network icon ("Network · OK")
 # Home › Contacts: level 1's one entry under the balance, the Contacts tile of the destinations row at
 # levels 2 and 3 (one id for both); the Contacts page has Add contact.
-CONTACTS = T("g4.home.contacts")
+CONTACTS = T("g4.tab.contacts")
 CONTACTS_ADD = T("g4.contacts.add")
+CONTACTS_MORE = T("g4.contacts.more")  # the gold "+" in the title: Add, Pair, Import, Export
 SWITCH = T("g4.server.switch")
 CLEAR = T("g4.server.clear")
 SERVER_ROW = T("g4.server.row")
@@ -100,7 +104,6 @@ MODE_NORMAL = T("g4.privacy.mode.standard")
 EPICBOX_ROW = T("g4.privacy.status.epicbox")
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
-RECEIVE_EPICBOX = T("g4.receive.method.epicbox")
 SEND_TO = T("g4.send.to")
 # The address selector under To for a paired contact: Paired address | Public address.
 SEND_ROUTE_PAIRED = T("g4.send.route.paired")
@@ -109,8 +112,14 @@ ROUTE_WAIT_S = 4    # for the address selector after To is filled
 SEND_CLEAR = T("g4.send.clear")
 SEND_AMOUNT = T("g4.send.amount")
 SEND_MAX = T("g4.send.max")
+SEND_REVIEW = T("g4.send.review")
+SEND_KEYS = {"0": T("g4.send.key.0"), "1": T("g4.send.key.1"), "2": T("g4.send.key.2"), "3": T("g4.send.key.3"),
+             "4": T("g4.send.key.4"), "5": T("g4.send.key.5"), "6": T("g4.send.key.6"), "7": T("g4.send.key.7"),
+             "8": T("g4.send.key.8"), "9": T("g4.send.key.9"), ".": T("g4.send.key.point")}
 SEND_CONFIRM = T("g4.send.confirm")  # sendReviewSendButton "Send {amount}"
 SEND_BACK = T("g4.send.back")
+SEND_CLOSE = T("g4.send.close")
+SEND_REVIEW_EDIT = T("g4.send.review.edit")  # the Review sheet's way back to the amount
 SEND_FAILED = T("g4.send.failed")
 
 MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
@@ -137,13 +146,12 @@ RESTORE_MONTH_CELL = T("g4.restore.month.*")
 MONTH_TITLE = T("g4.restore.month.title")
 MONTH_EARLIER = T("g4.restore.month.earlier")
 MONTH_LATER = T("g4.restore.month.later")
-MONTH_START = T("g4.restore.month.start")
 RESTORE_PROBLEM = T("g4.restore.problem")
 RESTORE_SCANNING = T("g4.restore.scan")
 RESTORE_RETRY = T("g4.restore.retry")
 RESTORE_OPEN = T("g4.restore.open")
 RESTORE_DONE = T("g4.restore.done")
-RESTORE_NOT_NOW = T("g4.restore.notnow")
+RESTORE_NOT_NOW = T("g4.restore.notnow")   # Home's rebuilt-database card; the done screen's Open wallet is RESTORE_OPEN
 RESTORE_UNFINISHED = T("g4.restore.unfinished")
 RESTORE_OFFLINE = T("g4.restore.offline")
 RESTORE_FAILED = T("g4.restore.failed")
@@ -178,6 +186,28 @@ def same_host(a, b):
     return a == b or a == b + ":443" or a + ":443" == b
 
 
+def _amount_shown(node):
+    """The figure of the Send amount display ("12.5 EPIC"); 0 when there is none."""
+    m = re.match(r"\s*(\d[\d.,\u00a0\u202f ]*)", (node.name or node.value or "") if node else "")
+    return _figure(m.group(1)) if m else 0.0
+
+
+def _figure(text):
+    """A shown figure as a number, grouped or not: "1,334.73", "1.334,73", "1 334,73" and "12,5".
+    The last separator is the decimal point when both kinds appear or its kind appears once;
+    a kind that appears more than once only groups."""
+    t = re.sub(r"[\s\u00a0\u202f]", "", text).rstrip(".,")
+    last = max(t.rfind("."), t.rfind(","))
+    if last >= 0 and t.count(t[last]) == 1:
+        t = re.sub(r"[.,]", "", t[:last]) + "." + t[last + 1:]
+    else:
+        t = re.sub(r"[.,]", "", t)
+    try:
+        return float(t) if t else 0.0
+    except ValueError:
+        return 0.0
+
+
 class Phone:
     """The recipe on one running app. `which` is previous | candidate."""
 
@@ -193,8 +223,8 @@ class Phone:
         return self.d.labels.text(key) if self.d.labels and self.d.labels.text(key) else fallback
 
     def _home(self):
-        return Expect("the wallet's home (Lock wallet and the tabs)",
-                      lambda d, tree: d.find_in(LOCK, tree) and d.find_in(TAB_WALLET, tree) and True)
+        return Expect("the wallet's tab bar (Home, Activity, Scan, Contacts, Settings)",
+                      lambda d, tree: d.find_in(TAB_WALLET, tree) and True)
 
     def _pressable(self, target, tree):
         hits = self.d.find_in(target, tree)
@@ -207,7 +237,14 @@ class Phone:
         d.trail.append(step)
         for _ in range(2):
             f = d.locate(PIN_FIELD, 30)
-            d._act(d.s.set_text, f, self.pin, True)
+            if d.find_in(PIN_KEYS["0"], d.tree()):
+                # The keypad: one key per digit, no digit in a log or a step line.
+                with d.hush():
+                    for c in self.pin:
+                        k = d.locate(PIN_KEYS[c], 10)
+                        d._act(d.s.press, k)
+            else:
+                d._act(d.s.set_text, f, self.pin, True)
             r = d.wait(then, timeout)
             if r:
                 return r
@@ -307,14 +344,17 @@ class Phone:
             # a fresh install scans from block 0, whatever the wallet's birth
             self.log("restore start: the whole chain (this build offers no start choice at its level)")
             return
-        d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
+        # The row opens the month sheet (builds after 26.11.4; older ones open a By month / By height panel
+        # with the month button), or the height field when the start is a block height.
+        d.press(RESTORE_START, step="restore-start", then=shows(MONTH_TITLE, RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
         if height is None:
             year, mon = (int(x) for x in month.split("-")[:2])
             self._pick_month(year, mon)
-            line = d.wait(shows(MONTH_START), 10)
-            self.log("restore start: %04d-%02d (%s)" % (year, mon, line.name.split("\n")[0] if line else "no start line"))
+            line = d.seen(RESTORE_START)
+            self.log("restore start: %04d-%02d (%s)" % (year, mon, line.name.split("\n")[0] if line else "no start row"))
         else:
             if not d.seen(RESTORE_HEIGHT):
+                # The sheet's "Use a block height instead", or the older panel's Block height.
                 d.press(RESTORE_BY_HEIGHT, step="restore-by-height", then=shows(RESTORE_HEIGHT), timeout=20)
             d.fill(RESTORE_HEIGHT, str(int(height)), step="restore-height")
             self.log("restore start: block %d" % int(height))
@@ -338,7 +378,8 @@ class Phone:
         [year], then its cell ("November 2026")."""
         d = self.d
         cell = RESTORE_MONTH_CELL.at("%04d-%02d" % (year, mon), names=("%s %d" % (MONTHS[mon - 1], year),))
-        d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
+        if not d.seen(MONTH_TITLE):
+            d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
         for _ in range(20):
             tree = d.tree()
             if d.find_in(cell, tree):
@@ -353,7 +394,7 @@ class Phone:
         d.press(cell, step="restore-month-pick", then=gone(MONTH_TITLE), timeout=20)
 
     def _restore_scan(self):
-        """The restore screen's own scan (from the start chosen): its done screen (Not now), or Try
+        """The restore screen's own scan (from the start chosen): its done screen (Open wallet), or Try
         again twice when it stops, then Open wallet (Home carries the scan on)."""
         d = self.d
         tries = 0
@@ -364,10 +405,10 @@ class Phone:
                 return
             if at == "done":
                 d.shot("restore-done")
-                n = d.seen(RESTORE_NOT_NOW)   # "Not now" is a known obstacle too: a wait may press it first
+                n = d.seen(RESTORE_OPEN)   # Open wallet on the done screen (the phone has no Not now); a wait may press it first
                 if n:
                     d._act(d.s.press, n)
-                d.must(self._home(), 60, step="restore-not-now", goal="the wallet's home after Not now")
+                d.must(self._home(), 60, step="restore-open-done", goal="the wallet's home after Open wallet")
                 return
             d.shot("restore-unfinished")
             if tries < 2 and d.seen(RESTORE_RETRY):
@@ -544,7 +585,7 @@ class Phone:
         self._wait_home("home", 30)
 
     def contacts(self):
-        """Home › Contacts, until the Contacts page shows (its Add contact), then back to Home. A build
+        """Home › Contacts, until the Contacts page shows (its "+" menu), then back to Home. A build
         before the entry (26.11.2 and older had Contacts in Settings › This wallet at level 1) has none
         on Home: logged, nothing pressed."""
         d = self.d
@@ -552,14 +593,24 @@ class Phone:
         if not d.seen(CONTACTS):
             self.log("no Contacts on Home: a build before the entry")
             return False
-        d.press(CONTACTS, step="home-contacts", then=shows(CONTACTS_ADD), timeout=20)
+        d.press(CONTACTS, step="home-contacts", then=shows(CONTACTS_MORE), timeout=20)
         self.log("Home › Contacts: the Contacts page")
         self.home()
         return True
 
     def tab(self, target):
+        """Send or Receive: Home's two buttons open the flow over the tab bar (its own close button
+        marks it). Any other target is a tab of the bar."""
         d = self.d
         self.home()
+        if target == TAB_SEND:
+            # Send draws its own header: × on its first step, ‹ on a send left half-way.
+            d.press(target, step="tab-send", timeout=20,
+                    then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree))))
+            return
+        if target == TAB_RECEIVE:
+            d.press(target, step="tab-receive", timeout=20, then=shows(RECEIVE_CLOSE))
+            return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))
 
@@ -575,12 +626,12 @@ class Phone:
         return self._section_names
 
     def settings(self):
-        """The Settings list: Back from a Settings page, else from home by the Settings button."""
+        """The Settings list: Back from a Settings page, else the Settings tab."""
         d = self.d
         for _ in range(3):
             if self.in_settings():
                 return
-            if d.seen(SETTINGS) and d.seen(LOCK):
+            if d.seen(SETTINGS):   # Settings is a tab: the bar shows on every tab
                 break
             d.s.key("back")
             time.sleep(1)
@@ -639,8 +690,6 @@ class Phone:
     def find_again(self, route):
         """Back to the step a route names (the fault's, core/lane.py): the view, then the setting."""
         target = tg.kept(route["find"], "android")
-        if target.id != LEVEL_ROW.id:
-            self._view_deep_end()
         self.find_setting(target, tuple(route["pages"]), route["what"])
 
     # ---- set up on the previous release
@@ -702,7 +751,7 @@ class Phone:
         over Tor is a SKIP. A slow start gets `budget` and one more try (Normal, then Tor only again);
         still not up is InfraFault tor. -> "skipped" | "done"."""
         d = self.d
-        self._view_deep_end()   # the Network section shows from level 2
+        self._view_deep_end() 
         self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only network mode")
         chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
         self._look_up(EPICBOX_ROW, 3)
@@ -744,36 +793,8 @@ class Phone:
         self.home()
         return s
 
-    def _level_three(self, tree):
-        three = tg._norm(self._text("levelThreeTitle", "Let me explore everything"))
-        return any(three in tg._norm(n.name) for n in self.d.find_in(LEVEL_ROW, tree))
-
     def _view_deep_end(self):
-        """A release with levels opens a new install at level 1, where Home has only the Network and
-        Epicbox icons and Settings hides more: Settings › Advanced › Wallet view › Deep end › Save."""
-        d = self.d
-        if not d.has_control(DEEP_END):
-            self.log("no Wallet view row: a build without levels")
-            return
-        d.step = "find-%s" % LEVEL_ROW.id
-        if not self.section("advanced") or not self._look(LEVEL_ROW, 1):
-            d.step = "find-%s" % LEVEL_ROW.id
-            d.harness("Wallet view row not on Settings › advanced",
-                      route={"find": LEVEL_ROW.id, "pages": ["advanced"], "what": "Wallet view"})
-        d.reached("find-%s" % LEVEL_ROW.id)
-        if self._level_three(d.tree()):
-            return
-        d.press(LEVEL_ROW, step="wallet-view", then=shows(DEEP_END), timeout=20)
-        n = self._pressable(DEEP_END, d.tree())
-        if "checked" not in n.states and "selected" not in n.states:
-            d._act(d.s.press, n)
-            d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
-                                                                  for x in dd.find_in(DEEP_END, tree))), 10)
-        if d.seen(SAVE):
-            d.press(SAVE, step="wallet-view-save", then=Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)),
-                    timeout=30)
-        d.must(Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)), 20, step="wallet-view")
-        self.log("Settings › Advanced › Wallet view: Deep end")
+        """The phone has no wallet views any more: every switch is on its own page, so nothing to set."""
 
     def _host_rows(self, tree, entry):
         return [n for n in self.d.find_in(SERVER_ROW, tree) if "press" in n.actions
@@ -803,8 +824,7 @@ class Phone:
             if d.find_in(field, tree):
                 return
             screen = tuple(sorted(n.name for n in tree))
-            hits = [n for n in d.find_in(status, tree) if (n.name, screen) not in pressed] or \
-                   [n for n in d.find_in(STATUS_ANY, tree) if (n.name, screen) not in pressed]
+            hits = [n for n in d.find_in(status, tree) if (n.name, screen) not in pressed]
             if not hits:
                 break
             pressed.append((hits[0].name, screen))
@@ -940,11 +960,7 @@ class Phone:
         self.find_setting(TECHNICAL, ("advanced",), "Technical details")
         n = next(iter(d.find_in(TECHNICAL, d.tree())), None)
         out["technical_details"] = ("checked" in n.states) if n else None
-        out["level"] = None
-        if self.section("advanced") and self._look(LEVEL_ROW, 1):
-            tree = d.tree()
-            row = next(iter(d.find_in(LEVEL_ROW, tree)), None)
-            out["level"] = "3" if self._level_three(tree) else (row.name.split("\n", 1)[-1].strip() if row else None)
+        out["level"] = None   # the phone has no wallet views
         d.shot("%s-settings-read" % self.which)
         self.home()
         return out
@@ -974,9 +990,6 @@ class Phone:
         d = self.d
         self.restore_finish()
         self.tab(TAB_RECEIVE)
-        m = d.seen(RECEIVE_EPICBOX)
-        if m and "selected" not in m.states:
-            d._act(d.s.press, m)
 
         def got(dd, tree):
             for n in tree:
@@ -1000,16 +1013,22 @@ class Phone:
             lambda dd, tree: next((n for n in dd.find_in(SEND_ROUTE_PUBLIC, tree) if "selected" in n.states), None)))
 
     def send(self, to, amount=None):
-        """Sends `amount` (None: Max) to `to` by Epicbox: Send tab › Epicbox › To › Continue › amount ›
-        Continue › Send <amount> › PIN. True when the app took it; its progress is read from the
+        """Sends `amount` (None: Max) to `to` by Epicbox: Send › To › Continue › amount (keypad or Max) ›
+        Review › Send <amount> (the Review sheet) › PIN. True when the app took it; its progress is read from the
         wallet's files by the checks, never from these screens."""
         d = self.d
         self.restore_finish()
         self.tab(TAB_SEND)
         for _ in range(4):  # a send left half-way: back to its first step
-            if d.wait(shows(SEND_TO), 3) or not d.seen(SEND_BACK):
+            if d.wait(shows(SEND_TO), 3):
                 break
-            d.press(SEND_BACK, step="send-back", timeout=10)
+            # The Review sheet covers the amount page: Edit closes it; else the header's Back.
+            if d.seen(SEND_REVIEW_EDIT):
+                d.press(SEND_REVIEW_EDIT, step="send-review-edit", timeout=10)
+            elif d.seen(SEND_BACK):
+                d.press(SEND_BACK, step="send-back", timeout=10)
+            else:
+                break
         if d.seen(SEND_CLEAR):
             d.press(SEND_CLEAR, step="send-clear", timeout=10, then=Expect("the recipient cleared", lambda dd, tree: True))
         d.fill(SEND_TO, to, step="send-to")
@@ -1024,14 +1043,14 @@ class Phone:
         if amount is None:
             d.press(SEND_MAX, step="send-max", timeout=20,
                     then=Expect("an amount filled", lambda dd, tree: next((n for n in dd.find_in(SEND_AMOUNT, tree)
-                                                                          if re.match(r"\d", (n.value or "").strip())), None)))
-            amount = (d.seen(SEND_AMOUNT).value or "").strip()
+                                                                          if _amount_shown(n) > 0), None)))
+            amount = ("%.8f" % _amount_shown(d.seen(SEND_AMOUNT))).rstrip("0").rstrip(".")
         else:
-            d.fill(SEND_AMOUNT, amount, step="send-amount")
-        if hasattr(d.s, "hide_keyboard"):
-            d.s.hide_keyboard()
+            # The keypad: one key per character of the amount (a comma counts as the point).
+            for c in str(amount).replace(",", "."):
+                d.press(SEND_KEYS[c], step="send-amount-key", timeout=10)
         d.shot("send-filled")
-        d.press(CONTINUE, step="send-amount-continue", then=shows(SEND_CONFIRM), timeout=60)
+        d.press(SEND_REVIEW, step="send-amount-review", then=shows(SEND_CONFIRM), timeout=60)
         d.shot("send-review")
         d.press(SEND_CONFIRM, step="send-confirm", then=either(shows(PIN_FIELD), gone(SEND_CONFIRM), shows(SEND_FAILED)),
                 timeout=60)

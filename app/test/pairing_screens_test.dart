@@ -4,15 +4,19 @@
 // hand, the confirmation after an answer taken by hand, the words check without Skip, the
 // contact page's Pairing block in every state, Contacts rows and the Pair requests row, the
 // Way 1 sheet, and the Experimental switch gone.
-import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
+import 'package:epic_wallet/src/connection_grace.dart' show connectionGraceProvider;
+import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, rawWalletStatusProvider, walletStatusProvider;
 import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, NodeStatus, WalletStatus;
 
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName;
+import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName, walletTag;
 import 'package:epic_wallet/src/ui/key_picture.dart' show KeyPictureView;
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitSwitch;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show PairAvatar, PairTimeLeft;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -37,6 +41,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/contact_pairing.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -65,6 +70,12 @@ class _OnlineStatus extends WalletStatusNotifier {
   WalletStatus build() => (node: const NodeStatus(NodeState.online), epicbox: EpicboxState.online);
 }
 
+/// Our own Epicbox connection is down, the node too: the phone has no network.
+class _OfflineStatus extends WalletStatusNotifier {
+  @override
+  WalletStatus build() => (node: const NodeStatus(NodeState.offline), epicbox: EpicboxState.offline);
+}
+
 class _Harness {
   _Harness({String? seenAs = 'Alex', this.prefs}) {
     if (seenAs != null) store.values['pairing.seen_as'] = seenAs;
@@ -81,7 +92,7 @@ class _Harness {
 
   ProviderContainer container(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
 
-  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, bool settle = true}) async {
+  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, bool settle = true, bool offline = false}) async {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -96,7 +107,13 @@ class _Harness {
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
           slateFilesProvider.overrideWithValue(files),
           sessionProvider.overrideWith(() => _OpenSession(session)),
-          walletStatusProvider.overrideWith(_OnlineStatus.new),
+          walletStatusProvider.overrideWith(offline ? _OfflineStatus.new : _OnlineStatus.new),
+          // The status this moment, which the notices read too, before the shown one settles.
+          rawWalletStatusProvider.overrideWithValue(
+            offline
+                ? (node: const NodeStatus(NodeState.offline), epicbox: EpicboxState.offline)
+                : (node: const NodeStatus(NodeState.online), epicbox: EpicboxState.online),
+          ),
           if (net != null) pairNetProvider.overrideWithValue(net),
         ],
         child: MaterialApp(
@@ -115,6 +132,13 @@ class _Harness {
 }
 
 /// Frames for a screen with a spinner, which never settles.
+/// Taps [finder] after scrolling it clear of the page's bottom edge.
+Future<void> _tapVisible(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+}
+
 Future<void> _frames(WidgetTester tester, [int n = 10]) async {
   for (var i = 0; i < n; i++) {
     await tester.pump(const Duration(milliseconds: 100));
@@ -182,8 +206,9 @@ void main() {
       await h.pump(tester, const PairScreen(), settle: false);
       expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'nothing is asked');
       expect(h.api.standingName, unnamedPeerName);
-      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
-      expect(find.text(_l.pairSeenAsAdd), findsOneWidget);
+      // No name: the line says what they will show instead, the first characters of this address.
+      expect(find.text(_l.pairSeenAsLine(_l.phonePairUnnamedShort(walletTag(h.session.address)!))), findsOneWidget);
+      expect(find.text(_l.pairChange), findsOneWidget);
       expect(h.store.values['pairing.seen_as'], isNull);
     });
 
@@ -203,7 +228,7 @@ void main() {
       await tester.tap(find.byKey(pairNameSaveKey));
       await _frames(tester);
       expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'an empty name is accepted');
-      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
+      expect(find.text(_l.pairSeenAsLine(_l.phonePairUnnamedShort(walletTag(h.session.address)!))), findsOneWidget);
       expect(h.api.standingName, unnamedPeerName);
       expect(h.store.values['pairing.seen_as'], '');
     });
@@ -443,7 +468,7 @@ void main() {
       unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))));
       await tester.pumpAndSettle();
       expect(find.byKey(checkMatchKey), findsOneWidget);
-      await tester.pageBack();
+      await tester.tap(find.byIcon(KitIcons.close).first);
       await tester.pumpAndSettle();
       expect(find.byKey(checkMatchKey), findsNothing);
       expect(h.api.records.single.state, PairingState.paired);
@@ -512,6 +537,7 @@ void main() {
 
     testWidgets('a pairing that proves the contact\'s address: no line, no Pair again', (tester) async {
       await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
+      await openContactPairing(tester);
       expect(find.textContaining(_l.trustVerified, findRichText: true), findsWidgets);
       expect(find.byKey(contactPageUnprovenKey), findsNothing);
       expect(find.byKey(contactPagePairAgainUnprovenKey), findsNothing);
@@ -528,7 +554,7 @@ void main() {
       await _frames(tester);
       expect(find.text(_l.pairNoAnswerFrom('Anna')), findsOneWidget);
       expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
-      await tester.tap(find.byKey(contactPageCancelPairingKey));
+      await _tapVisible(tester, find.byKey(contactPageCancelPairingKey));
       await _frames(tester);
       expect(h.api.records, isEmpty);
       expect(find.text(_l.pairNotPaired), findsOneWidget);
@@ -563,22 +589,26 @@ void main() {
       // The pairing is stored: it is removed, and the other wallet told, as a paired one is.
       expect(find.byKey(contactPageCancelPairingKey), findsNothing);
       expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
-      final seal = tester.widget<Switch>(find.byKey(contactPageSealKey));
+      final seal = tester.widget<KitSwitch>(find.byKey(contactPageSealKey));
       expect(seal.onChanged, isNull, reason: 'nothing is sealed to a wallet not heard');
       h.api.hear(h.api.records.single.id);
       await _frames(tester);
+      // Heard, the pairing is settled: it moves to the menu's Pairing sheet.
+      expect(find.byKey(contactPageSealKey), findsNothing);
+      await openContactPairing(tester);
       expect(find.text(_l.trustPaired), findsWidgets);
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
     });
 
     testWidgets('verified: the date, "confirmed too" once the verdict came, both switches', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
+      await openContactPairing(tester);
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
       h.api.peerMatch('p');
       await tester.pumpAndSettle();
       expect(find.text(_l.pairConfirmedToo('Anna')), findsOneWidget);
-      expect(tester.widget<Switch>(find.byKey(contactPageSealKey)).onChanged, isNotNull);
-      expect(tester.widget<Switch>(find.byKey(contactPageInvoicesKey)).onChanged, isNotNull);
+      expect(tester.widget<KitSwitch>(find.byKey(contactPageSealKey)).onChanged, isNotNull);
+      expect(tester.widget<KitSwitch>(find.byKey(contactPageInvoicesKey)).onChanged, isNotNull);
     });
 
     testWidgets('ended by the peer: the reason, the held send with Cancel, Pair again and Remove', (tester) async {
@@ -597,7 +627,7 @@ void main() {
       expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
       expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
       expect(find.byKey(contactPageSealKey), findsNothing, reason: 'no switches on an ended pairing');
-      await tester.tap(find.widgetWithText(TextButton, _l.commonCancel).first);
+      await _tapVisible(tester, find.widgetWithText(KitButton, _l.commonCancel).first);
       await _frames(tester);
       expect(h.session.cancelledTxIds, isNotEmpty, reason: 'the held send was cancelled');
     });
@@ -605,7 +635,7 @@ void main() {
     testWidgets('never finished: the reason line; Remove drops it, the contact stays', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', state: PairingState.ended, endedReason: PairingEndReason.neverFinished));
       expect(find.text(_l.pairEndedNeverFinished('Anna')), findsOneWidget);
-      await tester.tap(find.byKey(contactPageRemovePairingKey));
+      await _tapVisible(tester, find.byKey(contactPageRemovePairingKey));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(confirmRemovePairingKey));
       await tester.pumpAndSettle();
@@ -624,7 +654,7 @@ void main() {
     testWidgets('a later card proves another address: Update the contact\'s address or Detach', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _tom));
       expect(find.text(_l.pairProvesOther('Anna')), findsOneWidget);
-      await tester.tap(find.byKey(contactPageUpdateAddressKey));
+      await _tapVisible(tester, find.byKey(contactPageUpdateAddressKey));
       await tester.pumpAndSettle();
       expect(h.session.contactsValue.single.epicbox, _tom);
       expect(find.text(_l.pairProvesOther('Anna')), findsNothing);
@@ -659,7 +689,11 @@ void main() {
         ..seedPaired(id: 'e', name: 'Eve', contactId: 'c5');
       h.api.changeKeys('e');
       await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.byKey(contactsMoreKey));
+      await tester.pumpAndSettle();
       expect(find.byKey(contactsPairKey), findsOneWidget);
+      await tester.tapAt(const Offset(2, 2));
+      await tester.pumpAndSettle();
       expect(find.text(_l.contactsPairHint), findsNothing);
       expect(find.text(_l.pendingTitle), findsNothing);
       for (final t in [_l.trustVerified, _l.trustPairedShort, _l.trustWaiting, _l.trustKeysChanged, _l.trustEnded]) {
@@ -768,6 +802,26 @@ void main() {
     });
   });
 
+  group('the contact\'s Epicbox server', () {
+    testWidgets('unreachable: a warning while our own connection is up', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      h.container(tester).read(connectionGraceProvider.notifier).end();
+      h.api.emit(const PairingEvent(PairingEventKind.homeRelayUnreachable, name: 'Anna'));
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.noticeRelayDown('Anna'));
+    });
+
+    testWidgets('no warning while the phone is offline: the status already says so', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()), offline: true);
+      h.container(tester).read(connectionGraceProvider.notifier).end();
+      h.api.emit(const PairingEvent(PairingEventKind.homeRelayUnreachable, name: 'Anna'));
+      await tester.pumpAndSettle();
+      expect(_notice(tester), isNull);
+    });
+  });
+
   group('a run\'s notices', () {
     PairingEvent invoice(String slate) => PairingEvent(PairingEventKind.invoiceFromContact, name: 'Anna', slateId: slate, amount: BigInt.from(100000000));
 
@@ -824,7 +878,11 @@ void main() {
       final h = _Harness(prefs: 'outputs|standard');
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
       await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.byKey(contactsMoreKey));
+      await tester.pumpAndSettle();
       expect(find.byKey(contactsPairKey), findsOneWidget);
+      await tester.tapAt(const Offset(2, 2));
+      await tester.pumpAndSettle();
       await h.pump(tester, const ContactPage(contactId: 'c1'));
       expect(find.byKey(contactPagePairKey), findsOneWidget);
     });
@@ -895,6 +953,57 @@ void main() {
       expect(find.text(_l.pairIncomingBody('Anna')), findsNothing);
       expect(fact(tester, incomingSourceKey), '${_l.pairIncomingSource} · ${_l.pairIncomingSourceRequest}');
       expect(fact(tester, incomingServerKey), '${_l.pairIncomingServer} · epicbox.example.org');
+    });
+
+    testWidgets('a request from a wallet with no name: the title and the avatar use the start of its address', (tester) async {
+      final h = _Harness();
+      final from = 'es${'Q' * 6}${'z' * 44}@epicbox.epiccash.com';
+      final preview = PairingInvitePreview(token: 't4', name: unnamedPeerName, expiresAt: DateTime.now().add(const Duration(hours: 2)), homeRelay: 'epicbox.example.org', fromAddress: from);
+      await h.pump(tester, opener(preview, InviteSource.opened));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final label = _l.phonePairUnnamedShort(walletTag(from)!);
+      expect(label, 'Wallet QQQQQQ');
+      expect(find.text(_l.pairIncomingTitle(label)), findsOneWidget);
+      expect(find.text(label), findsOneWidget, reason: 'the name line under the avatar');
+      expect(find.text(_l.pairIncomingTitle(_l.commonUnknown)), findsNothing);
+    });
+
+    testWidgets('an invite by code with no name and no address yet: Unknown, as before', (tester) async {
+      final h = _Harness();
+      final preview = PairingInvitePreview(token: 't5', name: unnamedPeerName, expiresAt: DateTime.now().add(const Duration(hours: 2)));
+      await h.pump(tester, opener(preview, InviteSource.pasted));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairIncomingTitle(_l.commonUnknown)), findsOneWidget);
+    });
+
+    testWidgets('the sheet that answers an invite lets this side set its own name; the field hints the label the other side will show', (tester) async {
+      final h = _Harness(seenAs: null);
+      final preview = PairingInvitePreview(token: 't6', name: 'Anna', expiresAt: DateTime.now().add(const Duration(hours: 2)));
+      await h.pump(tester, opener(preview, InviteSource.pasted));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final own = _l.phonePairUnnamedShort(walletTag(h.session.address)!);
+      expect(find.descendant(of: find.byKey(incomingSeenAsKey), matching: find.text(_l.pairSeenAsLine(own))), findsOneWidget);
+      await tester.tap(find.byKey(incomingSeenAsKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phonePairSeenAsEmptyShows(own)), findsOneWidget, reason: 'optional: empty is fine, and says what they see');
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Alex');
+      await tester.tap(find.byKey(pairNameSaveKey));
+      await tester.pumpAndSettle();
+      expect(h.store.values['pairing.seen_as'], 'Alex');
+      expect(find.descendant(of: find.byKey(incomingSeenAsKey), matching: find.text(_l.pairSeenAsLine('Alex'))), findsOneWidget);
+      expect(find.byKey(incomingPairKey), findsOneWidget, reason: 'still on the invite');
+    });
+
+    testWidgets('pairing checks the relays every 5 s while the Pair screen is open, and stops after', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairScreen(), settle: false);
+      expect(h.session.boosts.interval(Poller.relays, const Duration(minutes: 1)), boostMinInterval);
+      expect(boostMinInterval, const Duration(seconds: 5));
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(h.session.boosts.interval(Poller.relays, const Duration(minutes: 1)), const Duration(minutes: 1));
     });
 
     testWidgets('the time left counts down each second on the pairing clock', (tester) async {

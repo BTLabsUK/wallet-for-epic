@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/support_report.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,6 +24,18 @@ SupportReport _report({List<SupportFile> files = const []}) => SupportReport(
 
 void main() {
   final private = base64.decode(_guiPrivate);
+
+  // Over Tor the intake is its onion: a fresh circuit there took 17 to 52 s (2026-11-14), so a
+  // send held to the clearnet 20 s showed "The feedback server did not answer.".
+  test('a send over Tor gets support.tor_timeout_s, a direct one support.timeout_s', () {
+    addTearDown(() => TorSwitch.on = false);
+    final url = Uri.parse('https://support.example/v1/report');
+    TorSwitch.on = false;
+    expect(HttpSupportSender(url).timeout, const Duration(seconds: 20));
+    TorSwitch.on = true;
+    expect(HttpSupportSender(url).timeout, const Duration(seconds: 90));
+    expect(HttpSupportSender(url, timeout: const Duration(seconds: 3)).timeout, const Duration(seconds: 3));
+  });
 
   test('opens a report the GUI sealed', () async {
     final sealed = base64.decode(_guiBundle);

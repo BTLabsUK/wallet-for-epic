@@ -18,8 +18,10 @@ import 'package:epic_wallet/src/support_clean.dart';
 import 'package:epic_wallet/src/support_report.dart';
 import 'package:epic_wallet/src/ui/feedback_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
-import 'package:epic_wallet/src/ui/notices.dart' show noticeKey;
+import 'package:epic_wallet/src/ui/home_screen.dart' show onionNoticeTag;
+import 'package:epic_wallet/src/ui/notices.dart' show noticeKey, noticeProvider;
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -27,6 +29,8 @@ import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/pin_pad.dart';
 import 'support/settings_modes.dart' show useNetworkModeFile;
 
 final _l = englishStrings;
@@ -133,9 +137,12 @@ class _Harness {
       tester.element(find.byType(MaterialApp)),
     );
     addTearDown(() => tester.pumpWidget(const SizedBox()));
-    await tester.enterText(find.widgetWithText(TextField, _l.pinLabel), _pin);
+    await typePin(tester, _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
+    // The Tor address toast floats over the top and takes the touches there.
+    container.read(noticeProvider.notifier).dismissTag(onionNoticeTag);
+    await tester.pumpAndSettle();
   }
 
   /// Settings, then Help & feedback, then Send feedback.
@@ -148,6 +155,9 @@ class _Harness {
         MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
       ),
     );
+    await tester.pumpAndSettle();
+    // A floating notice from the unlock would sit over taps by position.
+    container.read(noticeProvider.notifier).clear();
     await tester.pumpAndSettle();
     await tap(tester, find.byKey(settingsHelpKey));
     await tap(tester, find.byKey(helpFeedbackKey));
@@ -523,7 +533,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tap(tester, find.widgetWithText(OutlinedButton, 'Report a problem'));
+      await tap(tester, find.byKey(helpFeedbackKey));
       expect(find.byType(FeedbackScreen), findsOneWidget);
     });
   });

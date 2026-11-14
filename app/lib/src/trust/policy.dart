@@ -157,14 +157,6 @@ bool isProven(PeerCompat? c, DateTime now) =>
 bool isFresh(PeerCompat? c, DateTime now) =>
     isProven(c, now) && !_within(c!.lastUnmarkedAt, compatWindow, now);
 
-/// May a plain notice (`posted`, `cancelled`, `withdrawn`, `declined`) go to a payments address.
-/// [exchangeMarked]: this exchange's own incoming slate carried the marker.
-bool mayNotifyPlain(
-  PeerCompat? c,
-  DateTime now, {
-  required bool exchangeMarked,
-}) => exchangeMarked && isProven(c, now);
-
 /// May a pair request (the unasked message) go to the contact: fresh, bit 1 claimed, and the
 /// contact is a plain contact or an ended pairing.
 bool mayPairRequest(PeerCompat? c, Relationship r, DateTime now) =>
@@ -175,10 +167,6 @@ bool mayPairRequest(PeerCompat? c, Relationship r, DateTime now) =>
 /// May the contact page offer Pair (the way-1 form): as [mayPairRequest] but a plain contact only.
 bool mayOfferPair(PeerCompat? c, Relationship r, DateTime now) =>
     r.kind == RelationshipKind.contact && mayPairRequest(c, r, now);
-
-/// May a name service payload go to the name service whose pairing claims [nameServiceClaimed].
-bool mayNameServicePayload(int nameServiceClaimed, Relationship r) =>
-    nameServiceClaimed & featureNameService != 0 && r.isPaired;
 
 /// How an unanswered mailbox send stands, by the time since it was sent.
 MailboxSendStage mailboxSendStage(DateTime sentAt, DateTime now) {

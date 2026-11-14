@@ -81,7 +81,6 @@ class _TorWaitScreenState extends ConsumerState<TorWaitScreen> {
     return PopScope(
       canPop: false,
       child: SlotScaffold(
-        glow: heroGlow,
         body: ScreenBody(
           bottom: Column(
             mainAxisSize: MainAxisSize.min,

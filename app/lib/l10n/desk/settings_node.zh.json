@@ -13,7 +13,6 @@
   "deskSetNodeGroupComputer": "这台电脑",
   "deskSetNodeServer": "节点服务器",
   "deskSetNodeServerHint": "钱包通过这个节点读取区块链并发送交易。",
-  "deskSetNodeChecking": "正在检查节点…",
   "deskSetNodeBackground": "后台同步",
   "deskSetNodeBackgroundHint": "关闭窗口后节点继续同步，应用留在系统托盘中。",
   "deskNodeSwitchConnecting": "正在连接 {host}…",

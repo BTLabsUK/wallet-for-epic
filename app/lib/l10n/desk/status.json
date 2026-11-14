@@ -1,8 +1,4 @@
 {
-  "deskNodeSynced": "Synced",
-  "@deskNodeSynced": {
-    "description": "Node status word: the node is at the chain tip. Short, in the status rail and node panels."
-  },
   "deskNodeBehind": "Behind",
   "@deskNodeBehind": {
     "description": "Node status word: the node is behind the network. Short."
@@ -18,10 +14,6 @@
   "deskNodeStarting": "Starting",
   "@deskNodeStarting": {
     "description": "Local node status word: the node program is starting. Short."
-  },
-  "deskNodeSyncing": "Syncing",
-  "@deskNodeSyncing": {
-    "description": "Local node status word: the node is downloading the chain. Short."
   },
   "deskNodeStalled": "Stalled",
   "@deskNodeStalled": {
@@ -419,22 +411,6 @@
   "@deskTorNetworkHint": {
     "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
   },
-  "deskTorOff": "Off",
-  "@deskTorOff": {
-    "description": "Tor state word: the switch is off. Short."
-  },
-  "deskTorStarting": "Starting…",
-  "@deskTorStarting": {
-    "description": "Tor state word: Tor is connecting. Short."
-  },
-  "deskTorOn": "On",
-  "@deskTorOn": {
-    "description": "Tor state word: Tor is connected. Short."
-  },
-  "deskTorNotConnected": "Not connected",
-  "@deskTorNotConnected": {
-    "description": "Tor state word: Tor stopped or could not connect. Short."
-  },
   "deskTorCoverage": "Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.",
   "@deskTorCoverage": {
     "description": "One sentence listing what goes over Tor while the switch is on."
@@ -450,26 +426,6 @@
   "deskTorNodeWaits": "Waits until Tor is connected.",
   "@deskTorNodeWaits": {
     "description": "Node tooltip line: the node connection waits for Tor."
-  },
-  "deskNodeFailoverSwitched": "Node not answering. Switched to {host}.",
-  "@deskNodeFailoverSwitched": {
-    "description": "Toast when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "epic.node.example"
-      }
-    }
-  },
-  "deskNodeFailoverBehind": "Node behind. Switched to {host}.",
-  "@deskNodeFailoverBehind": {
-    "description": "Toast when the node in use fell behind the network and the wallet moved to a node of the list that is ahead, for this session. host: the new node's address.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "epic.node.example"
-      }
-    }
   },
   "deskNodeFailoverInsteadOf": "Instead of {host}",
   "@deskNodeFailoverInsteadOf": {

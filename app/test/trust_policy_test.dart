@@ -24,34 +24,6 @@ const verified = Relationship(
 );
 
 void main() {
-  group('plain notice (posted, cancelled, withdrawn, declined)', () {
-    final cases = <(String, PeerCompat?, bool, bool)>[
-      ('marked 1 d, exchange marked', compat(marked: day), true, true),
-      ('marked 30 d, exchange marked', compat(marked: day * 30), true, true),
-      ('marked 31 d', compat(marked: day * 31), true, false),
-      ('exchange not marked', compat(marked: day), false, false),
-      (
-        'unmarked after marked (twin)',
-        compat(marked: day * 2, unmarked: day),
-        true,
-        false,
-      ),
-      (
-        'marked after unmarked',
-        compat(marked: day, unmarked: day * 2),
-        true,
-        true,
-      ),
-      ('never marked', compat(unmarked: day), true, false),
-      ('unknown key', null, true, false),
-    ];
-    for (final (name, c, marked, want) in cases) {
-      test(name, () {
-        expect(mayNotifyPlain(c, now, exchangeMarked: marked), want);
-      });
-    }
-  });
-
   group('pair request / offer Pair', () {
     final allBits = featureMarker | featurePairRequests;
     final cases = <(String, PeerCompat?, Relationship, bool)>[
@@ -114,15 +86,6 @@ void main() {
         mayOfferPair(c, const Relationship(RelationshipKind.ended), now),
         isFalse,
       );
-    });
-  });
-
-  group('name service bit', () {
-    test('name service bit 5 and paired', () {
-      expect(mayNameServicePayload(featureNameService, paired), isTrue);
-      expect(mayNameServicePayload(featureNameService, verified), isTrue);
-      expect(mayNameServicePayload(featureNameService, contact), isFalse);
-      expect(mayNameServicePayload(featureLinkedDevicesReserved, paired), isFalse);
     });
   });
 

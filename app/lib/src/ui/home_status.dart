@@ -7,9 +7,7 @@
 library;
 
 import '../trust_ids.dart';
-import 'settings_rows.dart' show NavChevron;
 import '../state_language.dart' show ShownState, torShownState;
-import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,9 +21,10 @@ import '../providers.dart';
 import 'message_check_panel.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
-import '../levels/level_providers.dart';
-import 'levels/shell_status.dart' show shellEpicboxFace, shellNetworkFace, shellStatusesShown;
-import 'levels/status_sheets.dart' show showEpicboxSheet, showNetworkSheet;
+import 'kit/kit_group.dart';
+import 'kit/kit_row.dart';
+import 'kit/kit_sheet.dart';
+import 'kit/kit_tokens.dart';
 import 'network_status.dart' show nodeBehind, nodeTorWay;
 import 'network_mode_phone.dart';
 import 'network_mode_text.dart';
@@ -35,7 +34,6 @@ import '../payment_prefs.dart' show PaymentPrefs;
 import '../settings.dart' show appSettingsProvider, networkModeProvider;
 import 'settings_screen.dart' show openPrivacySettings;
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
-import 'levels/status_parts.dart' show StatusServiceTile;
 import 'status.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -158,17 +156,23 @@ String statusBrief(String detail, {String? host}) {
   WidgetRef ref, {
   required bool bar,
 }) {
+  return allStatusEntries(context, ref, bar: bar);
+}
+
+/// Every status in its order. The connections sheet lists these.
+({NetworkMode mode, List<StatusEntry> entries}) allStatusEntries(
+  BuildContext context,
+  WidgetRef ref, {
+  required bool bar,
+}) {
   final l = context.l10n;
   final t = context.tokens;
-  // The quiet shell carries its own two icons under the figure ([ShellStatusIcons]).
-  if (shellStatusesShown(ref.watch(levelFeaturesProvider))) {
-    return (mode: ref.watch(networkModeProvider), entries: const <StatusEntry>[]);
-  }
   final status = watchWalletStatus(ref);
   final config = ref.watch(walletConfigProvider);
   final choice = ref.watch(networkChoiceProvider).value;
   final tor = ref.watch(phoneTorProvider);
   final torState = phoneTorState(tor);
+  final mode = ref.watch(networkModeProvider);
   final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
   final node = nodeIconFace(
     context,
@@ -184,7 +188,7 @@ String statusBrief(String detail, {String? host}) {
     detail: failover == null
         ? node.detail
         : '${node.detail}\n${l.nodeFailoverInsteadOf(serverHost(failover.chosen))}',
-    way: nodeTorWay(nodeUrl, torState),
+    way: nodeTorWay(nodeUrl, torState, mode),
   );
   final epicbox = epicboxIconFace(context, status.epicbox, config);
   final epicboxTor = underTor(
@@ -192,14 +196,13 @@ String statusBrief(String detail, {String? host}) {
     dot: epicbox.dot,
     label: '${l.netStatusEpicbox}, ${epicbox.word}',
     detail: epicbox.detail,
-    way: torWay(TorRoute.epicbox, torState),
+    way: torWayIn(TorRoute.epicbox, torState, mode),
   );
   final torFace = torStatusOf(l, t, tor);
   final payments = ref.watch(appSettingsProvider).value?.payments ?? const PaymentPrefs();
   // On by the Link · Tor switch, or while the onion is published anyway (a running Link · Tor).
   final linkOn = payments.linkTor || directIconShown(tor);
   final link = linkFace(l, t, tor, payments, linkOn: linkOn);
-  final mode = ref.watch(networkModeProvider);
   final torOn = torIconShown(tor);
   final killSwitch = mode == NetworkMode.killSwitch;
   final nodeOnly = mode == NetworkMode.nodeOnly;
@@ -290,7 +293,7 @@ String statusBrief(String detail, {String? host}) {
           onTap: linkOn
               ? () {
                   ref.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
-                  ref.read(shellTabProvider.notifier).go(ShellTab.receive);
+                  ref.read(shellFlowProvider.notifier).open(ShellFlow.receive);
                 }
               : () => openSettingsSection(context, SettingsSection.transactions),
         ),
@@ -338,22 +341,18 @@ class StatusIcons extends ConsumerWidget {
 /// The key of the connections sheet, for tests.
 const Key connectionsSheetKey = ValueKey('connections-sheet');
 
-/// Opens the connections sheet, the status entry point at every View: one row per status
-/// ([statusEntries]; at Shallow its Network and Epicbox) with its glyph, the service and its
-/// state word, one line under them, and a tap that closes the sheet and opens the service
-/// (its server list or settings; at Shallow its own sheet with Switch server). The network
-/// mode, when one holds the network back, is the first row.
-Future<void> showConnectionsSheet(BuildContext context) => showPhoneSheet<void>(
+/// Opens the connections sheet, the status entry point on Home and on the unlock screen: one
+/// row per status ([allStatusEntries]) with its glyph, the service and its state word, one line
+/// under them, and a tap that closes the sheet and opens the service (its server list or
+/// settings). The network mode, when one holds the network back, is the first line.
+Future<void> showConnectionsSheet(BuildContext context) => showKitSheet<void>(
   context: context,
-  showDragHandle: true,
-  useSafeArea: true,
   builder: (_) => const ConnectionsSheet(),
 );
 
-/// The connections sheet's body: a header (off Normal, with the network mode's line under it:
-/// the mode's glyph and name and a Change link to the setting), then one row per service, its
-/// glyph with the state mark on a tile, the service and its state word, one line under them, a
-/// chevron; a hairline between rows. A row that reports a problem is tinted.
+/// The connections sheet's body (a [KitSheet]): the network mode's line when one is set, one
+/// [KitRow] per service in a group (its glyph with the state mark, the service and its state
+/// word, one line under them, a chevron), then the message checks.
 class ConnectionsSheet extends ConsumerWidget {
   const ConnectionsSheet({super.key});
 
@@ -361,150 +360,63 @@ class ConnectionsSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    final (:mode, :entries) = statusEntries(context, ref, bar: false);
-    final shallow = shellStatusesShown(ref.watch(levelFeaturesProvider));
-    final ring = t.surface;
-    Widget row({
-      required IconData icon,
-      required Widget glyph,
-      required bool enabled,
-      required String label,
-      required String detail,
-      required StatusDot dot,
-      required VoidCallback onTap,
-      String? id,
-    }) {
-      final problem = dot == StatusDot.bad;
-      void open() {
-        Navigator.of(context).pop();
-        onTap();
-      }
-
-      // The row's own tap for a screen reader: excludeSemantics drops the InkWell's.
-      return TrustId(id, child: Semantics(
-        button: true,
-        label: label,
-        hint: detail,
-        excludeSemantics: true,
-        onTap: open,
-        child: InkWell(
-          onTap: open,
-          borderRadius: BorderRadius.circular(t.radiusSmall),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 64),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: problem
-                ? BoxDecoration(
-                    color: t.riskSoft,
-                    borderRadius: BorderRadius.circular(t.radiusSmall),
-                  )
-                : null,
-            child: Row(
-              children: [
-                StatusServiceTile(icon: icon, enabled: enabled, size: 40, child: glyph),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(label, style: theme.textTheme.bodyLarge),
-                      const SizedBox(height: 2),
-                      Text(
-                        detail,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: problem ? t.risk : t.dim,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const NavChevron(),
-              ],
-            ),
-          ),
-        ),
-      ));
-    }
-    final rows = <Widget>[
-      // Shallow: its two statuses, each opening its own sheet (status_sheets.dart).
-      if (shallow) ...[
-        () {
-          final face = shellNetworkFace(context, ref);
-          final url = ref.watch(walletConfigProvider)?.nodeUrl;
-          return row(
-            id: TrustIds.statusNetwork,
-            icon: EpicGlyphs.node,
-            glyph: StatusGlyph(icon: EpicGlyphs.node, enabled: face.dot != StatusDot.off, dot: face.dot, ring: ring),
-            enabled: face.dot != StatusDot.off,
-            label: l.lvShellStatusTip(l.settingsAboutNetwork, face.word),
-            detail: url == null || url.isEmpty ? face.word : serverHost(url),
-            dot: face.dot,
-            onTap: () => showNetworkSheet(context),
-          );
-        }(),
-        () {
-          final face = shellEpicboxFace(context, ref);
-          final config = ref.watch(walletConfigProvider);
-          return row(
-            id: TrustIds.statusEpicbox,
-            icon: EpicGlyphs.epicbox,
-            glyph: StatusGlyph(icon: EpicGlyphs.epicbox, enabled: face.dot != StatusDot.off, dot: face.dot, ring: ring),
-            enabled: face.dot != StatusDot.off,
-            label: l.lvShellStatusTip(l.netStatusEpicbox, face.word),
-            detail: config == null ? face.word : relayLabel(config),
-            dot: face.dot,
-            onTap: () => showEpicboxSheet(context),
-          );
-        }(),
-      ] else
-        for (final e in entries)
-          row(
-            id: _statusId(e.key),
-            icon: e.icon,
-            glyph: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: ring),
-            enabled: e.enabled,
-            label: e.label,
-            detail: e.brief,
-            dot: e.enabled ? e.dot : StatusDot.off,
-            onTap: e.onTap,
-          ),
-    ];
-    return SingleChildScrollView(
+    final (:mode, :entries) = allStatusEntries(context, ref, bar: false);
+    return KitSheet(
       key: connectionsSheetKey,
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+      title: l.connectionsSheetTitle,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-            child: Semantics(
-              header: true,
-              child: Text(l.connectionsSheetTitle, style: theme.textTheme.titleMedium),
-            ),
-          ),
           if (mode != NetworkMode.standard)
             NetworkModeLine(
               mode: mode,
               waitingForTor: mode == NetworkMode.torOnly && ref.watch(phoneTorProvider.select(phoneTorState)) != TorState.on,
             ),
-          for (final (n, r) in rows.indexed) ...[
-            if (n > 0) Divider(height: 1, thickness: 1, indent: 12, endIndent: 12, color: t.line),
-            r,
-          ],
-          // The message checks; Shallow shows them on its Epicbox sheet.
-          if (!shallow) ...[
-            const SizedBox(height: 8),
-            Divider(height: 1, thickness: 1, indent: 12, endIndent: 12, color: t.line),
-            MessageCheckPanel(
-              ref.watch(messageCheckProvider).value ?? const MessageCheck(),
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
-            ),
-          ],
+          KitGroup(
+            onSheet: true,
+            children: [
+              for (final e in entries)
+                KitRow(
+                  size: KitRowSize.list,
+                  semanticsId: _statusId(e.key),
+                  semanticsLabel: e.label,
+                  leading: _GlyphWell(
+                    child: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: t.raised),
+                  ),
+                  title: e.label,
+                  subtitle: e.brief,
+                  chevron: true,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    e.onTap();
+                  },
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          MessageCheckPanel(
+            ref.watch(messageCheckProvider).value ?? const MessageCheck(),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 4, Kit.gutter + 4, 0),
+          ),
         ],
       ),
     );
   }
+}
+
+/// A service's glyph on the raised tile the avatar column of a [KitRow] holds.
+class _GlyphWell extends StatelessWidget {
+  const _GlyphWell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: Kit.avatar,
+    height: Kit.avatar,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(color: context.tokens.raised, borderRadius: BorderRadius.circular(Kit.rAvatar)),
+    child: child,
+  );
 }

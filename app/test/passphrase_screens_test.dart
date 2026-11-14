@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/pin_pad.dart';
 import 'support/real_time.dart';
 
 final _l = englishStrings;
@@ -91,6 +93,12 @@ class _Harness {
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
+  // The unlock of a PIN wallet takes its PIN on the keypad.
+  if (label == 'PIN' && pinPad.evaluate().isNotEmpty) {
+    await typePin(tester, text);
+    await tester.pumpAndSettle();
+    return;
+  }
   await tester.enterText(find.widgetWithText(TextField, label), text);
   await tester.pumpAndSettle();
 }
@@ -112,7 +120,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(find.text(_l.unlockTitle), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(pinPad, findsOneWidget);
       expect(find.text(_l.pinForgot), findsOneWidget);
       expect(find.text('Use passphrase instead'), findsNothing);
       expect(find.byIcon(Icons.visibility), findsNothing);
@@ -120,7 +128,7 @@ void main() {
       expect(h.container.read(sessionProvider), isNotNull);
 
       await h.openSecurity(tester);
-      expect(find.text(_l.settingsUsePassphrase), findsOneWidget);
+      expect(find.text(_l.phoneSettingsPassphrase), findsOneWidget);
       await _tapText(tester, 'Change PIN');
       expect(find.text('Enter your current PIN'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'Current PIN'), findsOneWidget);
@@ -131,7 +139,7 @@ void main() {
       await h.pump(tester);
       await _enter(tester, 'PIN', _pin);
       await h.openSecurity(tester);
-      await _tapText(tester, _l.settingsUsePassphrase);
+      await _tapText(tester, _l.phoneSettingsPassphrase);
       await _enter(tester, _l.settingsPinCurrentLabel, _pin);
 
       expect(find.text(_l.passphraseChooseTitle), findsOneWidget);
@@ -181,7 +189,7 @@ void main() {
       expect(h.store.values['wallet.mainnet.pinSealed'], fakeSealedPassword(_passphrase));
       expect(h.store.values['wallet.mainnet.pinPassphrase'], '1');
       expect(h.store.values['wallet.mainnet.pinPassphraseEver'], '1');
-      expect(find.text('Change passphrase'), findsOneWidget);
+      expect(find.text(_l.netStatusOn), findsOneWidget);
     });
   });
 
@@ -191,7 +199,7 @@ void main() {
       await h.pump(tester);
       expect(find.text(_l.unlockTitle), findsOneWidget);
       expect(find.widgetWithText(TextField, _l.passphraseLabel), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'PIN'), findsNothing);
+      expect(pinPad, findsNothing);
       expect(find.text(_l.passphraseForgot), findsOneWidget);
       expect(find.text('Forgot PIN?'), findsNothing);
       expect(find.text('Use PIN instead'), findsOneWidget);
@@ -217,7 +225,7 @@ void main() {
       await _submit(tester, _l.passphraseLabel, _passphrase);
       await h.openSecurity(tester);
 
-      await _tapText(tester, _l.settingsBackupPhrase);
+      await _tapText(tester, _l.backupTitle);
       await _tapText(tester, _l.backupCopyAgree);
       await tester.tap(find.text('Show recovery phrase'));
       // The PIN dialog never settles (wallet_flow_test pumps frames too).
@@ -233,7 +241,7 @@ void main() {
       expect(find.text('Enter your passphrase'), findsNothing);
       // Cancelled, the backup screen leaves by itself.
 
-      await _tapText(tester, 'Change passphrase');
+      await _tapText(tester, _l.phoneSettingsPassphrase);
       expect(find.text('Enter your current passphrase'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'Current passphrase'), findsOneWidget);
     });
@@ -245,7 +253,7 @@ void main() {
       final h = _Harness(everUsed: true);
       h.store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_passphrase);
       await h.pump(tester);
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(pinPad, findsOneWidget);
       await _tapText(tester, _l.passphraseUsePassphraseInstead);
       expect(find.widgetWithText(TextField, _l.passphraseLabel), findsOneWidget);
       expect(find.text(_l.passphraseForgot), findsOneWidget);

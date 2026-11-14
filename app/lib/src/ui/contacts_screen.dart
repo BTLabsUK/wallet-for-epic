@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:flutter/foundation.dart' show mergeSort;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import '../contact_label.dart';
 import '../contacts.dart';
 import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../errors.dart';
+import '../initials.dart' show nameInitials;
 import '../l10n.dart';
 import '../tor_build.dart';
 import '../pairing_providers.dart';
@@ -18,10 +20,21 @@ import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'address_view.dart' show ShortAddressText;
 import 'app_dialog.dart';
-import 'centered_body.dart';
 import 'common.dart';
+import 'contact_activity_row.dart';
 import 'contact_page.dart';
 import 'contacts_transfer.dart';
+import 'contact_label_mark.dart' show AvatarLabelMark;
+import 'invoice_review_screen.dart';
+import 'kit/kit_avatar.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_empty_state.dart';
+import 'kit/kit_group.dart';
+import 'kit/kit_headers.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_search_field.dart';
+import 'kit/kit_support.dart';
+import 'kit/kit_tokens.dart';
 import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyProvider;
 import 'tip.dart';
 import 'inline_button.dart';
@@ -34,12 +47,12 @@ import 'pairing/pairing_parts.dart';
 import '../pairing_text.dart' show pairingEndedRowText;
 import 'scan_screen.dart';
 import 'status_icons.dart';
-import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'tour/tour_target.dart';
 
 /// Keys for tests.
 const Key contactsPairKey = ValueKey('contacts-pair');
+const Key contactsAddItemKey = ValueKey('contacts-add-item');
 const Key contactsMoreKey = ValueKey('contacts-more');
 const Key contactsImportKey = ValueKey('contacts-import');
 const Key contactsExportKey = ValueKey('contacts-export');
@@ -80,9 +93,55 @@ class LiveFieldError extends StatelessWidget {
   }
 }
 
+/// What the Contacts tab knows of one contact: its latest payment, and the invoice it waits on
+/// the user to approve.
+class ContactActivity {
+  const ContactActivity({this.latest, this.asks, this.all = const []});
+
+  final TxEntry? latest;
+
+  /// Every payment of the contact (the latest among them).
+  final List<TxEntry> all;
+  final PendingInvoice? asks;
+}
+
+/// [ContactActivity] by contact id, for the contacts that have any. A payment belongs to the
+/// contact saved under its address, else to the contact of the pairing it went through; an
+/// invoice to the contact of the pairing that signed it.
+final contactActivityProvider = Provider<Map<String, ContactActivity>>((ref) {
+  final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+  if (contacts.isEmpty) return const {};
+  final pairings = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
+  final byPairing = {
+    for (final p in pairings)
+      if (p.contactId != null) p.id: p.contactId!,
+  };
+  final txs = ref.watch(homeProvider.select((h) => h.value?.transactions)) ?? const <TxEntry>[];
+  final invoices = ref.watch(pendingInvoicesProvider).value ?? const <PendingInvoice>[];
+  final latest = <String, TxEntry>{};
+  final every = <String, List<TxEntry>>{};
+  for (final tx in txs) {
+    final id = contactFor(contacts, tx.counterparty)?.id ?? byPairing[tx.pairingId];
+    if (id == null) continue;
+    (every[id] ??= []).add(tx);
+    final seen = latest[id];
+    if (seen == null || tx.timeUnix > seen.timeUnix) latest[id] = tx;
+  }
+  final asks = <String, PendingInvoice>{};
+  for (final i in invoices) {
+    final id = byPairing[i.pairingId];
+    if (id != null) asks.putIfAbsent(id, () => i);
+  }
+  return {
+    for (final id in {...latest.keys, ...asks.keys}) id: ContactActivity(latest: latest[id], asks: asks[id], all: every[id] ?? const []),
+  };
+});
+
 /// The address book. With [pick], tapping a contact returns it instead of opening its page.
-/// Where the wallet pairs, the app bar offers Pair; the list starts with Pair requests while
-/// contacts' requests wait, and carries each pairing's badge and the pending rows.
+/// As a tab it reads as the phone's Contacts (HANDOFF 6): a title with Add and, where the
+/// wallet pairs, Pair; a search field; a strip of faces; and the contacts, by latest payment
+/// with a contact that needs the user on top, or A to Z. The list starts with Pair requests
+/// while contacts' requests wait, and carries each pairing's badge and the pending rows.
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key, this.pick = false, this.forPayment = false});
 
@@ -102,6 +161,9 @@ const int _groupAbove = 8;
 class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   final _search = TextEditingController();
 
+  /// The list is A to Z instead of by latest payment.
+  bool _az = false;
+
   @override
   void dispose() {
     _search.dispose();
@@ -120,6 +182,25 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             (c.note?.toLowerCase().contains(query) ?? false))
           c,
     ];
+  }
+
+  /// [contacts] in the Recent order: those that need the user, then by latest payment, then
+  /// the rest by name (the order [contacts] has).
+  List<Contact> _recent(List<Contact> contacts, Map<String, ContactActivity> activity) {
+    int rank(Contact c) {
+      final a = activity[c.id];
+      return a?.asks != null ? 0 : (a?.latest != null ? 1 : 2);
+    }
+
+    final out = [...contacts];
+    mergeSort(out, compare: (a, b) {
+      final byRank = rank(a).compareTo(rank(b));
+      if (byRank != 0) return byRank;
+      final ta = activity[a.id]?.latest?.timeUnix ?? 0;
+      final tb = activity[b.id]?.latest?.timeUnix ?? 0;
+      return tb.compareTo(ta);
+    });
+    return out;
   }
 
   Future<void> _open(Contact contact) async {
@@ -143,6 +224,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   Widget build(BuildContext context) {
     final contacts = ref.watch(contactsProvider);
     final l = context.l10n;
+    final t = context.tokens;
     final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
     final requests = pairs ? (ref.watch(pairRequestsProvider).value ?? const <PairRequest>[]).length : 0;
     // Pairings in no contact: stored ones, and an answer to a code waiting for its confirm.
@@ -154,217 +236,407 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           ]
         : const <PairingRecord>[];
     final canExport = contacts.value?.isNotEmpty ?? false;
-    // With no contacts at all, a search field has nothing to search: the empty state sits in
-    // the middle instead.
+    // With no contacts at all, a search field has nothing to search: the empty state fills the
+    // space instead.
     // A shared book this wallet has no key to yet: said closed, never shown as an empty one.
     final closed = !(ref.watch(sessionProvider)?.contactsAvailable ?? true);
     final none = closed || switch (contacts) {
       AsyncData(:final value) => value.isEmpty && requests == 0 && orphans.isEmpty,
       _ => false,
     };
-    return SlotScaffold(
-      centered: none,
-      idle: contacts.isLoading ? SlotProgress(label: l.contactsTitle) : null,
-      appBar: AppBar(
-        // Room for the title beside the labelled Pair in German and Russian at 360 dp.
-        titleSpacing: pairs ? 4 : null,
-        title: Text(widget.pick ? l.contactsPickTitle : l.contactsTitle),
-        actions: [
-          // Pair in one place, labelled, beside Add contact; never a gold button (Pairing UX
-          // plan 4.1).
-          if (pairs)
-            Semantics(
-              label: l.contactsPairTooltip,
-              button: true,
-              excludeSemantics: true,
-              child: OutlinedButton.icon(
-                key: contactsPairKey,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 36),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  tapTargetSize: MaterialTapTargetSize.padded,
-                ),
-                icon: const Icon(EpicGlyphs.verified, size: 18),
-                label: Text(l.pairTitle),
-                onPressed: _pair,
-              ),
+    final Widget content;
+    if (closed) {
+      content = KitEmptyState(
+        key: const ValueKey('contacts-closed'),
+        icon: KitIcons.lock,
+        title: l.contactsClosedTitle,
+        message: l.contactsClosedText,
+      );
+    } else if (none) {
+      content = KitEmptyState(
+        icon: KitIcons.contacts,
+        title: l.contactsEmptyTitle,
+        message: l.contactsEmptyCaption,
+        actionLabel: l.contactsAdd,
+        actionKind: KitButtonKind.gold,
+        actionId: TrustIds.contactsAdd,
+        onAction: _add,
+      );
+    } else {
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Sticky: the list scrolls under it.
+          Padding(
+            padding: const EdgeInsets.only(top: 7, bottom: 4),
+            child: KitSearchField(
+              controller: _search,
+              hint: l.phoneContactsSearchHint,
+              semanticsId: TrustIds.contactsSearch,
+              onChanged: (_) => setState(() {}),
             ),
-          IconButton(
-            tooltip: l.contactsAdd,
-            icon: TrustId(TrustIds.contactsAdd, child: const Icon(Icons.person_add_alt)),
-            onPressed: _add,
           ),
-          if (!widget.pick)
-            PopupMenuButton<String>(
-              key: contactsMoreKey,
-              tooltip: l.contactMore,
-              onSelected: (v) => v == 'import' ? importContacts(context, ref) : exportContacts(context, ref),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  key: contactsImportKey,
-                  value: 'import',
-                  child: ListTile(leading: const Icon(Icons.file_download_outlined), title: Text(l.contactsImport)),
-                ),
-                PopupMenuItem(
-                  key: contactsExportKey,
-                  value: 'export',
-                  // A contact without an address is a pairing's, which the file never carries.
-                  enabled: canExport,
-                  child: ListTile(enabled: canExport, leading: const Icon(Icons.file_upload_outlined), title: Text(l.contactsExport)),
-                ),
-              ],
-            ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: PhoneTourTarget(
-        id: 'tour-contacts-list',
-        child: closed
-          ? CenteredBody(
-              children: [
-                EmptyState(
-                  key: const ValueKey('contacts-closed'),
-                  icon: const Icon(Icons.lock_outline),
-                  message: l.contactsClosedTitle,
-                  action: Text(
-                    l.contactsClosedText,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim),
-                  ),
-                ),
-              ],
-            )
-          : none
-          ? CenteredBody(
-              children: [
-                EmptyState(
-                  icon: const Icon(Icons.people_outline),
-                  message: l.contactsEmptyTitle,
-                  action: Column(
-                    children: [
-                      Text(
-                        l.contactsEmptyCaption,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall
-                            ?.copyWith(color: context.tokens.dim),
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 44),
-                        ),
-                        icon: const Icon(Icons.person_add_alt),
-                        label: TrustId(TrustIds.contactsAdd, child: Text(l.contactsAdd)),
-                        onPressed: _add,
-                      ),
-                      if (pairs) ...[
-                        const SizedBox(height: 8),
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
-                          icon: const Icon(EpicGlyphs.verified, size: 18),
-                          label: Text(l.pairTitle),
-                          onPressed: _pair,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            )
-          : SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Sticky: the list scrolls under it.
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                        child: TextField(
-                          controller: _search,
-                          onChanged: (_) => setState(() {}),
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            hintText: l.contactsSearchHint,
-                            isDense: true,
-                            constraints: const BoxConstraints(minHeight: 44),
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: _search.text.isEmpty
-                                ? null
-                                : IconButton(
-                                    tooltip: l.commonClose,
-                                    icon: const Icon(Icons.close),
-                                    onPressed: () => setState(_search.clear),
-                                  ),
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: switch (contacts) {
-                          AsyncData(:final value) => _list(value, orphans),
-                          AsyncError(:final error) => ListView(
-                            padding: const EdgeInsets.all(16),
-                            children: [ErrorText(describeError(l, error))],
-                          ),
-                          _ => const SizedBox.shrink(),
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+          Expanded(
+            child: switch (contacts) {
+              AsyncData(:final value) => _list(value, orphans, canExport),
+              AsyncError(:final error) => ListView(
+                padding: const EdgeInsets.all(Kit.gutter),
+                children: [ErrorText(describeError(l, error))],
               ),
+              _ => const SizedBox.shrink(),
+            },
+          ),
+        ],
+      );
+    }
+    final body = PhoneTourTarget(
+      id: 'tour-contacts-list',
+      child: SafeArea(
+        bottom: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!widget.pick)
+                  KitTabTitle(
+                    l.contactsTitle,
+                    // One gold "+" opens Add a contact, Pair, Import and Export (the frame has
+                    // nothing else in the title row).
+                    trailing: Builder(
+                      builder: (btn) => KitIconButton(
+                        key: contactsMoreKey,
+                        icon: KitIcons.add,
+                        label: l.contactMore,
+                        color: t.accentText,
+                        onPressed: () => _plusMenu(btn, canExport: canExport, pairs: pairs),
+                        semanticsId: TrustIds.contactsMore,
+                      ),
+                    ),
+                  ),
+                Expanded(child: content),
+              ],
             ),
+          ),
+        ),
       ),
+    );
+    return SlotScaffold(
+      idle: contacts.isLoading ? SlotProgress(label: l.contactsTitle) : null,
+      appBar: widget.pick
+          ? AppBar(
+              title: Text(l.contactsPickTitle),
+              actions: [
+                IconButton(
+                  tooltip: l.contactsAdd,
+                  icon: TrustId(TrustIds.contactsAdd, child: const Icon(Icons.person_add_alt)),
+                  onPressed: _add,
+                ),
+                const SizedBox(width: 4),
+              ],
+            )
+          : null,
+      body: body,
     );
   }
 
-  Widget _list(List<Contact> all, List<PairingRecord> orphans) {
+  Future<void> _plusMenu(BuildContext btn, {required bool canExport, required bool pairs}) async {
+    final l = context.l10n;
+    final box = btn.findRenderObject()! as RenderBox;
+    final overlay = Overlay.of(btn).context.findRenderObject()! as RenderBox;
+    // The menu hangs under the button with its right edge on the page gutter (left is one pixel past the
+    // gutter line so the menu aligns to the right side).
+    final top = box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay).dy + 4;
+    final rect = RelativeRect.fromLTRB(overlay.size.width - Kit.gutter + 1, top, Kit.gutter, 0);
+    final v = await showMenu<String>(
+      context: btn,
+      position: rect,
+      items: [
+        PopupMenuItem(
+          key: contactsAddItemKey,
+          value: 'add',
+          child: kitId(TrustIds.contactsAdd, ListTile(leading: const Icon(Icons.person_add_alt), title: Text(l.contactsAdd))),
+        ),
+        if (pairs)
+          PopupMenuItem(
+            key: contactsPairKey,
+            value: 'pair',
+            child: kitId(TrustIds.contactsPair, ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.pairTitle))),
+          ),
+        PopupMenuItem(
+          key: contactsImportKey,
+          value: 'import',
+          child: ListTile(leading: const Icon(Icons.file_download_outlined), title: Text(l.contactsImport)),
+        ),
+        PopupMenuItem(
+          key: contactsExportKey,
+          value: 'export',
+          // A contact without an address is a pairing's, which the file never carries.
+          enabled: canExport,
+          child: ListTile(enabled: canExport, leading: const Icon(Icons.file_upload_outlined), title: Text(l.contactsExport)),
+        ),
+      ],
+    );
+    if (!mounted || v == null) return;
+    switch (v) {
+      case 'add':
+        _add();
+      case 'pair':
+        _pair();
+      case 'import':
+        await importContacts(context, ref);
+      default:
+        await exportContacts(context, ref);
+    }
+  }
+
+  Widget _list(List<Contact> all, List<PairingRecord> orphans, bool canExport) {
     final contacts = _filter(all);
     final t = context.tokens;
     final l = context.l10n;
     final query = _search.text.trim().toLowerCase();
     final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
-    final rows = <Widget>[
+    final activity = ref.watch(contactActivityProvider);
+    final pick = widget.pick;
+    final az = _az || pick;
+    final children = <Widget>[
       // Requests from contacts, while any wait.
       if (pairs && query.isEmpty) const PairRequestsRow(),
       // Pairings in no contact, by the name they chose: waiting or ended with their row, the
       // rest with Add to contacts or Remove pairing.
-      for (final r in orphans)
-        if (query.isEmpty || peerLabel(context.l10n, r).toLowerCase().contains(query)) _OrphanRow(key: ValueKey(r.id), record: r, contacts: all),
+      ...[
+        for (final r in orphans)
+          if (query.isEmpty || peerLabel(context.l10n, r).toLowerCase().contains(query)) _OrphanRow(key: ValueKey(r.id), record: r, contacts: all),
+      ].map((row) => Padding(padding: const EdgeInsets.only(bottom: 8), child: KitGroup(children: [row]))),
     ];
     if (contacts.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+        padding: const EdgeInsets.only(top: 8, bottom: Kit.gutter),
         children: [
-          ...rows,
+          ...children,
           if (all.isNotEmpty && query.isNotEmpty)
-            Text(
-              l.contactsNoMatchQuery(_search.text.trim()),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: t.dim),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Kit.gutter, vertical: 32),
+              child: Text(l.contactsNoMatchQuery(_search.text.trim()), textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.dim)),
             ),
         ],
       );
     }
-    final grouped = contacts.length > _groupAbove;
-    String? letter;
-    for (final c in contacts) {
-      if (grouped) {
-        final first = c.name.trim().characters.firstOrNull?.toUpperCase();
-        final head =
-            first != null && RegExp(r'\p{L}', unicode: true).hasMatch(first)
-            ? first
-            : '#';
-        if (head != letter) {
-          letter = head;
-          rows.add(_LetterHead(head));
-        }
+    final ordered = az ? contacts : _recent(contacts, activity);
+    Widget rowOf(Contact c) {
+      final a = activity[c.id];
+      void open() => _open(c);
+      if (!pick) {
+        if (a?.asks != null) return _AsksRow(contact: c, invoice: a!.asks!, onTap: open);
+        if (!az && a?.latest != null) return ContactActivityRow(tx: a!.latest!, name: c.name, onOpen: open, others: a.all);
       }
-      rows.add(_ContactRow(contact: c, onTap: () => _open(c), forPayment: widget.pick && widget.forPayment));
+      return _ContactRow(contact: c, onTap: open, forPayment: pick && widget.forPayment, noPaymentsYet: !pick && !az && a?.latest == null);
     }
-    return ListView(padding: const EdgeInsets.only(bottom: 16), children: rows);
+
+    if (!pick && contacts.isNotEmpty && query.isEmpty) {
+      children.add(_Faces(contacts: ordered.take(24).toList(), activity: activity, onOpen: _open));
+    }
+    if (!pick) {
+      children.add(
+        KitSectionHead(
+          az ? l.phoneContactsAtoZ : l.phoneHomeRecent,
+          // `.sec` with margin-top 24 under the strip.
+          top: 24,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              kitId(
+                TrustIds.contactsAtoz,
+                KitPress(
+                  onTap: () => setState(() => _az = !_az),
+                  radius: Kit.rButton,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: Kit.hitMin),
+                    child: Center(
+                      widthFactor: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: Text(az ? l.phoneHomeRecent : l.phoneContactsAtoZ, style: KitType.rowSub.copyWith(color: t.accentText, fontWeight: FontWeight.w500)),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final grouped = az && ordered.length > _groupAbove;
+    if (grouped) {
+      String? letter;
+      var run = <Widget>[];
+      void flush() {
+        if (run.isEmpty) return;
+        children.add(KitGroup(children: run));
+        run = <Widget>[];
+      }
+
+      for (final c in ordered) {
+        final first = c.name.trim().characters.firstOrNull?.toUpperCase();
+        final head = first != null && RegExp(r'\p{L}', unicode: true).hasMatch(first) ? first : '#';
+        if (head != letter) {
+          flush();
+          letter = head;
+          children.add(_LetterHead(head));
+        }
+        run.add(rowOf(c));
+      }
+      flush();
+    } else {
+      children.add(KitGroup(children: [for (final c in ordered) rowOf(c)]));
+    }
+    return ListView(padding: const EdgeInsets.only(bottom: Kit.gutter), children: children);
+  }
+}
+
+/// The strip of faces under the search field: a tap opens the contact. A gold dot marks one
+/// that needs the user.
+class _Faces extends StatelessWidget {
+  const _Faces({required this.contacts, required this.activity, required this.onOpen});
+
+  final List<Contact> contacts;
+  final Map<String, ContactActivity> activity;
+  final void Function(Contact) onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l10n;
+    return Semantics(
+      container: true,
+      label: l.phoneContactsFaces,
+      child: SizedBox(
+        height: Kit.avatarStrip + 40,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          // `.people`: 10 in, faces 68 wide 6 apart; each item here is 74 with the gap split
+          // around it, so 7 puts the first face's centre at 44 as drawn.
+          padding: const EdgeInsets.fromLTRB(7, 14, 7, 0),
+          itemCount: contacts.length,
+          itemBuilder: (context, i) {
+            final c = contacts[i];
+            final needs = activity[c.id]?.asks != null;
+            return kitId(
+              TrustIds.contactsFace,
+              KitPress(
+                onTap: () => onOpen(c),
+                radius: Kit.rAvatarStrip,
+                semanticsLabel: c.name,
+                child: SizedBox(
+                  width: 74,
+                  child: Column(
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          AvatarLabelMark(
+                            avatar: KitAvatar(initials: nameInitials(c.name, phone: true), large: true),
+                            size: Kit.avatarStrip,
+                            label: c.label.listMark,
+                          ),
+                          if (needs)
+                            Positioned(
+                              right: -2,
+                              top: -2,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(color: t.accent, shape: BoxShape.circle),
+                                child: const SizedBox.square(dimension: 9),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 7),
+                      Text(
+                        c.name.trim().split(RegExp(r'\s+')).first,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: KitType.rowSub.copyWith(color: needs ? t.text : t.dim, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// A contact that needs the user: a gold-tinted row, "Asks for {amount}", and Review, which opens
+/// the invoice. A tap elsewhere on the row opens the contact.
+class _AsksRow extends ConsumerWidget {
+  const _AsksRow({required this.contact, required this.invoice, required this.onTap});
+
+  final Contact contact;
+  final PendingInvoice invoice;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = context.l10n;
+    final display = amountDisplay(ref);
+    final amount = shownEpic(l, invoice.amount, hidden: display.hidden);
+    final asks = l.phoneContactsAsks(amount);
+    return ColoredBox(
+      color: t.accentSoft,
+      child: KitPress(
+        onTap: onTap,
+        semanticsLabel: '${contact.name}. $asks',
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: Kit.rowList),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: Row(
+              children: [
+                AvatarLabelMark(avatar: KitAvatar(initials: nameInitials(contact.name, phone: true)), size: Kit.avatar, label: contact.label.listMark),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(contact.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: t.text)),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          ExcludeSemantics(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(color: t.accent, shape: BoxShape.circle),
+                              child: const SizedBox.square(dimension: 7),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(child: Text(asks, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(color: t.accentText))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                KitButton(
+                  label: l.phoneReview,
+                  small: true,
+                  expand: false,
+                  semanticsId: TrustIds.contactsReview,
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => InvoiceReviewScreen(invoice: invoice))),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -452,39 +724,60 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
             : r.state == PairingState.pendingReply
                 ? l.pairPairingWith(name)
                 : l.pairNotInContacts;
-    // The same tile and text column as a contact's row (_ContactRow): 48 tile, 12 gap.
-    return ListTile(
+    // The same tile and text column as a contact's row (_ContactRow).
+    return KitPress(
       key: contactsPairingRowKey(r.id),
-      minTileHeight: 64,
-      horizontalTitleGap: 12,
-      leading: PairAvatar(name: name, size: 48),
-      subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
-      title: Row(
-        children: [
-          Flexible(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis)),
-          const SizedBox(width: 8),
-          if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
-        ],
-      ),
-      subtitle: Text(subtitle),
-      trailing: _busy
-          ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
-          : PopupMenuButton<String>(
-            key: contactsOrphanMenuKey(r.id),
-            tooltip: l.contactMore,
-            onSelected: (v) => _choose(context, ref, v, suggested),
-            itemBuilder: (context) => [
-              if (!inFlight && !waiting && !r.ended) ...[
-                if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
-                PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
-                PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
-              ],
-              if (inFlight)
-                PopupMenuItem(key: contactsCancelPairingKey, value: 'cancel', child: Text(l.commonCancel, style: TextStyle(color: t.risk)))
+      onTap: null,
+      button: false,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: Kit.rowList),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
+          child: Row(
+            children: [
+              KitAvatar(initials: nameInitials(name, phone: true), neutral: r.state.isPending),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(flex: 2, child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowTitle.copyWith(color: t.text))),
+                        const SizedBox(width: 8),
+                        if (r.state.isPending) const Flexible(child: PairPendingBadge()) else Flexible(child: TrustBadge(r, short: true)),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(color: t.dim)),
+                  ],
+                ),
+              ),
+              if (_busy)
+                const Padding(padding: EdgeInsets.all(12), child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)))
               else
-                PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
+                PopupMenuButton<String>(
+                  key: contactsOrphanMenuKey(r.id),
+                  tooltip: l.contactMore,
+                  icon: Icon(KitIcons.more, color: t.dim),
+                  onSelected: (v) => _choose(context, ref, v, suggested),
+                  itemBuilder: (context) => [
+                    if (!inFlight && !waiting && !r.ended) ...[
+                      if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
+                      PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
+                      PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
+                    ],
+                    if (inFlight)
+                      PopupMenuItem(key: contactsCancelPairingKey, value: 'cancel', child: Text(l.commonCancel, style: TextStyle(color: t.risk)))
+                    else
+                      PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
+                  ],
+                ),
             ],
           ),
+        ),
+      ),
     );
   }
 }
@@ -510,27 +803,27 @@ class _LetterHead extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 18, Kit.gutter + 4, 8),
       child: Semantics(
         header: true,
-        child: Text(
-          letter,
-          style: Theme.of(context).textTheme.labelSmall
-              ?.copyWith(color: context.tokens.dim),
-        ),
+        child: Text(letter, style: KitType.groupLabel.copyWith(color: context.tokens.dim)),
       ),
     );
   }
 }
 
-/// One contact: the initials tile, the name with its trust badge (or, unpaired, its address
-/// kind), then what it is reached at: the short address, the kind badges when it has several,
-/// or "Allows invoices"; the note under it.
+/// One contact: the avatar, the name with its trust badge (or, unpaired, its address kind),
+/// then what it is reached at: the short address, the kind badges when it has several, or
+/// "Allows invoices"; the note under it. A contact with no payments shows in the Contacts tab
+/// as this row.
 class _ContactRow extends ConsumerWidget {
-  const _ContactRow({required this.contact, required this.onTap, this.forPayment = false});
+  const _ContactRow({required this.contact, required this.onTap, this.forPayment = false, this.noPaymentsYet = false});
 
   final Contact contact;
   final VoidCallback onTap;
+
+  /// The Contacts tab: the contact has no payment to show, and the row says so.
+  final bool noPaymentsYet;
 
   /// Picking a recipient: a contact that takes no payments is dimmed, not pressable, and says why.
   final bool forPayment;
@@ -539,7 +832,7 @@ class _ContactRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = context.l10n;
-    final theme = Theme.of(context);
+    final dim = KitType.rowSub.copyWith(color: t.dim);
     final note = contact.note?.trim();
     final pairing = ref.watch(pairingSupportedProvider) ? ref.watch(contactPairingProvider(contact.id)) : null;
     // A request sent to this contact, or its code answered: Waiting until it is paired.
@@ -555,25 +848,28 @@ class _ContactRow extends ConsumerWidget {
     if (classicOnly) {
       reach = const ClassicOnlyText();
     } else if (disabled) {
-      reach = Text(l.contactTakesNoPayments, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
+      reach = Text(l.contactTakesNoPayments, style: dim);
+    } else if (noPaymentsYet) {
+      reach = Text(l.phoneContactsNoPayments, style: dim);
     } else if (pairing != null && pairing.allowInvoices) {
-      reach = Text(l.trustAllowsInvoices, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
+      reach = Text(l.trustAllowsInvoices, style: dim);
     } else if (several) {
       reach = Wrap(spacing: 4, runSpacing: 4, children: [for (final k in contact.kinds) EBadge.kind(k, l: l)]);
     } else if (contact.addresses.isEmpty) {
       reach = const SizedBox.shrink();
     } else {
-      reach = ShortAddressText(contact.addresses.first, style: const TextStyle(fontSize: 13));
+      reach = ShortAddressText(contact.addresses.first, style: KitType.address.copyWith(color: t.dim, fontSize: 12.5));
     }
-    final row = InkWell(
+    final row = KitPress(
       onTap: disabled ? null : onTap,
+      semanticsLabel: null,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 64),
+        constraints: const BoxConstraints(minHeight: Kit.rowList),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
             children: [
-              PairAvatar(name: contact.name, size: 48, label: contact.label.listMark),
+              AvatarLabelMark(avatar: KitAvatar(initials: nameInitials(contact.name, phone: true)), size: Kit.avatar, label: contact.label.listMark),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -582,14 +878,7 @@ class _ContactRow extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Flexible(
-                          child: Text(
-                            contact.name,
-                            style: theme.textTheme.bodyLarge,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
+                        Flexible(flex: 2, child: Text(contact.name, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis)),
                         if (starred) ...[const SizedBox(width: 4), const ContactStar()],
                         const SizedBox(width: 8),
                         // Paired: its trust badge, never beside an Epicbox address the pairing did
@@ -598,7 +887,8 @@ class _ContactRow extends ConsumerWidget {
                           Flexible(child: TrustBadge(pairing, short: true))
                         else if (inFlight)
                           const Flexible(child: PairPendingBadge())
-                        else if (!several && contact.addresses.isNotEmpty)
+                        // Like the label mark, a list row marks only a kind that is not the default Epicbox.
+                        else if (!several && contact.addresses.isNotEmpty && (forPayment || contact.kinds.first != RecipientKind.epicbox))
                           Flexible(child: EBadge.kind(contact.kinds.first, l: l)),
                         if (noPayments) ...[
                           const SizedBox(width: 6),
@@ -606,27 +896,20 @@ class _ContactRow extends ConsumerWidget {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     reach,
-                    if (note != null && note.isNotEmpty)
-                      Text(
-                        note,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: t.dim,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    if (note != null && note.isNotEmpty) Text(note, style: dim, maxLines: 1, overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
+              if (!disabled) ...[const SizedBox(width: 6), Icon(KitIcons.chevron, size: 22, color: t.faint)],
             ],
           ),
         ),
       ),
     );
     if (classicOnly) return Tip(l.deskE1PhClassicOnlyTip, child: Semantics(enabled: false, child: row));
-    return disabled ? Opacity(opacity: 0.5, child: Semantics(enabled: false, child: row)) : row;
+    return disabled ? Opacity(opacity: 0.5, child: Semantics(enabled: false, child: row)) : kitId(TrustIds.contactsRow, row);
   }
 }
 
@@ -658,6 +941,27 @@ class _AddressField {
 /// kind: the kind shows on the field once the address is valid, Add another address
 /// adds a field while a kind is free, and a second address of a kind asks which to keep. Pops
 /// with the saved contact.
+/// The phone's field: a filled group-coloured box with the button radius and no outline; the
+/// gold edge shows only while the field has focus.
+InputDecoration _kitField(WalletTokens t, {required String labelText, Widget? error, Widget? suffixIcon}) {
+  OutlineInputBorder edge(Color c, [double w = 0]) => OutlineInputBorder(
+    borderRadius: BorderRadius.circular(Kit.rButton),
+    borderSide: w == 0 ? BorderSide.none : BorderSide(color: c, width: w),
+  );
+  return InputDecoration(
+    labelText: labelText,
+    error: error,
+    suffixIcon: suffixIcon,
+    filled: true,
+    fillColor: t.group,
+    border: edge(t.group),
+    enabledBorder: edge(t.group),
+    focusedBorder: edge(t.accent, 1.5),
+    errorBorder: edge(t.risk, 1),
+    focusedErrorBorder: edge(t.risk, 1.5),
+  );
+}
+
 class ContactEditScreen extends ConsumerStatefulWidget {
   const ContactEditScreen({super.key, this.address, this.contact, this.name, this.addressOptional = false});
 
@@ -928,11 +1232,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             controller: _name,
             textCapitalization: TextCapitalization.words,
             onChanged: (_) => setState(() => _nameError = null),
-            decoration: InputDecoration(
-              labelText: l.contactsNameLabel,
-              error: _nameError == null ? null : LiveFieldError(_nameError!),
-              border: const OutlineInputBorder(),
-            ),
+            decoration: _kitField(t, labelText: l.contactsNameLabel, error: _nameError == null ? null : LiveFieldError(_nameError!)),
           ),
           for (var i = 0; i < _fields.length; i++) ...[
             const SizedBox(height: 12),
@@ -957,10 +1257,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           const SizedBox(height: 12),
           TextField(
             controller: _note,
-            decoration: InputDecoration(
-              labelText: l.contactsNoteLabel,
-              border: const OutlineInputBorder(),
-            ),
+            decoration: _kitField(t, labelText: l.contactsNoteLabel),
           ),
           const SizedBox(height: 16),
           if (_error != null) ErrorText(_error!),
@@ -987,11 +1284,11 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           minLines: 1,
           maxLines: null,
           onChanged: (_) => _check(f),
-          decoration: InputDecoration(
+          decoration: _kitField(
+            context.tokens,
             // Any kind fits: the badge names the one it holds.
             labelText: l.addrField,
             error: error == null ? null : LiveFieldError(error),
-            border: const OutlineInputBorder(),
             suffixIcon: kind != null
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1029,8 +1326,8 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             child: Wrap(
               spacing: 8,
               children: [
-                OutlinedButton(key: contactKeepOldKey, onPressed: () => _keepOld(f), child: Text(l.addrKeepOld)),
-                FilledButton.tonal(key: contactReplaceKey, onPressed: () => _replace(f), child: Text(l.addrReplace)),
+                KitButton(key: contactKeepOldKey, label: l.addrKeepOld, onPressed: () => _keepOld(f), kind: KitButtonKind.quiet, small: true, expand: false),
+                KitButton(key: contactReplaceKey, label: l.addrReplace, onPressed: () => _replace(f), small: true, expand: false),
               ],
             ),
           )

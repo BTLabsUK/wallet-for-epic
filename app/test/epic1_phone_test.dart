@@ -4,6 +4,7 @@
 // Receive, the link flow on Send with the unknown server question, Try next and Sent, the
 // mode lines for the other mode's codes, "Classic only" contacts, and the setting kept per
 // wallet across lock and unlock.
+import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -19,17 +20,22 @@ import 'package:epic_wallet/src/ui/epic1/epic1_common.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_receive.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_send.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_settings.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitSwitch;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
+import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, WalletStatus;
+import 'package:epic_wallet/src/ui/status.dart' as status show NodeStatus;
 import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/send_pin.dart';
@@ -86,7 +92,23 @@ final _forty = WalletSummary(
 /// A session with 40 EPIC, in epic1 mode when [on].
 FakeWalletSession _session({bool on = false}) => FakeWalletSession(summary: _forty)..epic1Fake = FakeEpic1(on: on);
 
-Future<ProviderContainer> _pump(WidgetTester tester, FakeWalletSession session, Widget home, {FakeWalletService? service}) async {
+/// The shown status with Epicbox in [epicbox] and the node online.
+class _Epicbox extends WalletStatusNotifier {
+  _Epicbox(this.epicbox);
+
+  final EpicboxState? epicbox;
+
+  @override
+  WalletStatus build() => (node: const status.NodeStatus(NodeState.online), epicbox: epicbox);
+}
+
+Future<ProviderContainer> _pump(
+  WidgetTester tester,
+  FakeWalletSession session,
+  Widget home, {
+  FakeWalletService? service,
+  List<Override> extra = const [],
+}) async {
   allowPinCheck(session, service);
   tester.view.physicalSize = const Size(1080, 3300);
   tester.view.devicePixelRatio = 3;
@@ -106,6 +128,7 @@ Future<ProviderContainer> _pump(WidgetTester tester, FakeWalletSession session, 
         backedUpProvider.overrideWith((ref) async => true),
         sessionProvider.overrideWith(() => _Open(session)),
         walletConfigProvider.overrideWith(_Config.new),
+        ...extra,
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -126,7 +149,7 @@ Finder _key(Key key) => find.byKey(key);
 Finder _e1(String text) => find.byWidgetPredicate((w) => w is Epic1Text && w.text == text);
 
 bool _switchOn(WidgetTester tester) =>
-    tester.widget<Switch>(find.descendant(of: _key(epic1SwitchKey), matching: find.byType(Switch))).value;
+    tester.widget<KitSwitch>(find.descendant(of: _key(epic1SwitchKey), matching: find.byType(KitSwitch))).value;
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
@@ -255,22 +278,58 @@ void main() {
   group('Receive', () {
     const receive = SlotScaffold(body: ReceiveView());
 
-    testWidgets('epic1: the link card, its QR covered until tapped', (tester) async {
+    testWidgets('epic1: the link card with its QR, Copy link and Share', (tester) async {
       final session = _session(on: true);
       await _pump(tester, session, receive);
       expect(_key(epic1LinkCardKey), findsOneWidget);
-      expect(_key(epic1QrCoverKey), findsOneWidget);
-      expect(_key(epic1QrKey), findsNothing);
+      expect(_key(epic1QrKey), findsOneWidget);
       expect(_key(epic1CopyLinkKey), findsOneWidget);
+      expect(_key(epic1AskAmountKey), findsOneWidget);
       expect(_key(epic1RequestInPersonKey), findsOneWidget);
       // The tour's Receive step lights the link card.
       expect(_tourTarget('tour-receive-address', _key(epic1LinkCardKey)), findsOneWidget);
       expect(session.epic1Fake.calls, contains('makeLink'));
-      final shown = tester.widget<Text>(_key(epic1LinkTextKey)).data!;
-      expect(shown, startsWith('epic:epic1'));
-      expect(shown, contains('…'));
-      await _tap(tester, _key(epic1QrCoverKey));
-      expect(_key(epic1QrKey), findsOneWidget);
+    });
+
+    testWidgets('epic1: the listening line follows Epicbox', (tester) async {
+      String line(WidgetTester tester) =>
+          tester.widget<Text>(find.descendant(of: _key(epic1ListeningKey), matching: find.byType(Text))).data!;
+      for (final (state, word) in [
+        (EpicboxState.online, _l.phoneRecvListening),
+        (EpicboxState.connecting, _l.statusEpicboxConnecting),
+        (EpicboxState.offline, _l.statusEpicboxOffline),
+        (null, _l.statusEpicboxOffline),
+        (EpicboxState.blocked, _l.statusEpicboxBlocked),
+      ]) {
+        await _pump(tester, _session(on: true), receive, extra: [walletStatusProvider.overrideWith(() => _Epicbox(state))]);
+        expect(line(tester), word, reason: '$state');
+        await tester.pumpWidget(const SizedBox());
+      }
+    });
+
+    testWidgets('epic1 turned off in Settings: Receive shows the Epicbox address at once', (tester) async {
+      final session = _session(on: true);
+      final container = await _pump(tester, session, _settings);
+      await _tap(tester, _key(epic1SwitchKey));
+      expect(session.epic1Fake.storedOn, isFalse);
+      expect(session.epic1Fake.inUse, isTrue);
+      expect(container.read(receiveModeProvider), PaymentMode.classic);
+
+      Navigator.of(tester.element(find.byType(SettingsSectionScreen))).push(MaterialPageRoute<void>(builder: (_) => receive));
+      await tester.pumpAndSettle();
+      expect(find.byType(Epic1ReceiveView), findsNothing);
+      expect(_key(epic1LinkCardKey), findsNothing);
+      expect(_key(receiveAddressKey), findsOneWidget);
+      expect(_key(receiveRequestKey), findsOneWidget);
+    });
+
+    testWidgets('epic1 turned on in a classic unlock: Receive waits for the next unlock', (tester) async {
+      final session = _session();
+      final container = await _pump(tester, session, _settings);
+      await _tap(tester, _key(epic1SwitchKey));
+      await _tap(tester, _key(epic1TurnOnKey));
+      expect(session.epic1Fake.storedOn, isTrue);
+      expect(container.read(receiveModeProvider), PaymentMode.classic);
     });
 
     testWidgets('classic: no link card', (tester) async {
@@ -423,7 +482,7 @@ void main() {
       final alice = (await session.contacts()).single;
       await _pump(tester, session, ContactPage(contactId: alice.id));
       expect(_key(classicOnlyKey), findsOneWidget);
-      expect(tester.widget<ButtonStyleButton>(_key(contactPageSendKey)).onPressed, isNull);
+      expect(tester.widget<KitButton>(_key(contactPageSendKey)).onPressed, isNull);
     });
   });
 }

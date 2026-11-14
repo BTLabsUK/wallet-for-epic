@@ -13,7 +13,6 @@
   "deskSetNodeGroupComputer": "Ten komputer",
   "deskSetNodeServer": "Serwer węzła",
   "deskSetNodeServerHint": "Węzeł, przez który portfel czyta łańcuch i wysyła płatności.",
-  "deskSetNodeChecking": "Sprawdzanie węzła…",
   "deskSetNodeBackground": "Synchronizuj w tle",
   "deskSetNodeBackgroundHint": "Po zamknięciu okna węzeł dalej się synchronizuje. Aplikacja zostaje w zasobniku systemowym.",
   "deskNodeSwitchConnecting": "Łączenie z {host}…",

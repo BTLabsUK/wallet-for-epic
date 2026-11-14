@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The app's one way to tell the user something happened: a card docked under the app bar
-/// ([NoticeDock], in every `SlotScaffold`) that moves the content down instead of covering it.
+/// The app's one way to tell the user something happened: a toast floating at the top of the
+/// screen ([NoticeDock], in every `SlotScaffold`), over the content and clear of the bottom.
 /// `app/README.md` "Notifications" has the standard.
 library;
 
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,8 @@ import '../desktop/theme/tokens.dart' show Motion;
 import '../desktop/widgets/motion.dart' show ExpandFade;
 import 'notice_layout.dart';
 import 'settings_rows.dart' show NavChevron;
+import 'kit/kit_icons.dart';
+import 'kit/kit_tokens.dart';
 import 'theme/tokens.dart';
 
 export 'notice_layout.dart' show NoticeLayout, RenderNoticeLayout;
@@ -82,6 +85,7 @@ class Notice {
     this.tag,
     this.onClose,
     this.items = const [],
+    this.icon,
   });
 
   /// Distinct per notice, so the card animates when another one takes its place.
@@ -115,13 +119,12 @@ class Notice {
   /// a tap on the card or its chevron unfolds them, each a way to its own place. A digest.
   final List<NoticeAction> items;
 
-  /// Has a close button: warnings, errors, persistent notices and any with an action.
-  bool get closable =>
-      persistent ||
-      action != null ||
-      items.isNotEmpty ||
-      level == NoticeLevel.warning ||
-      level == NoticeLevel.error;
+  /// A drawn mark of the notice's own (an arrival's arrow) in place of its level's.
+  final IconData? icon;
+
+  /// Has a close button: the ones that stay until closed (the frame draws the × there only);
+  /// the others leave on their own, by a swipe, or by their action.
+  bool get closable => persistent || items.isNotEmpty;
 }
 
 /// The visible notice; every [NoticeDock] shows it.
@@ -166,6 +169,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     String? tag,
     VoidCallback? onClose,
     List<NoticeAction> items = const [],
+    IconData? icon,
   }) {
     Notice make(int id) => Notice(
       id,
@@ -180,6 +184,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       tag: tag,
       onClose: onClose,
       items: items,
+      icon: icon,
     );
     final visible = state;
     if (visible != null &&
@@ -258,29 +263,35 @@ class NoticeNotifier extends Notifier<Notice?> {
   }
 }
 
-/// How long the dock takes to open, close or change its height.
-const Duration noticeDockDuration = Duration(milliseconds: 200);
+/// How long the toast takes to drop in, and to leave (HANDOFF 5.6: 220 ms in, 160 ms out).
+const Duration noticeDockDuration = Duration(milliseconds: 220);
+const Duration noticeDockLeave = Duration(milliseconds: 160);
 
-/// The space under the app bar where the visible notice docks; `SlotScaffold` puts one on
-/// every screen. Closed it takes no height. A notice opens it to the card's height and the
-/// content below moves down with it, so a notice never covers the app bar or the screen; it
-/// closes when the last notice goes. Every dock shows the same notice, so one survives a pop.
+/// Where the visible notice shows: a floating toast at the top of the screen, 50 dp from its top
+/// edge and 12 dp from the sides, over the content, so it never covers the gold button or the
+/// keypad at the bottom. `SlotScaffold` puts one on every screen; it takes no room in the
+/// layout, and the toast is drawn in the [Overlay] above the screen. Every dock shows the same
+/// notice, so one survives a pop.
 class NoticeDock extends ConsumerStatefulWidget {
   const NoticeDock({super.key});
-
-  /// Space above and below the card while the dock is open, and its side margins, the
-  /// content's 16 dp.
-  static const EdgeInsets padding = EdgeInsets.fromLTRB(16, 12, 16, 4);
 
   @override
   ConsumerState<NoticeDock> createState() => _NoticeDockState();
 }
 
-class _NoticeDockState extends ConsumerState<NoticeDock>
-    with SingleTickerProviderStateMixin {
+class _NoticeDockState extends ConsumerState<NoticeDock> with SingleTickerProviderStateMixin {
+  /// The docks alive now, oldest first. Only the newest draws the toast: a flow pushed over a
+  /// screen has its own dock, and the screen under it is still built.
+  static final List<_NoticeDockState> _live = [];
+  static final ValueNotifier<int> _liveChanged = ValueNotifier(0);
+
+  bool get _top => _live.isNotEmpty && identical(_live.last, this);
+
+  final OverlayPortalController _portal = OverlayPortalController();
   late final AnimationController _open = AnimationController(
     vsync: this,
     duration: noticeDockDuration,
+    reverseDuration: noticeDockLeave,
   );
   late final Animation<double> _curve = CurvedAnimation(
     parent: _open,
@@ -288,30 +299,39 @@ class _NoticeDockState extends ConsumerState<NoticeDock>
     reverseCurve: Curves.easeInCubic,
   );
 
-  /// The card on show; it stays while the dock closes.
+  /// The notice on show; it stays while the toast leaves.
   Notice? _shown;
 
   @override
   void initState() {
     super.initState();
-    // A screen opened while a notice shows starts with the dock open.
+    _live.add(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _liveChanged.value++);
+    // A screen opened while a notice shows starts with the toast in place.
     _shown = ref.read(noticeProvider);
-    if (_shown != null) _open.value = 1;
+    if (_shown != null) {
+      _open.value = 1;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _shown != null) _portal.show();
+      });
+    }
   }
 
   @override
   void dispose() {
+    _live.remove(this);
+    // Not during this frame's build: the docks that listen rebuild after it.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _liveChanged.value++);
     _open.dispose();
     super.dispose();
   }
 
   void _onNotice(Notice? _, Notice? notice) {
     // Reduced motion, or a screen under another one (its tickers stopped), moves at once.
-    final cut =
-        MediaQuery.disableAnimationsOf(context) ||
-        !TickerMode.valuesOf(context).enabled;
+    final cut = MediaQuery.disableAnimationsOf(context) || !TickerMode.valuesOf(context).enabled;
     if (notice != null) {
       setState(() => _shown = notice);
+      _portal.show();
       if (cut) {
         _open.value = 1;
       } else {
@@ -321,11 +341,13 @@ class _NoticeDockState extends ConsumerState<NoticeDock>
     }
     if (cut) {
       _open.value = 0;
+      _portal.hide();
       setState(() => _shown = null);
       return;
     }
     _open.reverse().whenCompleteOrCancel(() {
       if (mounted && ref.read(noticeProvider) == null) {
+        _portal.hide();
         setState(() => _shown = null);
       }
     });
@@ -334,14 +356,26 @@ class _NoticeDockState extends ConsumerState<NoticeDock>
   @override
   Widget build(BuildContext context) {
     ref.listen<Notice?>(noticeProvider, _onNotice);
-    ref.read(noticeProvider.notifier).accessibleNavigation =
-        MediaQuery.accessibleNavigationOf(context);
+    ref.read(noticeProvider.notifier).accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
+    return OverlayPortal(
+      controller: _portal,
+      overlayChildBuilder: (context) => ListenableBuilder(
+        listenable: _liveChanged,
+        builder: (context, _) => _top ? _toast(context) : const SizedBox.shrink(),
+      ),
+      child: const SizedBox.shrink(),
+    );
+  }
+
+  Widget _toast(BuildContext context) {
     final shown = _shown;
     if (shown == null) return const SizedBox.shrink();
     final still = MediaQuery.disableAnimationsOf(context);
-    final duration = still ? Duration.zero : noticeDockDuration;
+    // The status bar, or 50 dp, whichever is lower on the screen.
+    final inset = MediaQueryData.fromView(View.of(context)).padding.top;
+    final top = inset > Kit.toastTop ? inset : Kit.toastTop;
     final card = AnimatedSwitcher(
-      duration: duration,
+      duration: still ? Duration.zero : const Duration(milliseconds: 150),
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeInCubic,
       layoutBuilder: (current, previous) => Stack(
@@ -350,34 +384,22 @@ class _NoticeDockState extends ConsumerState<NoticeDock>
       ),
       child: NoticeCard(key: ValueKey(shown.id), notice: shown),
     );
-    return ClipRect(
-      child: SizeTransition(
-        sizeFactor: _curve,
-        // The card's lower edge leads, so it slides down from under the app bar.
-        alignment: Alignment.bottomCenter,
-        child: FadeTransition(
-          opacity: _curve,
-          child: SafeArea(
-            top: false,
-            bottom: false,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
-                child: Padding(
-                  padding: NoticeDock.padding,
-                  // Reduced motion: no AnimatedSize, whose zero-length animation ends inside
-                  // its own layout and asserts when one notice replaces another.
-                  child: still
-                      ? card
-                      : AnimatedSize(
-                          duration: duration,
-                          curve: Curves.easeOutCubic,
-                          alignment: Alignment.topCenter,
-                          child: card,
-                        ),
-                ),
-              ),
-            ),
+    return Positioned(
+      top: top,
+      left: Kit.toastSide,
+      right: Kit.toastSide,
+      child: AnimatedBuilder(
+        animation: _curve,
+        builder: (context, child) => Opacity(
+          opacity: _curve.value.clamp(0.0, 1.0),
+          child: Transform.translate(offset: Offset(0, -(1 - _curve.value) * 28), child: child),
+        ),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            // The overlay has no Material above it: the buttons and ink in the toast need one.
+            child: Material(type: MaterialType.transparency, child: card),
           ),
         ),
       ),
@@ -403,8 +425,10 @@ String noticeLevelLabel(AppLocalizations l, NoticeLevel level) =>
       NoticeLevel.error => l.noticeLevelError,
     };
 
-/// The card [NoticeDock] shows, swipeable and with its buttons: the balance panel's surface
-/// and hairline, with the level's colour as the leading edge and on the icon.
+/// The toast [NoticeDock] shows (HANDOFF 7.6): a blurred floating card, radius 20, with the
+/// level's icon in a 34 dp circle, one or two lines of words (a bold title over a dim detail), a
+/// gold text button, a close ×, and a 3 dp progress line when work is running. A swipe up (or
+/// sideways) sends it away. A digest unfolds its items under the words.
 class NoticeCard extends ConsumerStatefulWidget {
   const NoticeCard({super.key, required this.notice});
 
@@ -438,11 +462,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   void _onDragEnd(DragEndDetails details) {
     final v = details.velocity.pixelsPerSecond;
     final width = context.size?.width ?? 300;
-    final away =
-        _drag.dx.abs() > width / 3 ||
-        _drag.dy < -32 ||
-        v.dx.abs() > 700 ||
-        v.dy < -500;
+    final away = _drag.dx.abs() > width / 3 || _drag.dy < -32 || v.dx.abs() > 700 || v.dy < -500;
     if (away) {
       _notices.dismiss(widget.notice.id);
       widget.notice.onClose?.call();
@@ -456,46 +476,74 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     if (!_hovering && !_open) _notices.release();
   }
 
+  TextButton _textButton(NoticeAction a, {required bool primary}) {
+    final t = context.tokens;
+    return TextButton(
+      onPressed: () {
+        _notices.dismiss(widget.notice.id);
+        a.onPressed();
+      },
+      style: TextButton.styleFrom(
+        // The quiet blue of the info level: its action reads as part of the notice, not as gold.
+        foregroundColor: primary ? (widget.notice.level == NoticeLevel.info ? t.info : t.accentText) : t.dim,
+        // From the theme's label style, so the fallback fonts (Thai, Chinese) stay.
+        textStyle: Theme.of(context).textTheme.labelLarge?.merge(KitType.toastAction),
+        minimumSize: const Size(0, 40), // `.ta` min-height
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(a.label),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final notice = widget.notice;
     final t = context.tokens;
     final l = context.l10n;
-    final (icon, color) = noticeLook(t, notice.level);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final (_, color) = noticeLook(t, notice.level);
+    final icon = notice.icon ?? switch (notice.level) {
+      NoticeLevel.info => KitIcons.info,
+      NoticeLevel.success => KitIcons.check,
+      NoticeLevel.warning => KitIcons.warning,
+      NoticeLevel.error => KitIcons.error,
+    };
     final action = notice.action;
-    final actionButton = action == null
-        ? null
-        : TextButton(
-            onPressed: () {
-              _notices.dismiss(notice.id);
-              action.onPressed();
-            },
-            child: Text(action.label),
-          );
     final secondary = notice.secondary;
-    final secondaryButton = secondary == null
-        ? null
-        : TextButton(
-            onPressed: () {
-              _notices.dismiss(notice.id);
-              secondary.onPressed();
-            },
-            child: Text(secondary.label),
-          );
-    final close = notice.closable
-        ? IconButton(
-            tooltip: l.commonClose,
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              _notices.dismiss(notice.id);
-              notice.onClose?.call();
-            },
-          )
-        : null;
-    final progress = notice.progress;
     final items = notice.items;
+    final progress = notice.progress;
     final still = MediaQuery.disableAnimationsOf(context);
-    final unfoldIn = still ? Duration.zero : noticeUnfoldDuration;
+    final title = notice.title, text = notice.text;
+    final lines = notice.persistent ? null : noticeMaxLines;
+    final cut = lines == null ? null : TextOverflow.ellipsis;
+
+    final words = Semantics(
+      container: true,
+      liveRegion: true,
+      label: '${noticeLevelLabel(l, notice.level)}: ${[?title, text].join('. ')}',
+      child: ExcludeSemantics(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // `.tt` is weight 500; its `small` is 12.5 regular, dim, 2 below.
+            if (title != null) Text(title, maxLines: lines, overflow: cut, style: KitType.toast.copyWith(color: t.text, fontWeight: FontWeight.w500)),
+            if (title != null) const SizedBox(height: 2),
+            Text(
+              text,
+              maxLines: lines,
+              overflow: cut,
+              style: title == null
+                  ? KitType.toast.copyWith(color: t.text, fontWeight: FontWeight.w500)
+                  : KitType.toast.copyWith(color: t.dim, fontSize: 12.5),
+            ),
+          ],
+        ),
+      ),
+    );
+    final wordsTap = items.isEmpty ? words : GestureDetector(behavior: HitTestBehavior.opaque, onTap: _toggle, child: words);
+
     final chevron = items.isEmpty
         ? null
         : IconButton(
@@ -504,25 +552,33 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             onPressed: _toggle,
             icon: AnimatedRotation(
               turns: _open ? 0.5 : 0,
-              duration: unfoldIn,
+              duration: still ? Duration.zero : noticeUnfoldDuration,
               curve: Curves.easeOutCubic,
               child: Icon(Icons.expand_more, color: t.dim),
             ),
           );
-    // The items unfold under the whole card, the words' left edge as their own, so the chevron
-    // that unfolds them stays beside the one line it belongs to. Height and fade move together
-    // both ways; a folded list is off stage, so nothing in it can be tapped or found.
+    final close = notice.closable
+        ? IconButton(
+            tooltip: l.commonClose,
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: EdgeInsets.zero,
+            icon: Icon(KitIcons.close, size: 16, color: t.faint),
+            onPressed: () {
+              _notices.dismiss(notice.id);
+              notice.onClose?.call();
+            },
+          )
+        : null;
+
+    // The items unfold under the whole card, the words' left edge as their own.
     final unfold = items.isEmpty
         ? null
         : ExpandFade(
             open: _open,
             child: Padding(
               key: noticeItemsKey,
-              padding: const EdgeInsetsDirectional.only(
-                start: _wordsStart - 8,
-                end: 4,
-                bottom: 4,
-              ),
+              padding: const EdgeInsetsDirectional.only(start: _wordsStart - 8, end: 4, bottom: 4),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -535,19 +591,11 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
                       },
                       borderRadius: BorderRadius.circular(t.radiusSmall),
                       child: Container(
-                        constraints: const BoxConstraints(minHeight: 44),
-                        padding: const EdgeInsetsDirectional.only(
-                          start: 8,
-                          end: 8,
-                        ),
+                        constraints: const BoxConstraints(minHeight: Kit.hitMin),
+                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 8),
                         child: Row(
                           children: [
-                            Expanded(
-                              child: Text(
-                                item.label,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
+                            Expanded(child: Text(item.label, style: KitType.toast.copyWith(color: t.text))),
                             const NavChevron(size: 20),
                           ],
                         ),
@@ -557,38 +605,74 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
               ),
             ),
           );
+
+    final trailing = [?chevron, ?close];
     final body = Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
+      padding: const EdgeInsetsDirectional.fromSTEB(11, 0, 10, 0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          NoticeParts(
-            level: notice.level,
-            title: notice.title,
-            text: notice.text,
-            maxLines: notice.persistent ? null : noticeMaxLines,
-            icon: icon,
-            color: color,
-            onWords: items.isEmpty ? null : _toggle,
-            below: progress == null
+          NoticeLayout(
+            icon: ExcludeSemantics(
+              child: Container(
+                width: Kit.toastIcon,
+                height: Kit.toastIcon,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: dark ? 0.16 : 0.14)),
+                alignment: Alignment.center,
+                child: Icon(icon, size: 18, color: color),
+              ),
+            ),
+            words: Padding(
+              padding: const EdgeInsets.symmetric(vertical: _wordsPad),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  wordsTap,
+                  if (progress != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 7),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 3,
+                          color: t.accentText,
+                          backgroundColor: t.fill,
+                          semanticsLabel: notice.progressLabel,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            actions: action == null
+                ? null
+                : Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 4,
+                    children: [if (secondary != null) _textButton(secondary, primary: false), _textButton(action, primary: true)],
+                  ),
+            close: trailing.isEmpty
                 ? null
                 : Padding(
-                    padding: const EdgeInsets.only(top: 6, bottom: 4),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 2,
-                      semanticsLabel: notice.progressLabel,
-                    ),
+                    padding: const EdgeInsetsDirectional.only(start: 11),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: trailing),
                   ),
-            actions: [?secondaryButton, ?actionButton, ?chevron],
-            close: close,
-            liveRegion: true,
+            iconGap: 11,
+            actionGap: 11,
+            firstLine: 14.5 * 1.3 + 2 * _wordsPad,
+            textEnd: 0,
+            minHeight: Kit.toastMin,
+            centered: true,
           ),
           ?unfold,
         ],
       ),
     );
+
+    final radius = BorderRadius.circular(Kit.rGroup);
     return Listener(
       onPointerDown: (_) => _notices.hold(),
       onPointerUp: (_) => _releaseUnlessHovered(),
@@ -610,9 +694,27 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             offset: Offset(_drag.dx, _drag.dy < 0 ? _drag.dy : 0),
             child: Opacity(
               opacity: (1 - _drag.distance / 300).clamp(0.2, 1),
-              // No corner brackets: those are brand art, and every notice card shares one
-              // look, the level's colour as its leading edge (UP-004).
-              child: NoticeSurface(key: noticeKey, color: color, child: body),
+              child: DecoratedBox(
+                key: noticeKey,
+                decoration: BoxDecoration(
+                  borderRadius: radius,
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: dark ? 0.6 : 0.16), offset: const Offset(0, 14), blurRadius: 34)],
+                ),
+                child: ClipRRect(
+                  borderRadius: radius,
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: Kit.blur, sigmaY: Kit.blur),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: t.group,
+                        borderRadius: radius,
+                        border: Border.all(color: t.hair2),
+                      ),
+                      child: body,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -621,8 +723,11 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   }
 }
 
+/// The space above and below the words inside the card.
+const double _wordsPad = 10;
+
 /// Where the words start inside the card's body: the level's icon and the gap after it.
-const double _wordsStart = 24 + 12;
+const double _wordsStart = 11 + Kit.toastIcon + 11;
 
 /// How long a digest takes to unfold its items, and to fold them.
 const Duration noticeUnfoldDuration = Motion.expand;
@@ -631,9 +736,9 @@ const Duration noticeUnfoldDuration = Motion.expand;
 const Key noticeUnfoldKey = ValueKey('notice-unfold');
 const Key noticeItemsKey = ValueKey('notice-items');
 
-/// The most lines a passing notice shows; a persistent one shows its whole text. Three keep a
-/// sentence whole on a phone (A-10); the screen reader always hears all of it.
-const int noticeMaxLines = 3;
+/// The most lines a passing toast shows; a persistent one shows its whole text. The screen
+/// reader always hears all of it.
+const int noticeMaxLines = 2;
 
 /// The surface of every phone notice, docked or in the flow: the panel's surface and hairline,
 /// with [color] (the level's) as a 3 dp leading edge. No corner brackets: those are brand art.
@@ -752,6 +857,8 @@ class NoticeParts extends StatelessWidget {
       firstLine: line + 2 * wordsPad,
       textEnd: 12,
       minHeight: 48,
+      // Words with something under them (buttons, a bar): the icon sits on the first line, not mid-card.
+      centered: below == null,
     );
   }
 }

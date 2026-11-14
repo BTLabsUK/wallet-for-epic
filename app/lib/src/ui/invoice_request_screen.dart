@@ -7,14 +7,13 @@
 library;
 
 import 'app_dialog.dart';
-import 'phone_sheet.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
 import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../amount.dart';
 import '../app_log.dart';
@@ -22,20 +21,36 @@ import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
+import '../payment_prefs.dart';
 import '../pairing_providers.dart';
 import '../price.dart';
 import '../providers.dart';
+import '../scan/scan_router.dart' show EpicUri;
 import '../settings.dart';
+import '../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../initials.dart' show nameInitials;
 import '../slate_files.dart';
+import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
 import 'invoices_screen.dart';
 import 'net_block.dart';
-import 'pairing/pairing_parts.dart';
+import 'kit/kit_amount.dart';
+import 'kit/kit_avatar.dart';
+import 'kit/kit_button.dart';
+import 'kit/kit_chip.dart';
+import 'kit/kit_fiat_swap.dart';
+import 'kit/kit_row.dart' show KitIconWell;
+import 'kit/kit_headers.dart';
+import 'kit/kit_icons.dart';
+import 'kit/kit_keypad.dart';
+import 'kit/kit_sheet.dart';
+import 'kit/kit_tokens.dart';
+import 'receive_code.dart';
+import 'theme/logo_qr.dart';
 import 'request_qr_screen.dart' show RequestQrScreen;
 import 'scan_screen.dart' show offersQrPayment;
-import 'slate_file_screen.dart' show SlateFileResult;
 import 'send_screen.dart' show Utf8LengthLimiter, utf8Length;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -45,10 +60,9 @@ const Key requestPayerKey = ValueKey('request-payer');
 const Key requestSaveFileKey = ValueKey('request-save-file');
 const Key requestAmountKey = ValueKey('request-amount');
 const Key requestMessageKey = ValueKey('request-message');
-const Key requestSummaryKey = ValueKey('request-summary');
-const Key requestToFileKey = ValueKey('request-to-file');
-const Key requestToQrKey = ValueKey('request-to-qr');
 const Key requestShowQrKey = ValueKey('request-show-qr');
+const Key requestShowLinkKey = ValueKey('request-show-link');
+const Key requestLinkQrKey = ValueKey('request-link-qr');
 const Key requestFileWaitingKey = ValueKey('request-file-waiting');
 
 /// Payment requests work as files, both ways: Invoices is on and the core handles them
@@ -61,6 +75,20 @@ const String _fileRow = '\u0000file';
 
 /// The picker's value for "Show as QR".
 const String _qrRow = '\u0000qr';
+
+/// The picker's value for "Anyone, with my address".
+const String _linkRow = '\u0000link';
+
+/// The wallet's Epicbox address when a request can go out as a code of it with an amount: a
+/// plain send to the address with the amount filled in. Null with Epicbox off or no relay.
+String? requestLinkAddress(WidgetRef ref, {bool listen = true}) {
+  T get<T>(ProviderListenable<T> p) => listen ? ref.watch(p) : ref.read(p);
+  final payments =
+      get(appSettingsProvider.select((s) => s.value?.payments)) ??
+      (get(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults);
+  if (!payments.epicbox || get(hostSettingsProvider.select((h) => h.epicboxServers.isEmpty))) return null;
+  return get(addressProvider).value;
+}
 
 /// The payer as the user knows them: the contact's name, else the start of the address.
 ///
@@ -106,10 +134,15 @@ Future<bool> confirmWithdraw(
   );
   if (confirmed != true || !context.mounted) return false;
   final l = context.l10n;
+  // Everything the end needs is taken before the await: withdrawing reloads the list, which
+  // can remove the row (and `ref`) that asked. Using `ref` after that threw, and the error
+  // notice came although the withdraw had worked.
   final notices = ref.read(noticeProvider.notifier);
+  final withdrawals = ref.read(issuedInvoicesProvider.notifier);
+  final container = ProviderScope.containerOf(context, listen: false);
   try {
-    await ref.read(issuedInvoicesProvider.notifier).withdraw(invoice.slateId);
-    ref.invalidate(homeProvider);
+    await withdrawals.withdraw(invoice.slateId);
+    container.invalidate(homeProvider);
     return true;
   } catch (error) {
     notices.show(describeError(l, error), level: NoticeLevel.error);
@@ -131,199 +164,170 @@ List<PairingRecord> requestPayers(Iterable<PairingRecord> pairings) {
   ];
 }
 
-/// The request form: To (a paired contact whose wallet pays requests), the amount in EPIC or
-/// fiat, an optional message and the time to pay. Send request sends it to the contact's
-/// mailbox; Save as file makes a payment file for anyone. No PIN: nothing leaves the wallet.
-/// Success opens the Invoices screen's sent requests.
+/// The Ask-for-an-amount page (Receive-2): the amount on a keypad, who pays and a note, then
+/// "Ask for {amount}". Who pays is a paired contact (the request goes to their mailbox), anyone
+/// with a code (a QR shown to a phone nearby) or anyone with a file. No PIN: nothing leaves the
+/// wallet. A contact's request opens the Invoices screen's sent requests.
 class InvoiceRequestScreen extends ConsumerStatefulWidget {
   const InvoiceRequestScreen({super.key, this.pairingId, this.asQr = false, this.message});
 
-  /// The paired contact to ask, when the form opens from it.
+  /// The paired contact to ask, when the page opens from it.
   final String? pairingId;
 
-  /// The form opens on "Show as QR" (Receive › Direct · QR).
+  /// The page opens on "Anyone, with a code" (Receive › In person).
   final bool asQr;
 
-  /// The message the form opens with: the last request's, for the next payer at a till.
+  /// The note the page opens with: the last request's, for the next payer at a till.
   final String? message;
 
   @override
-  ConsumerState<InvoiceRequestScreen> createState() =>
-      _InvoiceRequestScreenState();
+  ConsumerState<InvoiceRequestScreen> createState() => _InvoiceRequestScreenState();
 }
 
 class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
   late String? _to = widget.pairingId;
 
-  /// "Save as a file for anyone" is chosen under To; null until the user picks, when it is
-  /// the choice only while no paired contact pays requests.
+  /// "Anyone, with a file" was chosen (true) or another payer was (false); null until the user
+  /// picks.
   bool? _toFile;
 
-  /// "Show as QR" is chosen under To: the request goes to a phone next to this one.
+  /// "Anyone, with a code" was chosen: the request goes to a phone next to this one.
   late bool _toQr = widget.asQr;
-  final _amount = TextEditingController();
-  late final _message = TextEditingController(text: widget.message);
-  final _amountFocus = FocusNode();
-  final _messageFocus = FocusNode();
 
-  /// The amount field holds fiat instead of EPIC.
+  /// "Anyone, with my address" was chosen (true) or another payer was (false); null until the
+  /// user picks.
+  bool? _toLink;
+
+  /// The amount as typed on the keypad, with a "." for the decimal point.
+  String _digits = '';
+  late String _note = widget.message ?? '';
+
+  /// The keypad types fiat instead of EPIC.
   bool _fiatEntry = false;
-  BigInt? _parsedAmount;
   String? _payerError;
-  String? _amountError;
   bool _busy = false;
-
-  @override
-  void dispose() {
-    _amount.dispose();
-    _message.dispose();
-    _amountFocus.dispose();
-    _messageFocus.dispose();
-    super.dispose();
-  }
 
   double? get _price => ref.read(priceProvider).value;
 
-  String get _currency =>
-      ref.read(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+  String get _currency => ref.read(appSettingsProvider).value?.fiatCurrency ?? 'usd';
 
-  /// The amount field in its unit, in atomic EPIC. Throws a [FormatException] saying why not.
-  BigInt _parseAmount(String text) {
-    final clean = normalizeAmountText(
-      text,
-      unit: _fiatEntry ? _currency : 'epic',
-      groupSeparator: NumberFormat.decimalPattern(context.l10n.localeName)
-          .symbols
-          .GROUP_SEP,
-    );
-    final BigInt amount;
-    if (_fiatEntry) {
-      final price = _price;
-      if (price == null || price <= 0) {
-        throw LocalizedFormatException((l) => l.sendAmountNoPrice, text);
+  /// The typed amount in atomic EPIC, or null while it is empty, zero or cannot be priced.
+  BigInt? get _amount {
+    final text = _digits.endsWith('.') ? _digits.substring(0, _digits.length - 1) : _digits;
+    if (text.isEmpty) return null;
+    try {
+      final BigInt amount;
+      if (_fiatEntry) {
+        final price = _price;
+        if (price == null || price <= 0) return null;
+        amount = fiatToAtomic(text, price, text);
+      } else {
+        amount = parseEpic(text);
       }
-      amount = fiatToAtomic(clean, price, text);
-    } else {
-      amount = parseEpic(clean);
+      return amount == BigInt.zero ? null : amount;
+    } on FormatException {
+      return null;
     }
-    return amount;
   }
 
-  void _onAmountChanged(String text) {
-    final l = context.l10n;
-    BigInt? amount;
-    String? problem;
-    if (text.trim().isNotEmpty) {
-      try {
-        amount = _parseAmount(text);
-        if (amount == BigInt.zero) problem = l.sendAmountZero;
-      } on FormatException catch (e) {
-        problem = describeError(l, e);
-      }
-    }
+  void _digit(String d) {
+    final decimals = _fiatEntry ? (_currency.toLowerCase() == 'btc' ? 8 : 2) : 8;
+    final dot = _digits.indexOf('.');
+    if (dot >= 0 ? _digits.length - dot - 1 >= decimals : _digits.length >= 9) return;
+    setState(() => _digits = _digits == '0' ? d : _digits + d);
+  }
+
+  void _point() {
+    if (_digits.contains('.')) return;
+    setState(() => _digits = _digits.isEmpty ? '0.' : '$_digits.');
+  }
+
+  void _delete() {
+    if (_digits.isNotEmpty) setState(() => _digits = _digits.substring(0, _digits.length - 1));
+  }
+
+  /// Switches the keypad between EPIC and fiat, keeping the amount.
+  void _swap() {
+    final price = _price;
+    if (price == null) return;
+    final amount = _amount;
     setState(() {
-      _parsedAmount = problem == null ? amount : null;
-      _amountError = problem;
+      _fiatEntry = !_fiatEntry;
+      _digits = amount == null ? '' : (_fiatEntry ? (amount / atomicPerEpic * price).toStringAsFixed(2) : formatEpic(amount));
     });
   }
 
-  /// Switches the amount field between EPIC and fiat, keeping the amount.
-  void _toggleUnit() {
-    final price = _price;
-    final amount = _parsedAmount;
-    if (price == null) {
-      _amount.clear();
-      setState(() => _fiatEntry = false);
-      _onAmountChanged('');
-      return;
-    }
-    setState(() => _fiatEntry = !_fiatEntry);
-    if (amount == null) {
-      _onAmountChanged(_amount.text);
-      return;
-    }
-    _amount.text = localDecimal(
-      context.l10n,
-      _fiatEntry
-          ? (amount / atomicPerEpic * price).toStringAsFixed(2)
-          : formatEpic(amount),
-    );
+  Future<void> _editNote() async {
+    final note = await showKitSheet<String>(context: context, builder: (_) => _NoteSheet(note: _note));
+    if (note != null && mounted) setState(() => _note = note.trim());
   }
 
-  Future<void> _pickPayer(List<PairingRecord> payers, List<Contact> contacts) async {
+  Future<void> _pickPayer(List<PairingRecord> payers, List<Contact> contacts, {required String? selected}) async {
     final l = context.l10n;
     final byFile = requestFilesOn(ref, listen: false);
     final byQr = byFile && offersQrPayment(ref);
-    final picked = await showPhoneSheet<String>(
+    final byLink = requestLinkAddress(ref, listen: false) != null;
+    final picked = await KitPickerSheet.show<String>(
       context: context,
-      showDragHandle: true,
-      useSafeArea: true,
-      builder: (context) => ListView(
-        shrinkWrap: true,
-        children: [
-          for (final r in payers)
-            ListTile(
-              minTileHeight: 64,
-              leading: PairAvatar(name: pairingName(r, contacts), size: 48),
-              title: Text(pairingName(r, contacts)),
-              trailing: TrustBadge(r, short: true),
-              selected: r.id == _to && _toFile != true && !_toQr,
-              onTap: () => Navigator.pop(context, r.id),
-            ),
-          if (payers.isEmpty && !byFile)
-            Padding(padding: const EdgeInsets.all(16), child: Text(l.reqNoPayersContacts)),
-          if (byFile)
-            ListTile(
-              key: requestToFileKey,
-              minTileHeight: 64,
-              leading: const SizedBox(width: 48, child: Icon(Icons.description_outlined)),
-              title: Text(l.reqToFile),
-              selected: !_toQr && (_toFile ?? payers.isEmpty),
-              onTap: () => Navigator.pop(context, _fileRow),
-            ),
-          if (byQr)
-            ListTile(
-              key: requestToQrKey,
-              minTileHeight: 64,
-              leading: const SizedBox(width: 48, child: Icon(Icons.qr_code_2)),
-              title: Text(l.reqToQr),
-              selected: _toQr,
-              onTap: () => Navigator.pop(context, _qrRow),
-            ),
-        ],
-      ),
+      title: l.phoneRecvWho,
+      selected: selected,
+      note: payers.isEmpty && !byFile && !byLink ? l.reqNoPayersContacts : null,
+      choices: [
+        if (byLink)
+          KitChoice(
+            value: _linkRow,
+            title: l.phoneRecvAnyoneAddress,
+            subtitle: l.phoneRecvAnyoneAddressLine,
+            leading: KitIconWell(KitIcons.qr),
+          ),
+        for (final r in payers)
+          KitChoice(
+            value: r.id,
+            title: pairingName(r, contacts),
+            leading: KitAvatar(initials: nameInitials(pairingName(r, contacts), count: 2, phone: true)),
+          ),
+        if (byQr)
+          KitChoice(
+            value: _qrRow,
+            title: l.phoneRecvAnyoneCode,
+            subtitle: l.phoneRecvAnyoneCodeLine,
+            leading: KitIconWell(KitIcons.qr),
+            semanticsId: TrustIds.receiveAskAnyoneCode,
+          ),
+        if (byFile)
+          KitChoice(
+            value: _fileRow,
+            title: l.phoneRecvAnyoneFile,
+            subtitle: l.phoneRecvAnyoneFileLine,
+            leading: KitIconWell(KitIcons.invoice),
+            semanticsId: TrustIds.receiveAskAnyoneFile,
+          ),
+      ],
     );
     if (picked != null && mounted) {
       setState(() {
         _toQr = picked == _qrRow;
         _toFile = picked == _fileRow;
-        if (picked != _fileRow && picked != _qrRow) _to = picked;
+        _toLink = picked == _linkRow;
+        if (picked == _linkRow) _to = null;
+        if (picked != _fileRow && picked != _qrRow && picked != _linkRow) _to = picked;
         _payerError = null;
       });
     }
   }
 
-  /// The amount, or null after saying why not.
-  BigInt? _amountOrSay() {
-    final l = context.l10n;
-    setState(() {
-      if (_parsedAmount == null && _amountError == null) _amountError = l.sendAmountZero;
-    });
-    return _parsedAmount;
-  }
-
-  Future<void> _request() async {
+  Future<void> _request(List<PairingRecord> payers, List<Contact> contacts) async {
     if (_busy) return;
     final l = context.l10n;
     final to = _to;
+    final amount = _amount;
     if (to == null) {
       setState(() => _payerError = l.reqPickContactOrMethod);
-      _amountOrSay();
+      unawaited(_pickPayer(payers, contacts, selected: null));
       return;
     }
-    final amount = _amountOrSay();
     if (amount == null) return;
-    final message = _message.text.trim();
+    final message = _note.trim();
     final payer = ref.read(pairingNameProvider(to));
     final notices = ref.read(noticeProvider.notifier);
     final navigator = Navigator.of(context);
@@ -332,28 +336,16 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
       await ref
           .read(autoLockHoldProvider.notifier)
           .during(
-            () => pairingCall(
-              ref,
-              (api) => api.requestPayment(id: to, amount: amount, message: message.isEmpty ? null : message),
-            ),
+            () => pairingCall(ref, (api) => api.requestPayment(id: to, amount: amount, message: message.isEmpty ? null : message)),
           );
       ref.invalidate(issuedInvoicesProvider);
       logInfo('invoices', 'payment request sent');
       ref.invalidate(homeProvider);
       notices.show(l.reqSent(payer), level: NoticeLevel.success);
       // The request in the list, where its state follows.
-      unawaited(
-        navigator.pushReplacement(
-          MaterialPageRoute<void>(
-            builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent),
-          ),
-        ),
-      );
+      unawaited(navigator.pushReplacement(MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent))));
     } catch (error) {
-      logWarn(
-        'invoices',
-        'payment request failed: ${describeError(englishStrings, error)}',
-      );
+      logWarn('invoices', 'payment request failed: ${describeError(englishStrings, error)}');
       notices.show(describeError(l, error), level: NoticeLevel.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -365,9 +357,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
   Future<void> _saveFile() async {
     if (_busy) return;
     final l = context.l10n;
-    final amount = _amountOrSay();
+    final amount = _amount;
     if (amount == null) return;
-    final message = _message.text.trim();
+    final message = _note.trim();
     final notices = ref.read(noticeProvider.notifier);
     final navigator = Navigator.of(context);
     setState(() => _busy = true);
@@ -381,7 +373,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
       logInfo('invoices', 'payment request saved as a file');
       unawaited(
         navigator.pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => RequestFileSavedScreen(slate: slate, amount: amount)),
+          MaterialPageRoute<void>(
+            builder: (_) => RequestFileSavedScreen(slate: slate, amount: amount, message: message.isEmpty ? null : message),
+          ),
         ),
       );
     } catch (error) {
@@ -392,14 +386,29 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     }
   }
 
-  /// Makes the request and shows it as a QR (Direct · QR Payment). Nothing is spent, so no PIN;
-  /// the request waits in Requests sent until the payer's answer is scanned.
+  /// Shows the wallet's address with the amount as a static code: a plain Epicbox send for
+  /// whoever scans or pastes it, with the amount filled in. Nothing is made or stored.
+  void _showLink(String address) {
+    final amount = _amount;
+    if (amount == null) return;
+    final message = _note.trim();
+    unawaited(
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => RequestLinkScreen(address: address, amount: amount, message: message.isEmpty ? null : message),
+        ),
+      ),
+    );
+  }
+
+  /// Makes the request and shows it as a code (Direct · QR Payment). Nothing is spent, so no
+  /// PIN; the request waits in Requests sent until the payer's answer is scanned.
   Future<void> _showQr() async {
     if (_busy) return;
     final l = context.l10n;
-    final amount = _amountOrSay();
+    final amount = _amount;
     if (amount == null) return;
-    final message = _message.text.trim();
+    final message = _note.trim();
     final notices = ref.read(noticeProvider.notifier);
     final navigator = Navigator.of(context);
     setState(() => _busy = true);
@@ -431,218 +440,265 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final block = watchNetBlock(context, ref);
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    // Kept alive while the form is open: the list follows what is sent.
+    // Kept alive while the page is open: the list follows what is sent.
     ref.watch(issuedInvoicesProvider);
     final price = ref.watch(priceProvider).value;
-    final currency =
-        ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+    final currency = ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final payers = requestPayers(ref.watch(pairingsProvider).value ?? const <PairingRecord>[]);
     final to = payers.where((r) => r.id == _to).firstOrNull;
     // Request files off (the core or the Invoices switch): contacts only.
     final byFile = requestFilesOn(ref);
-    // The file is the choice the user made, or the only one while no contact pays requests.
-    final toQr = byFile && _toQr && offersQrPayment(ref);
-    final toFile = !toQr && byFile && (_toFile ?? (payers.isEmpty && to == null));
-    final amount = _parsedAmount;
-    // What the button does, once the payer and the amount are good.
-    final summary = amount == null
-        ? null
-        : toQr
-        ? l.reqQrSummary(epicExact(l, amount))
-        : toFile
-        ? l.reqFileSummary(epicExact(l, amount))
-        : to == null
-        ? null
-        : l.invoicesRequestSummary(pairingName(to, contacts), epicExact(l, amount));
-    String? amountHelper;
-    if (amount != null && price != null) {
-      amountHelper = _fiatEntry
-          ? approxText(epicExact(l, amount))
-          : approxText(localDigits(l, fiatText(amount, price, currency)));
+    // Nobody chosen yet means anyone: with the wallet's address where it has one (a normal
+    // send with the amount filled in), else with a code where the phone offers it, else a file.
+    final linkAddress = requestLinkAddress(ref);
+    final toLink = linkAddress != null && (_toLink ?? (_to == null && !_toQr && _toFile == null));
+    final toQr = byFile && offersQrPayment(ref) && !toLink && (_toQr || (_toFile == null && _to == null));
+    final toFile = byFile && !toQr && !toLink && (_toFile ?? _to == null);
+    final amount = _amount;
+    final unit = _fiatEntry ? currency.toUpperCase() : epicUnit;
+    final String? fiat;
+    if (price == null) {
+      fiat = null;
+    } else if (_fiatEntry) {
+      fiat = approxText(epicExact(l, amount ?? BigInt.zero));
+    } else {
+      fiat = phoneFiat(l, amount ?? BigInt.zero, (hidden: false, price: price, currency: currency), approx: true);
     }
-
+    final anyone = toQr || toFile || toLink;
+    final chip = anyone ? l.phoneRecvFromAnyone : (to == null ? l.phoneRecvWho : l.phoneRecvFromName(pairingName(to, contacts)));
+    final selected = toLink ? _linkRow : (toQr ? _qrRow : (toFile ? _fileRow : to?.id));
+    final contactRoute = !anyone;
+    final canSubmit = amount != null && !_busy && (!contactRoute || block == NetBlock.none);
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.reqNewTitle)),
-      idle: _busy ? SlotProgress(label: l.reqNewTitle) : null,
-      body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (summary != null) ...[
-              // A summary informs: the info edge, not the brand's (UP-035).
-              InlineNotice(key: requestSummaryKey, level: NoticeLevel.info, text: summary),
-              const SizedBox(height: 12),
-            ],
-            // Sending the request is a network action; the file is not.
-            if (toQr)
-              BusyButton(key: requestShowQrKey, label: l.reqShowQr, busy: _busy, onPressed: _showQr)
-            else if (toFile)
-              BusyButton(key: requestSaveFileKey, label: l.reqSaveFile, busy: _busy, onPressed: _saveFile)
-            else ...[
-              NetBlockNote(block),
-              BusyButton(
-                label: l.reqNewSend,
-                busy: _busy,
-                onPressed: block == NetBlock.none && payers.isNotEmpty ? _request : null,
-              ),
-            ],
-          ],
-        ),
-        children: [
-          PairLead(byFile ? l.reqNewLead : l.reqNewLeadContacts),
-          const SizedBox(height: 16),
-          InkWell(
-            key: requestPayerKey,
-            borderRadius: BorderRadius.circular(t.radiusSmall),
-            onTap: () => _pickPayer(payers, contacts),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: l.reqNewTo,
-                error: _payerError == null ? null : LiveFieldError(_payerError!),
-                suffixIcon: const Icon(Icons.expand_more),
-              ),
-              child: toQr
-                  ? Row(
+      idle: _busy ? SlotProgress(label: l.phoneRecvAsk) : null,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: Kit.flowHeader,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        Icon(Icons.qr_code_2, size: 22, color: t.dim),
-                        const SizedBox(width: 8),
-                        Flexible(child: Text(l.reqToQr, overflow: TextOverflow.ellipsis)),
-                      ],
-                    )
-                  : toFile
-                  ? Row(
-                      children: [
-                        Icon(Icons.description_outlined, size: 22, color: t.dim),
-                        const SizedBox(width: 8),
-                        Flexible(child: Text(l.reqToFile, overflow: TextOverflow.ellipsis)),
-                      ],
-                    )
-                  : to == null
-                  ? Text(payers.isEmpty ? (byFile ? l.reqNoPayers : l.reqNoPayersContacts) : l.reqPickContactOrMethod, style: TextStyle(color: t.dim))
-                  : Row(
-                      children: [
-                        PairAvatar(name: pairingName(to, contacts), size: 28),
-                        const SizedBox(width: 8),
-                        Flexible(child: Text(pairingName(to, contacts), overflow: TextOverflow.ellipsis)),
-                        const SizedBox(width: 8),
-                        TrustBadge(to, short: true),
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: KitIconButton(
+                            icon: KitIcons.back,
+                            label: l.phoneKitBack,
+                            semanticsId: TrustIds.receiveAskBack,
+                            onPressed: () => Navigator.of(context).maybePop(),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 52),
+                          child: TrustId(
+                            TrustIds.receiveAskPayer,
+                            child: Semantics(
+                              button: true,
+                              label: chip,
+                              excludeSemantics: true,
+                              onTap: () => _pickPayer(payers, contacts, selected: selected),
+                              child: InkWell(
+                                key: requestPayerKey,
+                                borderRadius: BorderRadius.circular(Kit.rButtonSmall),
+                                onTap: () => _pickPayer(payers, contacts, selected: selected),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(minHeight: Kit.hitMin),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(child: Text(chip, style: KitType.flowTitle.copyWith(color: t.text), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                      Padding(padding: const EdgeInsets.only(left: 8), child: Icon(KitIcons.chevronDown, size: 16, color: t.dim)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: KitIconButton(icon: KitIcons.help, label: l.sendHelp, color: t.dim, onPressed: () => showAskHelp(context)),
+                        ),
                       ],
                     ),
-            ),
-          ),
-          // Pairing is beside the point for a code shown to whoever stands there.
-          if (!toQr) ...[
-            const SizedBox(height: 6),
-            PairSmallPrint(byFile ? (payers.isEmpty ? l.reqNoPayers : l.reqNewToHintContacts) : l.reqNewToHintContacts),
-          ],
-          const SizedBox(height: 16),
-          TextField(
-            key: requestAmountKey,
-            controller: _amount,
-            focusNode: _amountFocus,
-            // At a till the amount is what changes from one payer to the next.
-            autofocus: widget.asQr,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textInputAction: TextInputAction.next,
-            onEditingComplete: _messageFocus.requestFocus,
-            onChanged: _onAmountChanged,
-            decoration: InputDecoration(
-              labelText: l.sendAmountLabel(
-                _fiatEntry ? currency.toUpperCase() : epicUnit,
-              ),
-              helperText: amountHelper,
-              error: _amountError == null
-                  ? null
-                  : LiveFieldError(_amountError!),
-              suffixIcon: price != null || _fiatEntry
-                  ? TextButton(
-                      onPressed: _toggleUnit,
-                      child: Text(
-                        l.sendUseUnit(
-                          _fiatEntry ? epicUnit : currency.toUpperCase(),
-                        ),
-                      ),
-                    )
-                  : null,
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            key: requestMessageKey,
-            controller: _message,
-            focusNode: _messageFocus,
-            // LEPIC signs at most this many bytes; the field stops there instead of cutting.
-            inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
-            buildCounter:
-                (
-                  context, {
-                  required currentLength,
-                  required isFocused,
-                  maxLength,
-                }) => Text(
-                  l.sendMessageCounter(
-                    utf8Length(_message.text),
-                    slateMessageMaxBytes,
                   ),
-                  style: theme.textTheme.bodySmall,
                 ),
-            onChanged: (_) => setState(() {}),
-            textInputAction: TextInputAction.done,
-            decoration: InputDecoration(
-              labelText: l.requestMessageLabel,
-              helperText: l.requestMessageHelper,
-              helperMaxLines: 3,
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 58),
+                        KeyedSubtree(
+                          key: requestAmountKey,
+                          child: KitAmountDisplay(
+                            amount: localDecimal(l, _digits),
+                            unit: unit,
+                          ),
+                        ),
+                        // Frame: the line 14 under the figure, 22 high, in a 44 tap target.
+                        if (fiat != null) ...[
+                          const SizedBox(height: 3),
+                          KitFiatSwap(text: fiat, onSwap: price == null ? null : _swap),
+                        ],
+                        // The chip sits in a 48 tap target: 13 to the frame's chip top, less the 7 it adds.
+                        SizedBox(height: _note.isEmpty ? 3 : 6),
+                        TrustId(
+                          TrustIds.receiveAskNote,
+                          child: KitChip(
+                            _note.isEmpty ? l.phonePayAddNote : _note,
+                            icon: _note.isEmpty ? KitIcons.add : KitIcons.message,
+                            large: _note.isNotEmpty,
+                            onTap: _editNote,
+                          ),
+                        ),
+                        if (_payerError != null) ...[
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+                            child: LiveFieldError(_payerError!),
+                          ),
+                        ],
+                        if (contactRoute && block != NetBlock.none)
+                          Padding(padding: const EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, 0), child: NetBlockNote(block)),
+                      ],
+                    ),
+                  ),
+                ),
+                KitKeypad(onDigit: _digit, onDelete: _delete, onPoint: _point, idFor: (k) => 'request-key-$k'),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Kit.gutter, 17, Kit.gutter, 0),
+                  child: KitButton(
+                    key: toLink ? requestShowLinkKey : (toQr ? requestShowQrKey : (toFile ? requestSaveFileKey : null)),
+                    label: amount == null ? l.phoneRecvAsk : l.phoneRecvAskFor(epicExact(l, amount)),
+                    kind: canSubmit ? KitButtonKind.gold : KitButtonKind.off,
+                    semanticsId: TrustIds.receiveAskSubmit,
+                    onPressed: canSubmit
+                        ? (toLink ? () => _showLink(linkAddress) : (toQr ? _showQr : (toFile ? _saveFile : () => _request(payers, contacts))))
+                        : null,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(Icons.schedule, size: 18, color: t.info),
-              const SizedBox(width: 8),
-              Expanded(child: Text(l.invSetTimeToPay)),
-              Text(l.pairDurHours(invoiceExpiry.inHours, 0), style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.dim)),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// The payment request file, made (DESIGN §3.2): the file tile, what to do with it, the file
-/// and the amount, Save to device and Share. Done goes to Requests sent, where it waits.
-class RequestFileSavedScreen extends StatelessWidget {
-  const RequestFileSavedScreen({super.key, required this.slate, required this.amount});
+/// The note sheet: a field limited to what LEPIC signs, and Done.
+class _NoteSheet extends StatefulWidget {
+  const _NoteSheet({required this.note});
 
-  final Slate slate;
-  final BigInt amount;
+  final String note;
+
+  @override
+  State<_NoteSheet> createState() => _NoteSheetState();
+}
+
+class _NoteSheetState extends State<_NoteSheet> {
+  late final _controller = TextEditingController(text: widget.note);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.reqNewTitle)),
-      body: ScreenBody(
-        children: [
-          SlateFileResult(
-            title: l.reqFileTitle,
-            lead: l.reqFileLead,
-            fileName: sendFileName(slate.slateId),
-            amount: amount,
-            json: slate.json,
+    final t = context.tokens;
+    return KitSheet(
+      title: l.phonePayNote,
+      primary: KitButton(label: l.commonDone, onPressed: () => Navigator.of(context).pop(_controller.text)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
+        child: TextField(
+          key: requestMessageKey,
+          controller: _controller,
+          autofocus: true,
+          // LEPIC signs at most this many bytes; the field stops there instead of cutting.
+          inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
+          buildCounter: (context, {required currentLength, required isFocused, maxLength}) =>
+              Text(l.sendMessageCounter(utf8Length(_controller.text), slateMessageMaxBytes), style: KitType.rowSub.copyWith(color: t.dim)),
+          onChanged: (_) => setState(() {}),
+          onSubmitted: (v) => Navigator.of(context).pop(v),
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(labelText: l.requestMessageLabel, helperText: l.requestMessageHelper, helperMaxLines: 3),
+        ),
+      ),
+    );
+  }
+}
+
+/// The payment request, made (Gap-1): its code (the animated I1 payment QR), Copy and Share
+/// hand the request over as a file. Done goes to Requests sent, where it waits.
+class RequestFileSavedScreen extends StatelessWidget {
+  const RequestFileSavedScreen({super.key, required this.slate, required this.amount, this.message});
+
+  final Slate slate;
+  final BigInt amount;
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return RequestCodePage(
+      amount: amount,
+      message: message,
+      json: slate.json,
+      fileName: sendFileName(slate.slateId),
+      status: const RequestStatusLine(),
+      onDone: () => Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent)),
+      ),
+      card: RequestQrCard(json: slate.json, label: l.deskKitQrOf(l.qrShowTitleRequest)),
+    );
+  }
+}
+
+/// The payment link, shown: the wallet's Epicbox address with the amount as one still code and
+/// as a link to copy or share. Whoever scans or pastes it gets the normal send to this address
+/// with the amount filled in; no request exists in the wallet, so nothing waits and Done just
+/// closes.
+class RequestLinkScreen extends StatelessWidget {
+  const RequestLinkScreen({super.key, required this.address, required this.amount, this.message});
+
+  final String address;
+  final BigInt amount;
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final link = EpicUri.build(address, amount: amount, note: message);
+    return RequestCodePage(
+      amount: amount,
+      message: message,
+      json: link,
+      fileName: '',
+      textNotice: l.phoneRecvLinkCopied,
+      lead: l.phoneRecvLinkLead(epicExact(l, amount)),
+      status: const SizedBox.shrink(),
+      onDone: () => Navigator.of(context).maybePop(),
+      card: RequestCodeCard(
+        child: Container(
+          key: requestLinkQrKey,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: protocolLight.surface, borderRadius: BorderRadius.circular(Kit.rQr)),
+          child: Semantics(
+            label: l.phoneRecvLinkQrLabel,
+            image: true,
+            child: LayoutBuilder(builder: (context, box) => LogoQr(data: link, size: box.biggest.shortestSide, logo: QrLogo.bt)),
           ),
-          const SizedBox(height: 8),
-          TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute<void>(builder: (_) => const InvoicesScreen(segment: InvoicesSegment.sent)),
-            ),
-            child: Text(l.commonDone),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -696,7 +752,8 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
     final slateId = widget.tx.slateId;
     if (slateId == null) return const SizedBox.shrink();
     final invoice = ref.watch(issuedInvoiceProvider(slateId)).value;
-    if (invoice == null) return const SizedBox.shrink();
+    // A paid request is told by the payment's own steps (Requested, Paid, Confirmed): no block.
+    if (invoice == null || invoice.state == IssuedInvoiceState.paid) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
@@ -741,7 +798,7 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
     };
 
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 16, Kit.gutter, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

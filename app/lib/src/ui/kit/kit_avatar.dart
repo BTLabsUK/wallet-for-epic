@@ -1,0 +1,109 @@
+// SPDX-License-Identifier: Apache-2.0
+library;
+
+import 'package:flutter/material.dart';
+
+import '../theme/tokens.dart';
+import 'kit_icons.dart';
+import 'kit_tokens.dart';
+
+/// Which way money went, shown as the small badge on an avatar: out is dim, in is ok, and a
+/// payment still in progress is info (HANDOFF 7.3).
+///
+/// [outLive] and [incomingLive] are a payment under way (the frame's `.dir.live`): the arrow of
+/// its direction in the info colour.
+enum KitDirection { out, incoming, pending, outLive, incomingLive }
+
+/// A contact or a thing in a list: 40 px (radius 13) or, in the contact strip, 54 px (radius
+/// 18). Shows [initials] in gold, or [icon]. [neutral] makes the figure dim, for a thing that
+/// is not a person. A [direction] adds the 19 px badge at the bottom-right corner.
+class KitAvatar extends StatelessWidget {
+  const KitAvatar({super.key, this.initials, this.icon, this.large = false, this.small = false, this.neutral = false, this.direction, this.semanticsLabel, this.initialsSize, this.iconSize, this.size})
+    : assert(initials != null || icon != null);
+
+  final String? initials;
+  final IconData? icon;
+
+  /// The 54 px strip size.
+  final bool large;
+
+  /// The 26 px size of a flow's header (`.hdr .t .av`: radius 9, initials 10).
+  final bool small;
+  final bool neutral;
+  final KitDirection? direction;
+  final String? semanticsLabel;
+
+  /// The initials' size and the icon's, where a frame draws a large avatar with its own (the
+  /// faces under Send's Who field: 16 and 24).
+  final double? initialsSize;
+  final double? iconSize;
+
+  /// A side the frames draw once (the contact page's 56, the pairing screens' 48 and 72): the
+  /// radius and the initials follow the 40 px tile's proportions.
+  final double? size;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final custom = this.size;
+    final size = custom ?? (small ? 26.0 : (large ? Kit.avatarStrip : Kit.avatar));
+    final radius = custom != null ? custom * Kit.rAvatar / Kit.avatar : (small ? 9.0 : (large ? Kit.rAvatarStrip : Kit.rAvatar));
+    final ink = neutral ? t.dim : t.accentText;
+    final face = Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(radius)),
+      child: initials != null
+          ? Text(
+              initials!,
+              style: KitType.initials.copyWith(color: ink, fontSize: initialsSize ?? (custom != null ? custom * 0.33 : (small ? 10 : (large ? 18 : 13)))),
+              maxLines: 1,
+              textScaler: TextScaler.noScaling,
+            )
+          : Icon(icon, size: iconSize ?? (custom != null ? custom * 0.55 : (small ? 16 : (large ? 26 : 22))), color: ink),
+    );
+    final d = direction;
+    return Semantics(
+      label: semanticsLabel,
+      excludeSemantics: semanticsLabel != null,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            face,
+            if (d != null) Positioned(right: -5, bottom: -5, child: _Badge(d)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge(this.direction);
+
+  final KitDirection direction;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final (Color color, IconData icon) = switch (direction) {
+      KitDirection.out => (t.dim, KitIcons.send),
+      KitDirection.incoming => (t.ok, KitIcons.receive),
+      KitDirection.pending => (t.info, KitIcons.send),
+      KitDirection.outLive => (t.info, KitIcons.send),
+      KitDirection.incomingLive => (t.info, KitIcons.receive),
+    };
+    return Container(
+      width: Kit.avatarBadge,
+      height: Kit.avatarBadge,
+      alignment: Alignment.center,
+      // `.dir`: 19 round on #111115 (the group's ground), the arrow small inside.
+      decoration: BoxDecoration(color: t.group.withValues(alpha: 1), shape: BoxShape.circle),
+      child: Icon(direction == KitDirection.pending ? KitIcons.more : icon, size: 11, color: color),
+    );
+  }
+}

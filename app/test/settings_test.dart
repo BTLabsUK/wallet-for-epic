@@ -2,15 +2,15 @@
 import 'dart:async';
 import 'dart:io' show File;
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/app_log.dart' show AppLog, MemoryLogSink;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/trust_ids.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart' show pairNameFieldKey;
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/onion_notice.dart' show onionNoticeKey, onionNoticeSeen;
@@ -21,8 +21,8 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_licence.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitRow;
 import 'package:epic_wallet/src/ui/language_flag.dart';
-import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_start.dart';
@@ -40,22 +40,23 @@ import 'package:epic_wallet/src/ui/server_list_sheet.dart'
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart' show confirmRemovePairingKey;
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/history/backup_summary.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
-import 'package:epic_wallet/src/ui/licences_screen.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey, networkSectionKey;
 import 'package:epic_wallet/src/address_format.dart' show shownUrl;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
-import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
+import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'support/real_time.dart';
+
+import 'support/pin_pad.dart';
 import 'support/settings_modes.dart' show useNetworkModeFile;
 
 final _l = englishStrings;
@@ -224,7 +225,7 @@ class _Harness {
 
   Future<void> unlock(WidgetTester tester) async {
     expect(find.text(_l.unlockTitle), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+    await typePin(tester, _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
   }
@@ -268,6 +269,12 @@ class _Harness {
   }
 }
 
+/// Back one page: the pages' own back link is not a Material BackButton.
+Future<void> _back(WidgetTester tester) async {
+  await tester.state<NavigatorState>(find.byType(Navigator).first).maybePop();
+  await tester.pumpAndSettle();
+}
+
 Future<void> _reveal(WidgetTester tester, Finder finder) async {
   if (finder.evaluate().isEmpty) {
     await tester.scrollUntilVisible(
@@ -293,6 +300,15 @@ Future<void> _tapKey(WidgetTester tester, Key key) async {
   await tester.pumpAndSettle();
 }
 
+/// Settings tab › Security › Lock wallet.
+Future<void> _lockFromSettings(WidgetTester tester) async {
+  await tester.tap(find.descendant(of: find.byType(KitTabBar), matching: find.text('Settings')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(settingsGroupKey(SettingsSection.security)));
+  await tester.pumpAndSettle();
+  await _tapText(tester, _l.phoneSettingsLockNow);
+}
+
 Future<void> _tapText(WidgetTester tester, String text) async {
   final finder = find.text(text);
   await _reveal(tester, finder);
@@ -301,7 +317,15 @@ Future<void> _tapText(WidgetTester tester, String text) async {
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
+  // The restore screen's phrase box has no label of its own (its hint sits inside it).
+  final field = label == _l.restorePhraseLabel ? find.byType(TextField) : find.widgetWithText(TextField, label);
+  // The choose and repeat steps of a PIN take their digits on the wallet's keypad.
+  if (field.evaluate().isEmpty && pinPad.evaluate().isNotEmpty) {
+    await typePin(tester, text);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
+    return;
+  }
   await _reveal(tester, field);
   await tester.enterText(field, text);
   await tester.pumpAndSettle();
@@ -405,10 +429,12 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
-      await _tapKey(tester, ScanStart.changeKey);
       // January 2025 until another month is picked.
-      expect(find.text('January 2025'), findsOneWidget);
-      await _tapKey(tester, StartMonthChoice.buttonKey);
+      await _reveal(tester, find.byKey(ScanStart.changeKey));
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
+      // The row opens the shared month sheet at once, not an inline panel.
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
       // Year and month, no day: the picker opens on the chosen month's year; four years back, July.
       expect(find.text('2025'), findsOneWidget);
       for (var i = 0; i < 4; i++) {
@@ -417,21 +443,19 @@ void main() {
       }
       await tester.tap(find.byKey(StartMonthPicker.monthKey(const StartMonth(2021, 7))));
       await tester.pumpAndSettle();
-      final dayStart = DateTime(2021, 7);
-      expect(find.text('July 2021'), findsOneWidget);
-      expect(find.text('Scanning starts from block ${localInt(englishStrings, mainnetHeightForDate(dayStart))}.'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('July 2021')), findsOneWidget);
+      expect(find.byType(StartMonthPicker), findsNothing);
       // An old month: no warning that coins may be missed.
-      expect(find.byKey(StartMonthChoice.recentKey), findsNothing);
+      expect(find.byKey(StartMonthRecent.recentKey), findsNothing);
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
 
-      expect(h.session.lastStart, mainnetHeightForDate(dayStart));
+      expect(h.session.lastStart, mainnetHeightForDate(DateTime(2021, 7)));
       expect(find.text(_l.restoreDoneTitle), findsOneWidget);
-      expect(
-        find.textContaining('import the wallet data file you exported'),
-        findsOneWidget,
-      );
+      // The restored wallet may live on another device too: the offer to link one stays here.
+      expect(find.text(_l.offerLinkRestore), findsOneWidget);
+      expect(find.textContaining('come back from a wallet data file'), findsOneWidget);
 
       h.files.picks.add(await h.session.exportHistory());
       await _tapText(tester, 'Import wallet data');
@@ -533,15 +557,15 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester);
       final order = [
-        // The desktop's order (GP2-021); Security keeps its place first.
+        // The wallet first, then the places a person sets; Advanced is last.
+        settingsGroupKey(SettingsSection.wallet),
         settingsGroupKey(SettingsSection.security),
         settingsGroupKey(SettingsSection.transactions),
-        settingsGroupKey(SettingsSection.privacyNetwork),
         settingsGroupKey(SettingsSection.display),
-        settingsGroupKey(SettingsSection.wallet),
+        settingsGroupKey(SettingsSection.privacyNetwork),
         settingsLinkedDevicesKey,
         settingsHelpKey,
-        settingsGroupKey(SettingsSection.about),
+        settingsGroupKey(SettingsSection.advanced),
       ];
       var last = -1.0;
       for (final key in order) {
@@ -550,44 +574,39 @@ void main() {
         expect(top, greaterThan(last), reason: '$key');
         last = top;
       }
-      for (final section in SettingsSection.values) {
-        // The hub has eight rows now: the last may be below the fold.
+      // About is reached from Help, not from the hub.
+      expect(find.byKey(settingsGroupKey(SettingsSection.about)), findsNothing);
+      for (final section in SettingsSection.values.where((s) => s != SettingsSection.about)) {
         await _reveal(tester, find.byKey(settingsGroupKey(section)));
         await tester.tap(find.byKey(settingsGroupKey(section)));
         await tester.pumpAndSettle();
         expect(find.byKey(settingsSectionKey(section)), findsOneWidget);
-        await tester.pageBack();
-        await tester.pumpAndSettle();
+        await _back(tester);
       }
+      await _reveal(tester, find.byKey(settingsHelpKey));
       await tester.tap(find.byKey(settingsHelpKey));
       await tester.pumpAndSettle();
       expect(find.byType(HelpScreen), findsOneWidget);
     });
 
-    testWidgets('Security starts with the backup and ends with Lock wallet; '
-        'Wallet ends with Delete', (tester) async {
+    testWidgets('Security starts with the recovery phrase and ends with Lock now; '
+        'This wallet ends with Delete', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.security);
-      final titles = tester
-          .widgetList<ListTile>(find.byType(ListTile))
-          .map((t) => switch (t.title) {
-            final TrustId id => (id.child as Text).data,
-            final title => (title as Text?)?.data,
-          })
-          .whereType<String>()
+      List<String> titles() => tester
+          .widgetList<KitRow>(find.byType(KitRow))
+          .map((r) => r.title)
           .toList();
-      expect(titles.first, _l.settingsBackupPhrase);
-      expect(titles.last, _l.settingsLockWallet);
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      expect(titles().first, _l.backupTitle);
+      await _reveal(tester, find.text(_l.phoneSettingsLockNow));
+      expect(titles().last, _l.phoneSettingsLockNow);
+      await _back(tester);
+      await _back(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text('Delete wallet'));
-      final tiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();
-      expect((tiles.last.title as Text).data, 'Delete wallet');
+      await _reveal(tester, find.text(_l.settingsDeleteWallet));
+      expect(titles().last, _l.settingsDeleteWallet);
     });
 
     testWidgets('Privacy & network opens at once with the Connection mode '
@@ -615,7 +634,6 @@ void main() {
       // Without Tor there is no Tor only row; Standard heads the modes.
       final mode = networkModeRowKey(torBuilt ? NetworkMode.torOnly : NetworkMode.standard);
       expect(find.byKey(mode), findsOneWidget);
-      expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(
         tester.getTopLeft(find.byKey(mode)).dy,
         greaterThan(tester.getTopLeft(find.byKey(networkSectionKey)).dy),
@@ -637,7 +655,7 @@ void main() {
       // Time on screen and a trip to Settings check nothing.
       await tester.pump(const Duration(minutes: 10));
       await h.openSettings(tester);
-      await tester.pageBack();
+      await _back(tester);
       await tester.pumpAndSettle();
       expect(h.updates.checks, 1);
 
@@ -699,8 +717,7 @@ void main() {
         await _leave(tester);
         await _return(tester);
         expect(notice(), findsNothing);
-        await tester.tap(find.byTooltip(_l.homeLockTooltip));
-        await tester.pumpAndSettle();
+        await _lockFromSettings(tester);
         await h.unlock(tester);
         expect(notice(), findsNothing);
 
@@ -729,18 +746,18 @@ void main() {
       );
       expect(notice(), findsOneWidget);
       expect(find.byType(Badge), findsNothing);
-      expect(find.byTooltip('Settings'), findsOneWidget);
-      await tester.tap(find.byKey(settingsButtonKey));
+      await tester.tap(find.descendant(of: find.byType(KitTabBar), matching: find.text('Settings')));
       await tester.pumpAndSettle();
-      // Settings never shows a second offer: the same notice, nothing in the list.
-      expect(notice(), findsOneWidget);
+      // Settings never shows a second offer: the same notice (each screen's dock draws it, so
+      // two are in the tree), nothing in the list.
+      expect(notice(), findsWidgets);
       expect(find.textContaining('Update to'), findsNothing);
       expect(
         find.descendant(of: find.byType(ListView), matching: find.text('Install')),
         findsNothing,
       );
       await tester.tap(
-        find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.updateInstallButton)),
+        find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.updateInstallButton)).first,
       );
       await tester.pumpAndSettle();
       expect(h.updates.installs, 1);
@@ -1034,14 +1051,13 @@ void main() {
       await h.pump(tester);
       expect(h.bio.prompts, 1);
 
-      await tester.tap(find.byTooltip(_l.homeLockTooltip));
-      await tester.pumpAndSettle();
+      await _lockFromSettings(tester);
       expect(h.container.read(sessionProvider), isNull);
       expect(find.text(_l.unlockTitle), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(pinPad, findsOneWidget);
       expect(h.bio.prompts, 1);
 
-      await tester.tap(find.text(_l.pinUseBiometrics));
+      await tester.tap(pinBiometricsKey);
       await tester.pumpAndSettle();
       expect(h.bio.prompts, 2);
       expect(h.container.read(sessionProvider), isNotNull);
@@ -1091,13 +1107,12 @@ void main() {
       expect(find.textContaining('Wrong PIN'), findsOneWidget);
       expect(tester.getRect(field), at, reason: 'the error line was held');
       await _enter(tester, 'Current PIN', _pin);
-      // The new PIN's field is named so, and takes the current one's place (#64).
-      expect(tester.getRect(find.widgetWithText(TextField, 'New PIN')), at);
+      // The new PIN is chosen and repeated on the keypad.
+      expect(pinPad, findsOneWidget);
       await _enter(tester, 'New PIN', '654321');
-      expect(tester.getRect(find.widgetWithText(TextField, 'Repeat PIN')), at);
       await _enter(tester, 'Repeat PIN', '654321');
 
-      // Back on settings, docked under the app bar, and gone after a while.
+      // Back on settings, the toast over the page, and gone after a while.
       expect(find.byType(ChangePinScreen), findsNothing);
       expect(
         find.descendant(
@@ -1107,13 +1122,12 @@ void main() {
         findsOneWidget,
       );
       final docked = tester.getTopLeft(find.text('Change PIN'));
-      final dock = tester.getSize(find.byType(NoticeDock)).height;
-      expect(dock, greaterThan(0));
+      // The notice is a toast over the screen: its dock takes no room.
+      expect(tester.getSize(find.byType(NoticeDock)).height, 0);
       await tester.pump(noticeDuration(NoticeLevel.success));
       await tester.pumpAndSettle();
       expect(find.text(_l.settingsPinChanged), findsNothing);
-      // The dock closed, and the row under the finger stayed where it was (android-02).
-      expect(tester.getSize(find.byType(NoticeDock)).height, 0);
+      // The toast left, and the row under the finger stayed where it was (android-02).
       expect(tester.getTopLeft(find.text('Change PIN')), docked);
       expect(
         h.store.values['wallet.mainnet.pinSealed'],
@@ -1200,7 +1214,7 @@ void main() {
         findsOneWidget,
       );
 
-      await _tapText(tester, 'Export CSV');
+      await _tapText(tester, _l.phoneSettingsCsv);
       expect(find.textContaining('Not encrypted'), findsWidgets);
       await tester.tap(find.widgetWithText(FilledButton, 'Export CSV'));
       await tester.pumpAndSettle();
@@ -1290,9 +1304,12 @@ void main() {
       // only, the height stays behind the Advanced switch; the info holds Scan from the start.
       expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
-      expect(find.byKey(ScanStart.byKey), findsNothing);
-      expect(find.text(_l.restoreStartByHeight), findsNothing);
+      // The same month sheet as Restore's; the height stays behind the Advanced switch, so the
+      // sheet has no link to it.
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsNothing);
+      expect(find.text(_l.phoneRestoreUseHeight), findsNothing);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       await _tapText(tester, _l.settingsRescanButton);
       expect(h.session.lastStart, defaultStartMonth.height);
 
@@ -1330,7 +1347,7 @@ void main() {
 
       await _tapText(tester, _l.settingsRescan);
       await _tapKey(tester, ScanStart.changeKey);
-      await _tapText(tester, _l.restoreStartByHeight);
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       // An empty height is the start; a typed one shows on the line.
       expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
       await _enter(tester, _l.restoreStartHeightLabel, '3000000');
@@ -1379,14 +1396,12 @@ void main() {
           expect(rect.left, greaterThanOrEqualTo(0));
           expect(rect.right, lessThanOrEqualTo(360));
         }
-        // Node and Epicbox stays on the first screen (as the icon at this text scale).
-        expect(find.byType(NetworkSettingsButton), findsOneWidget);
 
         // Create leads to the PIN; Back returns to the choice; Restore leads to the phrase.
         await tester.tap(create);
         await tester.pumpAndSettle();
-        expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
-        await tester.tap(find.byType(BackButton));
+        expect(pinPad, findsOneWidget);
+        await tester.tap(find.byIcon(KitIcons.back));
         await tester.pumpAndSettle();
         expect(create, findsOneWidget);
         // The system's Back does the same, instead of leaving the app.
@@ -1399,7 +1414,7 @@ void main() {
         await tester.tap(restore);
         await tester.pumpAndSettle();
         expect(find.byType(RestoreScreen), findsOneWidget);
-        expect(find.widgetWithText(TextField, _l.restorePhraseLabel), findsOneWidget);
+        expect(find.byType(TextField), findsOneWidget);
       },
     );
 
@@ -1437,21 +1452,21 @@ void main() {
         await h.openSettings(tester, SettingsSection.wallet);
         await _reveal(tester, find.byKey(settingsRestoreKey));
         // Next to Delete, in the row's normal colour.
-        expect(find.text(_l.firstRunRestore), findsOneWidget);
+        expect(find.text(_l.phoneSettingsRestore), findsOneWidget);
         expect(find.text(_l.settingsDeleteWallet), findsOneWidget);
 
         // The phrase first; Back leaves the wallet as it is.
-        await _tapText(tester, 'Restore from phrase');
+        await _tapText(tester, _l.phoneSettingsRestore);
         expect(find.byType(RestoreScreen), findsOneWidget);
         expect(find.byType(DeleteWalletDialog), findsNothing);
-        await tester.tap(find.byType(BackButton));
+        await tester.tap(find.byIcon(KitIcons.back));
         await tester.pumpAndSettle();
         expect(find.byType(RestoreScreen), findsNothing);
         expect(find.text('Delete wallet'), findsOneWidget);
         expect(h.container.read(sessionProvider), isNotNull);
 
         // A phrase that does not check out never reaches the warning.
-        await _tapText(tester, 'Restore from phrase');
+        await _tapText(tester, _l.phoneSettingsRestore);
         await _enter(tester, 'Recovery phrase', 'abandon abandon abandon');
         await _tapText(tester, 'Continue');
         expect(find.textContaining('This phrase has 3 words.'), findsOneWidget);
@@ -1514,7 +1529,7 @@ void main() {
         ..restoreScanPending = true
         ..controller = StreamController<ScanProgress>();
       await h.pump(tester);
-      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      await typePin(tester, _pin);
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -1538,7 +1553,7 @@ void main() {
       await frames();
       await tester.tap(find.text('Delete wallet').last);
       await frames();
-      await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+      await typePin(tester, _pin);
       await frames();
       await tester.pumpAndSettle();
 
@@ -1624,18 +1639,6 @@ void main() {
     });
   });
 
-  testWidgets('Contacts opens the contact list for editing, not the picker', (
-    tester,
-  ) async {
-    final h = _Harness();
-    await h.pump(tester);
-    await h.unlock(tester);
-    await h.openSettings(tester, SettingsSection.wallet);
-    await _tapText(tester, _l.settingsContacts);
-    final screen = tester.widget<ContactsScreen>(find.byType(ContactsScreen));
-    expect(screen.pick, isFalse);
-  });
-
   group('invoices', () {
     final l = lookupAppLocalizations(const Locale('en'));
     // A valid epicbox address with a key made of [c].
@@ -1652,7 +1655,7 @@ void main() {
       await seed?.call(h);
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.wallet);
+      await h.openSettings(tester, SettingsSection.transactions);
       await _tapText(tester, 'Invoices');
       expect(find.byType(InvoiceSettingsScreen), findsOneWidget);
       return h;
@@ -1691,19 +1694,18 @@ void main() {
       h.session.invoicesSupported = false;
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text(_l.settingsContacts));
-      expect(find.text(_l.settingsContacts), findsOneWidget);
-      expect(find.text(_l.settingsInvoicesSubtitle), findsNothing);
+      await h.openSettings(tester, SettingsSection.transactions);
+      expect(find.text(_l.settingsInvoices), findsNothing);
+      expect(find.text(_l.phoneSettingsInvoicesLine), findsNothing);
     });
 
     testWidgets('the section says who may ask you to pay', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text(_l.settingsInvoicesSubtitle));
-      expect(find.text(_l.settingsInvoicesSubtitle), findsOneWidget);
+      await h.openSettings(tester, SettingsSection.transactions);
+      await _reveal(tester, find.text(_l.phoneSettingsInvoicesLine));
+      expect(find.text(_l.phoneSettingsInvoicesLine), findsOneWidget);
     });
 
     testWidgets('no pairings: the empty state offers Pair with a shop or exchange', (tester) async {
@@ -1818,64 +1820,32 @@ void main() {
             )
             .first,
       );
-      await tester.tap(find.byKey(settingsLicencesKey));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      // Folded in About (item 5): the tap opens it in place.
-      expect(find.byType(LicencesFold), findsOneWidget);
-      expect(find.text(_l.licencesApp), findsOneWidget);
-      expect(find.textContaining('wallet-for-epic'), findsNothing);
-      expect(find.textContaining('GitHub'), findsNothing);
+      // The row is a link to the web page of full texts, not a screen of the app.
+      expect(find.byKey(settingsLicencesKey), findsOneWidget);
     });
 
-    testWidgets('Licences is folded in About and opens in place with the bundled tor in it', (
-      tester,
-    ) async {
-      registerTorLicence();
+    testWidgets('Licences is an external link: a tap stays on About, nothing opens in the app', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.about);
       await _reveal(tester, find.byKey(settingsLicencesKey));
+      expect(hostSettings.linkLicences, isNotNull);
       expect(find.text(_l.settingsLicences), findsOneWidget);
-      // Folded: the heading and one line, nothing of the list yet (item 5).
-      final row = tester.widget<ListTile>(find.byKey(settingsLicencesKey));
-      expect((row.subtitle! as Text).data, lookupAppLocalizations(const Locale('en')).licencesLead);
-      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsNothing);
-      expect(find.byKey(licencesFullKey), findsNothing);
-      bool? expanded() => tester
-          .widget<Semantics>(find.ancestor(of: find.byKey(settingsLicencesKey), matching: find.byType(Semantics)).first)
-          .properties
-          .expanded;
-      expect(expanded(), isFalse);
       await tester.tap(find.byKey(settingsLicencesKey));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      // Open: one line per component, the tor source note, the full texts behind one button.
-      expect(find.byType(LicencesFold), findsOneWidget);
-      expect(expanded(), isTrue);
-      expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
-      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
-      // The source note is an asset, read in real time.
-      await pumpUntil(tester, () => find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false).evaluate().isNotEmpty);
-      expect(find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false), findsOneWidget);
-      await _reveal(tester, find.byKey(licencesFullKey));
-      await tester.tap(find.byKey(licencesFullKey));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      // The app's own page of full texts (UP-025), not Flutter's stock LicensePage.
-      expect(find.byType(LicenceTextsScreen), findsOneWidget);
-      // British, like the row and the rest of the app.
-      expect(find.text('Licenses'), findsNothing);
-      // The registry reads the licences on real async.
-      await pumpUntil(tester, () => find.text(_l.netStatusTor).evaluate().isNotEmpty);
-      expect(find.text(_l.netStatusTor), findsOneWidget);
-      // Tor's licence as written (polish #10): one preformatted block, not centred paragraphs.
-      await tester.tap(find.text(_l.netStatusTor));
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.textContaining('This file contains the license for Tor'), findsOneWidget);
-    }, skip: !torBuilt);
+      await tester.pump(const Duration(milliseconds: 500));
+      // Still on About: nothing opens inside the app.
+      expect(find.text(_l.settingsLicences), findsOneWidget);
+    });
+
+    testWidgets('About shows the Tor GPL notice offline, only in a build with Tor', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester, SettingsSection.about);
+      await _reveal(tester, find.byKey(settingsLicencesKey));
+      expect(find.textContaining('GNU General Public License'), torBuilt ? findsOneWidget : findsNothing);
+    });
   });
 
   testWidgets('About offers Check for updates wherever the updater runs, with Tor and without', (tester) async {
@@ -1936,14 +1906,15 @@ void main() {
               }
             }
             await tester.pumpAndSettle(const Duration(milliseconds: 50));
-            expect(tester.getSize(find.byType(NoticeDock).last).height, greaterThan(0));
+            expect(find.byKey(noticeKey), findsOneWidget);
+            expect(tester.getSize(find.byType(NoticeDock).last).height, 0);
             for (var r = 0; r < rows.length; r++) {
               expect(tester.getCenter(rows[r]).dy, moreOrLessEquals(before[r].dy, epsilon: 1));
             }
             // Closing does not move them either.
             await tester.pump(noticeDuration(NoticeLevel.info));
             await tester.pumpAndSettle(const Duration(milliseconds: 50));
-            expect(tester.getSize(find.byType(NoticeDock).last).height, 0);
+            expect(find.text('Notifications off'), findsNothing);
             for (var r = 0; r < rows.length; r++) {
               expect(tester.getCenter(rows[r]).dy, moreOrLessEquals(before[r].dy, epsilon: 1));
             }
@@ -1969,38 +1940,33 @@ void main() {
       expect(find.text(englishStrings.settingsPricesOnNotice), findsOneWidget);
     });
 
-    testWidgets('lists settings without explanations', (tester) async {
+    testWidgets('lists the wallet rows, each with one short line at most', (tester) async {
       final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
-      // Rows on the pages are labels only; a state line is allowed on the hub, not here.
-      Future<void> noSubtitles(
-        SettingsSection section,
-        List<String> titles,
-      ) async {
-        await h.openSettings(tester, section);
-        for (final title in titles) {
-          await _reveal(tester, find.text(title));
-          final tile = tester.widget<ListTile>(
-            find.widgetWithText(ListTile, title),
-          );
-          expect(tile.subtitle, isNull, reason: title);
-        }
-        await tester.pageBack();
-        await tester.pumpAndSettle();
-        await tester.pageBack();
-        await tester.pumpAndSettle();
+      await h.openSettings(tester, SettingsSection.wallet);
+      for (final title in [
+        _l.phoneSettingsExport,
+        _l.phoneSettingsImport,
+        _l.phoneSettingsCsv,
+        _l.settingsRescan,
+        _l.settingsDeleteWallet,
+      ]) {
+        await _reveal(tester, find.text(title));
+        expect(find.text(title), findsOneWidget, reason: title);
       }
-
-      // In the page's order: _reveal only scrolls down.
-      await noSubtitles(SettingsSection.wallet, [
-        _l.settingsContacts,
-        _l.settingsExportHistory,
-        'Export CSV',
-        'Import wallet data',
-        'Recheck balance',
-        'Delete wallet',
-      ]);
+      // Delete wallet carries no line.
+      expect(
+        find.descendant(
+          of: find.widgetWithText(KitRow, _l.settingsDeleteWallet),
+          matching: find.byType(Text),
+        ),
+        findsOneWidget,
+      );
+      await _back(tester);
+      await tester.pumpAndSettle();
+      await _back(tester);
+      await tester.pumpAndSettle();
       // The Node and Epicbox rows show their server as a state line, so only the plain words
       // are checked on the Privacy & network page.
       await h.openSettings(tester, SettingsSection.privacyNetwork);
@@ -2071,7 +2037,8 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreStartByHeight), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsOneWidget);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       await _tapText(tester, 'Cancel');
 
       // Off again: the page's own reset.
@@ -2081,7 +2048,8 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreStartByHeight), findsNothing);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsNothing);
     });
 
     // Tester report 26.10.21: Connection servers on the phone, not on the tablet. The tablet had
@@ -2159,7 +2127,8 @@ void main() {
       h.store.values[levelKey] = '1';
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
-      expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
+      // The start is a row with its value; the explanation sits under it.
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
       expect(find.byKey(ScanStart.changeKey), findsOneWidget);
       expect(find.byKey(ScanStart.infoKey), findsOneWidget);
       // Scan from the start lives in the info sheet; the choices are folded away.
@@ -2181,21 +2150,26 @@ void main() {
       await _tapText(tester, _l.firstRunRestore);
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.text(_l.scanStartInfoTitle), findsOneWidget);
+      // Under the row the restore note stands; the sheet carries the full text.
+      expect(find.text(_l.phoneRestoreStartNote), findsOneWidget);
+      // It says what an earlier month costs: a longer search.
+      expect(find.textContaining('An older month means a longer search.'), findsOneWidget);
       expect(find.text(_l.scanStartInfo), findsOneWidget);
       await _tapKey(tester, ScanStart.fromStartKey);
-      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
       // Already from the start: the info sheet offers nothing more.
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.byKey(ScanStart.fromStartKey), findsNothing);
       await _tapText(tester, _l.commonClose);
-      // The way back: the calendar opens the month, January 2025 again.
+      // The way back: the row opens the month sheet; choosing January 2025 again.
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
       await _tapKey(tester, ScanStart.infoKey);
       await _tapKey(tester, ScanStart.fromStartKey);
-      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsNothing, reason: 'the choices fold away');
+      expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
+      expect(find.byType(StartMonthPicker), findsNothing);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapText(tester, _l.commonContinue);
       await _enter(tester, 'PIN', _pin);
@@ -2213,16 +2187,19 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       expect(find.byKey(ScanStart.changeKey), findsOneWidget);
-      expect(find.byKey(ScanStart.byKey), findsNothing);
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.byKey(ScanStart.byKey), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
-      expect(find.text('January 2025'), findsOneWidget);
-      await _tapText(tester, 'Block height');
+      // The month sheet, with the way to a block height under the months.
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsOneWidget);
+      expect(find.text('January 2025'), findsWidgets);
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       expect(
         find.widgetWithText(TextField, _l.restoreStartHeightLabel),
         findsOneWidget,
       );
+      // And back: the month sheet opens again.
+      await _tapKey(tester, ScanStart.monthKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
     });
   });
 }

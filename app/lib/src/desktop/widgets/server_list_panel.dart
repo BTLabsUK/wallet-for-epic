@@ -100,11 +100,9 @@ class PanelServer {
 String panelHost(ServerKind kind, String value) =>
     kind == ServerKind.node ? value.replaceFirst(RegExp('^[a-z]+://'), '').replaceFirst(RegExp(r'/+$'), '') : value;
 
-/// The rows of the wallet's node list: health from the wallet's own checks, behind from the
-/// highest height, older from [released] (else the newest version listed). [labels] are the old
-/// My nodes' labels, shown as the operator of an own node.
-/// [ownLabel] gives an own node's row its "Your node · home network" in the operator's place.
-List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<String, String> labels = const {}, String? Function(String url)? ownLabel}) {
+/// What a node list's rows measure against: the highest height of the nodes not down ([tip]),
+/// and [released] when known, else the newest version listed ([newest]).
+({int? tip, String? newest}) nodeListMarks(List<NodeServer> nodes, {String? released}) {
   final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
   final tip = heights.isEmpty ? null : heights.reduce(math.max);
   var newest = released;
@@ -114,6 +112,15 @@ List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<S
       if (v != null && (newest == null || (compareVersions(v, newest) ?? 0) > 0)) newest = v;
     }
   }
+  return (tip: tip, newest: newest);
+}
+
+/// The rows of the wallet's node list: health from the wallet's own checks, behind from the
+/// highest height, older from [released] (else the newest version listed). [labels] are the old
+/// My nodes' labels, shown as the operator of an own node.
+/// [ownLabel] gives an own node's row its "Your node · home network" in the operator's place.
+List<PanelServer> nodePanelRows(List<NodeServer> nodes, {String? released, Map<String, String> labels = const {}, String? Function(String url)? ownLabel}) {
+  final (:tip, :newest) = nodeListMarks(nodes, released: released);
   return [
     for (final n in nodes)
       () {
@@ -203,6 +210,7 @@ class ServerListPanel extends ConsumerStatefulWidget {
     this.local,
     this.listNote,
     this.busy = false,
+    this.pickWhileBusy = false,
     this.busyLabel,
     this.busyTimeout = const Duration(seconds: 20),
     this.error,
@@ -262,6 +270,11 @@ class ServerListPanel extends ConsumerStatefulWidget {
   /// Under the rows: where the health comes from.
   final String? listNote;
   final bool busy;
+
+  /// A pick while [busy] is taken: the list opens and every row, the typed address and the
+  /// local row choose, the last choice wins (the Node page, whose [onChoose] drops an older
+  /// pick's answer). Off, the panel ignores picks while busy.
+  final bool pickWhileBusy;
   final String? busyLabel;
   final Duration busyTimeout;
 
@@ -301,6 +314,13 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   Timer? _lineTimer;
 
   bool get _busy => widget.busy && !_slow;
+
+  /// Picks wait for the switch under way to end.
+  bool get _locked => _busy && !widget.pickWhileBusy;
+
+  /// A switch runs and picks are taken: the value in use is not what the user goes to, so a
+  /// pick of it goes back to it.
+  bool get _overtaking => widget.busy && widget.pickWhileBusy;
   bool get _node => widget.kind == ServerKind.node;
 
   /// The test drivers' stable names for this list's controls (`TrustIds`, lib/src/trust_ids.dart).
@@ -378,7 +398,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
 
   /// Opens the list with the field empty.
   void open() {
-    if (_busy || _portal.isShowing || !mounted) return;
+    if (_locked || _portal.isShowing || !mounted) return;
     _text.clear();
     setState(() {
       _fieldError = null;
@@ -455,9 +475,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   }
 
   void _pick(String value) {
-    if (_busy) return;
+    if (_locked) return;
     if (_sel != null) return _tick(value);
-    if (widget.value.isNotEmpty && _same(value, widget.value)) {
+    if (widget.value.isNotEmpty && _same(value, widget.value) && !_overtaking) {
       collapse();
       return;
     }
@@ -472,7 +492,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
 
   void _pickLocal(PanelLocalRow local) {
     collapse();
-    if (widget.value != local.value) unawaited(widget.onChoose(local.value));
+    if (widget.value != local.value || _overtaking) unawaited(widget.onChoose(local.value));
   }
 
   /// A Node pick: switches at once, the panel stays open and the foot says so once the switch
@@ -739,7 +759,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final open = _portal.isShowing;
     final field = FocusableActionDetector(
       focusNode: _button,
-      enabled: !_busy,
+      enabled: !_locked,
       mouseCursor: SystemMouseCursors.click,
       shortcuts: const {
         SingleActivator(LogicalKeyboardKey.arrowDown): ActivateIntent(),

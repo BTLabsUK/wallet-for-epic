@@ -113,7 +113,6 @@ abstract final class EIcons {
   static const restart = Icons.restart_alt;
   static const monitor = Icons.monitor_outlined;
   static const book = Icons.menu_book_outlined;
-  static const lanOk = Icons.lan_outlined;
   static const lanOff = Icons.portable_wifi_off;
   static const sand = Icons.hourglass_empty;
   static const log = Icons.receipt_long_outlined;

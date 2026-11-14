@@ -1,0 +1,7 @@
+{
+  "phoneLinkScanSub": "Отсканируйте код на другом устройстве",
+  "phoneLinkShowSub": "Другое устройство отсканирует его",
+  "phoneLinkPasteSub": "Вставьте полученный код или ссылку",
+  "phonePairUnnamedShort": "Кошелёк {code}",
+  "phonePairSeenAsEmptyShows": "Если пусто, они увидят {label}."
+}

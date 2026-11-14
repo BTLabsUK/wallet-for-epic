@@ -36,6 +36,17 @@ class NodeSwitch {
 
 final deskNodeSwitchProvider = NotifierProvider<DeskNodeSwitch, NodeSwitch?>(DeskNodeSwitch.new);
 
+/// Counts the user's node picks: node failover drops what it was doing on each, and a caller
+/// tells by it whether a later pick overtook its own.
+final deskNodePicksProvider = NotifierProvider<DeskNodePicks, int>(DeskNodePicks.new);
+
+class DeskNodePicks extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void bump() => state++;
+}
+
 class DeskNodeSwitch extends Notifier<NodeSwitch?> {
   ProviderSubscription<AsyncValue<LocalNodeState>>? _watch;
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Receive's Epicbox tab on a phone, with the real fonts: the fonts decide how many lines the
+// Receive on a phone, with the real fonts: the fonts decide how many lines the
 // address and the buttons take, and the test font draws every glyph a full em wide. This file
 // loads them for itself, so the other tests keep the test font.
 import 'dart:io';
@@ -11,12 +11,12 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
-import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/ui/theme/logo_qr.dart';
-import 'package:epic_wallet/src/ui/theme/protocol.dart' show CornerTicksPainter;
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -79,7 +79,7 @@ Future<void> _loadFonts() async {
   }
 }
 
-/// Opens the shell on Receive at [size] dp, with invoices on.
+/// Opens Receive at [size] dp, with invoices on.
 Future<void> _pump(
   WidgetTester tester, {
   required Size size,
@@ -132,15 +132,8 @@ Future<void> _pump(
               .copyWith(textScaler: TextScaler.linear(textScale)),
           child: child!,
         ),
-        home: const HomeScreen(),
+        home: const ReceiveScreen(),
       ),
-    ),
-  );
-  await tester.pumpAndSettle();
-  await tester.tap(
-    find.descendant(
-      of: find.byType(NavigationBar),
-      matching: find.text(_l.homeReceiveButton),
     ),
   );
   await tester.pumpAndSettle();
@@ -176,92 +169,38 @@ void main() {
     final name =
         '${size.width.toInt()} x ${size.height.toInt()} dp, invoices'
         '${insets ? ', status and gesture bars' : ''}';
-    testWidgets('the Epicbox tab fits without scrolling at $name', (
-      tester,
-    ) async {
+    testWidgets('Receive fits and every part is reachable at $name', (tester) async {
       await _pump(tester, size: size, insets: insets);
       expect(tester.takeException(), isNull);
-      // Everything the tab holds is there.
+      // Everything the screen holds is there.
       expect(find.byKey(receiveAddressKey), findsOneWidget);
       expect(find.byKey(receiveEpicboxKey), findsOneWidget);
       expect(find.byType(LogoQr), findsOneWidget);
       expect(find.byKey(receiveRequestKey), findsOneWidget);
-      final help = find.text('How receiving works');
-      expect(help, findsOneWidget);
+      expect(find.text(_l.phoneRecvOther), findsOneWidget);
+      // The code keeps its size; the page scrolls when the phone is short.
+      expect(_qrSide(tester), Kit.qr - 24, reason: name);
       final scroll = _receiveScroll(tester).maxScrollExtent;
-      // No scroll, and the last of it ends above the tab bar. The balance header above the page
-      // takes 51 dp: at 360 dp wide the page may scroll by what the header took, never more,
-      // and is checked at its end.
-      expect(scroll, lessThanOrEqualTo(size.width < 400 ? 52 : 0), reason: name);
       if (scroll > 0) {
         _receiveScroll(tester).jumpTo(scroll);
         await tester.pumpAndSettle();
       }
-      final bar = tester.getRect(find.byType(NavigationBar));
-      final helpButton = tester.getRect(
-        find.ancestor(of: help, matching: find.byType(TextButton)),
-      );
-      expect(helpButton.bottom, lessThanOrEqualTo(bar.top));
-      // The code and its frame stay in their slot: under the epicbox line, above the
-      // buttons. A code drawn past the room it was given would cover them.
-      final code = tester.getRect(
-        find.ancestor(
-          of: find.byType(LogoQr),
-          matching: find.byWidgetPredicate(
-            (w) =>
-                w is CustomPaint && w.foregroundPainter is CornerTicksPainter,
-          ),
-        ),
-      );
-      expect(
-        code.top,
-        greaterThanOrEqualTo(
-          tester.getRect(find.byKey(receiveEpicboxKey)).bottom,
-        ),
-      );
-      expect(
-        code.bottom,
-        lessThanOrEqualTo(tester.getRect(find.byKey(receiveRequestKey)).top),
-      );
-      final side = _qrSide(tester);
-      // The frame holds the whole code: its ticks' 12 dp and the white 16 dp on each side.
-      expect(code.height, closeTo(side + 56, 0.5));
-      expect(code.width, closeTo(side + 56, 0.5));
-      expect(
-        code.deflate(28).contains(tester.getCenter(find.byType(LogoQr))),
-        isTrue,
-      );
-      expect(
-        tester.getRect(find.byType(LogoQr)).top,
-        closeTo(code.top + 28, 0.5),
-      );
-      expect(
-        side,
-        inInclusiveRange(receiveQrMinSize, receiveQrMaxSize),
-        reason: name,
-      );
+      final other = tester.getRect(find.text(_l.phoneRecvOther));
+      expect(other.bottom, lessThanOrEqualTo(size.height - (insets ? 48 : 0)), reason: name);
+      // Nothing in the content is wider than the phone.
+      expect(tester.getRect(find.byKey(receiveAddressKey)).right, lessThanOrEqualTo(size.width), reason: name);
       // ignore: avoid_print
-      print(
-        '$name: QR $side dp, ${bar.top - helpButton.bottom} dp to spare, '
-        '$scroll dp scrolled',
-      );
+      print('$name: $scroll dp scrolled');
     });
   }
 
-  testWidgets('with no room for the least code, the page scrolls', (
-    tester,
-  ) async {
+  testWidgets('at text scale 2 on the narrowest phone the page scrolls and nothing overflows', (tester) async {
     await _pump(tester, size: const Size(360, 800), textScale: 2);
     expect(tester.takeException(), isNull);
-    expect(_qrSide(tester), receiveQrMinSize);
     expect(_receiveScroll(tester).maxScrollExtent, greaterThan(0));
-    // Scrolled to its end, the help shows above the tab bar.
     await tester.fling(find.byType(ReceiveView), const Offset(0, -2000), 3000);
     await tester.pumpAndSettle();
-    expect(
-      tester.getRect(find.text(_l.receiveHelpButton)).bottom,
-      lessThanOrEqualTo(tester.getRect(find.byType(NavigationBar)).top),
-    );
+    expect(tester.getRect(find.text(_l.phoneRecvOther)).bottom, lessThanOrEqualTo(800));
     expect(tester.takeException(), isNull);
   });
 }

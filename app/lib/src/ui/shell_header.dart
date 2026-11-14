@@ -14,8 +14,6 @@ import 'tip.dart';
 import 'common.dart';
 import 'home_parts.dart' show ownChangeOffChain;
 import 'home_status.dart' show StatusIcons, statusEntries;
-import 'levels/shell_status.dart' show ShellStatusIcons, shellStatusesShown;
-import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'status.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -66,10 +64,6 @@ const Key headerSyncLineKey = ValueKey('header-sync-line');
 /// The key of the sweep along the app bar's foot when a payment lands, for tests.
 const Key landingSweepKey = ValueKey('landing-sweep');
 
-/// The width of the app bar's leading slot, the mark. The title, and so the figure on Send
-/// and Receive, starts here.
-const double shellLeadingWidth = 48;
-
 /// How long the sweep takes when a payment lands.
 const Duration landingSweepDuration = Duration(milliseconds: 1200);
 
@@ -78,15 +72,6 @@ const double figureSize = 60, figureMinSize = 34;
 
 /// The size the figure never scales under: its unit goes first.
 const double figureFloorSize = 14;
-
-/// How far the header is open, from the shell's page position: 1 on Wallet, 0 on Send and
-/// Receive, in between while a swipe or a tap moves the page.
-double headerOpenness(double page) =>
-    (1 - (page - ShellTab.wallet.index).abs()).clamp(0.0, 1.0);
-
-/// A layer's opacity at [share] of the way to it: out of sight until 0.4, full from 0.6, so
-/// the two layers of a cross-fade barely show at once.
-double shellFade(double share) => ((share - 0.4) / 0.2).clamp(0.0, 1.0);
 
 /// Whether [after] is [before] with a pending payment landed: spendable rose while the money
 /// on its way in (confirming, waiting to finish, mining rewards) fell. A cancelled send, a
@@ -175,10 +160,8 @@ String _figureLabel(AppLocalizations l, WalletSummary summary, BigInt figure, bo
 /// Wallet's balance area, with no panel around it, centred as one column: the caption
 /// "Balance", the balance ([walletFigure]) in Montserrat 60 with the gold EPIC at its top
 /// right, the two centred as a unit; under it one row, [statusTarget] high: the status icons
-/// at its start, the fiat value and the eye at its end. The same at every level: level 1 has
-/// its two icons ([ShellStatusIcons], Network and Epicbox), the others the full row
-/// ([StatusIcons]). The pending balances are in the tiles under it (`home_parts.dart`) at
-/// levels 2 and 3; level 1 has them in the balance sheet a tap on the figure opens. What can
+/// ([StatusIcons]) at its start, the fiat value and the eye at its end. The pending balances
+/// are in the tiles under it (`home_parts.dart`) and in the balance sheet a tap on the figure opens. What can
 /// be spent now, when it differs from the figure, is in the balance sheet too: a line for it
 /// under the figure would move the row under it.
 ///
@@ -217,7 +200,6 @@ class WalletBalance extends ConsumerWidget {
       statusTarget,
       _lineHeight(fiatStyle, scaler, context),
     );
-    final shell = shellStatusesShown(ref.watch(levelFeaturesProvider));
     // The tooltip opens above the eye, over the figure's own row, not over the tiles below.
     final eye = Tip(
       hidden ? l.homeShowBalances : l.homeHideBalances,
@@ -301,7 +283,7 @@ class WalletBalance extends ConsumerWidget {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: AlignmentDirectional.centerStart,
-                      child: shell ? const ShellStatusIcons() : const StatusIcons(key: walletStatusesKey),
+                      child: const StatusIcons(key: walletStatusesKey),
                     ),
                   ),
                   Expanded(
@@ -501,8 +483,7 @@ class _Figure extends StatelessWidget {
 /// The balance header at the top of Send and Receive, under the app bar, [statusTarget]
 /// high: at its start the balance ([walletFigure], as Wallet's figure) at [titleFigureSize] with a small gold EPIC, and
 /// under it the detail line (the [pendingTokens], or their count when they do not fit); at its
-/// end the status icons, the same row as under Wallet's figure ([StatusIcons], or level 1's
-/// [ShellStatusIcons]). A balance is
+/// end the status icons, the same row as under Wallet's figure ([StatusIcons]). A balance is
 /// never clipped (UP-002): on a narrow row the detail line goes under the icons first, then
 /// the figure takes the whole width and the icons a second row, and only then the figure
 /// shrinks, to [titleFigureFloor] at the least. A tap anywhere on the figure opens the
@@ -518,16 +499,11 @@ class BalanceHeader extends ConsumerWidget {
     final summary = data?.summary;
     final own = ownChangeOffChain(data?.transactions ?? const <TxEntry>[]);
     final hidden = amountDisplay(ref).hidden;
-    // Level 1 has its two icons ([ShellStatusIcons]), the other levels the full row. The
-    // icons are [statusTarget] wide each: their row's width without laying it out.
-    final shell = shellStatusesShown(ref.watch(levelFeaturesProvider));
-    final iconsWidth = statusTarget *
-        (shell
-            ? ref.watch(levelFeaturesProvider.select((f) => f.statusIcons.length))
-            : statusEntries(context, ref, bar: true).entries.length);
+    // The icons are [statusTarget] wide each: their row's width without laying it out.
+    final iconsWidth = statusTarget * statusEntries(context, ref, bar: true).entries.length;
     final scaler = MediaQuery.textScalerOf(context);
     final direction = Directionality.of(context);
-    final Widget icons = shell ? const ShellStatusIcons(bar: true) : const StatusIcons(key: barStatusesKey, bar: true);
+    const Widget icons = StatusIcons(key: barStatusesKey, bar: true);
     return Container(
       key: balanceHeaderKey,
       decoration: BoxDecoration(

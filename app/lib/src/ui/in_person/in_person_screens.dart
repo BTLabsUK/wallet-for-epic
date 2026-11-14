@@ -23,11 +23,17 @@ import '../../utf8_limit.dart';
 import '../app_dialog.dart';
 import '../common.dart';
 import '../contacts_screen.dart' show LiveFieldError;
-import '../invoice_review_screen.dart' show ReviewAmount;
+import '../kit/kit_corner_marks.dart';
+import '../kit/kit_button.dart';
+import '../kit/kit_group.dart';
+import '../kit/kit_headers.dart';
+import '../kit/kit_hero_amount.dart';
+import '../kit/kit_icons.dart';
+import '../kit/kit_kv.dart';
+import '../kit/kit_step_strip.dart';
+import '../kit/kit_tokens.dart';
 import '../pin.dart';
-import '../theme/brand.dart' show GlyphTile;
 import '../theme/logo_qr.dart';
-import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 import 'in_person_logic.dart';
 import 'in_person_online.dart';
@@ -50,7 +56,7 @@ Future<bool> inPersonSpendGate(BuildContext context, WidgetRef ref, BigInt amoun
   final vault = ref.read(vaultProvider);
   final l = context.l10n;
   final shown = epicExact(l, amount);
-  final approved = await askPin(
+  final approved = await showPinSheet(
     context,
     reason: usesPassphrase(ref) ? l.sendPassphraseReason(shown) : l.sendPinReason(shown),
     action: (pin) async {
@@ -75,6 +81,79 @@ Future<InPersonCodeMade?> makeInPersonCode(
   if (stage == InPersonStage.request) return wallet.inPersonRequest(amount: amount, message: message);
   if (!await inPersonSpendGate(context, ref, amount)) return null;
   return wallet.inPersonSend(amount: amount, minimumConfirmations: ref.read(countedConfirmationsProvider), message: message);
+}
+
+/// The page of an in-person screen: the flow header (a close mark),
+/// the three-step strip when there is one, a thin progress line for [idle], and the body.
+class _InPersonPage extends StatelessWidget {
+  const _InPersonPage({
+    required this.title,
+    required this.children,
+    this.bottom,
+    this.idle,
+    this.steps,
+    this.current = 0,
+  });
+
+  final String title;
+  final List<Widget> children;
+  final Widget? bottom;
+  final Widget? idle;
+  final List<String>? steps;
+  final int current;
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = this.steps;
+    return SlotScaffold(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KitFlowHeader(title: title, onLeading: () => Navigator.of(context).maybePop()),
+            if (steps != null) KitStepStrip(labels: steps, current: current),
+            ProgressSlot(idle: idle),
+            Expanded(child: ScreenBody(bottom: bottom, children: children)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The steps of a code this phone shows (a request, or a send code): show it, take the answer,
+/// done.
+List<String> _showSteps(AppLocalizations l) => [l.phoneStepPayShow, l.phoneStepPayScan, l.commonDone];
+
+/// The steps of a code this phone scans: scan it, show the answer, done.
+List<String> _answerSteps(AppLocalizations l) => [l.phoneStepRecvScan, l.phoneStepRecvShow, l.commonDone];
+
+/// The amount of an in-person page, centred and big, as on the other payment pages.
+class _InPersonAmount extends StatelessWidget {
+  const _InPersonAmount(this.amount);
+
+  final BigInt amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return KitHeroAmount(amount: epicFor(l, amount, surface: AmountSurface.exact, unit: false), unit: epicUnit);
+  }
+}
+
+/// The one gold button at the foot of an in-person page; off while [busy] (the progress line
+/// under the header shows the work).
+class _GoButton extends StatelessWidget {
+  const _GoButton({required this.label, required this.busy, required this.onPressed, required this.semanticsId});
+
+  final String label;
+  final bool busy;
+  final VoidCallback? onPressed;
+  final String semanticsId;
+
+  @override
+  Widget build(BuildContext context) =>
+      KitButton(label: label, onPressed: busy ? null : onPressed, semanticsId: semanticsId);
 }
 
 /// The amount and message of a code to show: "Request in person" or "Pay in person".
@@ -154,50 +233,47 @@ class _InPersonFormScreenState extends ConsumerState<InPersonFormScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
     final request = widget.stage == InPersonStage.request;
     final error = _error;
     final amountError = _amountError;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(request ? l.deskIpRequestTitle : l.deskIpPayTitle)),
+    return _InPersonPage(
+      title: request ? l.deskIpRequestTitle : l.deskIpPayTitle,
       idle: _busy ? SlotProgress(label: l.deskIpMakeCode) : null,
-      body: ScreenBody(
-        bottom: BusyButton(label: l.deskIpMakeCode, busy: _busy, onPressed: _make, semanticsId: TrustIds.txIpMake),
-        children: [
-          TextField(
-            key: inPersonAmountKey,
-            controller: _amount,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textInputAction: TextInputAction.next,
-            onChanged: (_) {
-              if (_amountError != null) setState(() => _amountError = null);
-            },
-            decoration: InputDecoration(
-              labelText: l.sendAmountLabel(epicUnit),
-              error: amountError == null ? null : LiveFieldError(amountError),
-            ),
+      bottom: _GoButton(label: l.deskIpMakeCode, busy: _busy, onPressed: _make, semanticsId: TrustIds.txIpMake),
+      children: [
+        TextField(
+          key: inPersonAmountKey,
+          controller: _amount,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.next,
+          onChanged: (_) {
+            if (_amountError != null) setState(() => _amountError = null);
+          },
+          decoration: InputDecoration(
+            labelText: l.sendAmountLabel(epicUnit),
+            error: amountError == null ? null : LiveFieldError(amountError),
           ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          key: inPersonMessageKey,
+          controller: _message,
+          inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
+          buildCounter: (context, {required currentLength, required isFocused, maxLength}) => Text(
+            l.sendMessageCounter(utf8Length(_message.text), slateMessageMaxBytes),
+            style: KitType.rowSub.copyWith(color: context.tokens.dim),
+          ),
+          onChanged: (_) => setState(() {}),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _busy ? null : _make(),
+          decoration: InputDecoration(labelText: request ? l.requestMessageLabel : l.sendNoteLabel),
+        ),
+        if (error != null) ...[
           const SizedBox(height: 16),
-          TextField(
-            key: inPersonMessageKey,
-            controller: _message,
-            inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
-            buildCounter: (context, {required currentLength, required isFocused, maxLength}) => Text(
-              l.sendMessageCounter(utf8Length(_message.text), slateMessageMaxBytes),
-              style: theme.textTheme.bodySmall,
-            ),
-            onChanged: (_) => setState(() {}),
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _busy ? null : _make(),
-            decoration: InputDecoration(labelText: request ? l.requestMessageLabel : l.sendNoteLabel),
-          ),
-          if (error != null) ...[
-            const SizedBox(height: 16),
-            InlineNotice(level: NoticeLevel.error, text: describeError(l, error), liveRegion: true),
-          ],
+          InlineNotice(level: NoticeLevel.error, text: describeError(l, error), liveRegion: true),
         ],
-      ),
+      ],
     );
   }
 }
@@ -277,10 +353,10 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
     final l = context.l10n;
     final request = _watch.stage == InPersonStage.request;
     final title = request ? l.deskIpRequestTitle : l.deskIpPayTitle;
-    final done = TextButton(
-      style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+    final done = KitButton(
+      kind: KitButtonKind.quiet,
+      label: l.commonClose,
       onPressed: () => Navigator.pop(context),
-      child: Text(l.commonClose),
     );
     switch (_watch.phase) {
       case InPersonPhase.waiting:
@@ -308,8 +384,10 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
               ? null
               : InlineNotice(level: NoticeLevel.error, text: describeError(l, renewError), liveRegion: true),
           actions: [
-            if (_watch.amount != null)
-              BusyButton(label: l.deskE1ShowNewCode, busy: _renewing, onPressed: _renew, semanticsId: TrustIds.txIpNewcode),
+            if (_watch.amount != null) ...[
+              _GoButton(label: l.deskE1ShowNewCode, busy: _renewing, onPressed: _renew, semanticsId: TrustIds.txIpNewcode),
+              const SizedBox(height: 8),
+            ],
             done,
           ],
         );
@@ -319,79 +397,76 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
   Widget _waiting(BuildContext context, String title) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final made = _watch.made!;
     final amount = _watch.amount;
     final message = widget.message;
     final left = inPersonMinutesLeft(made.ttlCutoff, tipHeight(ref));
     final takeError = _takeError;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(title)),
-      idle: SlotProgress(label: l.deskIpWaiting),
-      body: ScreenBody(
-        // While the answer comes back online, no paste or scan: they show again once the
-        // server failed or the online reply was cancelled.
-        bottom: !_watch.manual ? null : Row(
-          children: [
-            Expanded(
-              child: TrustId(
-                TrustIds.txIpPaste,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  icon: const Icon(Icons.content_paste),
-                  label: Text(l.deskIpPasteAnswer),
+    return _InPersonPage(
+      title: title,
+      steps: _showSteps(l),
+      current: 0,
+      // No progress bar: the wait can last minutes and the status line already says it.
+      //
+      // While the answer comes back online, no paste or scan: they show again once the
+      // server failed or the online reply was cancelled.
+      bottom: !_watch.manual
+          ? null
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KitButton(icon: KitIcons.scan, label: l.deskIpScanAnswer, onPressed: _scan, semanticsId: TrustIds.txIpScan),
+                const SizedBox(height: 8),
+                KitButton(
+                  kind: KitButtonKind.quiet,
+                  icon: KitIcons.paste,
+                  label: l.deskIpPasteAnswer,
                   onPressed: _paste,
+                  semanticsId: TrustIds.txIpPaste,
                 ),
-              ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TrustId(
-                TrustIds.txIpScan,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  icon: const Icon(Icons.qr_code_scanner),
-                  label: Text(l.deskIpScanAnswer),
-                  onPressed: _scan,
-                ),
-              ),
+      children: [
+        if (amount != null) ...[const SizedBox(height: 4), _InPersonAmount(amount)],
+        if (message != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              message,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: KitType.body.copyWith(color: t.text),
             ),
-          ],
-        ),
-        children: [
-          Text(
-            _watch.stage == InPersonStage.request ? l.deskIpCodeLeadRequest : l.deskIpCodeLeadPay,
-            style: theme.textTheme.bodyLarge,
           ),
-          const SizedBox(height: 12),
-          if (amount != null) ReviewAmount(amount: amount),
-          if (message != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyLarge),
-            ),
-          const SizedBox(height: 16),
-          InPersonQr(key: inPersonQrKey, parts: _watch.parts, label: l.deskKitQrOf(l.deskIpCodeOf)),
-          const SizedBox(height: 16),
-          InPersonCodeText(label: l.deskIpCodeText, text: made.text),
-          if (left != null) ...[
-            const SizedBox(height: 8),
-            Text(l.deskIpExpiresIn(left), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-          ],
-          const SizedBox(height: 16),
-          if (_watch.online)
-            InPersonOnlineLine(online: _watch)
-          else
-            Semantics(
-              liveRegion: true,
-              child: Text(l.deskIpWaiting, style: theme.textTheme.bodyMedium?.copyWith(color: t.info)),
-            ),
-          if (takeError != null) ...[
-            const SizedBox(height: 12),
-            InlineNotice(level: NoticeLevel.error, text: takeError, liveRegion: true),
-          ],
+        const SizedBox(height: 10),
+        Text(
+          _watch.stage == InPersonStage.request ? l.deskIpCodeLeadRequest : l.deskIpCodeLeadPay,
+          textAlign: TextAlign.center,
+          style: KitType.body.copyWith(color: t.dim),
+        ),
+        const SizedBox(height: 16),
+        InPersonQr(key: inPersonQrKey, open: _watch.stage == InPersonStage.request, parts: _watch.parts, label: l.deskKitQrOf(l.deskIpCodeOf)),
+        const SizedBox(height: 16),
+        InPersonCodeText(label: l.deskIpCodeText, text: made.text),
+        if (left != null) ...[
+          const SizedBox(height: 10),
+          Text(l.deskIpExpiresIn(left), textAlign: TextAlign.center, style: KitType.rowSub.copyWith(color: t.dim)),
         ],
-      ),
+        const SizedBox(height: 12),
+        if (_watch.online)
+          InPersonOnlineLine(online: _watch)
+        else
+          Semantics(
+            liveRegion: true,
+            child: Text(l.deskIpWaiting, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.info)),
+          ),
+        if (takeError != null) ...[
+          const SizedBox(height: 12),
+          InlineNotice(level: NoticeLevel.error, text: takeError, liveRegion: true),
+        ],
+      ],
     );
   }
 
@@ -401,34 +476,33 @@ class _InPersonCodeScreenState extends ConsumerState<InPersonCodeScreen> {
     final finishing = _watch.phase == InPersonPhase.finishing;
     final error = _watch.error;
     final question = _watch.stage == InPersonStage.request ? l.deskIpCheckPayer(code) : l.deskIpCheckOther(code);
-    return SlotScaffold(
-      appBar: AppBar(title: Text(title)),
+    return _InPersonPage(
+      title: title,
+      steps: _showSteps(l),
+      current: 1,
       idle: finishing ? SlotProgress(label: l.deskIpMatches) : null,
-      body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            BusyButton(label: l.deskIpMatches, busy: finishing, onPressed: _watch.matches, semanticsId: TrustIds.txIpMatches),
-            const SizedBox(height: 8),
-            TrustId(
-              TrustIds.txIpDifferent,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: finishing ? null : _watch.different,
-                child: Text(l.deskIpDifferent),
-              ),
-            ),
-          ],
-        ),
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InPersonCheck(key: inPersonCheckKey, question: question, code: code),
-          if (error != null) ...[
-            const SizedBox(height: 16),
-            InlineNotice(level: NoticeLevel.error, text: describeError(l, error), liveRegion: true),
-          ],
+          _GoButton(label: l.deskIpMatches, busy: finishing, onPressed: _watch.matches, semanticsId: TrustIds.txIpMatches),
+          const SizedBox(height: 8),
+          KitButton(
+            kind: KitButtonKind.quiet,
+            label: l.deskIpDifferent,
+            onPressed: finishing ? null : _watch.different,
+            semanticsId: TrustIds.txIpDifferent,
+          ),
         ],
       ),
+      children: [
+        const SizedBox(height: 12),
+        InPersonCheck(key: inPersonCheckKey, question: question, code: code),
+        if (error != null) ...[
+          const SizedBox(height: 16),
+          InlineNotice(level: NoticeLevel.error, text: describeError(l, error), liveRegion: true),
+        ],
+      ],
     );
   }
 }
@@ -443,7 +517,6 @@ class InPersonCheck extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final theme = Theme.of(context);
     final question = this.question;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -452,22 +525,30 @@ class InPersonCheck extends StatelessWidget {
           Semantics(
             header: true,
             liveRegion: true,
-            child: Text(question, style: theme.textTheme.titleLarge),
+            child: Text(question, textAlign: TextAlign.center, style: KitType.sheetTitle.copyWith(color: t.text)),
           ),
           const SizedBox(height: 24),
         ],
         // The question reads the code out; the large copy is for the eyes.
         ExcludeSemantics(
           excluding: question != null,
-          child: Center(
-            child: Text(
-              code,
-              style: TextStyle(
-                fontFamily: t.monoFamily,
-                fontSize: 48,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 8,
-                color: t.accentText,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            decoration: BoxDecoration(
+              color: t.group,
+              borderRadius: BorderRadius.circular(Kit.rGroup),
+              border: Border.all(color: t.hair),
+            ),
+            child: Center(
+              child: Text(
+                code,
+                style: TextStyle(
+                  fontFamily: t.monoFamily,
+                  fontSize: 48,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 8,
+                  color: t.accentText,
+                ),
               ),
             ),
           ),
@@ -503,43 +584,47 @@ class InPersonEndScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final amount = this.amount;
     final below = this.below;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(title)),
+    return _InPersonPage(
+      title: title,
       idle: busy ? SlotProgress(label: headline) : null,
-      body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children:
-              actions ??
-              [
-                BusyButton(label: ok ? l.commonDone : l.commonClose, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.txIpDone),
-              ],
-        ),
-        children: [
-          Row(
-            children: [
-              GlyphTile(
-                size: 48,
-                child: Icon(ok ? Icons.check_circle_outline : Icons.block, color: ok ? t.ok : t.risk),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  liveRegion: true,
-                  child: Text(headline, style: theme.textTheme.titleMedium),
-                ),
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children:
+            actions ??
+            [
+              KitButton(
+                kind: ok ? KitButtonKind.gold : KitButtonKind.quiet,
+                label: ok ? l.commonDone : l.commonClose,
+                onPressed: () => Navigator.pop(context),
+                semanticsId: TrustIds.txIpDone,
               ),
             ],
-          ),
-          if (amount != null) ...[const SizedBox(height: 16), ReviewAmount(amount: amount)],
-          if (below != null) ...[const SizedBox(height: 16), below],
-        ],
       ),
+      children: [
+        const SizedBox(height: 24),
+        Center(
+          child: Container(
+            width: Kit.emptyWell,
+            height: Kit.emptyWell,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: t.raised, borderRadius: BorderRadius.circular(Kit.rGroup)),
+            child: ExcludeSemantics(
+              child: Icon(ok ? KitIcons.success : Icons.block, size: 34, color: ok ? t.ok : t.risk),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Semantics(
+          header: true,
+          liveRegion: true,
+          child: Text(headline, textAlign: TextAlign.center, style: KitType.sheetTitle.copyWith(color: t.text)),
+        ),
+        if (amount != null) ...[const SizedBox(height: 16), _InPersonAmount(amount)],
+        if (below != null) ...[const SizedBox(height: 16), below],
+      ],
     );
   }
 }
@@ -547,8 +632,10 @@ class InPersonEndScreen extends StatelessWidget {
 /// A code's QR, covered until tapped (UI rule); several parts show in turn, one every
 /// [inPersonFrameEvery].
 class InPersonQr extends StatefulWidget {
-  const InPersonQr({super.key, required this.parts, required this.label, this.size = 240});
+  const InPersonQr({super.key, required this.parts, required this.label, this.size = 240, this.open = false});
 
+  /// A receiver's code (a request, or the answer to a send code) is shown at once, never covered.
+  final bool open;
   final List<String> parts;
   final String label;
   final double size;
@@ -558,10 +645,16 @@ class InPersonQr extends StatefulWidget {
 }
 
 class _InPersonQrState extends State<InPersonQr> {
-  bool _shown = false;
+  late bool _shown = widget.open;
   int _frame = 0;
   Timer? _timer;
   QrFrames? _frames;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.open) _startTimer();
+  }
 
   /// The parts drawn once, in one version and mask.
   QrFrames _framesOf(List<String> parts) {
@@ -574,7 +667,7 @@ class _InPersonQrState extends State<InPersonQr> {
   void didUpdateWidget(InPersonQr old) {
     super.didUpdateWidget(old);
     // A new code covers again.
-    if (old.parts.firstOrNull != widget.parts.firstOrNull) _set(false);
+    if (old.parts.firstOrNull != widget.parts.firstOrNull) _set(widget.open);
   }
 
   @override
@@ -584,6 +677,11 @@ class _InPersonQrState extends State<InPersonQr> {
   }
 
   void _set(bool shown) {
+    _startTimer(shown);
+    setState(() => _shown = shown);
+  }
+
+  void _startTimer([bool shown = true]) {
     _timer?.cancel();
     _timer = null;
     _frame = 0;
@@ -592,7 +690,6 @@ class _InPersonQrState extends State<InPersonQr> {
         if (mounted) setState(() => _frame = (_frame + 1) % widget.parts.length);
       });
     }
-    setState(() => _shown = shown);
   }
 
   @override
@@ -610,24 +707,27 @@ class _InPersonQrState extends State<InPersonQr> {
           button: true,
           label: l.qrShow,
           excludeSemantics: true,
-          child: InkWell(
-            onTap: () => _set(true),
-            borderRadius: BorderRadius.circular(t.radiusSmall),
-            child: Container(
-              width: side + 32,
-              height: side + 32,
-              decoration: BoxDecoration(
-                color: t.surface,
-                border: Border.all(color: t.line),
-                borderRadius: BorderRadius.circular(t.radiusSmall),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.qr_code_2, size: 48, color: t.accentText),
-                  const SizedBox(height: 8),
-                  Text(l.qrShow, style: Theme.of(context).textTheme.labelLarge),
-                ],
+          child: Material(
+            color: t.group,
+            borderRadius: BorderRadius.circular(Kit.rQr),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => _set(true),
+              child: Container(
+                width: side,
+                height: side,
+                decoration: BoxDecoration(
+                  border: Border.all(color: t.hair),
+                  borderRadius: BorderRadius.circular(Kit.rQr),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(KitIcons.qr, size: 48, color: t.accentText),
+                    const SizedBox(height: 8),
+                    Text(l.qrShow, style: KitType.rowTitle.copyWith(color: t.text)),
+                  ],
+                ),
               ),
             ),
           ),
@@ -636,34 +736,34 @@ class _InPersonQrState extends State<InPersonQr> {
     } else {
       final frames = _framesOf(parts);
       inner = GestureDetector(
-        onTap: () => _set(false),
+        onTap: widget.open ? null : () => _set(false),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             // Dark modules on white scan reliably in either theme.
             color: protocolLight.surface,
-            borderRadius: BorderRadius.circular(t.radiusSmall),
+            borderRadius: BorderRadius.circular(Kit.rQr),
             boxShadow: [BoxShadow(color: t.accent.withValues(alpha: dark ? 0.22 : 0.12), blurRadius: 40)],
           ),
           child: Semantics(
             label: widget.label,
             image: true,
-            child: LogoQrImage(image: frames.images[_frame % frames.length], size: side, logo: QrLogo.epic1),
+            child: LogoQrImage(image: frames.images[_frame % frames.length], size: side - 32, logo: QrLogo.epic1),
           ),
         ),
       );
     }
     return Center(
       heightFactor: 1,
-      child: CustomPaint(
-        foregroundPainter: CornerTicksPainter(t.tick, length: 16),
-        child: Padding(padding: const EdgeInsets.all(12), child: inner),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: KitCornerMarks(inset: 14, arm: 22, child: inner),
       ),
     );
   }
 }
 
-/// A code's or answer's text, a few lines in mono, with Copy (on press).
+/// A code's or answer's text, a few lines in mono, with Copy (on press), in a card.
 class InPersonCodeText extends StatelessWidget {
   const InPersonCodeText({super.key, required this.label, required this.text});
 
@@ -674,36 +774,44 @@ class InPersonCodeText extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
-              const SizedBox(height: 4),
-              Text(
-                text,
-                key: inPersonCodeTextKey,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.text),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+      decoration: BoxDecoration(
+        color: t.group,
+        borderRadius: BorderRadius.circular(Kit.rGroup),
+        border: Border.all(color: t.hair),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: KitType.groupLabel.copyWith(color: t.dim)),
+                const SizedBox(height: 4),
+                Text(
+                  text,
+                  key: inPersonCodeTextKey,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontFamily: t.monoFamily, fontSize: 13, color: t.text),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        TrustId(
-          TrustIds.txIpCopy,
-          child: TextButton.icon(
-            icon: const Icon(Icons.copy, size: 18),
-            label: Text(l.commonCopy),
+          const SizedBox(width: 8),
+          KitButton(
+            kind: KitButtonKind.quiet,
+            small: true,
+            expand: false,
+            icon: KitIcons.copy,
+            label: l.commonCopy,
+            semanticsId: TrustIds.txIpCopy,
             onPressed: () => copySecretText(context, text, l.deskIpCopied),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -755,6 +863,7 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
             answer: made,
             mailbox: online ? mailbox : null,
             cutoff: info.ttlCutoff,
+            receive: _receive,
           ),
         ),
       );
@@ -768,38 +877,53 @@ class _InPersonReviewScreenState extends ConsumerState<InPersonReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
+    final t = context.tokens;
     final info = widget.info;
     final fee = info.fee;
     final message = info.message;
     final error = _error;
     final label = _receive ? l.deskIpReceiveButton : l.deskIpPayButton;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(inPersonReviewTitle(context, info.stage))),
+    return _InPersonPage(
+      title: inPersonReviewTitle(context, info.stage),
+      steps: _answerSteps(l),
+      current: 1,
       idle: _busy ? SlotProgress(label: label) : null,
-      body: ScreenBody(
-        bottom: BusyButton(
-          label: label,
-          busy: _busy,
-          onPressed: _go,
-          semanticsId: _receive ? TrustIds.txIpReceive : TrustIds.txIpPay,
-        ),
-        children: [
-          ReviewAmount(amount: info.amount),
-          if (!_receive && fee != null) ...[
-            const SizedBox(height: 12),
-            Text('${l.txDetailsFee}: ${epicExact(l, fee)}', style: theme.textTheme.bodyLarge),
-          ],
-          if (message != null && message.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(message, maxLines: 3, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyLarge),
-          ],
-          if (error != null) ...[
-            const SizedBox(height: 16),
-            InlineNotice(level: NoticeLevel.error, text: describeError(l, error), liveRegion: true),
-          ],
-        ],
+      bottom: _GoButton(
+        label: label,
+        busy: _busy,
+        onPressed: _go,
+        semanticsId: _receive ? TrustIds.txIpReceive : TrustIds.txIpPay,
       ),
+      children: [
+        const SizedBox(height: 12),
+        _InPersonAmount(info.amount),
+        if (!_receive && fee != null) ...[
+          const SizedBox(height: 12),
+          Text(
+            '${l.txDetailsFee}: ${epicExact(l, fee)}',
+            textAlign: TextAlign.center,
+            style: KitType.body.copyWith(color: t.dim),
+          ),
+        ],
+        // A payment to us carries the sender's words as the classic sheet does (InPerson-3).
+        if (message != null && message.isNotEmpty && _receive) ...[
+          const SizedBox(height: 18),
+          KitGroup(margin: EdgeInsets.zero, children: [KitKvRow(label: l.phoneAcceptNote, value: message)]),
+        ] else if (message != null && message.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            message,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: KitType.body.copyWith(color: t.text),
+          ),
+        ],
+        if (error != null) ...[
+          const SizedBox(height: 16),
+          InlineNotice(level: NoticeLevel.error, text: describeError(l, error), liveRegion: true),
+        ],
+      ],
     );
   }
 }
@@ -835,7 +959,10 @@ Future<bool> askInPersonServer(BuildContext context, Epic1Host mailbox) async {
 /// to compare. Without a server, after a failed post or "Cancel online reply", the answer as a
 /// QR code and text for the other phone to scan or paste.
 class InPersonAnsweredScreen extends ConsumerStatefulWidget {
-  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, this.mailbox, required this.cutoff});
+  const InPersonAnsweredScreen({super.key, required this.title, required this.answer, this.mailbox, required this.cutoff, this.receive = false});
+
+  /// The answer is the receiver's (to a send code): its QR shows at once.
+  final bool receive;
 
   final String title;
   final InPersonAnswerMade answer;
@@ -879,44 +1006,47 @@ class _InPersonAnsweredScreenState extends ConsumerState<InPersonAnsweredScreen>
 
   Widget _build(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
+    final t = context.tokens;
     final answer = widget.answer;
     final post = _post;
     final step = post?.step;
     final failed = step == InPersonOnlineStep.failed;
     final checkCode = post?.checkCode;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: ScreenBody(
-        bottom: BusyButton(label: l.commonDone, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.txIpDone),
-        children: [
-          if (checkCode != null) ...[
-            Semantics(header: true, child: Text(l.deskIpCheckTitle, style: theme.textTheme.titleLarge)),
-            const SizedBox(height: 8),
-            Text(l.deskIpCheckLead, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 16),
-            InPersonCheck(key: inPersonCheckKey, code: checkCode),
-          ],
-          if (post != null && step == InPersonOnlineStep.posting) InPersonOnlineLine(online: post),
-          if (failed) ...[
-            const SizedBox(height: 16),
-            InlineNotice(
-              level: NoticeLevel.warning,
-              text: l.deskIpPostFailed,
-              liveRegion: true,
-              actions: [TextButton(onPressed: post?.post, child: Text(l.commonRetry))],
-            ),
-          ],
-          if (post == null || post.showAnswer) ...[
-            const SizedBox(height: 24),
-            Text(l.deskIpAnswerLead, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 12),
-            InPersonQr(key: inPersonAnswerQrKey, parts: _parts, label: l.deskKitQrOf(l.deskIpAnswerOf)),
-            const SizedBox(height: 16),
-            InPersonCodeText(label: l.deskIpAnswerLabel, text: answer.armored),
-          ],
+    return _InPersonPage(
+      title: widget.title,
+      steps: _answerSteps(l),
+      current: 1,
+      bottom: KitButton(label: l.commonDone, onPressed: () => Navigator.pop(context), semanticsId: TrustIds.txIpDone),
+      children: [
+        if (checkCode != null) ...[
+          Semantics(
+            header: true,
+            child: Text(l.deskIpCheckTitle, textAlign: TextAlign.center, style: KitType.sheetTitle.copyWith(color: t.text)),
+          ),
+          const SizedBox(height: 8),
+          Text(l.deskIpCheckLead, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.dim)),
+          const SizedBox(height: 16),
+          InPersonCheck(key: inPersonCheckKey, code: checkCode),
         ],
-      ),
+        if (post != null && step == InPersonOnlineStep.posting) InPersonOnlineLine(online: post),
+        if (failed) ...[
+          const SizedBox(height: 16),
+          InlineNotice(
+            level: NoticeLevel.warning,
+            text: l.deskIpPostFailed,
+            liveRegion: true,
+            actions: [TextButton(onPressed: post?.post, child: Text(l.commonRetry))],
+          ),
+        ],
+        if (post == null || post.showAnswer) ...[
+          const SizedBox(height: 24),
+          Text(l.deskIpAnswerLead, textAlign: TextAlign.center, style: KitType.body.copyWith(color: t.dim)),
+          const SizedBox(height: 12),
+          InPersonQr(key: inPersonAnswerQrKey, open: widget.receive, parts: _parts, label: l.deskKitQrOf(l.deskIpAnswerOf)),
+          const SizedBox(height: 16),
+          InPersonCodeText(label: l.deskIpAnswerLabel, text: answer.armored),
+        ],
+      ],
     );
   }
 }

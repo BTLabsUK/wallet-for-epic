@@ -18,7 +18,6 @@
   "deskOnbForgotOtherWallet": "此助记词属于另一个钱包，不属于 {name}。没有做任何更改。",
   "deskOnbSameNewPassword": "设置新密码",
   "deskSetupSkip": "跳过设置",
-  "deskSetupSkipKeeps": "跳过将保留当前的节点和 Epicbox 设置。",
   "deskSetupMarkNotCleared": "无法将设置标记为已完成：{reason}。下次启动时可能会再次显示；“跳过设置”可直接离开。",
   "deskOvRestoredImportTitle": "钱包已恢复",
   "deskOvRestoredImportBody": "余额已找回。此钱包的钱包数据文件可找回记录、联系人、账单和设置。",

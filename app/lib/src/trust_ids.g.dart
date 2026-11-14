@@ -58,6 +58,24 @@ abstract final class TrustIds {
   static const receiveAddress = 'g4.receive.address';
   static const sendTo = 'g4.send.to';
   static const sendAmount = 'g4.send.amount';
+  static const sendSwap = 'g4.send.swap';
+  static const sendNote = 'g4.send.note';
+  static const sendReviewTo = 'g4.send.review.to';
+  static const sendReviewEdit = 'g4.send.review.edit';
+  static const sendReviewMore = 'g4.send.review.more';
+  static const sendViewpayment = 'g4.send.viewpayment';
+  static const sendKey0 = 'g4.send.key.0';
+  static const sendKey1 = 'g4.send.key.1';
+  static const sendKey2 = 'g4.send.key.2';
+  static const sendKey3 = 'g4.send.key.3';
+  static const sendKey4 = 'g4.send.key.4';
+  static const sendKey5 = 'g4.send.key.5';
+  static const sendKey6 = 'g4.send.key.6';
+  static const sendKey7 = 'g4.send.key.7';
+  static const sendKey8 = 'g4.send.key.8';
+  static const sendKey9 = 'g4.send.key.9';
+  static const sendKeyPoint = 'g4.send.key.point';
+  static const sendKeyDelete = 'g4.send.key.delete';
   static const sendMax = 'g4.send.max';
   static const sendReview = 'g4.send.review';
   static const sendPassword = 'g4.send.password';
@@ -68,15 +86,14 @@ abstract final class TrustIds {
   static const overviewRefresh = 'g4.overview.refresh';
   static const overviewAvailable = 'g4.overview.available';
   static const homeLock = 'g4.home.lock';
-  static const homeSettings = 'g4.home.settings';
-  static const homeContacts = 'g4.home.contacts';
+  static const tabSettings = 'g4.tab.settings';
+  static const tabContacts = 'g4.tab.contacts';
   static const backupAgree = 'g4.backup.agree';
   static const backupShow = 'g4.backup.show';
   static const backupDone = 'g4.backup.done';
   static const settingsSectionSecurity = 'g4.settings.section.security';
   static const settingsSectionDisplay = 'g4.settings.section.display';
   static const appearanceTheme = 'g4.appearance.theme';
-  static const advancedLevel = 'g4.advanced.level';
   static const restorePhrase = 'g4.restore.phrase';
   static const restoreStart = 'g4.restore.start';
   static const restoreInfo = 'g4.restore.info';
@@ -157,16 +174,13 @@ abstract final class TrustIds {
   static const pinField = 'g4.pin.field';
   static const unlockRetry = 'g4.unlock.retry';
   static const tabSend = 'g4.tab.send';
-  static const tabWallet = 'g4.tab.wallet';
+  static const tabHome = 'g4.tab.home';
   static const tabReceive = 'g4.tab.receive';
   static const commonClose = 'g4.common.close';
   static const commonDone = 'g4.common.done';
-  static const commonSave = 'g4.common.save';
   static const commonContinue = 'g4.common.continue';
   static const backupRow = 'g4.backup.row';
-  static const statusNetwork = 'g4.status.network';
   static const serverClear = 'g4.server.clear';
-  static const receiveMethodEpicbox = 'g4.receive.method.epicbox';
   static const sendClear = 'g4.send.clear';
   static const sendBack = 'g4.send.back';
   static const restoreMonthEarlier = 'g4.restore.month.earlier';
@@ -207,8 +221,361 @@ abstract final class TrustIds {
   static const e1Send = 'g4.e1.send';
   static const e1CancelUnlock = 'g4.e1.cancel_unlock';
   static const e1TryNext = 'g4.e1.try_next';
+  static const settingsPageBack = 'g4.settings.page.back';
+  static const settingsPageHelp = 'g4.settings.page.help';
+  static const settingsHelpSheet = 'g4.settings.help.sheet';
+  static const settingsHelpMore = 'g4.settings.help.more';
+  static const securityBiometrics = 'g4.security.biometrics';
+  static const securityAutoLock = 'g4.security.autoLock';
+  static const securityChangePin = 'g4.security.changePin';
+  static const securityPassphrase = 'g4.security.passphrase';
+  static const networkEpicbox = 'g4.network.epicbox';
+  static const networkNode = 'g4.network.node';
+  static const networkFailover = 'g4.network.failover';
+  static const networkStatusSite = 'g4.network.statusSite';
+  static const networkChooser = 'g4.network.chooser';
+  static const paymentsEpicbox = 'g4.payments.epicbox';
+  static const paymentsInPerson = 'g4.payments.inPerson';
+  static const paymentsFile = 'g4.payments.file';
+  static const paymentsTor = 'g4.payments.tor';
+  static const paymentsHttp = 'g4.payments.http';
+  static const paymentsStrategy = 'g4.payments.strategy';
+  static const paymentsStrategySmallest = 'g4.payments.strategy.smallest';
+  static const paymentsStrategyAll = 'g4.payments.strategy.all';
+  static const paymentsSplit = 'g4.payments.split';
+  static const paymentsInvoices = 'g4.payments.invoices';
+  static const paymentsExperimental = 'g4.payments.experimental';
+  static const advancedOutputs = 'g4.advanced.outputs';
+  static const advancedSendOptions = 'g4.advanced.sendOptions';
+  static const advancedServerDetails = 'g4.advanced.serverDetails';
+  static const advancedRecheck = 'g4.advanced.recheck';
+  static const advancedFiles = 'g4.advanced.files';
+  static const appearanceLanguage = 'g4.appearance.language';
+  static const appearanceCurrency = 'g4.appearance.currency';
+  static const appearanceShowPrices = 'g4.appearance.showPrices';
+  static const appearanceHideAmounts = 'g4.appearance.hideAmounts';
+  static const walletPhrase = 'g4.wallet.phrase';
+  static const walletExport = 'g4.wallet.export';
+  static const walletImport = 'g4.wallet.import';
+  static const walletCsv = 'g4.wallet.csv';
+  static const walletRecheck = 'g4.wallet.recheck';
+  static const walletOutputs = 'g4.wallet.outputs';
+  static const walletRestore = 'g4.wallet.restore';
+  static const walletDelete = 'g4.wallet.delete';
+  static const aboutUpdates = 'g4.about.updates';
+  static const aboutLicences = 'g4.about.licences';
+  static const aboutSite = 'g4.about.site';
+  static const aboutSource = 'g4.about.source';
+  static const aboutPrivacy = 'g4.about.privacy';
+  static const settingsSearch = 'g4.settings.search';
+  static const settingsResult = 'g4.settings.result';
+  static const settingsLinkedDevices = 'g4.settings.linkedDevices';
+  static const settingsHelp = 'g4.settings.help';
+  static const helpSearch = 'g4.help.search';
+  static const helpSection = 'g4.help.section';
+  static const helpTopic = 'g4.help.topic';
+  static const helpTour = 'g4.help.tour';
+  static const helpTips = 'g4.help.tips';
+  static const helpReport = 'g4.help.report';
+  static const helpAbout = 'g4.help.about';
+  static const helpLanguage = 'g4.help.language';
+  static const helpBack = 'g4.help.back';
+  static const helpHelp = 'g4.help.help';
+  static const devicesLink = 'g4.devices.link';
+  static const devicesBack = 'g4.devices.back';
+  static const devicesHelp = 'g4.devices.help';
+  static const activityBack = 'g4.activity.back';
+  static const activityFilterAll = 'g4.activity.filter-all';
+  static const activityFilterSent = 'g4.activity.filter-sent';
+  static const activityFilterReceived = 'g4.activity.filter-received';
+  static const activityFilterPending = 'g4.activity.filter-pending';
+  static const activityFilterCancelled = 'g4.activity.filter-cancelled';
+  static const activitySearch = 'g4.activity.search';
+  static const activityClearSearch = 'g4.activity.clear-search';
+  static const activityReview = 'g4.activity.review';
+  static const activityHelp = 'g4.activity.help';
+  static const activityHelpSheet = 'g4.activity.help-sheet';
+  static const activityHelpMore = 'g4.activity.help-more';
+  static const payBack = 'g4.pay.back';
+  static const payHelp = 'g4.pay.help';
+  static const payHelpSheet = 'g4.pay.help-sheet';
+  static const payHelpMore = 'g4.pay.help-more';
+  static const payRoute = 'g4.pay.route';
+  static const paySteps = 'g4.pay.steps';
+  static const payCompleted = 'g4.pay.completed';
+  static const payNever = 'g4.pay.never';
+  static const payNeverDone = 'g4.pay.never-done';
+  static const payNote = 'g4.pay.note';
+  static const payNoteSave = 'g4.pay.note-save';
+  static const payNoteCancel = 'g4.pay.note-cancel';
+  static const payLabel = 'g4.pay.label';
+  static const payMore = 'g4.pay.more';
+  static const payMoreDone = 'g4.pay.more-done';
+  static const payCoinsDone = 'g4.pay.coins-done';
+  static const payTechnical = 'g4.pay.technical';
+  static const payViaDone = 'g4.pay.via-done';
+  static const payRepost = 'g4.pay.repost';
+  static const paySendAgainUndelivered = 'g4.pay.send-again-undelivered';
+  static const payDeviceRelease = 'g4.pay.device-release';
+  static const payRelease = 'g4.pay.release';
+  static const payCancel = 'g4.pay.cancel';
+  static const paySendAgain = 'g4.pay.send-again';
+  static const pinKey0 = 'g4.pin.key.0';
+  static const pinKey1 = 'g4.pin.key.1';
+  static const pinKey2 = 'g4.pin.key.2';
+  static const pinKey3 = 'g4.pin.key.3';
+  static const pinKey4 = 'g4.pin.key.4';
+  static const pinKey5 = 'g4.pin.key.5';
+  static const pinKey6 = 'g4.pin.key.6';
+  static const pinKey7 = 'g4.pin.key.7';
+  static const pinKey8 = 'g4.pin.key.8';
+  static const pinKey9 = 'g4.pin.key.9';
+  static const pinKeyDelete = 'g4.pin.key.delete';
+  static const pinKeyBio = 'g4.pin.key.bio';
+  static const unlockForgot = 'g4.unlock.forgot';
+  static const unlockServers = 'g4.unlock.servers';
+  static const qrshowBack = 'g4.qrshow.back';
+  static const qrshowHelp = 'g4.qrshow.help';
+  static const qrshowShow = 'g4.qrshow.show';
+  static const qrshowAgain = 'g4.qrshow.again';
+  static const qrshowHide = 'g4.qrshow.hide';
+  static const qrshowNext = 'g4.qrshow.next';
+  static const qrshowDone = 'g4.qrshow.done';
+  static const qrshowClose = 'g4.qrshow.close';
+  static const qrshowViewpayment = 'g4.qrshow.viewpayment';
+  static const qrscanBack = 'g4.qrscan.back';
+  static const qrscanAgain = 'g4.qrscan.again';
+  static const qrscanSettings = 'g4.qrscan.settings';
+  static const qrscanRetry = 'g4.qrscan.retry';
+  static const qrscanFile = 'g4.qrscan.file';
+  static const fileBack = 'g4.file.back';
+  static const fileCopy = 'g4.file.copy';
+  static const fileShare = 'g4.file.share';
+  static const fileSave = 'g4.file.save';
+  static const fileDone = 'g4.file.done';
+  static const fileReply = 'g4.file.reply';
+  static const acceptAccept = 'g4.accept.accept';
+  static const acceptLater = 'g4.accept.later';
+  static const fileShowqr = 'g4.file.showqr';
+  static const fileFinish = 'g4.file.finish';
+  static const fileScanagain = 'g4.file.scanagain';
+  static const fileOpen = 'g4.file.open';
+  static const filePaste = 'g4.file.paste';
+  static const sendClose = 'g4.send.close';
+  static const sendHelp = 'g4.send.help';
+  static const sendPaste = 'g4.send.paste';
+  static const sendScan = 'g4.send.scan';
+  static const sendFace = 'g4.send.face';
+  static const sendRecent = 'g4.send.recent';
+  static const sendNoaddress = 'g4.send.noaddress';
+  static const sendNoaddressPerson = 'g4.send.noaddress.person';
+  static const sendNoaddressFile = 'g4.send.noaddress.file';
+  static const sendAddcontact = 'g4.send.addcontact';
+  static const sendRoute = 'g4.send.route';
+  static const sendAddressPick = 'g4.send.address.pick';
+  static const aboutBack = 'g4.about.back';
+  static const aboutHelp = 'g4.about.help';
+  static const aboutHelpSheet = 'g4.about.help_sheet';
+  static const aboutWhatsNew = 'g4.about.whats_new';
+  static const aboutNotesSheet = 'g4.about.notes_sheet';
+  static const aboutNotesDone = 'g4.about.notes_done';
+  static const linkdevClose = 'g4.linkdev.close';
+  static const linkdevConfirm = 'g4.linkdev.confirm';
+  static const linkdevConfirmCancel = 'g4.linkdev.confirm_cancel';
+  static const linkdevScan = 'g4.linkdev.scan';
+  static const linkdevShow = 'g4.linkdev.show';
+  static const linkdevPasteOpen = 'g4.linkdev.paste_open';
+  static const linkdevPasteField = 'g4.linkdev.paste_field';
+  static const linkdevPasteGo = 'g4.linkdev.paste_go';
+  static const linkdevCopy = 'g4.linkdev.copy';
+  static const linkdevCancel = 'g4.linkdev.cancel';
+  static const linkdevReplace = 'g4.linkdev.replace';
+  static const linkdevReplaceSheet = 'g4.linkdev.replace_sheet';
+  static const linkdevReplaceYes = 'g4.linkdev.replace_yes';
+  static const linkdevReplaceKeep = 'g4.linkdev.replace_keep';
+  static const linkdevPasteAnother = 'g4.linkdev.paste_another';
+  static const linkdevRetry = 'g4.linkdev.retry';
+  static const linkdevCloseFailed = 'g4.linkdev.close_failed';
+  static const pairflowClose = 'g4.pairflow.close';
+  static const pairflowShare = 'g4.pairflow.share';
+  static const pairflowCopy = 'g4.pairflow.copy';
+  static const pairflowNameRow = 'g4.pairflow.name_row';
+  static const pairflowNameSheet = 'g4.pairflow.name_sheet';
+  static const pairflowNameField = 'g4.pairflow.name_field';
+  static const pairflowNameSave = 'g4.pairflow.name_save';
+  static const pairflowNameCancel = 'g4.pairflow.name_cancel';
+  static const pairflowScan = 'g4.pairflow.scan';
+  static const pairflowPaste = 'g4.pairflow.paste';
+  static const pairflowFinishShare = 'g4.pairflow.finish_share';
+  static const pairflowFinishCopy = 'g4.pairflow.finish_copy';
+  static const pairflowFinishCheck = 'g4.pairflow.finish_check';
+  static const pairflowStatusCheck = 'g4.pairflow.status_check';
+  static const pairflowRequestSend = 'g4.pairflow.request_send';
+  static const pairflowRequestCode = 'g4.pairflow.request_code';
+  static const pairflowRequestsBack = 'g4.pairflow.requests_back';
+  static const pairflowRequestsPair = 'g4.pairflow.requests_pair';
+  static const pairflowRequestsNotNow = 'g4.pairflow.requests_not_now';
+  static const pairflowRequestsRow = 'g4.pairflow.requests_row';
+  static const pairflowInviteSheet = 'g4.pairflow.invite_sheet';
+  static const pairflowInvitePair = 'g4.pairflow.invite_pair';
+  static const pairflowInviteNotNow = 'g4.pairflow.invite_not_now';
+  static const pairflowWaitingClose = 'g4.pairflow.waiting_close';
+  static const pairflowWaitingCancel = 'g4.pairflow.waiting_cancel';
+  static const pairflowWaitingShare = 'g4.pairflow.waiting_share';
+  static const pairflowWaitingCopy = 'g4.pairflow.waiting_copy';
+  static const pairflowWaitingPaste = 'g4.pairflow.waiting_paste';
+  static const pairflowWaitingFinishField = 'g4.pairflow.waiting_finish_field';
+  static const pairflowWaitingFinishGo = 'g4.pairflow.waiting_finish_go';
+  static const pairflowCancelSheet = 'g4.pairflow.cancel_sheet';
+  static const pairflowCancelConfirm = 'g4.pairflow.cancel_confirm';
+  static const pairflowCancelKeep = 'g4.pairflow.cancel_keep';
+  static const pairflowFinishClose = 'g4.pairflow.finish_close';
+  static const pairflowFinishScreenShare = 'g4.pairflow.finish_screen_share';
+  static const pairflowFinishScreenCheck = 'g4.pairflow.finish_screen_check';
+  static const pairflowOutcomeClose = 'g4.pairflow.outcome_close';
+  static const pairflowOutcomeUpdate = 'g4.pairflow.outcome_update';
+  static const pairflowOutcomeBack = 'g4.pairflow.outcome_back';
+  static const pairflowAddButton = 'g4.pairflow.add_button';
+  static const pairflowAddSheet = 'g4.pairflow.add_sheet';
+  static const pairflowAddNew = 'g4.pairflow.add_new';
+  static const pairflowAddExisting = 'g4.pairflow.add_existing';
+  static const pairflowCheckClose = 'g4.pairflow.check_close';
+  static const pairflowCheckMatch = 'g4.pairflow.check_match';
+  static const pairflowCheckNoMatch = 'g4.pairflow.check_no_match';
+  static const pairflowCheckStop = 'g4.pairflow.check_stop';
+  static const pairflowCheckStopBack = 'g4.pairflow.check_stop_back';
+  static const pairflowCheckStopSheet = 'g4.pairflow.check_stop_sheet';
+  static const pairflowOtherCancel = 'g4.pairflow.other_cancel';
+  static const pairflowOtherNew = 'g4.pairflow.other_new';
+  static const pairflowOtherSheet = 'g4.pairflow.other_sheet';
+  static const pairflowRemoveConfirm = 'g4.pairflow.remove_confirm';
+  static const pairflowRemoveKeep = 'g4.pairflow.remove_keep';
+  static const pairflowRemoveSheet = 'g4.pairflow.remove_sheet';
+  static const pairflowResultAddNamed = 'g4.pairflow.result_add_named';
+  static const pairflowResultCheckNow = 'g4.pairflow.result_check_now';
+  static const pairflowResultClose = 'g4.pairflow.result_close';
+  static const pairflowResultDone = 'g4.pairflow.result_done';
+  static const pairflowResultLabel = 'g4.pairflow.result_label';
+  static const pairflowRelayAccept = 'g4.pairflow.relay_accept';
+  static const pairflowRelayRefuse = 'g4.pairflow.relay_refuse';
+  static const pairflowCpPair = 'g4.pairflow.cp_pair';
+  static const pairflowCpPairAgain = 'g4.pairflow.cp_pair_again';
+  static const pairflowCpShowCode = 'g4.pairflow.cp_show_code';
+  static const pairflowCpCancel = 'g4.pairflow.cp_cancel';
+  static const pairflowCpRemove = 'g4.pairflow.cp_remove';
+  static const pairflowCpCheck = 'g4.pairflow.cp_check';
+  static const pairflowCpKeysCheck = 'g4.pairflow.cp_keys_check';
+  static const pairflowCpKeepOld = 'g4.pairflow.cp_keep_old';
+  static const pairflowCpUseNew = 'g4.pairflow.cp_use_new';
+  static const pairflowCpKeysOk = 'g4.pairflow.cp_keys_ok';
+  static const pairflowCpUpdateAddress = 'g4.pairflow.cp_update_address';
+  static const pairflowCpDetach = 'g4.pairflow.cp_detach';
+  static const pairflowCpMoveAccept = 'g4.pairflow.cp_move_accept';
+  static const pairflowCpMoveRefuse = 'g4.pairflow.cp_move_refuse';
+  static const pairflowCpMoveRetry = 'g4.pairflow.cp_move_retry';
+  static const pairflowCpPairAgainUnproven = 'g4.pairflow.cp_pair_again_unproven';
+  static const pairflowCpHeldCancel = 'g4.pairflow.cp_held_cancel';
+  static const pairflowSendCheck = 'g4.pairflow.send_check';
+  static const pairflowNsJoin = 'g4.pairflow.ns_join';
+  static const pairflowNsNotNow = 'g4.pairflow.ns_not_now';
+  static const pairflowNsWaitClose = 'g4.pairflow.ns_wait_close';
+  static const pairflowNsWaitCancel = 'g4.pairflow.ns_wait_cancel';
+  static const pairflowNsCheckClose = 'g4.pairflow.ns_check_close';
+  static const pairflowNsMatch = 'g4.pairflow.ns_match';
+  static const pairflowNsNoMatch = 'g4.pairflow.ns_no_match';
+  static const pairflowNsRemoveSheet = 'g4.pairflow.ns_remove_sheet';
+  static const pairflowNsRemoveConfirm = 'g4.pairflow.ns_remove_confirm';
+  static const pairflowNsRemoveKeep = 'g4.pairflow.ns_remove_keep';
+  static const pairflowNsLeave = 'g4.pairflow.ns_leave';
+  static const pairflowNsBlockJoin = 'g4.pairflow.ns_block_join';
+  static const tabActivity = 'g4.tab.activity';
+  static const tabScan = 'g4.tab.scan';
+  static const homeStatus = 'g4.home.status';
+  static const homeBalance = 'g4.home.balance';
+  static const homeEye = 'g4.home.eye';
+  static const homeSeeall = 'g4.home.seeall';
+  static const homeReview = 'g4.home.review';
+  static const homeLater = 'g4.home.later';
+  static const contactsSearch = 'g4.contacts.search';
+  static const contactsAtoz = 'g4.contacts.atoz';
+  static const contactsReview = 'g4.contacts.review';
+  static const contactsFace = 'g4.contacts.face';
+  static const contactsPair = 'g4.contacts.pair';
+  static const contactsMore = 'g4.contacts.more';
+  static const contactsRow = 'g4.contacts.row';
+  static const contactSend = 'g4.contact.send';
+  static const contactRequest = 'g4.contact.request';
+  static const contactBack = 'g4.contact.back';
+  static const contactMore = 'g4.contact.more';
+  static const contactPayment = 'g4.contact.payment';
+  static const receiveClose = 'g4.receive.close';
+  static const receiveHelp = 'g4.receive.help';
+  static const receiveHelpSheet = 'g4.receive.help-sheet';
+  static const receiveHelpMore = 'g4.receive.help-more';
+  static const receiveCopy = 'g4.receive.copy';
+  static const receiveShare = 'g4.receive.share';
+  static const receiveAsk = 'g4.receive.ask';
+  static const receiveOther = 'g4.receive.other';
+  static const receiveOtherSheet = 'g4.receive.other-sheet';
+  static const receiveOtherInPerson = 'g4.receive.other-in-person';
+  static const receiveOtherFile = 'g4.receive.other-file';
+  static const receiveOtherTor = 'g4.receive.other-tor';
+  static const receiveOtherCancel = 'g4.receive.other-cancel';
+  static const receiveListening = 'g4.receive.listening';
+  static const receiveAskBack = 'g4.receive.ask-back';
+  static const receiveAskPayer = 'g4.receive.ask-payer';
+  static const receiveAskNote = 'g4.receive.ask-note';
+  static const receiveAskSubmit = 'g4.receive.ask-submit';
+  static const receiveAskAnyoneCode = 'g4.receive.ask-anyone-code';
+  static const receiveAskAnyoneFile = 'g4.receive.ask-anyone-file';
+  static const receiveCodeCopy = 'g4.receive.code-copy';
+  static const receiveCodeShare = 'g4.receive.code-share';
+  static const receiveCodeDone = 'g4.receive.code-done';
+  static const receiveArriveSheet = 'g4.receive.arrive-sheet';
+  static const receiveArriveDone = 'g4.receive.arrive-done';
+  static const receiveArriveView = 'g4.receive.arrive-view';
+  static const homeBackupExport = 'g4.home.backup_export';
+  static const homeBackupNotNow = 'g4.home.backup_not_now';
+  static const contactCopyAddress = 'g4.contact.copy_address';
+  static const payCopyAddress = 'g4.pay.copy-address';
+  static const payCopyExplorer = 'g4.pay.copy-explorer';
+  static const tourOfferShow = 'g4.tour.offer.show';
+  static const pinCancel = 'g4.pin.cancel';
+  static const pinChooseDifferent = 'g4.pin.choose-different';
+  static const unlockSwitchMode = 'g4.unlock.switch-mode';
+  static const unlockResetKeep = 'g4.unlock.reset-keep';
+  static const unlockResetDelete = 'g4.unlock.reset-delete';
+  static const unlockResetCheck = 'g4.unlock.reset-check';
+  static const restorePaste = 'g4.restore.paste';
+  static const restoreBackToPhrase = 'g4.restore.back-to-phrase';
+  static const restoreBack = 'g4.restore.back';
+  static const restoreHelp = 'g4.restore.help';
+  static const restoreClose = 'g4.restore.close';
+  static const receiveRetry = 'g4.receive.retry';
+  static const receiveAskCancel = 'g4.receive.ask-cancel';
+  static const receiveWayBack = 'g4.receive.way-back';
+  static const receiveWayHelp = 'g4.receive.way-help';
+  static const welcomeRetry = 'g4.welcome.retry';
+  static const welcomePinBack = 'g4.welcome.pin-back';
+  static const welcomePinHelp = 'g4.welcome.pin-help';
+  static const advancedReset = 'g4.advanced.reset';
+  static const sendNoAddressCancel = 'g4.send.noAddress.cancel';
+  static const sendTrackIfNot = 'g4.send.track.ifNot';
+  static const sendTrackAddContact = 'g4.send.track.addContact';
+  static const qrscanHelp = 'g4.qrscan.help';
+  static const restoreScanClose = 'g4.restore.scan-close';
+  static const receiveCodeQr = 'g4.receive.code-qr';
+  static const tourOfferClose = 'g4.tour.offer.close';
+  static const fileCancel = 'g4.file.cancel';
+  static const homeBackupReminder = 'g4.home.backup_reminder';
+  static const homeBackupReminderClose = 'g4.home.backup_reminder_close';
+  static const pairflowInviteNameRow = 'g4.pairflow.invite_name_row';
+  static const homeChange = 'g4.home.change';
   static String restoreWordAt(Object value) => 'g4.restore.word.$value';
   static String restoreMonthAt(Object value) => 'g4.restore.month.$value';
+  static String securityAutoLockChoiceAt(Object value) => 'g4.security.autoLock.choice.$value';
+  static String appearanceCurrencyChoiceAt(Object value) => 'g4.appearance.currency.choice.$value';
+  static String appearanceLanguageChoiceAt(Object value) => 'g4.appearance.language.choice.$value';
 
   static const nodeList = TrustServerIds(picker: serverNode, field: serverSearch, row: serverNodeRow, add: serverNodeAdd);
   static const epicboxList = TrustServerIds(picker: serverEpicbox, field: serverSearch, row: serverEpicboxRow, add: serverEpicboxAdd);
@@ -275,6 +642,24 @@ abstract final class TrustIds {
     'g4.receive.address',
     'g4.send.to',
     'g4.send.amount',
+    'g4.send.swap',
+    'g4.send.note',
+    'g4.send.review.to',
+    'g4.send.review.edit',
+    'g4.send.review.more',
+    'g4.send.viewpayment',
+    'g4.send.key.0',
+    'g4.send.key.1',
+    'g4.send.key.2',
+    'g4.send.key.3',
+    'g4.send.key.4',
+    'g4.send.key.5',
+    'g4.send.key.6',
+    'g4.send.key.7',
+    'g4.send.key.8',
+    'g4.send.key.9',
+    'g4.send.key.point',
+    'g4.send.key.delete',
     'g4.send.max',
     'g4.send.review',
     'g4.send.password',
@@ -285,15 +670,14 @@ abstract final class TrustIds {
     'g4.overview.refresh',
     'g4.overview.available',
     'g4.home.lock',
-    'g4.home.settings',
-    'g4.home.contacts',
+    'g4.tab.settings',
+    'g4.tab.contacts',
     'g4.backup.agree',
     'g4.backup.show',
     'g4.backup.done',
     'g4.settings.section.security',
     'g4.settings.section.display',
     'g4.appearance.theme',
-    'g4.advanced.level',
     'g4.restore.phrase',
     'g4.restore.start',
     'g4.restore.info',
@@ -374,16 +758,13 @@ abstract final class TrustIds {
     'g4.pin.field',
     'g4.unlock.retry',
     'g4.tab.send',
-    'g4.tab.wallet',
+    'g4.tab.home',
     'g4.tab.receive',
     'g4.common.close',
     'g4.common.done',
-    'g4.common.save',
     'g4.common.continue',
     'g4.backup.row',
-    'g4.status.network',
     'g4.server.clear',
-    'g4.receive.method.epicbox',
     'g4.send.clear',
     'g4.send.back',
     'g4.restore.month.earlier',
@@ -424,5 +805,355 @@ abstract final class TrustIds {
     'g4.e1.send',
     'g4.e1.cancel_unlock',
     'g4.e1.try_next',
+    'g4.settings.page.back',
+    'g4.settings.page.help',
+    'g4.settings.help.sheet',
+    'g4.settings.help.more',
+    'g4.security.biometrics',
+    'g4.security.autoLock',
+    'g4.security.changePin',
+    'g4.security.passphrase',
+    'g4.network.epicbox',
+    'g4.network.node',
+    'g4.network.failover',
+    'g4.network.statusSite',
+    'g4.network.chooser',
+    'g4.payments.epicbox',
+    'g4.payments.inPerson',
+    'g4.payments.file',
+    'g4.payments.tor',
+    'g4.payments.http',
+    'g4.payments.strategy',
+    'g4.payments.strategy.smallest',
+    'g4.payments.strategy.all',
+    'g4.payments.split',
+    'g4.payments.invoices',
+    'g4.payments.experimental',
+    'g4.advanced.outputs',
+    'g4.advanced.sendOptions',
+    'g4.advanced.serverDetails',
+    'g4.advanced.recheck',
+    'g4.advanced.files',
+    'g4.appearance.language',
+    'g4.appearance.currency',
+    'g4.appearance.showPrices',
+    'g4.appearance.hideAmounts',
+    'g4.wallet.phrase',
+    'g4.wallet.export',
+    'g4.wallet.import',
+    'g4.wallet.csv',
+    'g4.wallet.recheck',
+    'g4.wallet.outputs',
+    'g4.wallet.restore',
+    'g4.wallet.delete',
+    'g4.about.updates',
+    'g4.about.licences',
+    'g4.about.site',
+    'g4.about.source',
+    'g4.about.privacy',
+    'g4.settings.search',
+    'g4.settings.result',
+    'g4.settings.linkedDevices',
+    'g4.settings.help',
+    'g4.help.search',
+    'g4.help.section',
+    'g4.help.topic',
+    'g4.help.tour',
+    'g4.help.tips',
+    'g4.help.report',
+    'g4.help.about',
+    'g4.help.language',
+    'g4.help.back',
+    'g4.help.help',
+    'g4.devices.link',
+    'g4.devices.back',
+    'g4.devices.help',
+    'g4.activity.back',
+    'g4.activity.filter-all',
+    'g4.activity.filter-sent',
+    'g4.activity.filter-received',
+    'g4.activity.filter-pending',
+    'g4.activity.filter-cancelled',
+    'g4.activity.search',
+    'g4.activity.clear-search',
+    'g4.activity.review',
+    'g4.activity.help',
+    'g4.activity.help-sheet',
+    'g4.activity.help-more',
+    'g4.pay.back',
+    'g4.pay.help',
+    'g4.pay.help-sheet',
+    'g4.pay.help-more',
+    'g4.pay.route',
+    'g4.pay.steps',
+    'g4.pay.completed',
+    'g4.pay.never',
+    'g4.pay.never-done',
+    'g4.pay.note',
+    'g4.pay.note-save',
+    'g4.pay.note-cancel',
+    'g4.pay.label',
+    'g4.pay.more',
+    'g4.pay.more-done',
+    'g4.pay.coins-done',
+    'g4.pay.technical',
+    'g4.pay.via-done',
+    'g4.pay.repost',
+    'g4.pay.send-again-undelivered',
+    'g4.pay.device-release',
+    'g4.pay.release',
+    'g4.pay.cancel',
+    'g4.pay.send-again',
+    'g4.pin.key.0',
+    'g4.pin.key.1',
+    'g4.pin.key.2',
+    'g4.pin.key.3',
+    'g4.pin.key.4',
+    'g4.pin.key.5',
+    'g4.pin.key.6',
+    'g4.pin.key.7',
+    'g4.pin.key.8',
+    'g4.pin.key.9',
+    'g4.pin.key.delete',
+    'g4.pin.key.bio',
+    'g4.unlock.forgot',
+    'g4.unlock.servers',
+    'g4.qrshow.back',
+    'g4.qrshow.help',
+    'g4.qrshow.show',
+    'g4.qrshow.again',
+    'g4.qrshow.hide',
+    'g4.qrshow.next',
+    'g4.qrshow.done',
+    'g4.qrshow.close',
+    'g4.qrshow.viewpayment',
+    'g4.qrscan.back',
+    'g4.qrscan.again',
+    'g4.qrscan.settings',
+    'g4.qrscan.retry',
+    'g4.qrscan.file',
+    'g4.file.back',
+    'g4.file.copy',
+    'g4.file.share',
+    'g4.file.save',
+    'g4.file.done',
+    'g4.file.reply',
+    'g4.accept.accept',
+    'g4.accept.later',
+    'g4.file.showqr',
+    'g4.file.finish',
+    'g4.file.scanagain',
+    'g4.file.open',
+    'g4.file.paste',
+    'g4.send.close',
+    'g4.send.help',
+    'g4.send.paste',
+    'g4.send.scan',
+    'g4.send.face',
+    'g4.send.recent',
+    'g4.send.noaddress',
+    'g4.send.noaddress.person',
+    'g4.send.noaddress.file',
+    'g4.send.addcontact',
+    'g4.send.route',
+    'g4.send.address.pick',
+    'g4.about.back',
+    'g4.about.help',
+    'g4.about.help_sheet',
+    'g4.about.whats_new',
+    'g4.about.notes_sheet',
+    'g4.about.notes_done',
+    'g4.linkdev.close',
+    'g4.linkdev.confirm',
+    'g4.linkdev.confirm_cancel',
+    'g4.linkdev.scan',
+    'g4.linkdev.show',
+    'g4.linkdev.paste_open',
+    'g4.linkdev.paste_field',
+    'g4.linkdev.paste_go',
+    'g4.linkdev.copy',
+    'g4.linkdev.cancel',
+    'g4.linkdev.replace',
+    'g4.linkdev.replace_sheet',
+    'g4.linkdev.replace_yes',
+    'g4.linkdev.replace_keep',
+    'g4.linkdev.paste_another',
+    'g4.linkdev.retry',
+    'g4.linkdev.close_failed',
+    'g4.pairflow.close',
+    'g4.pairflow.share',
+    'g4.pairflow.copy',
+    'g4.pairflow.name_row',
+    'g4.pairflow.name_sheet',
+    'g4.pairflow.name_field',
+    'g4.pairflow.name_save',
+    'g4.pairflow.name_cancel',
+    'g4.pairflow.scan',
+    'g4.pairflow.paste',
+    'g4.pairflow.finish_share',
+    'g4.pairflow.finish_copy',
+    'g4.pairflow.finish_check',
+    'g4.pairflow.status_check',
+    'g4.pairflow.request_send',
+    'g4.pairflow.request_code',
+    'g4.pairflow.requests_back',
+    'g4.pairflow.requests_pair',
+    'g4.pairflow.requests_not_now',
+    'g4.pairflow.requests_row',
+    'g4.pairflow.invite_sheet',
+    'g4.pairflow.invite_pair',
+    'g4.pairflow.invite_not_now',
+    'g4.pairflow.waiting_close',
+    'g4.pairflow.waiting_cancel',
+    'g4.pairflow.waiting_share',
+    'g4.pairflow.waiting_copy',
+    'g4.pairflow.waiting_paste',
+    'g4.pairflow.waiting_finish_field',
+    'g4.pairflow.waiting_finish_go',
+    'g4.pairflow.cancel_sheet',
+    'g4.pairflow.cancel_confirm',
+    'g4.pairflow.cancel_keep',
+    'g4.pairflow.finish_close',
+    'g4.pairflow.finish_screen_share',
+    'g4.pairflow.finish_screen_check',
+    'g4.pairflow.outcome_close',
+    'g4.pairflow.outcome_update',
+    'g4.pairflow.outcome_back',
+    'g4.pairflow.add_button',
+    'g4.pairflow.add_sheet',
+    'g4.pairflow.add_new',
+    'g4.pairflow.add_existing',
+    'g4.pairflow.check_close',
+    'g4.pairflow.check_match',
+    'g4.pairflow.check_no_match',
+    'g4.pairflow.check_stop',
+    'g4.pairflow.check_stop_back',
+    'g4.pairflow.check_stop_sheet',
+    'g4.pairflow.other_cancel',
+    'g4.pairflow.other_new',
+    'g4.pairflow.other_sheet',
+    'g4.pairflow.remove_confirm',
+    'g4.pairflow.remove_keep',
+    'g4.pairflow.remove_sheet',
+    'g4.pairflow.result_add_named',
+    'g4.pairflow.result_check_now',
+    'g4.pairflow.result_close',
+    'g4.pairflow.result_done',
+    'g4.pairflow.result_label',
+    'g4.pairflow.relay_accept',
+    'g4.pairflow.relay_refuse',
+    'g4.pairflow.cp_pair',
+    'g4.pairflow.cp_pair_again',
+    'g4.pairflow.cp_show_code',
+    'g4.pairflow.cp_cancel',
+    'g4.pairflow.cp_remove',
+    'g4.pairflow.cp_check',
+    'g4.pairflow.cp_keys_check',
+    'g4.pairflow.cp_keep_old',
+    'g4.pairflow.cp_use_new',
+    'g4.pairflow.cp_keys_ok',
+    'g4.pairflow.cp_update_address',
+    'g4.pairflow.cp_detach',
+    'g4.pairflow.cp_move_accept',
+    'g4.pairflow.cp_move_refuse',
+    'g4.pairflow.cp_move_retry',
+    'g4.pairflow.cp_pair_again_unproven',
+    'g4.pairflow.cp_held_cancel',
+    'g4.pairflow.send_check',
+    'g4.pairflow.ns_join',
+    'g4.pairflow.ns_not_now',
+    'g4.pairflow.ns_wait_close',
+    'g4.pairflow.ns_wait_cancel',
+    'g4.pairflow.ns_check_close',
+    'g4.pairflow.ns_match',
+    'g4.pairflow.ns_no_match',
+    'g4.pairflow.ns_remove_sheet',
+    'g4.pairflow.ns_remove_confirm',
+    'g4.pairflow.ns_remove_keep',
+    'g4.pairflow.ns_leave',
+    'g4.pairflow.ns_block_join',
+    'g4.tab.activity',
+    'g4.tab.scan',
+    'g4.home.status',
+    'g4.home.balance',
+    'g4.home.eye',
+    'g4.home.seeall',
+    'g4.home.review',
+    'g4.home.later',
+    'g4.contacts.search',
+    'g4.contacts.atoz',
+    'g4.contacts.review',
+    'g4.contacts.face',
+    'g4.contacts.pair',
+    'g4.contacts.more',
+    'g4.contacts.row',
+    'g4.contact.send',
+    'g4.contact.request',
+    'g4.contact.back',
+    'g4.contact.more',
+    'g4.contact.payment',
+    'g4.receive.close',
+    'g4.receive.help',
+    'g4.receive.help-sheet',
+    'g4.receive.help-more',
+    'g4.receive.copy',
+    'g4.receive.share',
+    'g4.receive.ask',
+    'g4.receive.other',
+    'g4.receive.other-sheet',
+    'g4.receive.other-in-person',
+    'g4.receive.other-file',
+    'g4.receive.other-tor',
+    'g4.receive.other-cancel',
+    'g4.receive.listening',
+    'g4.receive.ask-back',
+    'g4.receive.ask-payer',
+    'g4.receive.ask-note',
+    'g4.receive.ask-submit',
+    'g4.receive.ask-anyone-code',
+    'g4.receive.ask-anyone-file',
+    'g4.receive.code-copy',
+    'g4.receive.code-share',
+    'g4.receive.code-done',
+    'g4.receive.arrive-sheet',
+    'g4.receive.arrive-done',
+    'g4.receive.arrive-view',
+    'g4.home.backup_export',
+    'g4.home.backup_not_now',
+    'g4.contact.copy_address',
+    'g4.pay.copy-address',
+    'g4.pay.copy-explorer',
+    'g4.tour.offer.show',
+    'g4.pin.cancel',
+    'g4.pin.choose-different',
+    'g4.unlock.switch-mode',
+    'g4.unlock.reset-keep',
+    'g4.unlock.reset-delete',
+    'g4.unlock.reset-check',
+    'g4.restore.paste',
+    'g4.restore.back-to-phrase',
+    'g4.restore.back',
+    'g4.restore.help',
+    'g4.restore.close',
+    'g4.receive.retry',
+    'g4.receive.ask-cancel',
+    'g4.receive.way-back',
+    'g4.receive.way-help',
+    'g4.welcome.retry',
+    'g4.welcome.pin-back',
+    'g4.welcome.pin-help',
+    'g4.advanced.reset',
+    'g4.send.noAddress.cancel',
+    'g4.send.track.ifNot',
+    'g4.send.track.addContact',
+    'g4.qrscan.help',
+    'g4.restore.scan-close',
+    'g4.receive.code-qr',
+    'g4.tour.offer.close',
+    'g4.file.cancel',
+    'g4.home.backup_reminder',
+    'g4.home.backup_reminder_close',
+    'g4.pairflow.invite_name_row',
+    'g4.home.change',
   ];
 }

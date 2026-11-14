@@ -23,9 +23,10 @@ import '../app_dialog.dart';
 import '../common.dart';
 import '../contacts_screen.dart';
 import '../in_person/in_person_entry.dart';
-import '../pin.dart' show askPin, usesPassphrase;
+import '../pin.dart' show showPinSheet, usesPassphrase;
 import '../theme/tokens.dart';
 import '../tip.dart';
+import '../kit/kit_ground.dart' show KitGround;
 import 'epic1_common.dart';
 
 /// Keys for tests and the screenshot tour.
@@ -293,7 +294,7 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
     if (session == null || config == null) return false;
     final vault = ref.read(vaultProvider);
     final text = epicText(l, amount);
-    final ok = await askPin<bool>(
+    final ok = await showPinSheet<bool>(
       context,
       reason: usesPassphrase(ref) ? l.sendPassphraseReason(text) : l.sendPinReason(text),
       action: (pin) async {
@@ -399,7 +400,7 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
     return PopScope(
       // A payment on its way is left with Done or Cancel and unlock, never by Back.
       canPop: _stage == _Stage.reading || _stage == _Stage.review,
-      child: Scaffold(
+      child: KitGround(child: Scaffold(
         appBar: AppBar(title: Text(title), automaticallyImplyLeading: _stage == _Stage.reading || _stage == _Stage.review),
         body: SafeArea(
           child: ScreenBody(
@@ -410,7 +411,7 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 

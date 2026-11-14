@@ -1,0 +1,467 @@
+{
+  "phoneProgSent": "Sent",
+  "@phoneProgSent": {
+    "description": "Payment steps, first step of a payment you sent. One word."
+  },
+  "phoneProgNetwork": "In the network, waiting for a block",
+  "@phoneProgNetwork": {
+    "description": "Payment steps: the payment is on the network and no block holds it yet."
+  },
+  "phoneProgArrived": "Arrived",
+  "@phoneProgArrived": {
+    "description": "Payment steps of a payment you receive: the first step once the payment has arrived."
+  },
+  "phoneProgFinishesByItself": "It finishes by itself. You can leave this screen.",
+  "@phoneProgFinishesByItself": {
+    "description": "Detail under the confirming step of a payment you receive."
+  },
+  "phoneProgReadyToSpend": "Ready to spend",
+  "@phoneProgReadyToSpend": {
+    "description": "Last step of a payment you receive: the money can be spent."
+  },
+  "phoneProgPayerPending": "Waiting for the payer",
+  "@phoneProgPayerPending": {
+    "description": "Reason line under the current step of a request you sent that is not paid yet."
+  },
+  "phoneProgPayerPendingNamed": "Waiting for {name} to pay",
+  "@phoneProgPayerPendingNamed": {
+    "description": "Reason line under the current step of a request you sent that is not paid yet. {name} is the payer.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgSenderPending": "Waiting for the sender to finish the payment",
+  "@phoneProgSenderPending": {
+    "description": "Reason line: a payment is arriving and the sender has not finished it yet."
+  },
+  "phoneProgSenderPendingNamed": "Waiting for {name} to finish the payment",
+  "@phoneProgSenderPendingNamed": {
+    "description": "Reason line: a payment is arriving and the sender has not finished it yet. {name} is the sender.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "phoneProgReported": "The sender says it is on the network",
+  "@phoneProgReported": {
+    "description": "Reason line: the sender reports the payment posted to the network; this wallet has not seen it in a block."
+  },
+  "phoneProgReportedNamed": "{name} says it is on the network",
+  "@phoneProgReportedNamed": {
+    "description": "Reason line: the sender reports the payment posted to the network. {name} is the sender.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "phoneProgPostElsewhere": "Finished but not posted. Post it from another connection.",
+  "@phoneProgPostElsewhere": {
+    "description": "Reason line: the payment is complete on this phone but could not be posted to the network from here."
+  },
+  "phoneProgPosting": "Posting to the network",
+  "@phoneProgPosting": {
+    "description": "Reason line: the wallet is sending the finished payment to the network right now."
+  },
+  "phoneProgKillSwitch": "Held back while all connections are off",
+  "@phoneProgKillSwitch": {
+    "description": "Reason line: the payment is finished but the Kill switch holds every connection."
+  },
+  "phoneProgNotPosted": "Not posted yet. Post it again.",
+  "@phoneProgNotPosted": {
+    "description": "Reason line: the finished payment did not reach the network and can be posted again."
+  },
+  "phoneProgNoNewBlock": "No new block yet. The network is slow right now.",
+  "@phoneProgNoNewBlock": {
+    "description": "Reason line: the payment is on the network and the chain has found no new block for a while."
+  },
+  "phoneProgNotInBlock": "On the network, but no block has taken it yet",
+  "@phoneProgNotInBlock": {
+    "description": "Reason line: new blocks come, but none holds this payment yet."
+  },
+  "phoneProgInNetwork": "On the network. A block will include it soon.",
+  "@phoneProgInNetwork": {
+    "description": "Reason line: the payment is on the network and waits for the next block."
+  },
+  "phoneProgAnswersEpicbox": "It answers when the recipient next opens it.",
+  "@phoneProgAnswersEpicbox": {
+    "description": "Reason line of a sent payment that waits for the other wallet, sent through Epicbox."
+  },
+  "phoneProgAnswersEpicboxNamed": "It answers when {who} next opens it.",
+  "@phoneProgAnswersEpicboxNamed": {
+    "description": "Reason line of a sent payment that waits for the other wallet, sent through Epicbox. {who} is the recipient's name.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgWaitingAnswer": "Waiting for their wallet to answer",
+  "@phoneProgWaitingAnswer": {
+    "description": "Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet."
+  },
+  "phoneProgWaitingAnswerNamed": "Waiting for {name}'s wallet to answer",
+  "@phoneProgWaitingAnswerNamed": {
+    "description": "Payment steps: the second step of a payment you sent through Epicbox, the recipient's wallet has not answered yet. {name} is the recipient's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgAnswersFile": "It continues when the answer file comes back.",
+  "@phoneProgAnswersFile": {
+    "description": "Reason line of a sent payment that travels as a file and waits for the answer file."
+  },
+  "phoneProgAnswersFileNamed": "It continues when the answer file from {who} comes back.",
+  "@phoneProgAnswersFileNamed": {
+    "description": "Reason line of a sent payment that travels as a file and waits for the answer file. {who} is the recipient's name.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgAnswersLive": "Their wallet has not answered yet.",
+  "@phoneProgAnswersLive": {
+    "description": "Reason line of a sent payment that waits for the other wallet to answer directly."
+  },
+  "phoneProgAnswersLiveNamed": "{who}'s wallet has not answered yet.",
+  "@phoneProgAnswersLiveNamed": {
+    "description": "Reason line of a sent payment that waits for the other wallet to answer directly. {who} is the recipient's name.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneProgSetAside": "{amount} is set aside until then.",
+  "@phoneProgSetAside": {
+    "description": "Second sentence of a reason line: the amount a waiting send keeps reserved. {amount} is like '12.508 EPIC'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.508 EPIC"
+      }
+    }
+  },
+  "phoneActSearchHint": "Name, note or amount",
+  "@phoneActSearchHint": {
+    "description": "Search field hint on the Activity screen."
+  },
+  "phoneActNeedsYou": "Needs you",
+  "@phoneActNeedsYou": {
+    "description": "Group heading on Activity above invoices that wait for the user's decision."
+  },
+  "phoneActInProgress": "In progress",
+  "@phoneActInProgress": {
+    "description": "Group heading on Activity above payments that are not finished yet."
+  },
+  "phoneActSealed": "Sealed",
+  "@phoneActSealed": {
+    "description": "Second line of an Activity row for a payment sealed with epic1. One word."
+  },
+  "phoneActCancelledNothing": "Cancelled, nothing was sent",
+  "@phoneActCancelledNothing": {
+    "description": "Second line of an Activity row for a payment the user cancelled before any coins moved."
+  },
+  "phoneActReview": "Review",
+  "@phoneActReview": {
+    "description": "Button on the Needs you card of Activity that opens an invoice. A verb."
+  },
+  "phoneActInvoiceFor": "Invoice for {amount}",
+  "@phoneActInvoiceFor": {
+    "description": "Second line of the Needs you card: someone asks the user to pay. {amount} is the amount with the unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "42.5 EPIC"
+      }
+    }
+  },
+  "phoneActEmptyTitle": "No payments yet",
+  "@phoneActEmptyTitle": {
+    "description": "Title of the Activity screen when the wallet has no payments."
+  },
+  "phoneActNoneTitle": "Nothing to show",
+  "@phoneActNoneTitle": {
+    "description": "Title of the Activity screen when a filter or a search finds no payment."
+  },
+  "phoneActMenu": "More",
+  "@phoneActMenu": {
+    "description": "Tooltip of the three-dot button in the Activity title."
+  },
+  "phoneActHelpTitle": "Activity",
+  "@phoneActHelpTitle": {
+    "description": "Title of the help sheet of the Activity screen."
+  },
+  "phoneActHelp1": "Every payment you send or receive is listed here, newest first.",
+  "@phoneActHelp1": {
+    "description": "First line of the Activity help sheet."
+  },
+  "phoneActHelp2": "Payments that are not finished yet stay at the top, under In progress.",
+  "@phoneActHelp2": {
+    "description": "Second line of the Activity help sheet."
+  },
+  "phoneActHelp3": "Tap a payment to see where it stands and what you can do with it.",
+  "@phoneActHelp3": {
+    "description": "Third line of the Activity help sheet."
+  },
+  "phonePayHelpTitle": "About a payment",
+  "@phonePayHelpTitle": {
+    "description": "Title of the help sheet on the payment page."
+  },
+  "phonePayHelp1": "The steps show where the payment is and why it is there.",
+  "@phonePayHelp1": {
+    "description": "First help line on the payment page."
+  },
+  "phonePayHelp2": "While a payment waits, its coins stay set aside. If it never finishes, you can cancel it.",
+  "@phonePayHelp2": {
+    "description": "Second help line on the payment page."
+  },
+  "phonePayHelp3": "More details has the address, the block and the payment ID.",
+  "@phonePayHelp3": {
+    "description": "Third help line on the payment page."
+  },
+  "phonePayTo": "To {name}",
+  "@phonePayTo": {
+    "description": "Line under the amount on the payment page for a payment the user sent.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phonePayFrom": "From {name}",
+  "@phonePayFrom": {
+    "description": "Line under the amount on the payment page for a payment the user received.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phonePayCompleted": "Completed",
+  "@phonePayCompleted": {
+    "description": "Row on the payment page of a finished payment, before its date."
+  },
+  "phonePayCompletedOn": "Completed {date}",
+  "@phonePayCompletedOn": {
+    "description": "Row on the payment page of a finished payment, with its date.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Today 18:12"
+      }
+    }
+  },
+  "phonePayNever": "What if it never finishes?",
+  "@phonePayNever": {
+    "description": "Gold row and sheet title on the payment page of a payment that waits."
+  },
+  "phonePayNeverSend": "While a payment waits, its coins stay set aside and nothing is lost. If it never finishes, cancel it and the coins return to your balance.",
+  "@phonePayNeverSend": {
+    "description": "Body of the sheet 'What if it never finishes?' for a payment the user sent."
+  },
+  "phonePayNeverReceive": "Nothing is added to your balance until the payment is confirmed. If it never finishes, you can cancel it here and it is dropped.",
+  "@phonePayNeverReceive": {
+    "description": "Body of the sheet 'What if it never finishes?' for a payment the user receives."
+  },
+  "phonePayNote": "Note",
+  "@phonePayNote": {
+    "description": "Row label on the payment page for the user's note."
+  },
+  "phonePayAddNote": "Add a note",
+  "@phonePayAddNote": {
+    "description": "Gold row on the payment page when there is no note yet."
+  },
+  "phonePayLabel": "Label",
+  "@phonePayLabel": {
+    "description": "Row label on the payment page for the user's label."
+  },
+  "phonePayAddLabel": "Add a label",
+  "@phonePayAddLabel": {
+    "description": "Gold row on the payment page when there is no label yet."
+  },
+  "phonePayFee": "Network fee",
+  "@phonePayFee": {
+    "description": "Row label on the payment page for the fee paid to the network."
+  },
+  "phonePayMore": "More details",
+  "@phonePayMore": {
+    "description": "Row on the payment page that opens the details sheet; also its title."
+  },
+  "phonePaySentThrough": "Sent through",
+  "@phonePaySentThrough": {
+    "description": "Row label in the details sheet: how a sent payment travelled."
+  },
+  "phonePayReceivedThrough": "Received through",
+  "@phonePayReceivedThrough": {
+    "description": "Row label in the details sheet: how a received payment travelled."
+  },
+  "phonePayTotal": "Total with fee",
+  "@phonePayTotal": {
+    "description": "Row label in the details sheet: the amount plus the fee."
+  },
+  "phonePayBlock": "Block",
+  "@phonePayBlock": {
+    "description": "Row label in the details sheet: the block that holds the payment."
+  },
+  "phonePayId": "Payment ID",
+  "@phonePayId": {
+    "description": "Row label in the details sheet: the payment's identifier."
+  },
+  "phonePayCoins": "Coins used",
+  "@phonePayCoins": {
+    "description": "Row label in the details sheet: how many coins (outputs) the payment used."
+  },
+  "phonePayOutputsOne": "1 output",
+  "@phonePayOutputsOne": {
+    "description": "Value of the Coins used row when one coin was used."
+  },
+  "phonePayOutputsMany": "{count} outputs",
+  "@phonePayOutputsMany": {
+    "description": "Value of the Coins used row when several coins were used.",
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "phonePayViaSent": "Sent through {route}",
+  "@phonePayViaSent": {
+    "description": "Title of the route sheet of a sent payment.",
+    "placeholders": {
+      "route": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "phonePayViaReceived": "Received through {route}",
+  "@phonePayViaReceived": {
+    "description": "Title of the route sheet of a received payment.",
+    "placeholders": {
+      "route": {
+        "type": "String",
+        "example": "Epicbox"
+      }
+    }
+  },
+  "phonePayRouteEpicbox": "Epicbox",
+  "@phonePayRouteEpicbox": {
+    "description": "Name of the Epicbox route. A product name."
+  },
+  "phonePayRouteEpic1": "epic1 link",
+  "@phonePayRouteEpic1": {
+    "description": "Name of the route of a payment link."
+  },
+  "phonePayRouteInPerson": "In person",
+  "@phonePayRouteInPerson": {
+    "description": "Name of the route where two phones show each other a code."
+  },
+  "phonePayRouteFile": "File",
+  "@phonePayRouteFile": {
+    "description": "Name of the route of a payment file."
+  },
+  "phonePayRouteTor": "Link · Tor",
+  "@phonePayRouteTor": {
+    "description": "Name of the route straight to the other wallet over Tor."
+  },
+  "phonePayRouteHttp": "Link",
+  "@phonePayRouteHttp": {
+    "description": "Name of the route straight to the other wallet over a live connection."
+  },
+  "phonePayViaEpicboxOutNamed": "The payment waited on an Epicbox server until {name}'s wallet collected it. {name} did not need to be online when you sent it.",
+  "@phonePayViaEpicboxOutNamed": {
+    "description": "Explanation in the route sheet for a payment sent by Epicbox to a named person.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phonePayViaEpicboxOut": "The payment waited on an Epicbox server until the other wallet collected it. They did not need to be online when you sent it.",
+  "@phonePayViaEpicboxOut": {
+    "description": "Explanation in the route sheet for a payment sent by Epicbox to someone with no name."
+  },
+  "phonePayViaEpicboxIn": "The payment waited on an Epicbox server until your wallet collected it. You did not need to be online when it was sent.",
+  "@phonePayViaEpicboxIn": {
+    "description": "Explanation in the route sheet for a payment received by Epicbox."
+  },
+  "phonePayViaEpic1": "The payment was sealed in a link and handed over by you. Whoever opened the link in Epic Wallet received it.",
+  "@phonePayViaEpic1": {
+    "description": "Explanation in the route sheet for a payment made with a payment link."
+  },
+  "phonePayViaInPerson": "The two phones showed each other a code. Nothing waited on a server.",
+  "@phonePayViaInPerson": {
+    "description": "Explanation in the route sheet for a payment made in person."
+  },
+  "phonePayViaFile": "The payment was passed back and forth as a file. Nothing waited on a server.",
+  "@phonePayViaFile": {
+    "description": "Explanation in the route sheet for a payment made with files."
+  },
+  "phonePayViaTor": "The payment went straight to the other wallet over Tor. Both wallets had to be online.",
+  "@phonePayViaTor": {
+    "description": "Explanation in the route sheet for a payment sent straight over Tor."
+  },
+  "phonePayViaHttp": "The payment went straight to the other wallet over a live connection. Both wallets had to be online.",
+  "@phonePayViaHttp": {
+    "description": "Explanation in the route sheet for a payment sent straight to the other wallet."
+  },
+  "phonePayViaServer": "Server",
+  "@phonePayViaServer": {
+    "description": "Row label in the route sheet: the Epicbox server the payment used."
+  },
+  "phonePayViaOther": "Other ways a payment can travel",
+  "@phonePayViaOther": {
+    "description": "Group heading in the route sheet above the list of the other routes."
+  },
+  "phonePayRouteSubEpic1": "Paid from a payment link",
+  "@phonePayRouteSubEpic1": {
+    "description": "One line under the epic1 link route in the route sheet."
+  },
+  "phonePayRouteSubInPerson": "Two phones showing each other a code",
+  "@phonePayRouteSubInPerson": {
+    "description": "One line under the In person route in the route sheet."
+  },
+  "phonePayRouteSubFile": "A payment file passed back and forth",
+  "@phonePayRouteSubFile": {
+    "description": "One line under the File route in the route sheet."
+  },
+  "phonePayRouteSubTor": "Straight to their wallet, over Tor",
+  "@phonePayRouteSubTor": {
+    "description": "One line under the Tor route in the route sheet."
+  },
+  "phoneProgAtTime": "at {time}",
+  "@phoneProgAtTime": {
+    "description": "Payment steps on a contact's page: the clock time of a step done today, after the step word (Sent at 18:12). {time} is the clock.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "phoneTxCancelledByUser": "Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.",
+  "@phoneTxCancelledByUser": {
+    "description": "Payment details of a cancelled send, under the Cancelled chip: no repeated word."
+  },
+  "phoneTxCancelledIncoming": "If the sender posts it later, it still arrives.",
+  "@phoneTxCancelledIncoming": {
+    "description": "Payment details of a cancelled receive, under the Cancelled chip: no repeated word."
+  }
+}

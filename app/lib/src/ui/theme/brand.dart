@@ -303,8 +303,6 @@ class BrandHero extends StatelessWidget {
   }
 }
 
-/// Where the backdrop's light sits on a centred hero screen: on the tile above the middle.
-const Alignment heroGlow = Alignment(0, -0.4);
 
 /// Where it sits on a screen that leads with its top, such as Home's balance.
 const Alignment topGlow = Alignment(0, -0.9);
@@ -336,34 +334,43 @@ class ProtocolBackdropPainter extends CustomPainter {
     return glow.withValues(alpha: glow.a * (1 - 0.45 * Curves.easeInOut.transform(b.value)));
   }
 
+  /// `.w::before` of the frames: a 380 x 320 gold pool centred 40 px above the top edge
+  /// (clear at 72 %), a 28 px grid of 1 px lines offset by 13, and a mask that fades both to
+  /// nothing by 62 % of the height (half at 34 %).
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final center = focus.withinRect(rect);
     final glow = glowNow;
     canvas.drawRect(rect, Paint()..color = bg);
+    canvas.saveLayer(rect, Paint());
+    canvas.save();
+    canvas.translate(size.width / 2, -40);
+    canvas.scale(1, 320 / 380);
+    canvas.drawRect(
+      Rect.fromLTRB(-size.width, -400, size.width, size.height * 2),
+      Paint()
+        ..shader = ui.Gradient.radial(Offset.zero, 380, [glow, glow.withValues(alpha: 0)], const [0, 0.72]),
+    );
+    canvas.restore();
+    final lines = Paint()..color = grid;
+    for (var x = 13.0; x < size.width; x += step) {
+      canvas.drawRect(Rect.fromLTWH(x, 0, 1, size.height), lines);
+    }
+    for (var y = 13.0; y < size.height; y += step) {
+      canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1), lines);
+    }
     canvas.drawRect(
       rect,
       Paint()
-        ..shader = ui.Gradient.radial(center, size.shortestSide * 0.95, [
-          glow,
-          glow.withValues(alpha: 0),
-        ]),
+        ..blendMode = BlendMode.dstIn
+        ..shader = ui.Gradient.linear(
+          Offset.zero,
+          Offset(0, size.height),
+          const [Color(0xFF000000), Color(0x80000000), Color(0x00000000)],
+          const [0, 0.34, 0.62],
+        ),
     );
-    final lines = Paint()
-      ..strokeWidth = 1
-      ..shader = ui.Gradient.radial(center, size.shortestSide * 0.8, [
-        grid,
-        grid.withValues(alpha: 0),
-      ]);
-    // Lines are aligned on the focus, so the grid looks centred on the hero.
-    final x0 = center.dx % step, y0 = center.dy % step;
-    for (var x = x0; x <= size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), lines);
-    }
-    for (var y = y0; y <= size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), lines);
-    }
+    canvas.restore();
   }
 
   @override
@@ -465,13 +472,13 @@ class _ProtocolBackdropState extends State<ProtocolBackdrop>
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     final clear = t.bg.withValues(alpha: 0);
-    final glow = dark ? 0.13 : 0.08;
+    final glow = dark ? 0.2 : 0.08;
     return CustomPaint(
       key: backdropPaintKey,
       painter: ProtocolBackdropPainter(
         bg: t.bg,
         glow: t.accent.withValues(alpha: glow),
-        grid: t.text.withValues(alpha: dark ? 0.05 : 0.06),
+        grid: t.text.withValues(alpha: dark ? 0.045 : 0.06),
         focus: widget.focus,
         breath: _breath,
       ),

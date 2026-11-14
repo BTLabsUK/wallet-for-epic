@@ -131,3 +131,38 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+# Tor (lib/src/tor_location.dart runs <exe dir>/bin/tor-bundle/tor) goes into every bundle with
+# Tor, whatever started the build (scripts/build-linux.sh, the shared test builds, a plain
+# `flutter build linux`): WFE_TOR_BUNDLE names a fetched bundle (the release container), else
+# tools/fetch-tor.sh fetches it (pinned hashes). Without tor, or with LEPIC built without its tor
+# feature, the build fails. Only --dart-define=WFE_TOR=false (0, off; base64 below, as Flutter
+# hands them over) builds without it.
+install(CODE "
+  file(READ \"${CMAKE_CURRENT_SOURCE_DIR}/flutter/ephemeral/generated_config.cmake\" cfg)
+  set(tor_dir \"${CMAKE_INSTALL_PREFIX}/bin/tor-bundle\")
+  file(REMOVE_RECURSE \"\${tor_dir}\")
+  if(NOT cfg MATCHES \"[=,](V0ZFX1RPUj1mYWxzZQ==|V0ZFX1RPUj0w|V0ZFX1RPUj1vZmY=)[,\\\"]\")
+    if(DEFINED ENV{WFE_TOR_BUNDLE})
+      file(COPY \"\$ENV{WFE_TOR_BUNDLE}/\" DESTINATION \"\${tor_dir}\" USE_SOURCE_PERMISSIONS)
+    else()
+      execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../../tools/fetch-tor.sh\" linux \"\${tor_dir}\"
+        RESULT_VARIABLE rc)
+      if(NOT rc EQUAL 0)
+        message(FATAL_ERROR \"Tor build: tools/fetch-tor.sh linux failed (\${rc})\")
+      endif()
+    endif()
+    if(NOT EXISTS \"\${tor_dir}/tor\")
+      message(FATAL_ERROR \"Tor build without \${tor_dir}/tor\")
+    endif()
+    file(GLOB features \"${CMAKE_CURRENT_SOURCE_DIR}/../third_party/lepic-flutter/native/*-linux-gnu/FEATURES\")
+    foreach(f \${features})
+      file(STRINGS \"\${f}\" lines)
+      list(FIND lines tor has_tor)
+      if(has_tor EQUAL -1)
+        message(FATAL_ERROR \"Tor build, but LEPIC was built without tor (\${f})\")
+      endif()
+    endforeach()
+    message(STATUS \"Tor check: \${tor_dir}/tor is in the bundle\")
+  endif()
+  " COMPONENT Runtime)

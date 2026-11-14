@@ -14,7 +14,7 @@ import 'support/test_settings.dart';
 /// Runs before every test file here. A waiting payment's tile laps a few times, and the pulse
 /// on Send's tracker breathes a few times. Seconds of loops would keep `pumpAndSettle` busy, so
 /// the tests see both still (the full current mark, a plain ring). `test/tx_icon_test.dart` turns
-/// the tile's loop on for the tests of the loader. Every test reads its hosts from
+/// the tile's loop on for the tests of the loader; the shell's tabs do not slide either. Every test reads its hosts from
 /// `test/settings/` (the two files, example hosts only), the process-wide settings. A golden
 /// that differs says which command redraws it.
 ///
@@ -23,6 +23,8 @@ import 'support/test_settings.dart';
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   txEdgeRunMoves = false;
   sendPulseMoves = false;
+  paymentNetworkMoves = false;
+  phoneTabsSlide = false;
   hostSettings = testSettings();
   goldenFileComparator = _GoldenHint(goldenFileComparator);
   // A test that changes the settings (a pick, a switch) does not leak into the next one.

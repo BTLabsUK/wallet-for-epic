@@ -82,9 +82,6 @@ void useSignedLinks(BtlabsPublic file) {
   }
 }
 
-/// Forgets the signed source link (tests).
-void resetSignedLinks() => _signedSource = null;
-
 /// What the app ships with; used whenever the website cannot be read.
 List<SeedContact> get bundledSeedContacts => [?btLabsContact];
 

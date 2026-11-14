@@ -2,14 +2,10 @@
 // Item 11: the Epicbox switch offer waits for the connection grace after start and resume,
 // shows only while the shell is the screen on top, and is compact (a title, one line, Switch,
 // and the close button for Not now).
-import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/connection_grace.dart';
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/levels/level_features.dart';
-import 'package:epic_wallet/src/levels/level_providers.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
 import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
-import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/network.dart' show EpicboxRelay;
 import 'package:epic_wallet/src/ui/common.dart' show SlotScaffold;
 import 'package:epic_wallet/src/ui/levels/relay_down.dart';
@@ -47,9 +43,6 @@ Future<ProviderContainer> _pump(WidgetTester tester, {required bool grace}) asyn
       overrides: [
         relaySwitchProvider.overrideWith(_Offer.new),
         connectionGraceLengthProvider.overrideWithValue(grace ? const Duration(seconds: 20) : Duration.zero),
-        levelFeaturesProvider.overrideWithValue(
-          LevelFeatures.of(WalletLevel.justSendReceive, AdvancedPrefs.none, torBuilt: true),
-        ),
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -80,7 +73,7 @@ void main() {
     expect(_title, findsOneWidget);
   });
 
-  testWidgets('compact: title, one line, Switch, no Not now; close waits', (tester) async {
+  testWidgets('compact: title, one line, Switch, no Not now; swiped away, it waits', (tester) async {
     final c = await _pump(tester, grace: false);
     final offer = c.read(relaySwitchProvider.notifier) as _Offer;
     offer.show();
@@ -89,7 +82,8 @@ void main() {
     expect(find.text(_l.lvShellRelayDownShort(_to)), findsOneWidget);
     expect(find.widgetWithText(TextButton, _l.lvShellSwitch), findsOneWidget);
     expect(find.text(_l.pairNotNow), findsNothing);
-    await tester.tap(find.byTooltip(_l.commonClose));
+    // A toast has no close button; swiping it away is Not now.
+    await tester.drag(find.byKey(noticeKey), const Offset(0, -80));
     await tester.pumpAndSettle();
     expect(offer.waited, 1);
   });

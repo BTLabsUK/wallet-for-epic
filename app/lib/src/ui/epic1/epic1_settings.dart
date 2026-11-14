@@ -13,16 +13,17 @@ import '../../l10n.dart';
 import '../../network.dart' show EpicboxRelay;
 import '../../providers.dart';
 import '../../settings.dart' show networkModeProvider;
+import '../../trust_ids.dart';
 import '../app_dialog.dart';
-import '../address_view.dart' show HostText;
 import '../common.dart';
 import '../network_mode_text.dart' show statusOffByModeWord;
 import '../server_picker.dart' show showEpicboxPicker;
-import '../settings_rows.dart';
+import '../kit/kit_ground.dart' show KitGround;
+import '../kit/kit_group.dart';
+import '../kit/kit_row.dart';
+import '../kit/kit_tokens.dart';
 import '../status.dart';
-import '../status_icons.dart';
 import '../theme/tokens.dart';
-import '../theme/epic1_mark.dart';
 import 'epic1_common.dart';
 
 /// Keys for tests and the screenshot tour.
@@ -40,16 +41,15 @@ const int epic1PrintedMax = 32;
 /// from what this unlock uses, "Applies at next unlock" with Lock now. Nothing on a core
 /// without epic1.
 List<Widget> epic1ExperimentalRows(AppLocalizations l) => [
-  SettingsHeader(l.deskE1PhExperimental),
+  KitGroupLabel(l.deskE1PhExperimental),
   const Epic1SwitchRow(),
 ];
 
 /// The epic1 section and Receiving, which replace the methods in epic1 mode.
 List<Widget> epic1ModeRows(AppLocalizations l, {required Widget confirmations}) => [
-  SettingsHeader(l.deskE1PhSection),
-  const Epic1EpicboxRow(),
-  const Epic1PrintedRow(),
-  SettingsHeader(l.deskE1PhReceiving),
+  KitGroupLabel(l.deskE1PhSection),
+  const KitGroup(dividerInset: Kit.dividerInsetPlain, children: [Epic1EpicboxRow(), Epic1PrintedRow()]),
+  KitGroupLabel(l.deskE1PhReceiving),
   confirmations,
 ];
 
@@ -81,7 +81,9 @@ class _Epic1SwitchRowState extends ConsumerState<Epic1SwitchRow> {
     }
     setState(() => _busy = true);
     try {
+      final stored = ref.read(epic1StoredProvider.notifier);
       await epic1.setStoredOn(on);
+      stored.set(on);
       if (mounted) setState(() => _stored = on);
     } catch (e) {
       if (mounted) ref.read(noticeProvider.notifier).show(describeError(l, e), level: NoticeLevel.error);
@@ -102,18 +104,24 @@ class _Epic1SwitchRowState extends ConsumerState<Epic1SwitchRow> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        HintSwitchTile(
-          key: epic1SwitchKey,
-          icon: Icons.science_outlined,
-          leading: const Epic1Glyph(size: 24),
-          title: l.deskE1PhSwitch,
-          hint: l.deskE1PhSwitchHint,
-          value: stored,
-          onChanged: _busy ? null : (on) => _set(epic1, on),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow.toggle(
+              key: epic1SwitchKey,
+              title: l.deskE1PhSwitch,
+              titleMarks: true,
+              subtitle: l.phoneSettingsEpic1Line,
+              subtitleLines: 3,
+              value: stored,
+              onChanged: _busy ? null : (on) => _set(epic1, on),
+              semanticsId: TrustIds.paymentsExperimental,
+            ),
+          ],
         ),
         if (pending)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+            padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, 8, 8),
             child: Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 8,
@@ -146,25 +154,16 @@ class Epic1EpicboxRow extends ConsumerWidget {
         ? (level: SignalLevel.none, color: t.dim, word: statusOffByModeWord(l, mode))
         : epicboxNetFace(context, watchWalletStatus(ref).epicbox);
     final host = config == null ? null : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label;
-    return ListTile(
+    return KitRow(
       key: epic1EpicboxKey,
-      leading: const Icon(EpicGlyphs.epicbox),
-      title: Text(l.serverEpicboxTitle),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (host != null) Align(alignment: AlignmentDirectional.centerStart, child: HostText(host, style: TextStyle(color: t.dim))),
-          Row(
-            children: [
-              SignalBars(level: face.level, color: face.color),
-              const SizedBox(width: 6),
-              Flexible(child: Text(face.word, style: TextStyle(color: face.color))),
-            ],
-          ),
-        ],
-      ),
-      trailing: const NavChevron(),
+      title: l.serverEpicboxTitle,
+      subtitleWidget: host == null
+          ? null
+          : Text(host, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.dim)),
+      value: face.word,
+      valueColor: face.color,
+      chevron: true,
+      size: KitRowSize.settings,
       onTap: () => showEpicboxPicker(context),
     );
   }
@@ -186,17 +185,12 @@ class Epic1PrintedRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final count = ref.watch(epic1PrintedProvider).value?.length;
-    return ListTile(
+    return KitRow(
       key: epic1PrintedKey,
-      leading: const Icon(Icons.print_outlined),
-      title: Text(l.deskE1PhPrinted),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (count != null) Text(l.deskE1PhPrintedCount(count, epic1PrintedMax), style: TextStyle(color: context.tokens.dim)),
-          const NavChevron(),
-        ],
-      ),
+      title: l.deskE1PhPrinted,
+      value: count == null ? null : l.deskE1PhPrintedCount(count, epic1PrintedMax),
+      chevron: true,
+      size: KitRowSize.settings,
       onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PrintedCodesScreen())),
     );
   }
@@ -235,7 +229,7 @@ class PrintedCodesScreen extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final codes = ref.watch(epic1PrintedProvider);
-    return Scaffold(
+    return KitGround(child: Scaffold(
       appBar: AppBar(title: Text(l.deskE1PhPrinted)),
       body: SafeArea(
         child: switch (codes) {
@@ -273,6 +267,6 @@ class PrintedCodesScreen extends ConsumerWidget {
           _ => const Center(child: CircularProgressIndicator()),
         },
       ),
-    );
+    ));
   }
 }

@@ -92,14 +92,6 @@
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
   },
-  "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
-  "@deskNetWaitingTorReason": {
-    "description": "Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line."
-  },
-  "deskNetOpenAdvanced": "Open Advanced",
-  "@deskNetOpenAdvanced": {
-    "description": "Link or small button that opens Settings › Advanced, next to a line that names the network mode."
-  },
   "deskNetSendFileHint": "File Transfer still works.",
   "@deskNetSendFileHint": {
     "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."

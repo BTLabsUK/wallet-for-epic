@@ -1,49 +1,7 @@
 {
-  "deskLvPayS1Sent": "Slate S1 sent over Epicbox · waiting for S2",
-  "@deskLvPayS1Sent": {
-    "description": "Deep end payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox whose relay is not known; S1 and S2 are the two slate messages."
-  },
-  "deskLvPayS1On": "S1 on {relay} · awaiting S2",
-  "@deskLvPayS1On": {
-    "description": "Deep end payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox; relay is the Epicbox server's address; S1 and S2 are the two slate messages.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "epicbox.example.org"
-      }
-    }
-  },
   "deskLvPayOnEpicbox": "On Epicbox",
   "@deskLvPayOnEpicbox": {
     "description": "Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short."
-  },
-  "deskLvPayNotOpen": "{name}’s wallet is not open yet",
-  "@deskLvPayNotOpen": {
-    "description": "Shallow payment steps: sub-line under the current step of a send over Epicbox, the recipient has not signed because their wallet is not open; name is the contact.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskLvPayWaitingOpen": "Waiting for {name}’s wallet to open",
-  "@deskLvPayWaitingOpen": {
-    "description": "Deeper payment steps: sub-line under the current step of a send over Epicbox, waiting for the recipient's wallet to open and sign; name is the contact.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskLvPaySenderFinished": "Sender finished",
-  "@deskLvPaySenderFinished": {
-    "description": "Shallow and Deeper payment steps of a payment received: the sender's wallet has finished its part."
-  },
-  "deskLvPayPostedNode": "Posted to node",
-  "@deskLvPayPostedNode": {
-    "description": "Deep end payment steps: the payment was posted to the node."
   },
   "deskLvPayConfirmingComma": "Confirming, {count} of {target}",
   "@deskLvPayConfirmingComma": {
@@ -58,24 +16,6 @@
         "example": "3"
       }
     }
-  },
-  "deskLvPayConfirmationsOf": "Confirmations {count} / {target}",
-  "@deskLvPayConfirmationsOf": {
-    "description": "Deep end payment steps: confirmations so far over the number the wallet waits for.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "example": "1"
-      },
-      "target": {
-        "type": "int",
-        "example": "3"
-      }
-    }
-  },
-  "deskLvPayDone": "Done",
-  "@deskLvPayDone": {
-    "description": "Shallow payment steps: the last step, the payment is finished."
   },
   "deskLvPayOnItsWayTo": "On its way to {name}",
   "@deskLvPayOnItsWayTo": {
@@ -197,10 +137,6 @@
   "@deskLvPayHeroNothing": {
     "description": "Overview's hero sentence at Shallow in a wallet with no payments."
   },
-  "deskLvPayReadyTitle": "Your wallet is ready.",
-  "@deskLvPayReadyTitle": {
-    "description": "Overview notice at Shallow in a wallet with no payments: title."
-  },
   "deskLvPayReadyHead": "Wallet ready",
   "@deskLvPayReadyHead": {
     "description": "Overview notice title at Shallow when the new wallet is ready. A title: no period, no \"your\"."
@@ -216,10 +152,6 @@
   "deskLvPayTileMining": "Fresh from mining",
   "@deskLvPayTileMining": {
     "description": "Deeper Overview tile: mining rewards that are not yet spendable."
-  },
-  "deskLvPayTileWaiting": "Waiting for the other side",
-  "@deskLvPayTileWaiting": {
-    "description": "Deeper Overview tile: payments waiting for the sender to finish."
   },
   "deskLvPayTileAwaiting": "Awaiting reply",
   "@deskLvPayTileAwaiting": {

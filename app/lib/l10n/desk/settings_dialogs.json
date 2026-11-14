@@ -1,52 +1,4 @@
 {
-  "deskSetDlgChainTitle": "Chain data found",
-  "@deskSetDlgChainTitle": {
-    "description": "Title of the dialog offering to reuse blockchain data already on this computer."
-  },
-  "deskSetDlgChainDesc": "The local node can use the Epic chain data already on this computer, instead of downloading it.",
-  "@deskSetDlgChainDesc": {
-    "description": "Existing blockchain data dialog: description under the title."
-  },
-  "deskSetDlgChainFolder": "Folder",
-  "@deskSetDlgChainFolder": {
-    "description": "Existing blockchain data dialog: fact label for the folder. Narrow label column."
-  },
-  "deskSetDlgChainSize": "Size",
-  "@deskSetDlgChainSize": {
-    "description": "Existing blockchain data dialog: fact label for the data size. Narrow label column."
-  },
-  "deskSetDlgChainUpdated": "Last updated",
-  "@deskSetDlgChainUpdated": {
-    "description": "Existing blockchain data dialog: fact label for when the data was last changed. Narrow label column."
-  },
-  "deskSetDlgChainUpdatedValue": "3 days ago",
-  "@deskSetDlgChainUpdatedValue": {
-    "description": "Existing blockchain data dialog: sample value of Last updated."
-  },
-  "deskSetDlgChainOthers": "1 other copy found; this one is the newest.",
-  "@deskSetDlgChainOthers": {
-    "description": "Existing blockchain data dialog: note that another copy exists."
-  },
-  "deskSetDlgChainInUse": "Another Epic program is using this folder. Close it, then pick the local node again to use this data.",
-  "@deskSetDlgChainInUse": {
-    "description": "Existing blockchain data dialog: question line when the folder is locked by another program."
-  },
-  "deskSetDlgChainUseIt": "Use it?",
-  "@deskSetDlgChainUseIt": {
-    "description": "Existing blockchain data dialog: question line."
-  },
-  "deskSetDlgChainOlderWallet": "An older Epic Wallet that uses this folder syncs again afterwards.",
-  "@deskSetDlgChainOlderWallet": {
-    "description": "Existing blockchain data dialog: small note under the question."
-  },
-  "deskSetDlgChainFresh": "Download fresh",
-  "@deskSetDlgChainFresh": {
-    "description": "Existing blockchain data dialog: button to ignore the old data and download anew."
-  },
-  "deskSetDlgChainUse": "Use this data",
-  "@deskSetDlgChainUse": {
-    "description": "Existing blockchain data dialog: primary button to reuse the data."
-  },
   "deskSetDlgPwChanged": "Password changed.",
   "@deskSetDlgPwChanged": {
     "description": "Toast after the wallet password was changed."
@@ -54,10 +6,6 @@
   "deskSetDlgPwTitle": "Change password",
   "@deskSetDlgPwTitle": {
     "description": "Change password dialog: title and primary button."
-  },
-  "deskSetDlgPwDesc": "The new password unlocks this wallet from now on; Remember on this computer is turned off.",
-  "@deskSetDlgPwDesc": {
-    "description": "Change password dialog: description under the title."
   },
   "deskSetDlgPwDescPlain": "From now on the new password unlocks this wallet, and this computer no longer remembers it.",
   "@deskSetDlgPwDescPlain": {
@@ -139,10 +87,6 @@
         "type": "String"
       }
     }
-  },
-  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
-  "@deskSetDlgRemoveUnlockHint": {
-    "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
   },
   "deskSetDlgRemoveUnlockHintSecurity": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.",
   "@deskSetDlgRemoveUnlockHintSecurity": {

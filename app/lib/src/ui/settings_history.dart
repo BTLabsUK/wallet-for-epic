@@ -83,36 +83,6 @@ class PlatformHistoryFiles implements HistoryFiles {
   }
 }
 
-/// Records saves and shares and hands out queued picks, for widget tests.
-class FakeHistoryFiles implements HistoryFiles {
-  final List<({String name, Uint8List bytes})> saved = [];
-  final List<({String name, Uint8List bytes})> shared = [];
-  final List<Uint8List?> picks = [];
-
-  @override
-  bool canShare = true;
-
-  @override
-  Future<bool> save({
-    required String name,
-    required Uint8List bytes,
-    required String dialogTitle,
-  }) async {
-    saved.add((name: name, bytes: bytes));
-    return true;
-  }
-
-  @override
-  Future<bool> share({required String name, required Uint8List bytes}) async {
-    shared.add((name: name, bytes: bytes));
-    return true;
-  }
-
-  @override
-  Future<Uint8List?> pick({required String dialogTitle}) async =>
-      picks.isEmpty ? null : picks.removeAt(0);
-}
-
 final historyFilesProvider = Provider<HistoryFiles>(
   (ref) => const PlatformHistoryFiles(),
 );
@@ -181,7 +151,7 @@ Future<bool> handOverFile(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium,
@@ -189,17 +159,19 @@ Future<bool> handOverFile(
               ),
               if (note != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                   child: Text(note),
                 ),
               // Share first: the copy that matters is the one off this phone.
               ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                 leading: const Icon(Icons.share),
                 title: Text(l.historyBackupShare),
                 subtitle: Text(l.historyBackupShareSubtitle),
                 onTap: () => Navigator.pop(context, _Destination.share),
               ),
               ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                 leading: const Icon(Icons.save_alt),
                 title: Text(l.historyBackupSaveToDevice),
                 subtitle: Text(l.historyBackupSaveToDeviceSubtitle),

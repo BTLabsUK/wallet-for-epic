@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/contacts_transfer.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -127,7 +128,7 @@ void main() {
       await h.pump(tester, const ContactsScreen());
       expect(find.byType(ContactStar), findsNothing);
 
-      await tester.tap(find.text('Alice'));
+      await tester.tap(find.text('Alice').last);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(contactPageMoreKey));
       await tester.pumpAndSettle();
@@ -139,15 +140,15 @@ void main() {
       expect(find.descendant(of: find.byType(ContactPage), matching: find.byType(ContactStar)), findsOneWidget);
       expect(tester.widget<Icon>(find.descendant(of: find.byType(ContactStar), matching: find.byType(Icon))).semanticLabel, _l.contactStarred);
 
-      await tester.pageBack();
+      await tester.tap(find.byKey(contactPageBackKey));
       await tester.pumpAndSettle();
       // The row of Alice has it; Bob's has not. The order stays by name.
       expect(find.byType(ContactStar), findsOneWidget);
-      expect(tester.getTopLeft(find.byType(ContactStar)).dy, closeTo(tester.getTopLeft(find.text('Alice')).dy, 24));
-      expect(tester.getTopLeft(find.text('Alice')).dy, lessThan(tester.getTopLeft(find.text('Bob')).dy));
+      expect(tester.getTopLeft(find.byType(ContactStar)).dy, closeTo(tester.getTopLeft(find.text('Alice').last).dy, 24));
+      expect(tester.getTopLeft(find.text('Alice').last).dy, lessThan(tester.getTopLeft(find.text('Bob').last).dy));
 
       // Unstar from the menu again.
-      await tester.tap(find.text('Alice'));
+      await tester.tap(find.text('Alice').last);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(contactPageMoreKey));
       await tester.pumpAndSettle();
@@ -232,7 +233,7 @@ void main() {
         ('Bob', _bob, null, null),
       ]);
       expect(h.notice, _l.contactsImportedAdded(2));
-      expect(find.text('Bob'), findsOneWidget);
+      expect(find.text('Bob'), findsNWidgets(2));
     });
 
     testWidgets('a file of another kind is refused in the sheet; nothing is saved', (tester) async {

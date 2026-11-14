@@ -8,6 +8,8 @@ import '../../../mock_fixtures.dart';
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../../network.dart' show mainnetPreset;
+import '../../../net/tor_switch.dart' show TorSwitch;
+import '../../../node_failover.dart' show nodeProbeBudget;
 import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings, hostSettings, localNodePortValues;
 import '../../../settings_file/settings_providers.dart' show writeHostSettings;
 import '../../data/desk_levels.dart' show deskLevelUiProvider;
@@ -91,15 +93,7 @@ String localNodeRowText(AppLocalizations l, LocalNodeState? s) {
 /// The picker rows of the wallet's node list ([NodeServer]s), in the neutral order of §18.
 /// [released] is the released node version when known; else the newest in the list counts.
 List<ServerInfo> serverRows(List<NodeServer> nodes, {String? released}) {
-  final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
-  final tip = heights.isEmpty ? null : heights.reduce((a, b) => a > b ? a : b);
-  var newest = released;
-  if (newest == null) {
-    for (final n in nodes) {
-      final v = n.version;
-      if (v != null && (newest == null || (compareVersions(v, newest) ?? 0) > 0)) newest = v;
-    }
-  }
+  final (:tip, :newest) = nodeListMarks(nodes, released: released);
   final rows = [
     for (final n in nodes)
       () {
@@ -442,6 +436,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
         if (!mounted) return;
       }
       if (!mounted) return;
+      final pick = ++_pickSeq;
       setState(() {
         _saving = true;
         _target = null;
@@ -450,14 +445,14 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       try {
         await ref.read(deskProvider.notifier).useBuiltInNode(true);
       } on Object catch (e) {
-        if (!mounted) return;
+        if (!mounted || pick != _pickSeq) return;
         setState(() {
           _saving = false;
           _error = deskErrorText(e, l);
         });
         return;
       }
-      if (!mounted) return;
+      if (!mounted || pick != _pickSeq) return;
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
       setState(() => _saving = false);
       if (started) {
@@ -484,17 +479,30 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     return null;
   }
 
+  /// Counts the picks: the answer of an older one is dropped, the latest pick shows.
+  int _pickSeq = 0;
+
   Future<void> _useRemote(String value) async {
     final l = context.l10n;
     final url = nodeUrlOf(value);
+    final pick = ++_pickSeq;
+    // What node failover was doing is dropped from the press on, not once the node answered.
+    ref.read(deskNodePicksProvider.notifier).bump();
     setState(() {
       _saving = true;
       _target = url;
       _error = null;
     });
     final known = (ref.read(deskProvider).nodes ?? const <NodeServer>[]).any((n) => n.url == url);
-    final r = await ref.read(deskApiProvider).checkNode(url);
-    if (!mounted) return;
+    // Asked within the failover's probe budget, as the node in use is: a node that does not
+    // answer by then is down.
+    NodeServer r;
+    try {
+      r = await ref.read(deskApiProvider).checkNode(url).timeout(nodeProbeBudget(url, torOn: TorSwitch.on));
+    } on TimeoutException {
+      r = NodeServer(url: url, label: hostOf(url), health: ServiceHealth.down);
+    }
+    if (!mounted || pick != _pickSeq) return;
     if (r.health == ServiceHealth.down) {
       setState(() {
         _saving = false;
@@ -505,14 +513,14 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     try {
       await ref.read(deskProvider.notifier).useNode(url);
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || pick != _pickSeq) return;
       setState(() {
         _saving = false;
         _error = deskErrorText(e, l);
       });
       return;
     }
-    if (!mounted) return;
+    if (!mounted || pick != _pickSeq) return;
     ref.read(settingsPrefsProvider.notifier).set(ref.read(settingsPrefsProvider).copyWith(builtin: false, typedNode: known ? null : r, clearTyped: known));
     setState(() => _saving = false);
   }
@@ -560,7 +568,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     final listed = list == null ? all : [for (final n in all) if (list.has(ServerKind.node, n.url)) n];
 
     // The word and state of the head: the same the rail shows.
-    final nodeHealth = downShot ? ServiceHealth.down : status.nodeHealth;
+    final nodeHealth = downShot ? ServiceHealth.down : ref.watch(deskNodeHealthProvider) ?? status.nodeHealth;
     // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
     // stands in for it, so the field's dot never says Synced next to Not answering (#76).
     final NodeView view = prefs.builtin
@@ -600,7 +608,10 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
               : prefs.builtin
               ? l.deskSetNodeLocalNode
               : hostOf(current.url),
-          fieldSub: prefs.builtin
+          // While switching, the node switched to's name, never the one left's.
+          fieldSub: switching != null
+              ? (switching.url == null ? null : prefs.nodeLabels[switching.url] ?? all.where((n) => n.url == switching.url).firstOrNull?.operator)
+              : prefs.builtin
               ? localNodeRowText(l, local)
               : stopping
               ? nodeSwitchText(l, moving!)
@@ -618,6 +629,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
           local: (ref.watch(deskLevelUiProvider).builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
           listNote: nodeListNoteText(l),
           busy: switching != null,
+          pickWhileBusy: true,
           busyLabel: switching == null ? null : nodeSwitchText(l, switching),
           error: _error,
           openInitially: openInitially,

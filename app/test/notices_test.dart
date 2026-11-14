@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // The notice standard (`app/README.md` "Notifications"): levels and their timing, the queue,
-// dismissal, the dock under the app bar, semantics and large text.
+// dismissal, the floating toast, semantics and large text.
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/kit/kit_icons.dart';
+import 'package:epic_wallet/src/ui/kit/kit_tokens.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -114,6 +116,56 @@ void main() {
       expect(_card, findsNothing);
     });
   }
+
+  testWidgets('a flow over a screen shows one toast, in the flow; the screen shows it again when the flow closes', (tester) async {
+    final c = await _pump(tester);
+    // A pushed route keeps the screen under it built (offstage): count those too.
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    c.notices.show('Once', level: NoticeLevel.info, persistent: true);
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+    Navigator.of(tester.element(find.byKey(_second))).pop();
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+  });
+
+  testWidgets('a flow stacked over the shell in one tree shows one toast', (tester) async {
+    var flow = false;
+    late StateSetter set;
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.625;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: buildWalletTheme(protocolLight, Brightness.light),
+          home: StatefulBuilder(
+            builder: (context, setState) {
+              set = setState;
+              return Stack(
+                children: [
+                  const SlotScaffold(body: SizedBox.expand()),
+                  if (flow) const Positioned.fill(child: SlotScaffold(key: _second, body: SizedBox.expand())),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    final c = ProviderScope.containerOf(tester.element(find.byType(Stack).first));
+    set(() => flow = true);
+    await tester.pumpAndSettle();
+    c.notices.show('Once', level: NoticeLevel.info, persistent: true);
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+    set(() => flow = false);
+    await tester.pumpAndSettle();
+    expect(find.byKey(noticeKey, skipOffstage: false), findsOneWidget);
+  });
 
   testWidgets('an action adds 4 seconds; persistent stays', (tester) async {
     final c = await _pump(tester);
@@ -289,7 +341,7 @@ void main() {
   });
 
   testWidgets(
-    'warnings, errors, persistent notices and actions can be closed',
+    'persistent notices can be closed; the others leave by themselves, a swipe or their action',
     (tester) async {
       final c = await _pump(tester);
       Finder close() =>
@@ -297,8 +349,8 @@ void main() {
       for (final (level, closable) in [
         (NoticeLevel.info, false),
         (NoticeLevel.success, false),
-        (NoticeLevel.warning, true),
-        (NoticeLevel.error, true),
+        (NoticeLevel.warning, false),
+        (NoticeLevel.error, false),
       ]) {
         c.notices.show('A ${level.name}', level: level);
         await tester.pumpAndSettle();
@@ -319,7 +371,7 @@ void main() {
         action: NoticeAction('View', () => pressed++),
       );
       await tester.pumpAndSettle();
-      expect(close(), findsOneWidget);
+      expect(close(), findsNothing);
       await tester.tap(find.text('View'));
       await tester.pumpAndSettle();
       expect(pressed, 1);
@@ -327,38 +379,54 @@ void main() {
     },
   );
 
-  testWidgets('the dock is closed without a notice and opens to the card', (
+  testWidgets('an info notice draws its action in the quiet blue, the others keep the gold', (tester) async {
+    final c = await _pump(tester);
+    Color actionColor() {
+      final text = tester.widget<Text>(find.text('Install'));
+      final button = tester.widget<TextButton>(find.ancestor(of: find.text('Install'), matching: find.byType(TextButton)));
+      return (button.style!.foregroundColor!.resolve(<WidgetState>{}))!.withAlpha(255).withValues(alpha: text.style?.color?.a ?? 1);
+    }
+
+    c.notices.show('Update ready', level: NoticeLevel.info, persistent: true, action: NoticeAction('Install', () {}));
+    await tester.pumpAndSettle();
+    final t = tester.element(find.text('Install')).tokens;
+    expect(actionColor(), t.info);
+    c.notices.dismiss();
+    await tester.pumpAndSettle();
+
+    c.notices.show('Update ready', level: NoticeLevel.warning, persistent: true, action: NoticeAction('Install', () {}));
+    await tester.pumpAndSettle();
+    expect(actionColor(), t.accentText);
+  });
+
+  testWidgets('the toast floats 50 dp from the top and 12 dp from the sides, and moves nothing', (
     tester,
   ) async {
     final c = await _pump(tester);
     final dock = find.byType(NoticeDock);
-    final appBar = tester.getRect(find.byType(AppBar));
     final open = find.text('Open');
     final idleTop = tester.getTopLeft(open).dy;
     expect(tester.getSize(dock).height, 0);
     expect(_card, findsNothing);
 
     c.notices.show('PIN changed', level: NoticeLevel.success);
-    // Half way it is opening, and the content moves with it.
     await tester.pump();
     await tester.pump(noticeDockDuration ~/ 2);
-    final half = tester.getSize(dock).height;
     await tester.pumpAndSettle();
     final card = tester.getRect(_card);
-    final height = tester.getSize(dock).height;
-    expect(half, inExclusiveRange(0, height));
-    expect(height, card.height + NoticeDock.padding.vertical);
-    // Under the app bar, never over it, and the content moved down by the dock.
-    expect(card.top, appBar.bottom + progressSlotHeight + 12);
-    expect(card.overlaps(appBar), isFalse);
-    expect(tester.getTopLeft(open).dy, idleTop + height);
-    expect(card.overlaps(tester.getRect(open)), isFalse);
+    final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+    expect(card.top, Kit.toastTop);
+    expect(card.left, Kit.toastSide);
+    expect(screen.width - card.right, Kit.toastSide);
+    expect(card.height, greaterThanOrEqualTo(Kit.toastMin));
+    // The dock has no height: the content stays where it was.
+    expect(tester.getSize(dock).height, 0);
+    expect(tester.getTopLeft(open).dy, idleTop);
 
-    // It closes again with the last notice.
+    // It leaves with the last notice.
     await tester.pump(noticeDuration(NoticeLevel.success));
     await tester.pumpAndSettle();
     expect(_card, findsNothing);
-    expect(tester.getSize(dock).height, 0);
     expect(tester.getTopLeft(open).dy, idleTop);
   });
 
@@ -389,20 +457,18 @@ void main() {
     await tester.pump();
     await tester.pump(noticeDockDuration ~/ 2);
     await tester.pumpAndSettle();
-    expect(tester.getSize(find.byType(NoticeDock).last).height, greaterThan(0));
+    expect(_card, findsOneWidget);
     // The same row under the same spot: a second tap there toggles it again.
     expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
     await tester.tapAt(before);
     expect(taps, [5, 5]);
-    // The card still covers nothing.
-    expect(tester.getRect(_card).overlaps(tester.getRect(row)), isFalse);
     // Closing does not move it either.
     await tester.pump(noticeDuration(NoticeLevel.info));
     await tester.pumpAndSettle();
     expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
   });
 
-  testWidgets('A-07: a notice no finger in the body led to pushes the content down, covering nothing', (
+  testWidgets('A-07: a notice floats over the top of a list and moves no row', (
     tester,
   ) async {
     final c = await _pump(tester);
@@ -421,23 +487,19 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // The last press was elsewhere (a dialog's button, another screen): here, the app bar.
-    final press = await tester.startGesture(tester.getCenter(find.text('Payment')));
-    await press.up();
     final first = find.byKey(const ValueKey('row0'));
     final before = tester.getTopLeft(first).dy;
     c.notices.show('Payment cancelled', level: NoticeLevel.success);
     await tester.pumpAndSettle();
-    final dock = tester.getSize(find.byType(NoticeDock).last).height;
-    expect(dock, greaterThan(0));
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
-    expect(tester.getRect(_card).overlaps(tester.getRect(first)), isFalse);
+    expect(_card, findsOneWidget);
+    expect(tester.getTopLeft(first).dy, before);
     await tester.pump(noticeDuration(NoticeLevel.success));
     await tester.pumpAndSettle();
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before, epsilon: 1));
+    expect(_card, findsNothing);
+    expect(tester.getTopLeft(first).dy, before);
   });
 
-  testWidgets('android-18: a persistent notice pushes the content down and covers nothing', (
+  testWidgets('android-18: a persistent progress toast stays, updates in place and moves nothing', (
     tester,
   ) async {
     final c = await _pump(tester);
@@ -467,11 +529,8 @@ void main() {
       tag: 'update',
     );
     await tester.pumpAndSettle();
-    final dock = tester.getSize(find.byType(NoticeDock).last).height;
-    expect(dock, greaterThan(0));
-    // The first row moved down by the dock, so it sits whole under the card.
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
-    expect(tester.getRect(_card).overlaps(tester.getRect(first)), isFalse);
+    expect(_card, findsOneWidget);
+    expect(tester.getTopLeft(first).dy, before);
     // Progress updates keep it there.
     c.notices.show(
       'Downloading version 26.10.9… 70%',
@@ -482,11 +541,13 @@ void main() {
       tag: 'update',
     );
     await tester.pumpAndSettle();
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
-    // Closing it gives the space back.
+    expect(find.text('Downloading version 26.10.9… 70%'), findsOneWidget);
+    expect(tester.getTopLeft(first).dy, before);
+    // Closing it removes the toast.
     c.notices.dismissTag('update');
     await tester.pumpAndSettle();
-    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before, epsilon: 1));
+    expect(_card, findsNothing);
+    expect(tester.getTopLeft(first).dy, before);
   });
 
   testWidgets('a notice survives a pop, docked on the screen below', (
@@ -505,36 +566,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(_second), findsNothing);
     expect(find.text('PIN changed'), findsOneWidget);
-    final appBar = tester.getRect(find.byType(AppBar));
-    final card = tester.getRect(_card);
-    expect(card.top, greaterThanOrEqualTo(appBar.bottom));
-    // The screen below still takes touches.
+    expect(tester.getRect(_card).top, Kit.toastTop);
+    // The screen below still takes touches once the toast has gone.
+    await tester.pump(noticeDuration(NoticeLevel.success));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
     expect(find.byKey(_second), findsOneWidget);
   });
 
-  testWidgets('a screen opened while a notice shows starts with it docked', (
+  testWidgets('a screen opened while a notice shows still shows one toast', (
     tester,
   ) async {
     final c = await _pump(tester);
     c.notices.show('Saved', level: NoticeLevel.success, persistent: true);
     await tester.pumpAndSettle();
-    final open = tester.getSize(find.byType(NoticeDock)).height;
     await tester.tap(find.text('Open'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 16));
-    expect(
-      tester
-          .getSize(
-            find.descendant(
-              of: find.byKey(_second),
-              matching: find.byType(NoticeDock),
-            ),
-          )
-          .height,
-      open,
-    );
+    expect(_card, findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(_card, findsOneWidget);
   });
 
   testWidgets('the card takes the content width, 600 dp at most', (
@@ -543,12 +595,12 @@ void main() {
     final c = await _pump(tester);
     c.notices.show('Phone', level: NoticeLevel.info);
     await tester.pumpAndSettle();
-    expect(tester.getSize(_card).width, 1080 / 2.625 - 32);
+    expect(tester.getSize(_card).width, 1080 / 2.625 - 2 * Kit.toastSide);
     tester.view.physicalSize = const Size(2400, 1600);
     tester.view.devicePixelRatio = 1;
     c.notices.show('Wide screen', level: NoticeLevel.info);
     await tester.pumpAndSettle();
-    expect(tester.getSize(_card).width, 600 - 32);
+    expect(tester.getSize(_card).width, 600);
   });
 
   testWidgets('a screen reader hears the level and the whole text', (
@@ -567,12 +619,12 @@ void main() {
       tester.getSemantics(find.bySemanticsLabel('Error: $long')),
       isSemantics(isLiveRegion: true),
     );
-    // Three lines on screen (A-10).
+    // Two lines on screen.
     final text = tester.widget<Text>(
       find.descendant(of: _card, matching: find.text(long)),
     );
     expect(text.maxLines, noticeMaxLines);
-    expect(noticeMaxLines, 3);
+    expect(noticeMaxLines, 2);
     handle.dispose();
   });
 
@@ -587,7 +639,7 @@ void main() {
       expect(layout(tester).actionsBeside, isTrue);
       final text = tester.getRect(find.text('Copied'));
       final button = tester.getRect(find.widgetWithText(TextButton, 'View'));
-      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(Icons.check_circle_outline)));
+      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(KitIcons.check)));
       expect(button.left, greaterThan(text.right));
       expect(text.center.dy, moreOrLessEquals(button.center.dy, epsilon: 1));
       expect(icon.center.dy, moreOrLessEquals(text.center.dy, epsilon: 1));
@@ -595,8 +647,8 @@ void main() {
 
     testWidgets('text that would wrap puts the action on its own row and keeps the whole text', (tester) async {
       final c = await _pump(tester);
-      // The test font draws every letter 14 dp wide: three lines on a phone.
-      const text = 'Now on epicbox.example.org. New address ready.';
+      // The test font draws every letter 14 dp wide: two lines on a phone.
+      const text = 'Now on this server. All set.';
       c.notices.show(text, level: NoticeLevel.success, action: NoticeAction('Show new address', () {}));
       await tester.pumpAndSettle();
       expect(layout(tester).actionsBeside, isFalse);
@@ -604,12 +656,26 @@ void main() {
       final button = tester.getRect(find.widgetWithText(TextButton, 'Show new address'));
       // Under the words, at the end; the words are not cut to a few letters.
       expect(button.top, greaterThanOrEqualTo(words.bottom));
-      expect(button.right, moreOrLessEquals(tester.getRect(_card).right - 4, epsilon: 1));
+      expect(button.right, moreOrLessEquals(tester.getRect(_card).right - 10, epsilon: 1));
       final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
       expect(paragraph.didExceedMaxLines, isFalse);
-      // The close button stays level with the first line.
-      final close = tester.getRect(find.byTooltip(_l.commonClose));
-      expect(close.top, lessThan(words.top + 20));
+      // A notice that leaves on its own has no close button (the frame draws the × on the ones that stay).
+      expect(find.byTooltip(_l.commonClose), findsNothing);
+    });
+
+    testWidgets('wrapped text keeps a short action beside it, the icon level with the whole row (frame 7.6)', (tester) async {
+      final c = await _pump(tester);
+      const text = 'An invoice is waiting for your approval.';
+      c.notices.show(text, level: NoticeLevel.info, action: NoticeAction('View', () {}));
+      await tester.pumpAndSettle();
+      expect(layout(tester).actionsBeside, isTrue);
+      final words = tester.getRect(find.text(text));
+      final button = tester.getRect(find.widgetWithText(TextButton, 'View'));
+      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(KitIcons.info)));
+      expect(words.height, greaterThan(30));
+      expect(button.left, greaterThan(words.right));
+      expect(button.center.dy, moreOrLessEquals(words.center.dy, epsilon: 1));
+      expect(icon.center.dy, moreOrLessEquals(words.center.dy, epsilon: 1));
     });
 
     testWidgets('a second action goes with the first: beside when short, under when not', (tester) async {
@@ -639,8 +705,8 @@ void main() {
       final t = tester.element(_card).tokens;
       final title = tester.widget<Text>(find.text('Wallet not saved'));
       final body = tester.widget<Text>(find.text('Free some space, then try again.'));
-      expect(title.style?.fontWeight, FontWeight.w600);
-      expect(body.style?.fontWeight, isNot(FontWeight.w600));
+      expect(title.style?.fontWeight, FontWeight.w500);
+      expect(body.style?.fontWeight, isNot(FontWeight.w500));
       expect(body.style?.color, t.dim);
       expect(find.bySemanticsLabel('Error: Wallet not saved. Free some space, then try again.'), findsOneWidget);
     });
@@ -663,7 +729,8 @@ void main() {
       );
       expect(tester.renderObject<RenderParagraph>(find.text(long)).didExceedMaxLines, isFalse);
       expect(tester.widget<Text>(find.text(long)).maxLines, isNull);
-      expect(tester.getRect(find.text('OK')).top, greaterThan(tester.getRect(find.text(long)).bottom));
+      // The short action stays beside the wrapped words (frame 7.6), not alone on a row.
+      expect(tester.getRect(find.text('OK')).left, greaterThan(tester.getRect(find.text(long)).right));
     });
   });
 
@@ -684,7 +751,7 @@ void main() {
         final card = tester.getRect(_card);
         expect(card.left, greaterThanOrEqualTo(0));
         expect(card.right, lessThanOrEqualTo(1080 / 2.625));
-        expect(card.overlaps(tester.getRect(find.byType(AppBar))), isFalse);
+        expect(card.top, Kit.toastTop);
         expect(find.text('Try again'), findsOneWidget);
       }
     });

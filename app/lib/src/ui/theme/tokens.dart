@@ -9,7 +9,9 @@ import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 
-import 'fonts.dart' show phoneFontFallback;
+import '../kit/kit_tokens.dart' show Kit;
+import '../phone_motion.dart' show phonePageTransitions;
+import 'fonts.dart' show interFamily, interFeatures, phoneFontFallback;
 import 'palette.dart';
 
 /// Every value the look may change. One instance per brightness.
@@ -47,6 +49,13 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     required this.txCancelled,
     required this.scrim,
     required this.shadow,
+    required this.group,
+    required this.sheet,
+    required this.fill,
+    required this.hair,
+    required this.hair2,
+    required this.goldSoft,
+    required this.goldLine,
     required this.radius,
     required this.radiusSmall,
     required this.controlHeight,
@@ -130,6 +139,21 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   /// with [popShadow] next to a [lineStrong] border.
   final Color shadow;
 
+  /// The phone redesign's roles (HANDOFF 5.1). [group] is the grouped list's panel, [sheet] a
+  /// bottom sheet, [fill] a chip, search field or quiet button over any ground, [hair] a
+  /// hairline and [hair2] the stronger one, [goldSoft] and [goldLine] the ground and edge of
+  /// the needs-you card.
+  final Color group;
+  final Color sheet;
+  final Color fill;
+  final Color hair;
+  final Color hair2;
+  final Color goldSoft;
+  final Color goldLine;
+
+  /// The deep gold of corner marks and section ticks: [tick] under its design name.
+  Color get goldDeep => tick;
+
   final double radius;
   final double radiusSmall;
 
@@ -190,6 +214,13 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     Color? txCancelled,
     Color? scrim,
     Color? shadow,
+    Color? group,
+    Color? sheet,
+    Color? fill,
+    Color? hair,
+    Color? hair2,
+    Color? goldSoft,
+    Color? goldLine,
     double? radius,
     double? radiusSmall,
     double? controlHeight,
@@ -227,6 +258,13 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     txCancelled: txCancelled ?? this.txCancelled,
     scrim: scrim ?? this.scrim,
     shadow: shadow ?? this.shadow,
+    group: group ?? this.group,
+    sheet: sheet ?? this.sheet,
+    fill: fill ?? this.fill,
+    hair: hair ?? this.hair,
+    hair2: hair2 ?? this.hair2,
+    goldSoft: goldSoft ?? this.goldSoft,
+    goldLine: goldLine ?? this.goldLine,
     radius: radius ?? this.radius,
     radiusSmall: radiusSmall ?? this.radiusSmall,
     controlHeight: controlHeight ?? this.controlHeight,
@@ -271,6 +309,13 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
       txCancelled: c(txCancelled, other.txCancelled),
       scrim: c(scrim, other.scrim),
       shadow: c(shadow, other.shadow),
+      group: c(group, other.group),
+      sheet: c(sheet, other.sheet),
+      fill: c(fill, other.fill),
+      hair: c(hair, other.hair),
+      hair2: c(hair2, other.hair2),
+      goldSoft: c(goldSoft, other.goldSoft),
+      goldLine: c(goldLine, other.goldLine),
       radius: d(radius, other.radius),
       radiusSmall: d(radiusSmall, other.radiusSmall),
       controlHeight: d(controlHeight, other.controlHeight),
@@ -327,9 +372,16 @@ const WalletTokens protocolDark = WalletTokens(
   txCancelled: PaletteDark.txCancelled,
   scrim: PaletteDark.scrim,
   shadow: PaletteDark.shadow,
+  group: PaletteDark.group,
+  sheet: PaletteDark.sheet,
+  fill: PaletteDark.fill,
+  hair: PaletteDark.hair,
+  hair2: PaletteDark.hair2,
+  goldSoft: PaletteDark.goldSoft,
+  goldLine: PaletteDark.goldLine,
   radius: 14,
   radiusSmall: 8,
-  controlHeight: 48,
+  controlHeight: 52,
   headFamily: montserrat,
   monoFamily: jetBrainsMono,
 );
@@ -368,9 +420,16 @@ const WalletTokens protocolLight = WalletTokens(
   txCancelled: PaletteLight.txCancelled,
   scrim: PaletteLight.scrim,
   shadow: PaletteLight.shadow,
+  group: PaletteLight.group,
+  sheet: PaletteLight.sheet,
+  fill: PaletteLight.fill,
+  hair: PaletteLight.hair,
+  hair2: PaletteLight.hair2,
+  goldSoft: PaletteLight.goldSoft,
+  goldLine: PaletteLight.goldLine,
   radius: 14,
   radiusSmall: 8,
-  controlHeight: 48,
+  controlHeight: 52,
   headFamily: montserrat,
   monoFamily: jetBrainsMono,
 );
@@ -420,9 +479,33 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     colorScheme: scheme,
     scaffoldBackgroundColor: t.bg,
     canvasColor: t.bg,
+    // The phone's body face is Inter (the designer's frames); titles and figures stay Montserrat.
+    fontFamily: interFamily,
     fontFamilyFallback: phoneFontFallback,
+    // One motion for every pushed screen (phone_motion.dart).
+    pageTransitionsTheme: phonePageTransitions,
   );
-  final text = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
+  final applied = base.textTheme.apply(bodyColor: t.text, displayColor: t.text);
+  // The frames' body carries tnum and cv11 (wallet.css `.w`), so every text style does, and no
+  // letter-spacing: Material's defaults (0.1 to 0.5) would widen every line by up to 7%.
+  TextStyle? withFeatures(TextStyle? s) => s?.copyWith(fontFeatures: interFeatures, letterSpacing: 0);
+  final text = TextTheme(
+    displayLarge: withFeatures(applied.displayLarge),
+    displayMedium: withFeatures(applied.displayMedium),
+    displaySmall: withFeatures(applied.displaySmall),
+    headlineLarge: withFeatures(applied.headlineLarge),
+    headlineMedium: withFeatures(applied.headlineMedium),
+    headlineSmall: withFeatures(applied.headlineSmall),
+    titleLarge: withFeatures(applied.titleLarge),
+    titleMedium: withFeatures(applied.titleMedium),
+    titleSmall: withFeatures(applied.titleSmall),
+    bodyLarge: withFeatures(applied.bodyLarge),
+    bodyMedium: withFeatures(applied.bodyMedium),
+    bodySmall: withFeatures(applied.bodySmall),
+    labelLarge: withFeatures(applied.labelLarge),
+    labelMedium: withFeatures(applied.labelMedium),
+    labelSmall: withFeatures(applied.labelSmall),
+  );
   const tabular = [FontFeature.tabularFigures()];
   TextStyle? head(TextStyle? s, {double tracking = -0.3}) => s?.copyWith(
     fontFamily: t.headFamily,
@@ -432,12 +515,15 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
   final shape = RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(t.radiusSmall),
   );
+  // Buttons: 52 tall, radius 16 (HANDOFF 5.3). A field is 16 too. The small radius stays for
+  // chips, segments and the FAB.
+  final buttonShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(Kit.rButton));
   final minSize = Size(64, t.controlHeight);
   // From the text theme, so a button keeps the body font and the reader's text scale.
   final buttonText = text.labelLarge?.copyWith(fontWeight: FontWeight.w600);
   OutlineInputBorder border(Color color, [double width = 1]) =>
       OutlineInputBorder(
-        borderRadius: BorderRadius.circular(t.radiusSmall),
+        borderRadius: BorderRadius.circular(Kit.rField),
         borderSide: BorderSide(color: color, width: width),
       );
 
@@ -469,7 +555,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: minSize,
-        shape: shape,
+        shape: buttonShape,
         textStyle: buttonText,
         disabledBackgroundColor: disabledButtonFill(t),
         disabledForegroundColor: t.faint,
@@ -479,7 +565,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       style: OutlinedButton.styleFrom(
         foregroundColor: t.text,
         minimumSize: minSize,
-        shape: shape,
+        shape: buttonShape,
         textStyle: buttonText,
         disabledForegroundColor: t.faint,
       ).copyWith(
@@ -601,14 +687,43 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       selectedColor: t.selected,
       shape: shape,
     ),
+    // A sheet: the sheet fill, 28 on top, a hairline edge, the grabber, the scrim behind it
+    // (HANDOFF 7.5). No tint, no Material elevation.
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: t.field,
-      modalBackgroundColor: t.field,
-      dragHandleColor: t.lineStrong,
+      backgroundColor: t.sheet,
+      modalBackgroundColor: t.sheet,
+      modalBarrierColor: t.scrim,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      modalElevation: 0,
+      dragHandleColor: t.hair2,
+      dragHandleSize: const Size(Kit.grabberWidth, Kit.grabberHeight),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(t.radius)),
-        side: BorderSide(color: t.lineStrong),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(Kit.rSheetTop)),
+        side: BorderSide(color: t.hair2),
       ),
+      clipBehavior: Clip.antiAlias,
+    ),
+    // The tab bar: the page ground, no pill under the selected tab, gold for the selected one,
+    // dim for the rest; a hairline above it (HANDOFF 7.1).
+    navigationBarTheme: NavigationBarThemeData(
+      height: Kit.tabBar,
+      backgroundColor: t.bg,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      elevation: 0,
+      indicatorColor: Colors.transparent,
+      iconTheme: WidgetStateProperty.resolveWith(
+        (s) => IconThemeData(color: s.contains(WidgetState.selected) ? t.accentText : t.dim, size: 24),
+      ),
+      labelTextStyle: WidgetStateProperty.resolveWith(
+        (s) => TextStyle(
+          fontSize: 11.5,
+          fontWeight: FontWeight.w500,
+          color: s.contains(WidgetState.selected) ? t.accentText : t.dim,
+        ),
+      ),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: t.field,
@@ -617,11 +732,23 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         side: BorderSide(color: t.lineStrong),
       ),
     ),
-    snackBarTheme: SnackBarThemeData(
-      backgroundColor: t.text,
-      contentTextStyle: TextStyle(color: t.bg),
-      actionTextColor: t.bg,
-    ),
+    // `.toast`: floats 12 in from the sides, 56 tall at least, radius 20, a stronger hairline,
+    // 14.5 text. Dark: the ground rgba(34,34,43,.95); light keeps the inverted bar.
+    snackBarTheme: brightness == Brightness.dark
+        ? SnackBarThemeData(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xF222222B),
+            contentTextStyle: TextStyle(color: t.text, fontSize: 14.5, height: 1.3),
+            actionTextColor: t.accentText,
+            elevation: 0,
+            insetPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: t.hair2)),
+          )
+        : SnackBarThemeData(
+            backgroundColor: t.text,
+            contentTextStyle: TextStyle(color: t.bg),
+            actionTextColor: t.bg,
+          ),
     // Every bar and spinner takes the app's accent; none stays stock.
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: t.accent,

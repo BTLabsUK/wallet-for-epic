@@ -14,11 +14,14 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'support/fake_history_files.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/pin_pad.dart';
 
 /// A valid fake epicbox address with a key made of [c].
 String addr(String c, {String relay = 'epicbox.epiccash.com'}) =>
@@ -506,7 +509,7 @@ class _AppHarness {
   }
 
   Future<void> unlock(WidgetTester tester) async {
-    await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+    await typePin(tester, _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
   }

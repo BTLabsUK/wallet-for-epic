@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/common.dart' show DangerButton;
 import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/notices.dart';
@@ -121,10 +122,19 @@ Future<FakeWalletSession> _pump(WidgetTester tester, TxEntry tx) async {
   return session;
 }
 
+/// The button sits below the steps on the page: scroll it in before the tap.
+Future<void> _tapRelease(WidgetTester tester) async {
+  final button = find.widgetWithText(KitButton, _l.txDetailsReleaseFunds);
+  await tester.ensureVisible(button);
+  await tester.pumpAndSettle();
+  await tester.tap(button);
+  await tester.pumpAndSettle();
+}
+
 Notice? _notice(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider);
 
 Future<void> _openCancel(WidgetTester tester) async {
-  await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).first);
+  await tester.tap(find.widgetWithText(KitButton, _l.txDetailsCancelPayment).first);
   await tester.pumpAndSettle();
 }
 
@@ -143,7 +153,6 @@ void _expectThreeChoices(WidgetTester tester, {required String keep}) {
   // No caption under a button, no info icon (B-04).
   expect(find.text(_l.cancelFeeLine), findsNothing);
   expect(find.text(_l.cancelStopWaitingLine), findsNothing);
-  expect(find.byKey(cancelFeeHintKey), findsNothing);
   final compare = tester.getRect(find.text(_l.cancelCompareUnlock));
   final main = tester.getRect(find.byKey(cancelForSureKey));
   final stop = tester.getRect(find.byKey(cancelStopWaitingKey));
@@ -204,7 +213,6 @@ void main() {
     await _openCancel(tester);
     expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
     expect(find.text(_l.cancelFeeLine), findsNothing);
-    expect(find.byKey(cancelFeeHintKey), findsNothing);
     expect(find.byType(InfoHint), findsNothing);
     expect(find.byKey(cancelStopWaitingKey), findsNothing);
     expect(find.text(_l.cancelCompareUnlock), findsNothing);
@@ -218,8 +226,7 @@ void main() {
 
   testWidgets('Release coins: the same three choices; Unlock coins releases with nothing spent', (tester) async {
     final s = await _pump(tester, _send(releasable: true));
-    await tester.tap(find.widgetWithText(OutlinedButton, _l.txDetailsReleaseFunds));
-    await tester.pumpAndSettle();
+    await _tapRelease(tester);
     expect(find.text(_l.txDetailsReleaseTitle), findsOneWidget);
     expect(find.text(_l.txDetailsReleaseBody), findsOneWidget);
     expect(find.text(_l.cancelMoreInHelp), findsAtLeastNWidgets(1));
@@ -234,8 +241,7 @@ void main() {
 
   testWidgets('Release coins, Move coins back: released and the coins spent back', (tester) async {
     final s = await _pump(tester, _send(releasable: true));
-    await tester.tap(find.widgetWithText(OutlinedButton, _l.txDetailsReleaseFunds));
-    await tester.pumpAndSettle();
+    await _tapRelease(tester);
     await tester.tap(find.byKey(cancelForSureKey));
     await tester.pumpAndSettle();
     expect(s.releasedKeys, ['s:pay-1']);

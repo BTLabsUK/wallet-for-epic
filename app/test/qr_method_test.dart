@@ -16,9 +16,11 @@ import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/file_exchange_help.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/net_block.dart' show offlineNodeNoteKey;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';
 import 'package:epic_wallet/src/ui/qr_show_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
@@ -32,6 +34,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/send_finders.dart';
 import 'support/send_pin.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -167,8 +170,19 @@ class _Harness {
   }
 }
 
-/// The ways under an empty To field: Pay in person (QR) and Pay with a file.
-Finder _way(String label) => find.widgetWithText(TextButton, label);
+/// The ways in the "No address?" sheet: In person (QR) and With a file.
+Finder _way(String label) => find.text(switch (label) {
+  'Pay in person' => _l.phoneSendInPerson,
+  _ => _l.phoneSendWithFile,
+});
+
+Future<void> _openWays(WidgetTester tester) async {
+  // Neither way offered: there is no entry to open.
+  if (find.text(_l.sendNoAddress).evaluate().isEmpty) return;
+  await tester.tap(find.text(_l.sendNoAddress));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
+}
 
 const _linkAddress = 'https://wallet.example.com:3415';
 
@@ -182,7 +196,15 @@ String _howCaption(WidgetTester tester) =>
     tester.widget<Text>(find.byKey(handshakeCaptionKey)).data!;
 
 Future<void> _openHow(WidgetTester tester) async {
-  await tester.tap(find.byTooltip(_l.sendHowItWorks));
+  await tester.tap(find.byTooltip(_l.sendHelp));
+  await tester.pumpAndSettle();
+}
+
+/// Receive › Other ways to receive › In person.
+Future<void> _openInPerson(WidgetTester tester) async {
+  await tester.tap(find.text(_l.phoneRecvOther));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(_l.phoneSettingsInPerson));
   await tester.pumpAndSettle();
 }
 
@@ -193,7 +215,7 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester, SendView(onDone: () {}));
-        await tester.tap(_way('Pay in person'));
+        await chooseWay(tester, qr: true);
         await tester.pumpAndSettle();
         await _openHow(tester);
         expect(find.byType(HandshakeSheet), findsOneWidget);
@@ -215,11 +237,13 @@ void main() {
       final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
       await _openHow(tester);
-      expect(_howCaption(tester), '1. ${_l.handshakePay1}');
-      await tester.tap(find.text(_l.commonClose));
+      // The payment way's help is the frame's sheet: the three steps, then Done.
+      expect(find.text(_l.phoneSendHelpTitle), findsOneWidget);
+      expect(find.byType(HandshakeSheet), findsNothing);
+      await tester.tap(find.text(_l.commonDone));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), _linkAddress);
+      await tester.enterText(sendTo(), _linkAddress);
       await tester.pumpAndSettle();
       await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeLink1}');
@@ -230,11 +254,13 @@ void main() {
       // The file way has its own help in the header instead (one help icon per header).
       await tester.tap(find.byKey(sendRecipientClearKey));
       await tester.pumpAndSettle();
-      await tester.tap(_way('Pay with a file'));
+      await chooseWay(tester);
       await tester.pumpAndSettle();
-      expect(find.byTooltip(_l.sendHowItWorks), findsNothing);
-      await tester.tap(find.byTooltip(_l.sendFileHelpTooltip));
-      await tester.pumpAndSettle();
+      // The one help icon opens the file way's own help, not the handshake.
+      await tester.tap(find.byTooltip(_l.sendHelp));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(FileExchangeHelp), findsOneWidget);
       expect(find.byType(HandshakeSheet), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -244,13 +270,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const ReceiveView());
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await _openInPerson(tester);
       await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeQrR1}');
       expect(find.textContaining('relay'), findsNothing);
@@ -264,8 +284,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
-      expect(find.byKey(sendMethodsKey), findsNothing);
-      expect(_way(_l.sendPayInPerson), findsOneWidget);
+      await _openWays(tester);
+      expect(_way('Pay in person'), findsOneWidget);
       expect(_way('Pay with a file'), findsNothing);
     });
 
@@ -274,8 +294,9 @@ void main() {
     ) async {
       final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
+      await _openWays(tester);
       final names = ['Pay in person', 'Pay with a file'];
-      final xs = [for (final n in names) tester.getTopLeft(_way(n)).dx];
+      final xs = [for (final n in names) tester.getTopLeft(_way(n)).dy];
       expect(xs, [...xs]..sort());
     });
 
@@ -284,11 +305,13 @@ void main() {
       (tester) async {
         var h = _Harness(scanner: false);
         await h.pump(tester, SendView(onDone: () {}));
+        await _openWays(tester);
         expect(_way('Pay in person'), findsNothing);
         h = _Harness(prefs: 'file,noqr|epicbox');
         await h.pump(tester, SendView(onDone: () {}));
+        await _openWays(tester);
         expect(_way('Pay in person'), findsNothing);
-        expect(_way(_l.sendPayByFile), findsOneWidget);
+        expect(_way('Pay with a file'), findsOneWidget);
       },
     );
 
@@ -297,14 +320,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const ReceiveView());
-      expect(find.byKey(receiveTabsKey), findsOneWidget);
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneRecvOther), findsOneWidget);
+      await _openInPerson(tester);
       expect(find.text(_l.receiveQrTitle), findsOneWidget);
       expect(find.byKey(receiveScanQrKey), findsOneWidget);
       // Asking for an amount, shown as a QR, sits under the scan.
@@ -323,15 +340,9 @@ void main() {
           const ReceiveView(),
           advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly),
         );
-        await tester.tap(
-          find.descendant(
-            of: find.byKey(receiveTabsKey),
-            matching: find.byTooltip(_l.methodShortQr),
-          ),
-        );
-        await tester.pumpAndSettle();
+        await _openInPerson(tester);
         expect(
-          tester.widget<FilledButton>(find.byKey(receiveScanQrKey)).onPressed,
+          tester.widget<KitButton>(find.byKey(receiveScanQrKey)).onPressed,
           isNotNull,
         );
         expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
@@ -494,7 +505,7 @@ void main() {
         stage: SlateStage.response,
       );
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_way('Pay in person'));
+      await chooseWay(tester, qr: true);
       await tester.pumpAndSettle();
       expect(find.text(_l.methodDirectQr), findsOneWidget);
 
@@ -508,21 +519,19 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       // The code opens by itself, hidden, with what to do.
-      expect(find.text(_l.qrShowTitlePayment), findsOneWidget);
+      expect(find.text(_l.phoneQrTitlePay), findsOneWidget);
       expect(find.text(_l.qrStatusSendHidden), findsOneWidget);
       expect(h.session.sentAmounts, [_epic(1)]);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
-      expect(
-        find.text('Waiting for the recipient to scan. Then scan their reply.'),
-        findsOneWidget,
-      );
+      // The frame's line under the code; the step strip says what comes after.
+      expect(find.text(_l.phoneQrHoldHint), findsOneWidget);
 
       await tester.tap(find.byKey(qrNextButtonKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text(_l.qrScanReply), findsWidgets);
+      expect(find.text(_l.phoneQrTitlePay), findsWidgets);
       final replyParts = await h.parts(_replyJson);
       final n = partCountOf(replyParts.first);
       await h.scan(tester, replyParts.take(1).toList());
@@ -553,7 +562,7 @@ void main() {
           stage: SlateStage.response,
         );
         await h.pump(tester, SendView(onDone: () {}));
-        await tester.tap(_way('Pay in person'));
+        await chooseWay(tester, qr: true);
         await tester.pumpAndSettle();
         await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
         // Past the fee estimate's debounce: Make payment QR waits for it.
@@ -595,23 +604,62 @@ void main() {
         stage: SlateStage.send,
       );
       await h.pump(tester, const ReceiveView());
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await _openInPerson(tester);
       await tester.tap(find.byKey(receiveScanQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       await h.scan(tester, await h.parts(json));
       await tester.pump(qrCompleteFor);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(_l.slateAcceptPayment));
+      await tester.tap(find.text(_l.phoneAcceptAccept));
       await tester.pumpAndSettle();
       expect(find.byKey(showReplyQrKey), findsOneWidget);
       expect(find.text(_l.slateSaveToDevice), findsOneWidget);
+    });
+
+    testWidgets('Receive: Not now on the sheet goes back to the scanner, which reads again', (
+      tester,
+    ) async {
+      final h = _Harness();
+      final json = _paymentJson;
+      h.service.slateInfos[json] = SlateInfo(
+        slateId: 'slate-1',
+        amount: _epic(1),
+        fee: BigInt.from(8000000),
+        stage: SlateStage.send,
+      );
+      await h.pump(tester, const ReceiveView());
+      await _openInPerson(tester);
+      await tester.tap(find.byKey(receiveScanQrKey));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await h.scan(tester, await h.parts(json));
+      await tester.pump(qrCompleteFor);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+
+      await tester.tap(find.text(_l.phoneAcceptNotNow));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsNothing);
+      expect(find.byType(QrScanScreen), findsOneWidget);
+      expect(h.session.receivedSlates, isEmpty);
+
+      // The same code still in view is not opened again at once; after the pause it is.
+      await h.scan(tester, await h.parts(json));
+      await tester.pump(qrCompleteFor);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsNothing);
+      await tester.pump(qrDeclinedFor);
+      await h.scan(tester, await h.parts(json));
+      await tester.pump(qrCompleteFor);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
+
+      // Back on the sheet is Not now too.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phoneAcceptTitle), findsNothing);
+      expect(find.byType(QrScanScreen), findsOneWidget);
     });
 
     testWidgets('Receive: scan, accept, show the reply, follow the payment', (
@@ -626,13 +674,7 @@ void main() {
         stage: SlateStage.send,
       );
       await h.pump(tester, const ReceiveView());
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip(_l.methodShortQr),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await _openInPerson(tester);
       await tester.tap(find.byKey(receiveScanQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
@@ -643,26 +685,23 @@ void main() {
       await tester.pumpAndSettle();
 
       // The payment screen of a scanned payment.
-      expect(find.text(_l.slateScannedPaymentTitle), findsOneWidget);
+      expect(find.text(_l.phoneAcceptTitle), findsOneWidget);
       expect(
-        find.text(_l.slateIncomingSendHintQr),
+        find.text(_l.phoneAcceptHintQr),
         findsOneWidget,
       );
-      // Titled for the method, with no word of files.
-      expect(
-        find.descendant(
-          of: find.byType(AppBar),
-          matching: find.text(_l.methodDirectQr),
-        ),
-        findsOneWidget,
-      );
+      // A sheet over the scanner, with no word of files.
+      expect(find.byType(QrScanScreen), findsOneWidget);
       expect(find.text(_l.slateFileTitle), findsNothing);
-      await tester.tap(find.text(_l.slateAcceptPayment));
+      await tester.tap(find.text(_l.phoneAcceptAccept));
       await tester.pumpAndSettle();
       expect(
         find.text(_l.slateAcceptedHeadlineQr),
         findsOneWidget,
       );
+      // Accepted: the scanner under it is gone, the page titled for the method.
+      expect(find.byType(QrScanScreen), findsNothing);
+      expect(find.text(_l.phoneQrTitleReceive), findsOneWidget);
       expect(find.byKey(showReplyQrKey), findsOneWidget);
       // The home notice stays quiet while this screen is open.
       expect(qrPaymentScreensOpen, 1);
@@ -673,11 +712,12 @@ void main() {
       await tester.tap(find.byKey(showReplyQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text(_l.qrShowTitleReply), findsOneWidget);
-      expect(find.text(_l.qrStatusReplyHidden), findsOneWidget);
-      await tester.tap(find.byKey(qrShowButtonKey));
-      await _tick(tester, 3);
-      expect(find.text(_l.qrStatusReplyShowing), findsOneWidget);
+      expect(find.text(_l.phoneQrTitleReceive), findsWidgets);
+      // The receiver's reply code shows at once: no cover, no Show QR, no countdown.
+      expect(find.text(_l.qrHiddenTitle), findsNothing);
+      expect(find.byKey(qrShowButtonKey), findsNothing);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text(_l.phoneQrReplyShowing), findsOneWidget);
 
       // The received payment shows in the wallet's history, then the sender posts it.
       h.session.transactionsValue = [
@@ -711,7 +751,7 @@ void main() {
       expect(find.text(_l.qrShowAgain), findsNothing);
       expect(find.byKey(qrShowButtonKey), findsNothing);
       expect(find.byKey(qrNextButtonKey), findsOneWidget);
-      expect(tester.widget(find.byKey(qrNextButtonKey)), isA<FilledButton>());
+      expect(tester.widget<KitButton>(find.byKey(qrNextButtonKey)).kind, KitButtonKind.gold);
       h.session.transactionsValue = [
         fakeTx(
           slateId: 'slate-1',
@@ -740,8 +780,8 @@ void main() {
   // next-fixes 12: 5 EPIC with 0.892 available, and "Make payment QR" took the tap before the
   // fee estimate came back.
   group('Make payment QR waits for the amount check', () {
-    Finder make() => find.widgetWithText(FilledButton, 'Make payment QR');
-    Finder amount() => find.widgetWithText(TextField, 'Amount (EPIC)');
+    Finder make() => find.widgetWithText(KitButton, 'Make payment QR');
+    Finder amount() => sendAmount();
 
     testWidgets('more than spendable: off on the keystroke, with the reason', (tester) async {
       final h = _Harness(prefs: '|qr');
@@ -757,37 +797,41 @@ void main() {
         validatedWithNode: true,
       );
       await h.pump(tester, SendView(onDone: () {}));
+      // The phone opens on the recipient step whatever the stored Default method is.
+      await chooseWay(tester, qr: true);
       await tester.enterText(amount(), '5');
       // One frame: inside the estimate's debounce, nothing asked of the wallet yet.
       await tester.pump();
       expect(find.byKey(sendNotEnoughKey), findsOneWidget);
-      expect(find.text(_l.errorNotEnoughFunds), findsOneWidget);
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<Text>(find.byKey(sendNotEnoughKey)).textSpan!.toPlainText(), contains('4.108'));
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
       await tester.tap(make(), warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       expect(find.widgetWithText(TextField, _l.pinLabel), findsNothing);
       expect(h.session.sentAmounts, isEmpty);
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
     });
 
     testWidgets('within the balance: off until the estimate for it has come', (tester) async {
       final h = _Harness(prefs: '|qr');
       await h.pump(tester, SendView(onDone: () {}));
+      // The phone opens on the recipient step whatever the stored Default method is.
+      await chooseWay(tester, qr: true);
       await tester.enterText(amount(), '0.5');
       await tester.pump();
       expect(find.byKey(sendNotEnoughKey), findsNothing);
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
-      expect(tester.widget<FilledButton>(make()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNotNull);
       // A new amount waits again.
       await tester.enterText(amount(), '0.6');
       await tester.pump();
-      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNull);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
-      expect(tester.widget<FilledButton>(make()).onPressed, isNotNull);
+      expect(tester.widget<KitButton>(make()).onPressed, isNotNull);
     });
   });
 }

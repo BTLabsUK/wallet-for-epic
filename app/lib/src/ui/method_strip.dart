@@ -15,12 +15,6 @@ export 'method_art.dart' show TransferMethod;
 /// The key of the strip, for tests.
 const Key methodStripKey = ValueKey('method-strip');
 
-/// The guide id of Send's method strip: one id for the place, whichever method it explains.
-const String sendMethodTipId = 'send-method';
-
-/// The guide id of Receive's method strip, shared by its three tabs.
-const String receiveMethodTipId = 'receive-method';
-
 /// The key of a guide's X, for tests.
 Key tipHideKey(String id) => ValueKey('tip-hide-$id');
 

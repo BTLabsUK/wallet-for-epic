@@ -12,7 +12,6 @@ import 'home_screen.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'first_run_screen.dart';
-import 'level_step_screen.dart';
 import 'pin_unlock_screen.dart';
 import 'restore_screen.dart';
 import 'theme/brand.dart';
@@ -58,8 +57,9 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
   }
 
   Future<Widget> _destination() async {
-    // A fresh install answers the first step (Create, Restore, Tor only) before anything else.
-    if (ref.read(firstStartProvider)) return const LevelStepScreen();
+    // A fresh install answers the first step (Create, Restore, Tor only) before anything else:
+    // Welcome asks it, and nothing connects until then.
+    if (ref.read(firstStartProvider)) return const FirstRunScreen();
     // A wallet left open would pin its chain for the one about to open.
     ref.read(sessionProvider.notifier).lock();
     final choice = await ref.read(networkChoiceProvider.future);
@@ -76,8 +76,6 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
       VaultStage.empty => switch (widget.start) {
         FirstRunStart.create => const FirstRunScreen(startCreating: true),
         FirstRunStart.restore => const RestoreScreen(),
-        // Back from those steps in the run that answered the first step: the first step again.
-        null when ref.read(levelStepAnswerProvider) != null => const LevelStepScreen(),
         null => const FirstRunScreen(),
       },
       VaultStage.stranded => const PinUnlockScreen(stranded: true),
@@ -92,7 +90,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
         ? await vault.unlock(config, _previewPin)
         : (await vault.create(config, pin: _previewPin)).session;
     await ref.read(sessionProvider.notifier).open(session);
-    ref.read(shellTabProvider.notifier).go(ShellTab.wallet);
+    ref.read(shellTabProvider.notifier).go(ShellTab.home);
     return const HomeScreen();
   }
 
@@ -100,7 +98,6 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
   Widget build(BuildContext context) {
     return SlotScaffold(
       centered: true,
-      glow: heroGlow,
       body: CenteredBody(
         children: [
           const BrandHero(),
