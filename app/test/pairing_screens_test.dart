@@ -419,6 +419,7 @@ void main() {
       await tester.pumpAndSettle();
       final before = h.api.collects.length;
       await tester.pump(const Duration(seconds: 10));
+      await tester.pump(const Duration(seconds: 1));
       expect(h.api.collects.length, greaterThan(before), reason: 'the verdict is collected while the words are open');
       h.api.peerMismatch(r.id);
       await tester.pumpAndSettle();
