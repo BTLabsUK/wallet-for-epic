@@ -497,7 +497,7 @@ class EOnbFrame extends StatelessWidget {
       builder: (context, box) {
         // Anchored at one height, not centred: a step whose content grows (a hint, an error
         // line) moves nothing above it.
-        final pad = EdgeInsets.fromLTRB(Sp.x6, short ? Sp.x3 : (window.height * 0.06).clamp(Sp.x4, 96.u), Sp.x6, short ? Sp.x3 : 28.u);
+        final pad = EdgeInsets.fromLTRB(Sp.x6, short ? Sp.x3 : (window.height * 0.04).clamp(Sp.x4, 72.u), Sp.x6, short ? Sp.x3 : 28.u);
         // As in a dialog, the step scrolls inside the card and its buttons stay in view; a
         // [fill] step scrolls its own part. Too short a window scrolls the whole page.
         if (box.maxHeight >= fillMinHeight) {

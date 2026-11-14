@@ -273,7 +273,7 @@ class EModalCard extends StatelessWidget {
       ],
     );
     final bodyPad = EdgeInsets.fromLTRB(pad, short ? Sp.x4 : Sp.x6, pad, 0);
-    final content = body == null ? null : (scrolls ? SingleChildScrollView(padding: bodyPad, child: body) : Padding(padding: bodyPad, child: body));
+    final content = body == null ? null : (scrolls ? _CardScroll(padding: bodyPad, child: body!) : Padding(padding: bodyPad, child: body));
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: width),
       child: Container(
@@ -308,4 +308,33 @@ class EModalCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A card body that scrolls inside the card, its scrollbar always shown so what is below the
+/// fold is seen to be there; its own controller, apart from the page's.
+class _CardScroll extends StatefulWidget {
+  const _CardScroll({required this.padding, required this.child});
+
+  final EdgeInsets padding;
+  final Widget child;
+
+  @override
+  State<_CardScroll> createState() => _CardScrollState();
+}
+
+class _CardScrollState extends State<_CardScroll> {
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scrollbar(
+    controller: _scroll,
+    thumbVisibility: true,
+    child: SingleChildScrollView(controller: _scroll, primary: false, padding: widget.padding, child: widget.child),
+  );
 }

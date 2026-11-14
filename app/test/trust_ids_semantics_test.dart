@@ -290,10 +290,17 @@ void main() {
     testWidgets('Restore\u2019s start opened, then by height; the info popover', (tester) async {
       Future<void> open({bool height = false, bool info = false}) async {
         await _openDesk(tester, _shots['03c-restore-password']!);
+        // The step's card scrolls inside itself: the start row is brought into view first.
+        await tester.ensureVisible(find.byKey(info ? ScanStart.infoKey : ScanStart.changeKey));
+        await tester.pump();
         // The fold's first frame is at elapsed 0: one frame to start, one to open.
         await tester.tap(find.byKey(info ? ScanStart.infoKey : ScanStart.changeKey));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));
+        if (!info) {
+          await tester.ensureVisible(find.text(englishStrings.restoreStartByMonth));
+          await tester.pump();
+        }
         if (height) {
           await tester.tap(find.text(englishStrings.restoreStartByHeight));
           await tester.pump();
