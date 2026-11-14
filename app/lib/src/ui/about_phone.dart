@@ -21,7 +21,6 @@ import 'kit/kit_row.dart';
 import 'kit/kit_sheet.dart';
 import 'kit/kit_support.dart' show kitId;
 import 'kit/kit_tokens.dart';
-import 'licences_screen.dart';
 import 'notices.dart' show NoticeLevel, noticeProvider;
 import 'net_block.dart';
 import 'network_mode_text.dart' show blockMode, networkModeName;
@@ -101,15 +100,9 @@ class AboutPhoneBody extends ConsumerWidget {
                     ? _showNotes(context, l.phoneAboutNotesTitle(installed ?? ''), notes)
                     : copyText(context, releases!, l.settingsLinkCopied),
               ),
-            KitRow(
-              key: settingsLicencesKey,
-              size: KitRowSize.settings,
-              minHeight: 54,
-              title: l.settingsLicences,
-              chevron: true,
-              semanticsId: TrustIds.aboutLicences,
-              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LicenceTextsScreen())),
-            ),
+            // The full texts are a web page: the row is an external link, as the others here.
+            if (hostSettings.linkLicences case final url?)
+              LinkTile(key: settingsLicencesKey, title: l.settingsLicences, url: url, id: TrustIds.aboutLicences, minHeight: 54),
             // The site's address as its name, the same in every language and on the desktop. The
             // app has no browser launcher: a tap copies the address.
             if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site, id: TrustIds.aboutSite, minHeight: 54),

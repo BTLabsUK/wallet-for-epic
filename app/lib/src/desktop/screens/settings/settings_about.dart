@@ -7,6 +7,7 @@ import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show TorSourceNote;
 import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl;
+import '../../../settings_file/host_settings.dart' show hostSettings;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 
 import 'dart:async';
@@ -24,7 +25,6 @@ import '../../desk_l10n.dart';
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import '../../app/title_bar.dart' show copyBuildInfo;
-import 'licence_texts_dialog.dart';
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 
@@ -208,12 +208,8 @@ class _LicencesFoldState extends State<_LicencesFold> {
             ),
           ),
           Divider(height: 1, thickness: 1, color: c.line),
-          ESetRow(
-            title: l.licencesFull,
-            control: ERowControl(
-              child: EButton(label: l.deskSetAboutView, size: EBtnSize.sm, onPressed: () => showLicenceTextsDialog(context)),
-            ),
-          ),
+          // The full texts are a web page, opened in the browser like the links below.
+          if (hostSettings.linkLicences case final url?) _LinkRow(anchor: null, title: l.licencesFull, shown: shownUrl(url), url: url),
         ],
       ],
     );
@@ -224,7 +220,7 @@ class _LicencesFoldState extends State<_LicencesFold> {
 class _LinkRow extends ConsumerWidget {
   const _LinkRow({required this.anchor, required this.title, required this.shown, required this.url});
 
-  final String anchor;
+  final String? anchor;
   final String title;
   final String shown;
   final String url;
