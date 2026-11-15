@@ -962,6 +962,9 @@ class Desktop:
         """A dropdown (ESelect) on the open Settings page set to `option`: a goal, SKIP when it shows
         it already. Opens the list, presses the option, then the field must show it."""
         d = self.d
+        # an open list's option reaches AT-SPI as its text inside an unnamed button (Flutter's
+        # MenuItemButton): a row target takes text too, and a press on the text goes to the button
+        option = replace(option, role="row")
 
         def choose():
             if not d.find_in(option, d.tree()):
