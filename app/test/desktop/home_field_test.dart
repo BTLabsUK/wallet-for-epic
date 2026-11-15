@@ -124,7 +124,10 @@ void main() {
       await _open(tester);
       await _type(tester, '5 anna');
       expect(find.byKey(const ValueKey('home-field-note')), findsOneWidget);
-      expect(tester.widget<Text>(find.byKey(const ValueKey('home-field-note'))).data, contains('Fee'));
+      final note = tester.widget<Text>(find.byKey(const ValueKey('home-field-note'))).data;
+      expect(note, contains('Fee'));
+      // The whole balance (1,224.4451) less 5 and the fee, as Send's summary shows it.
+      expect(note, contains('Balance after 1,219.4'));
       await _end(tester);
     });
 

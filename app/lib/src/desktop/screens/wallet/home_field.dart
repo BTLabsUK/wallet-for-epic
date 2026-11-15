@@ -19,6 +19,7 @@ import '../../../scan/scan_router.dart' show classifyScan;
 import '../../../send_route.dart';
 import '../../../settings_file/host_settings.dart' show appConfig;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../../../send_summary.dart' show SendSummary;
 import '../../../smart_outputs.dart';
 import '../../../ui/send_route_text.dart' show sendContactedText, sendMethodName, sendProblemText;
 import '../../data/pairing_state.dart' show deskContactPairingProvider, deskInvoicesShownProvider;
@@ -115,7 +116,7 @@ class _HomeFieldState extends ConsumerState<HomeField> {
 
   /// The fee asked for [_feeFor] (null while none, or when the estimate failed).
   int _feeFor = -1;
-  int? _fee;
+  SendEstimate? _est;
 
   /// Everything spendable, minus the fee, as Send's Max works it out; [_maxAt] is the balance it
   /// was asked for.
@@ -220,7 +221,7 @@ class _HomeFieldState extends ConsumerState<HomeField> {
   /// The fee Send would show: its own plan (strategy, Split change).
   Future<void> _loadFee(int n) async {
     final api = ref.read(deskApiProvider);
-    int? fee;
+    SendEstimate? est;
     try {
       final prefs = ref.read(deskOutputPrefsProvider).value ?? const OutputPrefs();
       int? outputs;
@@ -237,14 +238,14 @@ class _HomeFieldState extends ConsumerState<HomeField> {
         spendableOutputs: outputs ?? 0,
         splitRefused: deskSplitRefused,
       );
-      fee = plan.estimate.fee;
+      est = plan.estimate;
     } on Object {
-      fee = null;
+      est = null;
     }
     if (!mounted) return;
     setState(() {
-      _fee = fee;
-      _feeFor = fee == null ? -1 : n;
+      _est = est;
+      _feeFor = est == null ? -1 : n;
     });
   }
 
@@ -327,15 +328,19 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     final notes = <String>[];
     if (r.message != null && r.message!.isNotEmpty) notes.add(l.deskHomeMessage(r.message!));
     if (!request && a.nano != null && spendable != null) {
-      final fee = _feeFor == a.nano ? _fee : null;
+      final est = a.max ? _max : (_feeFor == a.nano ? _est : null);
+      final fee = est?.fee;
+      final balance = ref.read(deskProvider).balance;
       if (a.max) {
         // Everything spendable goes, the fee included.
       } else if (a.nano! > spendable || (fee != null && a.nano! + fee > spendable)) {
         problem ??= l.deskHomeOver(epicTextL(l, spendable));
-      } else if (fee != null) {
-        notes.add(l.deskHomeFee(epicTextL(l, fee), epicTextL(l, spendable - a.nano! - fee)));
       }
-      if (a.max && fee == null && _max != null) notes.add(l.deskHomeFee(epicTextL(l, _max!.fee), epicTextL(l, spendable - a.nano! - _max!.fee)));
+      // The same figures as Send's summary: the fee, and the whole balance once the send is done.
+      if (problem == null && est != null && balance != null) {
+        final sum = SendSummary.of(balance: balance.total, spendable: spendable, estimate: est);
+        notes.add(l.deskHomeFee(epicTextL(l, sum.fee), epicTextL(l, sum.balanceAfter)));
+      }
     }
     if (request && a.max) problem ??= l.deskSendErrAmountEnter;
 
