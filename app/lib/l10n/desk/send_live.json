@@ -60,5 +60,25 @@
         "example": "via file"
       }
     }
+  },
+  "deskSendDoneTo": "Sent to {name}",
+  "@deskSendDoneTo": {
+    "description": "Heading of Send after a payment went out, once it is confirmed. {name} is the contact's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskSendDoneVia": "Sent {via}",
+  "@deskSendDoneVia": {
+    "description": "Heading of Send after a payment went out, once it is confirmed, when the payment has no contact name; via is how it travelled, e.g. 'via file'.",
+    "placeholders": {
+      "via": {
+        "type": "String",
+        "example": "via file"
+      }
+    }
   }
 }

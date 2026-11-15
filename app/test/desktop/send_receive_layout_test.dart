@@ -112,7 +112,6 @@ void main() {
     expect(find.text(_l.txStatusReceiverDeclined), findsOneWidget);
     expect(find.text(_l.txDetailsReceiverDeclined), findsOneWidget);
     expect(find.text(_l.payOnItsWay), findsNothing);
-    expect(find.text(_l.payCloseNote), findsNothing);
     // The way on stays: a new send, and the row under Activity.
     expect(find.widgetWithText(EButton, _l.deskSendNewSend), findsOneWidget);
     expect(find.widgetWithText(EButton, _l.deskSendViewTx), findsOneWidget);

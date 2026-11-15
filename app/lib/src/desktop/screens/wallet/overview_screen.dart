@@ -22,7 +22,7 @@ import '../../../amount.dart' show AmountSurface, atomicPerEpic, epicUnit, surfa
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../../ui/common.dart' show epicExact, exactAmountTip;
 import '../../widgets/kit.dart';
-import '../../widgets/pay_steps.dart' show DeskPaymentSteps, PayStepDots, payInFlight, payStepList, payStepNowText;
+import '../../widgets/pay_steps.dart' show DeskPaymentSteps, PayAccentBox, PayStepDots, payInFlight, payStepList, payStepNowText;
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
@@ -913,6 +913,8 @@ class _InFlight extends ConsumerWidget {
     final l = context.l10n;
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final t = live.first;
+    // One name for the title and the steps.
+    final name = deskTxMailboxName(ref, t, any: true) ?? t.contactName;
     // A file send that waits for the recipient's file: the next step is on its card, beside
     // the amount, or under the title in a window too narrow for both.
     final reply = _waitsForFile(t)
@@ -925,7 +927,7 @@ class _InFlight extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ESectionHead(l.deskOvInMotion, top: Sp.x6),
-        _AccentBox(
+        PayAccentBox(
             key: ValueKey('overview-inflight-${t.id}'),
             child: Semantics(
               button: true,
@@ -945,7 +947,7 @@ class _InFlight extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(_inFlightTitle(l, t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
+                                Text(_inFlightTitle(l, t, name), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
                                 Text(
                                   l.deskPayStartedAt(hidden ? '••••••' : formatEpicL(l, t.amount), timeOf(t)),
                                   maxLines: 1,
@@ -962,7 +964,7 @@ class _InFlight extends ConsumerWidget {
                       ),
                       if (reply != null && !roomy) Padding(padding: EdgeInsets.only(top: Sp.x3), child: Align(alignment: AlignmentDirectional.centerStart, child: reply)),
                       SizedBox(height: Sp.x4),
-                      DeskPaymentSteps(tx: t, dense: true),
+                      DeskPaymentSteps(tx: t, name: name, dense: true),
                     ],
                   ),
                 ),
@@ -972,7 +974,7 @@ class _InFlight extends ConsumerWidget {
         if (rows.isNotEmpty || more > 0)
           Padding(
             padding: EdgeInsets.only(top: Sp.x3),
-            child: _AccentBox(
+            child: PayAccentBox(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -1008,35 +1010,6 @@ class _InFlight extends ConsumerWidget {
 /// A file send that waits for the recipient's response file (what [DeskState.pendingFiles] counts).
 bool _waitsForFile(Tx t) => t.method == TxMethod.file && t.state == TxState.waitingRecipient && !t.incoming;
 
-/// The box of a payment under way: s1 fill, line border and the info bar at the start. The bar is
-/// drawn under the content, not laid out beside it: the steps measure their own width (no
-/// intrinsic sizes here).
-class _AccentBox extends StatelessWidget {
-  const _AccentBox({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: panelBox(c),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: SizedBox(width: 3, child: ColoredBox(color: c.info, child: const SizedBox.expand())),
-            ),
-          ),
-          Padding(padding: const EdgeInsetsDirectional.only(start: 3), child: child),
-        ],
-      ),
-    );
-  }
-}
-
 /// A payment under way on one line: who, the step it is at in words, the five steps as dots
 /// (dropped when the row is narrow), the amount.
 class _InFlightRow extends ConsumerWidget {
@@ -1050,8 +1023,9 @@ class _InFlightRow extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final steps = payStepList(l, tx, name: deskTxMailboxName(ref, tx, any: true) ?? tx.contactName);
-    final title = _inFlightTitle(l, tx);
+    final name = deskTxMailboxName(ref, tx, any: true) ?? tx.contactName;
+    final steps = payStepList(l, tx, name: name);
+    final title = _inFlightTitle(l, tx, name);
     final step = payStepNowText(steps);
     return Semantics(
       button: true,
@@ -1088,14 +1062,14 @@ class _InFlightRow extends ConsumerWidget {
   }
 }
 
-/// "On its way to Alice"; a payment coming in reads "Arriving from Bob". With no contact, the
-/// way names it ("via file", "in person"), else the address.
-String _inFlightTitle(AppLocalizations l, Tx t) {
-  final via = t.contactName == null ? viaOf(t) : null;
+/// "On its way to Alice"; a payment coming in reads "Arriving from Bob". [name] is the name the
+/// steps use. With none, the way names it ("via file", "in person"), else the address.
+String _inFlightTitle(AppLocalizations l, Tx t, String? name) {
+  final via = name == null ? viaOf(t) : null;
   if (via == Via.inPerson && !t.incoming) return l.deskPaySendingInPerson;
   if (via != null) return t.incoming ? l.deskPayArrivingVia(viaPhrase(l, via)) : l.deskPaySendingVia(viaPhrase(l, via));
-  final name = t.contactName ?? whoOf(l, t);
-  return t.incoming ? l.deskPayArrivingFrom(name) : l.deskPayOnItsWayTo(name);
+  final who = name ?? whoOf(l, t);
+  return t.incoming ? l.deskPayArrivingFrom(who) : l.deskPayOnItsWayTo(who);
 }
 
 class _PendingFiles extends ConsumerWidget {

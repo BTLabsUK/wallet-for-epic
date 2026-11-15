@@ -4,5 +4,7 @@
   "deskSendLiveAmountTo": "{amount} EPIC 给 {name}",
   "deskSendLiveAmount": "{amount} EPIC",
   "deskSendLiveVia": "正在{via}发送",
-  "deskSendLiveAmountVia": "{amount} EPIC（{via}）"
+  "deskSendLiveAmountVia": "{amount} EPIC（{via}）",
+  "deskSendDoneTo": "已发送给 {name}",
+  "deskSendDoneVia": "已{via}发送"
 }

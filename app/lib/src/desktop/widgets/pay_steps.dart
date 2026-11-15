@@ -165,10 +165,45 @@ List<PayStep> payStepList(AppLocalizations l, Tx t, {String? name, bool times = 
   return [first, second, third, fourth, fifth];
 }
 
+/// The box of a payment and its steps (Home's In motion, Send after a send): s1 fill, line
+/// border and a bar at the start, info while the payment is under way, ok once it is [done].
+/// The bar is drawn under the content, not laid out beside it: the steps measure their own
+/// width (no intrinsic sizes here).
+class PayAccentBox extends StatelessWidget {
+  const PayAccentBox({super.key, this.done = false, required this.child});
+
+  final bool done;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: panelBox(c),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: SizedBox(width: 3, child: ColoredBox(color: done ? c.ok : c.info, child: const SizedBox.expand())),
+            ),
+          ),
+          Padding(padding: const EdgeInsetsDirectional.only(start: 3), child: child),
+        ],
+      ),
+    );
+  }
+}
+
 class DeskPaymentSteps extends ConsumerWidget {
-  const DeskPaymentSteps({super.key, required this.tx, this.dense = false, this.vertical});
+  const DeskPaymentSteps({super.key, required this.tx, this.name, this.dense = false, this.vertical});
 
   final Tx tx;
+
+  /// The other side by name where the caller's title already says one (Send after a send): the
+  /// steps say the same. Null: the payment's own name ([deskTxMailboxName], the contact's).
+  final String? name;
 
   /// Fewer lines: the in-flight card and the arrival card.
   final bool dense;
@@ -181,8 +216,7 @@ class DeskPaymentSteps extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!payHasSteps(tx)) return const SizedBox.shrink();
     final l = context.l10n;
-    final mailbox = deskTxMailboxName(ref, tx, any: true);
-    final name = mailbox ?? tx.contactName;
+    final name = this.name ?? deskTxMailboxName(ref, tx, any: true) ?? tx.contactName;
     final down = vertical ?? false;
     final steps = payStepList(l, tx, name: name, times: down && !dense);
     return LayoutBuilder(

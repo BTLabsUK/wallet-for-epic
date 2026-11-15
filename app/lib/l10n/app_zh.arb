@@ -4167,7 +4167,6 @@
   "payConfirmingOf": "确认中 {count}/{target}",
   "paySigned": "{name} 已签名",
   "payOnItsWay": "已发出",
-  "payCloseNote": "可以关闭此页。完成前会显示在“活动”中。",
   "payArrivalFrom": "{amount} 来自 {name}",
   "payOpen": "打开",
   "payNewToday": "今日新增",
@@ -5608,5 +5607,7 @@
   "deskSysNoticeTitle": "已收到付款",
   "deskSysNoticeOpen": "打开",
   "deskSetSystemNotices": "系统通知",
-  "deskSetSynSystemNotices": "通知, 提醒, 横幅, 弹窗, 收到付款, 桌面通知"
+  "deskSetSynSystemNotices": "通知, 提醒, 横幅, 弹窗, 收到付款, 桌面通知",
+  "deskSendDoneTo": "已发送给 {name}",
+  "deskSendDoneVia": "已{via}发送"
 }

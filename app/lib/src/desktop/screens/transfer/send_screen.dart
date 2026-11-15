@@ -44,7 +44,7 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskContactPairingProvider, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
-import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
+import '../../widgets/pay_steps.dart' show DeskPaymentSteps, PayAccentBox;
 import '../scan/desk_scan.dart';
 import '../scan/desk_scan_text.dart';
 import '../pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords;
@@ -66,7 +66,7 @@ import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
 import '../../../ui/link_send.dart' show amountEdited, linkRefusalText;
 import '../wallet/contacts_screen.dart' show ContactsArgs;
-import '../wallet/tx_display.dart' show statusOf, viaOf;
+import '../wallet/tx_display.dart' show TxIcon, deskTxMailboxName, statusOf, viaOf;
 import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
@@ -1914,8 +1914,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     );
   }
 
-  /// After a send: the payment's live steps ([DeskPaymentSteps]), the way
-  /// to a new send and to Activity. A mailbox payment queued while Epicbox is off keeps the
+  /// After a send: the payment as Home's In motion card shows it, with its live steps
+  /// ([DeskPaymentSteps]), the way to a new send and to Activity. A mailbox payment queued while Epicbox is off keeps the
   /// plain result card: nothing has gone out yet. One that ends cancelled meanwhile (its
   /// receiver declined it) says so in the row's words.
   Widget _done(SendDone r, DeskNav nav) {
@@ -1951,7 +1951,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     }
     // The payment as the wallet lists it now, so the steps move on their own.
     final live = ref.watch(deskProvider.select((s) => s.txs))?.where((t) => r.tx.slateId.isNotEmpty ? t.slateId == r.tx.slateId : t.id == r.tx.id).firstOrNull ?? r.tx;
-    final name = _sentTo ?? live.contactName;
+    final name = _sentTo ?? deskTxMailboxName(ref, live, any: true) ?? live.contactName;
     // No name: the path it took ("via file"), when that is known.
     final via = name == null ? viaOf(live) : null;
     final amount = formatEpicL(l, r.tx.amount);
@@ -1971,23 +1971,49 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         ),
       );
     }
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: Max.form),
-      child: ResultPanel(
-        key: const ValueKey('send-done'),
-        // On its way: the steps under it say how far; the tile says it is under way.
-        glyph: const ResultGlyph(icon: EIcons.send, tone: ETone.info),
-        title: name != null ? l.deskSendLiveTo(name) : (via != null ? l.deskSendLiveVia(viaPhrase(l, via)) : l.payOnItsWay),
-        text: name != null ? l.deskSendLiveAmountTo(amount, name) : (via != null ? l.deskSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskSendLiveAmount(amount)),
-        body: Column(
+    // Home's In motion card, as wide as the page's column: who, how much, the steps across,
+    // what to do next. One name for the title and the steps.
+    final done = live.state == TxState.confirmed;
+    final title = done
+        ? (name != null ? l.deskSendDoneTo(name) : (via != null ? l.deskSendDoneVia(viaPhrase(l, via)) : l.deskTxSent))
+        : (name != null ? l.deskSendLiveTo(name) : (via != null ? l.deskSendLiveVia(viaPhrase(l, via)) : l.payOnItsWay));
+    final ts = context.ts;
+    return PayAccentBox(
+      key: const ValueKey('send-done'),
+      done: done,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DeskPaymentSteps(tx: live),
-            SizedBox(height: Sp.x4),
-            Text(l.payCloseNote, style: context.ts.small),
+            Row(
+              children: [
+                ExcludeSemantics(child: TxIcon(live)),
+                SizedBox(width: Sp.x4),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    liveRegion: true,
+                    child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.strong.copyWith(fontSize: Fs.lg)),
+                  ),
+                ),
+                SizedBox(width: Sp.x4),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    EMoney(-live.amount, sign: true, color: context.dc.txSent, size: Fs.lg),
+                    if (live.fee > 0) Text(l.deskTxFee(formatEpicL(l, live.fee)), style: ts.caption),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: Sp.x5),
+            DeskPaymentSteps(tx: live, name: name),
+            SizedBox(height: Sp.x5),
+            Wrap(spacing: Sp.x3, runSpacing: Sp.x2, children: actions),
           ],
         ),
-        actions: actions,
       ),
     );
   }

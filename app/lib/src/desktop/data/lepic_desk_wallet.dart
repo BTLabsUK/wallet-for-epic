@@ -2378,9 +2378,9 @@ class LepicDeskWallet implements DeskWalletApi {
     final entries = _withDevices(raw);
     final contacts = await _open.contacts();
     // Any of a contact's addresses names it, as the address reads in a row (an onion with or
-    // without its http://).
+    // without its http://). Two contacts with one address: the first names it, as in Send's To.
     final names = {
-      for (final c in contacts)
+      for (final c in contacts.reversed)
         for (final a in c.addresses) parseRecipient(a).address: c.name,
     };
     // A payment through a pairing has no address: the contact it is attached to names it.
