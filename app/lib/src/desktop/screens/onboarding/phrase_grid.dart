@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -568,7 +569,12 @@ class _Cell extends StatelessWidget {
     final typed = controller.text;
     final suggestion = focused ? entry.suggestion(index) : null;
     final reduce = MediaQuery.of(context).disableAnimations;
+    // macOS: the name sits on a group around the field (see fieldNameSemantics); the focused
+    // field there is a native text field that does not take the label itself.
+    final onMac = defaultTargetPlatform == TargetPlatform.macOS;
     return TrustId(semanticsId, child: Semantics(
+      container: onMac,
+      explicitChildNodes: onMac,
       label: context.l10n.deskOnbWordN(index + 1),
       child: Opacity(
         opacity: unused && !focused ? 0.45 : 1,

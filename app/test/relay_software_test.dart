@@ -6,11 +6,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/relay_software.dart';
+import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, epicboxStatusWords;
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 List<int> _json(Object o) => utf8.encode(jsonEncode(o));
@@ -129,6 +133,68 @@ void main() {
     test('plain Epicbox when not Epicmail, and while the relay is not connected', () {
       expect(methodStateLine(l, TxMethod.epicbox, status(ServiceHealth.ok), const DeskSettings()).brand, isNull);
       expect(methodStateLine(l, TxMethod.epicbox, status(ServiceHealth.down), const DeskSettings(), epicmail: true).brand, isNull);
+    });
+  });
+
+  group('plain Epicbox relay keeps the Epicbox name', () {
+    const relay = EpicboxRelay(host: 'epicbox.example');
+    // A stackwallet-style info file (no "software"), and no info file at all.
+    final answers = <String, HttpBytes Function()>{
+      'stackwallet-style info file': () => HttpBytes(200, Uint8List.fromList(_json({'name': 'epicbox', 'version': '2.0'}))),
+      'no info file': () => HttpBytes(404, Uint8List(0)),
+    };
+
+    for (final e in answers.entries) {
+      test(e.key, () async {
+        final container = ProviderContainer(
+          overrides: [
+            relaySoftwareBookProvider.overrideWithValue(
+              RelaySoftwareBook(fetch: (url, {required timeout, required maxBytes, required followRedirects}) async => e.value()),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+        final software = await container.read(relaySoftwareProvider(relay).future);
+        expect(software, isNot(RelaySoftware.epicmail));
+        final isEpicmail = software == RelaySoftware.epicmail;
+
+        // Desktop: the connected line carries no brand and the word Epicmail appears nowhere.
+        final desk = methodStateLine(
+          englishStrings,
+          TxMethod.epicbox,
+          ServiceStatus(
+            node: const NodeServer(url: 'http://127.0.0.1:3413', label: 'Built-in'),
+            nodeHealth: ServiceHealth.ok,
+            nodeHeight: 1,
+            epicbox: const EpicboxServer(domain: 'epicbox.example', port: 443),
+            epicboxHealth: ServiceHealth.ok,
+            httpListener: ServiceHealth.off,
+            tor: ServiceHealth.off,
+          ),
+          const DeskSettings(),
+          epicmail: isEpicmail,
+        );
+        expect(desk.brand, isNull);
+        expect(desk.text, isNot(contains('Epicmail')));
+      });
+    }
+
+    testWidgets('phone words say Epicbox, not Epicmail', (tester) async {
+      late ({String label, String detail})? words;
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) {
+              words = epicboxStatusWords(context, EpicboxState.online, null);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      expect(words!.label, contains('Epicbox'));
+      expect('${words!.label} ${words!.detail}', isNot(contains('Epicmail')));
     });
   });
 }

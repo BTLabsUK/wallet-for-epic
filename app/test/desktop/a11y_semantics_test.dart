@@ -3,6 +3,7 @@ import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:flutter/foundation.dart' show TargetPlatform, debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,6 +94,27 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 600));
   }
+
+  testWidgets('macOS: the name sits on a group around the field, other platforms keep it on the field', (tester) async {
+    final handle = tester.ensureSemantics();
+    for (final platform in [TargetPlatform.windows, TargetPlatform.macOS]) {
+      debugDefaultTargetPlatformOverride = platform;
+      await tester.pumpWidget(_kit(const SizedBox(width: 300, child: EInput(semanticLabel: 'Password'))));
+      final named = find.semantics.byLabel('Password').evaluate().single;
+      final field = named.getSemanticsData().flagsCollection.isTextField;
+      expect(field, platform != TargetPlatform.macOS, reason: '$platform');
+      if (platform == TargetPlatform.macOS) {
+        var childIsField = false;
+        named.visitChildren((c) {
+          childIsField |= c.getSemanticsData().flagsCollection.isTextField;
+          return true;
+        });
+        expect(childIsField, isTrue);
+      }
+    }
+    debugDefaultTargetPlatformOverride = null;
+    handle.dispose();
+  });
 
   testWidgets('Cancel on a pending send opens its dialog from the semantics tap', (tester) async {
     final handle = tester.ensureSemantics();

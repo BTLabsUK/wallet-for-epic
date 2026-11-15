@@ -523,7 +523,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ? null
             : offline
             ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off)
-            : methodStateLine(l, m, status, st.settings, reachClosed: _reachClosed),
+            : methodStateLine(l, m, status, st.settings, reachClosed: _reachClosed, epicmail: statusRelayIsEpicmail(ref, status)),
     };
     // The line's own word (state_language.dart), spoken: "connected", "receiving", "off".
     String word(TxMethod m) => lines[m]?.word.toLowerCase() ?? l.deskRecvStateChecking;

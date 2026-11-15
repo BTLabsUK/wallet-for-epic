@@ -297,9 +297,9 @@ class _EInputState extends State<EInput> {
                 Expanded(
                   child: _FadeEnd(
                     on: widget.fadeEnd && !multi && widget.trailing != null,
-                    child: TrustId(widget.semanticsId, child: Semantics(
-                      label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
-                      child: TextField(
+                    child: TrustId(widget.semanticsId, child: fieldNameSemantics(
+                      widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
+                      TextField(
                         controller: widget.controller,
                         // A mouse caret and selection, never the phone's teardrop handles.
                         selectionControls: desktopTextSelectionControls,
@@ -346,6 +346,16 @@ class _EInputState extends State<EInput> {
       ),
     );
   }
+}
+
+/// Gives a text field its accessible name. Windows and Linux take the label of a wrapping
+/// Semantics for the field itself. On macOS the focused field is a native NSTextField that never
+/// receives the node's label, so the name goes on a group around the field instead.
+Widget fieldNameSemantics(String? label, Widget field) {
+  if (defaultTargetPlatform == TargetPlatform.macOS) {
+    return Semantics(container: true, explicitChildNodes: true, label: label, child: field);
+  }
+  return Semantics(label: label, child: field);
 }
 
 /// The one search field of the desktop: a search glyph, the words on a hairline (no box), a
