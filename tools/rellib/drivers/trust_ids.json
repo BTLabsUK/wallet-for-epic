@@ -203,7 +203,7 @@
 {"id": "g4.pin.wrong", "screen": "pin", "kind": "copy", "family": ["android"], "role": "text", "keys": ["pinWrong"], "names": ["re:wrong pin\\b.*"], "match": "starts"},
 {"id": "g4.unlock.retry", "screen": "unlock", "family": ["android"], "keys": ["unlockTryAgain"], "names": ["Try again"], "match": "exact", "walk_off": ["android"]},
 {"id": "g4.tab.send", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["homeSendButton"], "names": ["Send"]},
-{"id": "g4.tab.home", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["phoneTabHome"], "names": ["Home"]},
+{"id": "g4.tab.home", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["phoneTabHome", "shellWalletTab"], "names": ["Home", "Wallet"]},
 {"id": "g4.tab.receive", "screen": "tab", "family": ["android"], "role": "tab", "keys": ["homeReceiveButton"], "names": ["Receive"]},
 {"id": "g4.common.close", "screen": "common", "family": ["android"], "keys": ["commonClose"], "names": ["Close"], "match": "exact", "many": true},
 {"id": "g4.common.done", "screen": "common", "family": ["android"], "keys": ["commonDone"], "names": ["Done"], "match": "exact"},
