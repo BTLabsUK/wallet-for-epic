@@ -4,8 +4,7 @@ passed, and each failure's name, file:line and the first lines of its message.
 
 The summary printed on stdout stays short. Each failure's head line uses flutter's own progress
 format (`MM:SS +passed ~skipped -failed: <file>: <name> [E]`) and so does the last line
-(`All tests passed!` / `Some tests failed.`), which tools/nightly/nightly.py reads from
-tools/check.sh's log.
+(`All tests passed!` / `Some tests failed.`), which readers of tools/check.sh's log rely on.
 """
 import os
 import re

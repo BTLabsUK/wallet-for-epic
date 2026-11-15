@@ -1142,7 +1142,7 @@ def parser():
     sp.add_argument("--run-source-check", action="store_true",
                     help="the default: without a green full check of this content G2 runs in this run")
     sp.add_argument("--sign-inline", action="store_true",
-                    help="ask for the Android signing code as soon as every build is in (the owner is ready now); "
+                    help="sign as soon as every build is in; "
                          "default: the run waits at sign-android until `tools/rel sign`")
 
     def machine_args(sp):

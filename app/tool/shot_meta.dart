@@ -2,7 +2,7 @@
 // Metadata beside each tour screenshot, for the release screen catalog (tools/screens.sh): with
 // SHOTS_META=1 a tour writes `<shot>.json` next to `<shot>.png` holding the text the screen shows
 // and the widget classes on stage, so an agent can find a screen by its words or its code; `ids`
-// lists the UI targets on stage, for the dry walk (tools/dry-walk.sh, tools/ui-targets walk).
+// lists the control ids on stage (lib/src/trust_ids.dart).
 import 'dart:convert';
 import 'dart:io';
 

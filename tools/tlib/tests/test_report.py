@@ -92,8 +92,8 @@ class ReportTest(unittest.TestCase):
         self.assertEqual(lines[1], "01:01 +5 -30: test/t0_test.dart: n0 [E]")
         self.assertEqual(lines[-1], "01:01 +5 -30: Some tests failed.")
 
-    def test_the_nightly_reads_the_summary(self):
-        """tools/nightly/nightly.py reads check.sh's log: the counts and every failing test."""
+    def test_a_log_reader_gets_the_summary(self):
+        """A reader of check.sh's log gets the counts and every failing test."""
         run = fed()
         lines = ["== flutter test (all)"]
         lines += report.summary("tools/t full: RED", "red", run.counts(), run.failures(), 600, list_all=True)
