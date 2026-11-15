@@ -1163,7 +1163,7 @@ class App:
             bad, good = rollback.choose(self.state_root, a.to)
         except ValueError as e:
             return self.out(EXIT_USAGE, str(e))
-        base_ctx = {"host": Lenient(self.hosts["host"], "host"), "path": Lenient(self.hosts["path"], "path"),
+        base_ctx = {"rel": RUNNER, "host": Lenient(self.hosts["host"], "host"), "path": Lenient(self.hosts["path"], "path"),
                     "node": "$REL_NODE", "epicbox": "$REL_EPICBOX"}
         run = rollback.make_run(self.state_root, self.pipeline, self.hosts, self.repo, bad, good, a.test, base_ctx)
         if a.dry_run:
