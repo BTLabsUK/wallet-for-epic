@@ -9,9 +9,6 @@ import unittest
 import support
 from tlib import report
 
-sys.path.insert(0, os.path.join(support.TOOLS, "nightly"))
-import nightly  # noqa: E402
-
 APP = "/w/app"
 EXCEPTION = ("══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞═════\n"
              "The following TestFailure was thrown running a test:\n"
@@ -91,20 +88,6 @@ class ReportTest(unittest.TestCase):
         self.assertLessEqual(len(lines), 25)
         self.assertEqual(lines[1], "01:01 +5 -30: test/t0_test.dart: n0 [E]")
         self.assertEqual(lines[-1], "01:01 +5 -30: Some tests failed.")
-
-    def test_a_log_reader_gets_the_summary(self):
-        """A reader of check.sh's log gets the counts and every failing test."""
-        run = fed()
-        lines = ["== flutter test (all)"]
-        lines += report.summary("tools/t full: RED", "red", run.counts(), run.failures(), 600, list_all=True)
-        parsed = nightly.parse_check_log(lines)
-        self.assertEqual(parsed["tests"]["flutter test (all)"], {"passed": 1, "skipped": 1, "failed": 3})
-        self.assertIn({"file": "test/home_test.dart", "name": "home golden"}, parsed["failing_tests"])
-        self.assertEqual(len(parsed["failing_tests"]), 3)
-        green = report.summary("tools/t full: GREEN", "green", {"passed": 7, "skipped": 0, "failed": 0}, [], 5)
-        parsed = nightly.parse_check_log(["== flutter test (all)", *green, "check passed (full)"])
-        self.assertTrue(parsed["passed"])
-        self.assertEqual(parsed["tests"]["flutter test (all)"]["passed"], 7)
 
 
 if __name__ == "__main__":

@@ -462,7 +462,7 @@ def cmd_affected(args):
     if not args.closure:
         tests, slow = budget.drop_slow(tests, set(changed), budget.read_allow(ROOT))
     if slow:
-        sel.notes.append(f"{len(slow)} slow tests left to the nightly and the candidate ({budget.ALLOW})")
+        sel.notes.append(f"{len(slow)} slow tests left to the candidate ({budget.ALLOW})")
     n_sent = sum(1 for r in sel.tests.values() if r == "sentinel")
     line = (f"selection: {len(tests)} tests ({len(tests) - n_sent} reached by the change, {n_sent} sentinels) "
             f"for {len(changed)} changed files vs {args.base} ({base[:10]})")

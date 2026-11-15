@@ -132,5 +132,5 @@ def flaky(records):
 
 
 def flaky_index(records):
-    """{(file, test or None): entry} for the nightly: is this failing test known to flake?"""
+    """{(file, test or None): entry}: is this failing test known to flake?"""
     return {(e["file"], e["test"]): e for e in flaky(records)}
