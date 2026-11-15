@@ -27,7 +27,7 @@ class ProtoButton extends ConsumerWidget {
       child: ETip(
         'Demo. Play the other side: payer, service, Epicbox, node, chain, clock',
         child: InvButton(
-          // The web build is the public demo: the button says so (it only exists there).
+          // The mock wallet's demo: the button says so (real wallets never show it).
           label: 'Demo',
           icon: EIcons.prototype,
           kind: EBtnKind.secondary,

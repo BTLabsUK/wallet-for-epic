@@ -455,8 +455,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
           children: [
             Positioned.fill(child: ExcludeFocus(excluding: tour, child: frame)),
             if (tour) Positioned.fill(child: DeskTourOverlay(key: ValueKey(tourStart), startAt: tourStart)),
-            // The clickable prototype (web build on the mock): plays the other side of invoices.
-            if (kIsWeb && !tour) const ProtoButton(),
+            // The clickable prototype (any build on the mock wallet): plays the other side of invoices.
+            if (!tour) const ProtoButton(),
           ],
         ),
       ),
