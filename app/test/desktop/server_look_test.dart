@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/data/server_look.dart';
-import 'package:epic_wallet/src/relay_directory.dart';
 
 ServerIcon icon(String hash) => ServerIcon(hash: hash, urls: {64: Uri.parse('https://status.example/$hash.png')});
 

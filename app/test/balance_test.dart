@@ -5,7 +5,6 @@
 // in send_test.dart).
 
 import 'package:epic_wallet/src/amount.dart' show epicFor;
-import 'package:epic_wallet/src/boosts.dart' show boostMaxWindow;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
