@@ -212,7 +212,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(child: recent),
-                          SizedBox(width: Sp.x4),
+                          // Wide enough that Recent activity's "View all" does not run into the Contacts title.
+                          SizedBox(width: Sp.x10),
                           SizedBox(width: 340.u, child: const HomeContacts()),
                         ],
                       )
