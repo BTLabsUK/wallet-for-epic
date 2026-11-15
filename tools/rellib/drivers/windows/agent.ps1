@@ -170,6 +170,15 @@ public static class Standin {
       Log("relay connection");
       var a = c.GetStream();
       var t = new Thread(() => { try { tls.CopyTo(a); } catch { } try { c.Close(); } catch { } }) { IsBackground = true }; t.Start();
+      // The upstream routes by Host; the app sends the loopback address, which nginx answers with 400.
+      var buf = new byte[65536]; int n = 0;
+      try { n = a.Read(buf, 0, buf.Length); } catch { }
+      if (n > 0) {
+        var first = Encoding.Latin1.GetString(buf, 0, n);
+        first = new System.Text.RegularExpressions.Regex(@"(?im)^host:[^\r\n]*").Replace(first, "Host: " + host, 1);
+        var b = Encoding.Latin1.GetBytes(first);
+        try { tls.Write(b, 0, b.Length); tls.Flush(); } catch { }
+      }
       try { a.CopyTo(tls); } catch { }
       try { up.Close(); } catch { }
       t.Join(2000);
