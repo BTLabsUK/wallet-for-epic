@@ -249,6 +249,18 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     final tipsHidden = ref.watch(tipsHiddenProvider);
     final version = ref.watch(appVersionProvider);
 
+    // The language switch stays at the top, under the search, while the sections scroll: it is
+    // not part of the list.
+    final languageRow = Padding(
+      padding: const EdgeInsets.fromLTRB(Kit.gutter, 7, Kit.gutter / 2, 7),
+      child: Row(
+        children: [
+          Expanded(child: english ? Text(l.helpEnglishOnly, style: KitType.rowSub.copyWith(color: t.dim)) : const SizedBox.shrink()),
+          kitId(TrustIds.helpLanguage, HelpLanguageSwitch(current: lang)),
+        ],
+      ),
+    );
+
     final List<Widget> body = searching
         ? [
             Padding(
@@ -273,17 +285,6 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               ),
           ]
         : [
-            // The frame draws the first group 21 below the search and 21 between groups.
-            const SizedBox(height: 7),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter / 2, 7),
-              child: Row(
-                children: [
-                  Expanded(child: english ? Text(l.helpEnglishOnly, style: KitType.rowSub.copyWith(color: t.dim)) : const SizedBox.shrink()),
-                  kitId(TrustIds.helpLanguage, HelpLanguageSwitch(current: lang)),
-                ],
-              ),
-            ),
             KitGroup(
               children: [
                 for (final s in sections)
@@ -309,18 +310,6 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   semanticsId: TrustIds.helpTour,
                   onTap: () => startPhoneTour(ref),
                 ),
-                PhoneTourTarget(
-                  id: 'tour-help-feedback',
-                  child: KitRow(
-                    key: helpFeedbackKey,
-                    size: KitRowSize.settings,
-                    leading: KitIconWell(KitIcons.message, color: t.accentText, iconSize: 20),
-                    title: l.settingsSendFeedback,
-                    chevron: true,
-                    semanticsId: TrustIds.helpReport,
-                    onTap: () => openFeedback(context),
-                  ),
-                ),
                 if (tipsHidden)
                   KitRow(
                     key: helpShowTipsKey,
@@ -335,20 +324,34 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   ),
               ],
             ),
-            const SizedBox(height: Kit.groupGap + 2),
-            KitGroup(
-              children: [
-                KitRow(
-                  size: KitRowSize.settings,
-                  title: l.phoneSettingsAboutRow,
-                  value: version.hasValue ? version.value : null,
-                  chevron: true,
-                  semanticsId: TrustIds.helpAbout,
-                  onTap: () => openSettingsSection(context, SettingsSection.about, backLabel: l.helpTitle),
-                ),
-              ],
-            ),
           ];
+
+    // Pinned under the list, so the feedback entry and About are never below the view or under
+    // the list's bottom fade, on a 360 x 640 phone too.
+    final footer = KitGroup(
+      children: [
+        PhoneTourTarget(
+          id: 'tour-help-feedback',
+          child: KitRow(
+            key: helpFeedbackKey,
+            size: KitRowSize.settings,
+            leading: KitIconWell(KitIcons.message, color: t.accentText, iconSize: 20),
+            title: l.settingsSendFeedback,
+            chevron: true,
+            semanticsId: TrustIds.helpReport,
+            onTap: () => openFeedback(context),
+          ),
+        ),
+        KitRow(
+          size: KitRowSize.settings,
+          title: l.phoneSettingsAboutRow,
+          value: version.hasValue ? version.value : null,
+          chevron: true,
+          semanticsId: TrustIds.helpAbout,
+          onTap: () => openSettingsSection(context, SettingsSection.about, backLabel: l.helpTitle),
+        ),
+      ],
+    );
 
     return SlotScaffold(
       body: SafeArea(
@@ -382,12 +385,14 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                     semanticsId: TrustIds.helpSearch,
                   ),
                 ),
+                if (!searching) languageRow,
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.only(bottom: Kit.gutter * 2),
+                    padding: const EdgeInsets.only(bottom: Kit.gutter),
                     children: body,
                   ),
                 ),
+                if (!searching) Padding(padding: const EdgeInsets.only(top: 8, bottom: Kit.gutter / 2), child: footer),
               ],
             ),
           ),

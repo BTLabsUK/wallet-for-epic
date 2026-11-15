@@ -776,6 +776,19 @@ class A:
             self.reload("value = 2\n1 / 0\ndef f():\n    return 2\n")
         self.assertEqual((m.value, m.f()), (1, 1))
 
+    def test_a_value_built_at_import_sees_the_new_code_it_calls(self):
+        # phone.py builds TAB_WALLET = T(...) at import; targets.py may reload after it.
+        with open(os.path.join(self.root, "lib2.py"), "w") as f:
+            f.write("def make():\n    return 1\n")
+        sys.modules.pop("lib2", None)
+        import lib2  # noqa: F401  (in sys.modules before steps: steps reloads first)
+        m = self.module("from lib2 import make\nVALUE = make()\n")
+        self.assertEqual(m.VALUE, 1)
+        with open(os.path.join(self.root, "lib2.py"), "w") as f:
+            f.write("def make():\n    return 2\n")
+        self.reload("from lib2 import make\nVALUE = make()\n")
+        self.assertEqual(m.VALUE, 2)
+
     def test_a_new_target_shows_up_in_a_cache_built_from_a_file(self):
         code = "_REG = None\ndef reg():\n    global _REG\n    if _REG is None:\n        _REG = {'a': 1}\n    return _REG\n"
         m = self.module(code)

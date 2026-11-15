@@ -109,7 +109,7 @@ class PhoneBackupSettings {
     // settings.toml's switches first: the app settings rebuild on the status-site switch, and
     // a rebuild still reading would put back what the setters below write.
     await each(BackupItem.statusSite, (x) => n.setUseStatusSite(x! as bool));
-    for (final key in [BackupItem.updateCheck, BackupItem.price]) {
+    for (final key in [BackupItem.updateCheck, BackupItem.price, BackupItem.announcements]) {
       await each(key, (x) => read(hostSettingsProvider.notifier).set(key, x! as bool));
     }
     await read(appSettingsProvider.future);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's start-month picker (restore, Recheck balance): a year and a month, no day.
-/// The logic is shared with the desktop's ([StartMonth] in
-/// `start_month.dart`); this is the phone's look on its tokens.
+/// The phone's one date picker (restore, Recheck balance): a year and a month, no day.
+/// The logic is shared with the desktop's ([StartMonth] in `start_month.dart`); this is the phone's
+/// look on its tokens.
 library;
 
 import 'package:flutter/material.dart';
@@ -12,105 +12,87 @@ import '../trust_ids.dart';
 import 'phone_sheet.dart';
 import 'theme/tokens.dart';
 
-/// The start-month button, the line under it and, once a month is chosen, the warning for a
-/// recent one. [date] is the chosen month's first day, null for none.
-class StartMonthChoice extends StatelessWidget {
-  const StartMonthChoice({
-    super.key,
-    required this.date,
-    required this.onChanged,
-    this.label,
-    this.semanticsId,
-  });
+/// The warning under a chosen start month that is recent: a later month can miss coins. Nothing
+/// when no month is chosen or the month is an old one. [date] is the chosen month's first day.
+class StartMonthRecent extends StatelessWidget {
+  const StartMonthRecent({super.key, required this.date, this.padding = const EdgeInsets.only(top: 6)});
 
   final DateTime? date;
-  final ValueChanged<DateTime?> onChanged;
+  final EdgeInsetsGeometry padding;
 
-  /// The button before a month is chosen; [AppLocalizations.restorePickMonth] when null.
-  final String? label;
-
-  /// The test drivers' stable name for the button (`TrustIds`, lib/src/trust_ids.dart).
-  final String? semanticsId;
-
-  /// The key of the button, for tests.
-  static const Key buttonKey = ValueKey('start-month-pick');
-
-  /// The key of the recent-month warning, for tests.
+  /// The key of the warning, for tests.
   static const Key recentKey = ValueKey('start-month-recent');
 
   @override
   Widget build(BuildContext context) {
+    final chosen = date == null ? null : StartMonth.of(date!);
+    if (chosen == null || !startMonthRecent(chosen, DateTime.now())) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
-    final chosen = date == null ? null : StartMonth.of(date!);
-    final small = theme.textTheme.bodySmall;
-    final line = chosen == null ? null : l.restoreMonthStart(localInt(l, chosen.height));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        OutlinedButton.icon(
-          key: buttonKey,
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          icon: const Icon(Icons.calendar_month_outlined),
-          // The id on the label: the button makes its own node (trust_ids.dart).
-          label: TrustId(semanticsId, child: Text(chosen == null ? (label ?? l.restorePickMonth) : localMonthYear(l, chosen.firstDay))),
-          onPressed: () async {
-            final picked = await showStartMonthPicker(context, initial: chosen);
-            if (picked != null) onChanged(picked.firstDay);
-          },
-        ),
-        if (line != null) ...[const SizedBox(height: 4), Text(line, style: small?.copyWith(color: t.dim))],
-        if (chosen != null && startMonthRecent(chosen, DateTime.now()))
-          Semantics(
-            key: recentKey,
-            liveRegion: true,
-            container: true,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 1),
-                    child: Icon(Icons.warning_amber_rounded, size: 16, color: t.warn),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(l.restoreMonthRecent, style: small?.copyWith(color: t.warn)),
-                  ),
-                ],
-              ),
+    final small = Theme.of(context).textTheme.bodySmall;
+    return Semantics(
+      key: recentKey,
+      liveRegion: true,
+      container: true,
+      child: Padding(
+        padding: padding,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 1),
+              child: Icon(Icons.warning_amber_rounded, size: 16, color: t.warn),
             ),
-          ),
-      ],
+            const SizedBox(width: 6),
+            Expanded(child: Text(l.restoreMonthRecent, style: small?.copyWith(color: t.warn))),
+          ],
+        ),
+      ),
     );
   }
 }
 
+/// A link at the foot of the month sheet that leaves the month for something else (a block
+/// height). It closes the sheet and runs [onTap].
+class StartMonthOther {
+  const StartMonthOther({required this.label, required this.onTap, this.semanticsId});
+
+  final String label;
+  final VoidCallback onTap;
+
+  /// The test drivers' stable name for the link (`TrustIds`).
+  final String? semanticsId;
+}
+
 /// Opens the month picker as a sheet: the year with its arrows, the twelve months under it.
 /// It opens on [initial]'s year, else on the first year a wallet can be from (never today).
-/// Returns the month tapped, or null when dismissed.
-Future<StartMonth?> showStartMonthPicker(BuildContext context, {StartMonth? initial}) => showPhoneSheet<StartMonth>(
-  context: context,
-  showDragHandle: true,
-  isScrollControlled: true,
-  builder: (_) => StartMonthPicker(initial: initial, now: DateTime.now()),
-);
+/// Returns the month tapped, or null when dismissed. This is the one date picker of the phone
+/// app: restore and Recheck balance open it, and any place that asks for a day or a month must
+/// too. [other] adds a link under the months for another way to start.
+Future<StartMonth?> showStartMonthPicker(BuildContext context, {StartMonth? initial, StartMonthOther? other}) =>
+    showPhoneSheet<StartMonth>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => StartMonthPicker(initial: initial, now: DateTime.now(), other: other),
+    );
 
 /// The sheet's body. [now] bounds the months offered.
 class StartMonthPicker extends StatefulWidget {
-  const StartMonthPicker({super.key, this.initial, required this.now});
+  const StartMonthPicker({super.key, this.initial, required this.now, this.other});
 
   final StartMonth? initial;
   final DateTime now;
+  final StartMonthOther? other;
 
   /// The key of a month's cell, for tests: `start-month-2021-07`.
   static Key monthKey(StartMonth m) => ValueKey('start-month-$m');
 
   static const Key earlierKey = ValueKey('start-month-earlier');
   static const Key laterKey = ValueKey('start-month-later');
+
+  /// The key of the link to another way to start, for tests.
+  static const Key otherKey = ValueKey('start-month-other');
 
   @override
   State<StartMonthPicker> createState() => _StartMonthPickerState();
@@ -177,6 +159,19 @@ class _StartMonthPickerState extends State<StartMonthPicker> {
                   ],
                 ],
               ),
+            ),
+          ],
+          if (widget.other case final other?) ...[
+            const SizedBox(height: 12),
+            // The id sits on the label, which the button's own node takes in.
+            TextButton(
+              key: StartMonthPicker.otherKey,
+              style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () {
+                Navigator.pop(context);
+                other.onTap();
+              },
+              child: TrustId(other.semanticsId, child: Text(other.label)),
             ),
           ],
         ],

@@ -65,8 +65,9 @@ def node(i, role, name, **kw):
     return Node(i=i, role=role, name=name, states=frozenset(kw.pop("states", ("enabled",))), actions=("press",), **kw)
 
 
-HOME = [node(0, "button", "Lock wallet"), node(1, "button", "Settings"), node(2, "tab", "Send\nTab 1 of 3"),
-        node(3, "tab", "Wallet\nTab 2 of 3", states=("enabled", "selected")), node(4, "tab", "Receive\nTab 3 of 3")]
+# The phone's tab bar: Home, Activity, Scan, Contacts, Settings.
+HOME = [node(0, "tab", "Home", states=("enabled", "selected")), node(1, "tab", "Activity"), node(2, "tab", "Scan"),
+        node(3, "tab", "Contacts"), node(4, "tab", "Settings")]
 UNLOCK = [node(0, "text", "Unlock wallet"), Node(i=1, role="text_field", name="PIN", value="", actions=("press", "set_text"),
                                                  states=frozenset({"enabled", "password", "editable"})), node(2, "button", "Forgot PIN?")]
 WELCOME = [node(0, "button", "Create a new wallet"), node(1, "button", "Restore from phrase")]
@@ -127,12 +128,15 @@ class KeystorePhone(FakePhone):
             self.cur = "refused" if self.refusals > 0 else "home"
 
 
-HOME_CONTACTS = HOME + [node(5, "button", "Contacts")]
-CONTACTS_PAGE = [node(0, "text", "Contacts"), node(1, "button", "Add contact")]
+HOME_CONTACTS = HOME
+# The Contacts tab: the tab bar with Contacts selected, the title and its "+" menu (More).
+CONTACTS_PAGE = [node(i, "tab", n, states=("enabled", "selected") if n == "Contacts" else ("enabled",))
+                 for i, n in enumerate(["Home", "Activity", "Scan", "Contacts", "Settings"])] + [
+    node(5, "text", "Contacts title"), node(6, "button", "More", id="g4.contacts.more")]
 
 
 class ContactsPhone(FakePhone):
-    """Home with its Contacts entry (26.11.3 on): a press opens the Contacts page, Back closes it."""
+    """The tab bar with Contacts (26.11.3 on): a press opens the Contacts tab, Home's tab goes back."""
 
     def __init__(self):
         super().__init__({"home": HOME_CONTACTS, "contacts": CONTACTS_PAGE}, "home")
@@ -142,9 +146,7 @@ class ContactsPhone(FakePhone):
         if self.cur == "home" and n.name == "Contacts":
             self.opened += 1
             self.cur = "contacts"
-
-    def key(self, name):
-        if name == "back":
+        elif n.name == "Home":
             self.cur = "home"
 
 
@@ -187,7 +189,7 @@ class PhoneTest(unittest.TestCase):
         self.assertEqual((s.opened, s.cur), (1, "home"))
 
     def test_a_build_without_home_contacts_presses_nothing(self):
-        s = FakePhone({"home": HOME}, "home")
+        s = FakePhone({"home": [n for n in HOME if n.name != "Contacts"]}, "home")
         self.assertFalse(self.recipe(s).contacts())
         self.assertEqual(s.cur, "home")
 

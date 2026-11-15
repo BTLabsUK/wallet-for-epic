@@ -178,6 +178,34 @@ void main() {
       });
     });
 
+    test('a 5 s blip starts no search; the node is back before the settle time', () {
+      fakeAsync((async) {
+        final h = _Harness(async, settle: nodeSettle);
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 5));
+        expect(h.container.read(nodeFailoverSearchProvider), FailoverSearch.idle);
+        expect(h.container.read(walletStatusProvider).node.state, NodeState.connecting);
+        h.nodeUp();
+        h.elapse(const Duration(seconds: 30));
+        expect(h.container.read(nodeFailoverSearchProvider), FailoverSearch.idle);
+        expect(h.container.read(walletStatusProvider).node.state, NodeState.online);
+        expect(h.session.serverSwitches, isEmpty);
+        h.dispose();
+      });
+    });
+
+    test('a 60 s outage starts the search once the settle time has passed', () {
+      fakeAsync((async) {
+        final h = _Harness(async, settle: nodeSettle);
+        h.nodeDown();
+        h.elapse(nodeSettle - const Duration(seconds: 1));
+        expect(h.container.read(nodeFailoverSearchProvider), FailoverSearch.idle);
+        h.elapse(const Duration(seconds: 36));
+        expect(h.session.serverSwitches.map((c) => c.nodeUrl), isNotEmpty);
+        h.dispose();
+      });
+    });
+
     test('a node that never returns its answer is counted failed at the probe budget', () {
       fakeAsync((async) {
         final h = _Harness(async, hungNodes: {_c});
@@ -521,7 +549,7 @@ class _Directory implements dir.RelayDirectory, dir.NodeDirectory {
 /// An open mainnet wallet on [inUse] (the saved choice a), the list a, b, c, d, the monitor
 /// saying b is down and c, d healthy, and the failover watcher alive.
 class _Harness {
-  _Harness(this._async, {Set<String> deadNodes = const {_a}, Set<String> hungNodes = const {}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false, bool answered = true}) {
+  _Harness(this._async, {Set<String> deadNodes = const {_a}, Set<String> hungNodes = const {}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false, bool answered = true, Duration settle = Duration.zero}) {
     // The node in use and the Node list: the settings file's.
     hostSettings = testSettings().withValues({
       'node.servers': [_a, _b, _c, _d],
@@ -539,6 +567,8 @@ class _Harness {
         secretStoreProvider.overrideWithValue(store),
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         rawWalletStatusProvider.overrideWith((ref) => ref.watch(_raw)),
+        // These tests count failures at once; the settle window has its own tests.
+        nodeSettleProvider.overrideWithValue(settle),
         // No linked devices: their service reads the app's lifecycle, which a plain test has not.
         deviceServiceProvider.overrideWithValue(null),
         if (tor) phoneTorProvider.overrideWith(_Tor.new),

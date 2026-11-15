@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_task.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../epic1.dart' show PaymentMode;
 import '../l10n.dart';
@@ -20,11 +21,12 @@ import '../trust_ids.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import '../watch_mode.dart';
-import 'backup_screen.dart';
 import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
 import 'home_tab.dart';
+import 'phone_motion.dart';
+import 'phone_tab_pager.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_tab_bar.dart';
 import 'invoices_screen.dart' show InvoicesEntry;
@@ -55,7 +57,7 @@ Duration get autoRefreshInterval => appConfig.nodeRefresh;
 
 /// How often home asks the node for its tip between refreshes; a new block refreshes at once,
 /// as the desktop does. Epic's blocks come in bursts (three in a minute is common), so a
-/// refresh each minute alone could go from Confirming 0/3 to completed with nothing between.
+/// refresh each minute alone could go from Confirming 0/6 to completed with nothing between.
 /// While a payment can move with the next block it asks more often (watch mode,
 /// watch_mode.dart).
 Duration get tipCheckInterval => appConfig.nodeTipCheck;
@@ -228,9 +230,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Timer? _timer;
   bool _tipBusy = false;
 
-  /// In the background: the tip timer stays off until the app is back.
-  bool _away = false;
-  final TipPacer _tipPace = TipPacer(normal: tipCheckInterval);
+  /// Ends the node boosts this screen started when it closes.
+  late final BlockWatch _blockWatch = ref.read(blockWatchProvider);
+
+  /// The tip check: every [tipCheckInterval], faster while the node is boosted (watch mode).
+  /// Off while the app is in the background.
+  late final PollDriver _tip = PollDriver(
+    ref.read(sessionProvider)!.boosts,
+    Poller.node,
+    base: tipCheckInterval,
+    tick: _checkTip,
+  );
 
   /// Payments whose "could not reach the node" notice was already shown.
   final Set<String> _delayedShown = {};
@@ -240,13 +250,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     _lifecycle;
     _startRefreshTimer();
-    _armTip();
-    // Each list read can change the pace: a new payment, a step, a block.
+    _tip.start();
+    // Each list read can start a boost: a new payment, a step, a block.
     ref.listenManual(homeProvider, (_, next) {
       final data = next.value;
       if (data == null || !mounted) return;
-      ref.read(blockWatchProvider).saw(data.transactions, data.summary.lastConfirmedHeight, now: ref.read(clockProvider)());
-      _armTip();
+      final tip = data.summary.lastConfirmedHeight;
+      final now = ref.read(clockProvider)();
+      final watch = _blockWatch..saw(data.transactions, tip, now: now);
+      watch.boostNode(
+        ref.read(sessionProvider)?.boosts,
+        data.transactions,
+        tip,
+        minConfirmations: data.summary.minimumConfirmations.toInt(),
+        now: now,
+      );
     }, fireImmediately: true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
@@ -256,18 +274,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
       unawaited(offerLastSessionReport(context, ref));
-      // The one notice about the changed Tor address goes before the phrase reminder: the
-      // reminder yields to a notice already up, and comes back on a later opening.
-      unawaited(_offerOnionNotice().then((_) => _offerBackup()));
+      unawaited(_offerOnionNotice());
       _noteStaleOpen();
     });
     // epic1 mode has no Tor address payments: its notice goes with the switch.
     ref.listenManual<PaymentMode>(paymentModeProvider, (_, mode) {
       if (mode == PaymentMode.epic1) ref.read(noticeProvider.notifier).dismissTag(onionNoticeTag);
-    });
-    // The welcome tour goes first: the reminder waits until it closes.
-    ref.listenManual<bool>(phoneTourProvider.select((s) => s.open), (was, open) {
-      if (was == true && !open) unawaited(_offerBackup());
     });
   }
 
@@ -280,9 +292,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // The check runs in the background; a contact it gets no answer from shows "Not answering".
     unawaited(pairingCall(ref, (api) => api.checkContacts()).then<void>((_) {}, onError: (Object _) {}));
   }
-
-  /// This opening's recovery phrase reminder was handled (shown, or not due).
-  bool _backupAsked = false;
 
   /// The one notice a wallet from before the onion's own key sees (onion_notice.dart): once,
   /// also when closed without its link. The link is copied: the phone opens no browser itself.
@@ -308,51 +317,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.read(noticeProvider.notifier).show(l.torAddressChangedTitle, level: NoticeLevel.info, persistent: true, tag: onionNoticeTag);
   }
 
-  /// Item 16: the recovery phrase reminder is a notice, not a card. It comes on an opening of
-  /// home while the phrase is not written down, at most once per [backupNoticeEvery]; Settings ›
-  /// Security keeps its warning mark meanwhile.
-  Future<void> _offerBackup() async {
-    if (_backupAsked || !mounted) return;
-    if (ref.read(phoneTourProvider).open) return;
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
-    _backupAsked = true;
-    final bool backedUp;
-    try {
-      backedUp = await ref.read(backedUpProvider.future);
-    } on Object {
-      return;
-    }
-    if (backedUp || !mounted) return;
-    final store = ref.read(secretStoreProvider);
-    final now = ref.read(clockProvider)();
-    final last = DateTime.fromMillisecondsSinceEpoch(
-      int.tryParse(await store.read(backupNoticeKey(config.chain)) ?? '') ?? 0,
-    );
-    if (!mounted || now.difference(last) < backupNoticeEvery) return;
-    // Never over another notice (a payment, the records' copy): this opening goes without it.
-    if (ref.read(noticeProvider) != null) return;
-    await store.write(backupNoticeKey(config.chain), '${now.millisecondsSinceEpoch}');
-    if (!mounted || ref.read(noticeProvider) != null) return;
-    final l = context.l10n;
-    ref
-        .read(noticeProvider.notifier)
-        .show(
-          l.homeBackupCardText,
-          // Info, so a payment's notice that comes next takes its place at once.
-          level: NoticeLevel.info,
-          tag: backupNoticeTag,
-          action: NoticeAction(l.homeBackupCardButton, () {
-            // The notice outlives home: a lock replaces it with the unlock screen.
-            if (mounted) unawaited(_backup());
-          }),
-        );
-  }
-
   @override
   void dispose() {
     _timer?.cancel();
-    _tipPace.stop();
+    _tip.stop();
+    _blockWatch.endBoosts();
     _lifecycle.dispose();
     super.dispose();
   }
@@ -388,65 +357,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _resumed() {
-    _away = false;
-    _armTip();
+    _tip.start();
     _autoRefresh();
   }
 
-  void _paused() {
-    _away = true;
-    _tipPace.stop(now: ref.read(clockProvider)());
-  }
-
-  /// How closely the list is watched now (watch_mode.dart).
-  WatchPace _pace() {
-    final data = ref.read(homeProvider).value;
-    if (data == null) return WatchPace.none;
-    return listPace(
-      data.transactions,
-      now: ref.read(clockProvider)(),
-      tip: data.summary.lastConfirmedHeight,
-      minConfirmations: data.summary.minimumConfirmations.toInt(),
-      steps: ref.read(blockWatchProvider),
-    );
-  }
-
-  /// Sets the tip timer for the pace now: to the next ask, or to the moment the pace can change
-  /// by time alone.
-  void _armTip() {
-    if (!mounted || _away) return;
-    final data = ref.read(homeProvider).value;
-    final now = ref.read(clockProvider)();
-    final change = data == null ? null : nextWatchChange(data.transactions, now: now, steps: ref.read(blockWatchProvider));
-    _tipPace.arm(_pace(), change: change, now: now, fire: _tipFired);
-  }
-
-  void _tipFired() {
-    if (!mounted) return;
-    if (_tipPace.due(_pace())) _checkTip();
-    _armTip();
-  }
+  void _paused() => _tip.stop();
 
   /// Asks the node for its tip and refreshes when it is past the height home counts
-  /// confirmations at: each block moves a payment's Confirming n/3. Skipped when a refresh
-  /// would be ([_autoRefresh]); a failed ask waits for the next one, later in watch mode.
-  /// A node that answers again after failing has the payments it refused posted again at once.
-  Future<void> _checkTip() async {
-    if (!mounted || _tipBusy) return;
+  /// confirmations at: each block moves a payment's Confirming n/6 (the wallet's count). Skipped when a refresh
+  /// would be ([_autoRefresh]). False when the node did not answer: the driver then waits
+  /// longer. A node that answers again after failing has the payments it refused posted again
+  /// at once.
+  Future<bool> _checkTip() async {
+    if (!mounted || _tipBusy) return true;
     final life = WidgetsBinding.instance.lifecycleState;
-    if (life != null && life != AppLifecycleState.resumed) return;
+    if (life != null && life != AppLifecycleState.resumed) return true;
     final home = ref.read(homeProvider);
     final shown = home.value?.summary.lastConfirmedHeight;
     if (shown == null || shown == BigInt.zero || _syncing(home) || ref.read(scanProvider).running) {
-      return;
+      return true;
     }
     _tipBusy = true;
     try {
       final tip = await ref.refresh(nodeTipProvider.future);
-      if (!mounted) return;
-      final back = _tipPace.answered();
-      // A node back after failing is asked at the watch pace again, not the backed-off one.
-      _armTip();
+      if (!mounted) return true;
+      final back = _tip.failures >= 2;
       if (back) ref.read(stallRetryProvider).nodeBack();
       if (tip.height > shown || back) {
         _autoRefresh();
@@ -454,10 +389,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         // Being posted: read the list again, so "Not on the network" does not wait for a block.
         unawaited(ref.read(homeProvider.notifier).relist());
       }
+      return true;
     } catch (_) {
       // The status line shows a node that does not answer; the minute's refresh still runs.
-      _tipPace.failed();
-      _armTip();
+      return false;
     } finally {
       _tipBusy = false;
     }
@@ -468,15 +403,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final file = ref.read(incomingSlateProvider.notifier).take();
     if (file == null || !mounted) return;
     _open(SlateFileScreen(file: file));
-  }
-
-  Future<void> _backup() async {
-    ref.read(noticeProvider.notifier).dismissTag(backupNoticeTag);
-    final done = await Navigator.of(context)
-        .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) {
-      _showNotice(context.l10n.homeBackedUpNotice, level: NoticeLevel.success);
-    }
   }
 
   /// Opens [screen] over home. Coming back does not refresh: screens that change the wallet
@@ -640,7 +566,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (!mounted) return;
       if (flow == ShellFlow.send) _sendRoutes++;
       navigator
-          .push(MaterialPageRoute<void>(settings: flow == ShellFlow.send ? const RouteSettings(name: sendFlowRouteName) : null, builder: (_) => ShellFlowRoute(flow: flow)))
+          .push(PhoneModalRoute<void>(settings: flow == ShellFlow.send ? const RouteSettings(name: sendFlowRouteName) : null, builder: (_) => ShellFlowRoute(flow: flow)))
           .whenComplete(() {
             if (flow == ShellFlow.send) _sendRoutes--;
           });
@@ -707,18 +633,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
 
-    // The Android back: a tab other than Home goes to Home first; on Home the app leaves, as
-    // the system does. Screens over the shell pop first. Invites the system opened (pairing,
-    // device link) go to their feature's confirm sheet.
+    // The Android back: a tab other than Home goes to Home first; on Home the app goes to the
+    // background (leaveApp), as the system does. Screens over the shell pop first. Invites the
+    // system opened (pairing, device link) go to their feature's confirm sheet.
     return InviteLinkGate(
       onUnreadable: (context) => _showNotice(context.l10n.inviteLinkUnreadable, level: NoticeLevel.warning),
       onNoHandler: (context, kind) => _showNotice(inviteNoHandlerText(context.l10n, kind), level: NoticeLevel.info),
       child: PopScope(
-        canPop: tab == ShellTab.home,
+        canPop: false,
         onPopInvokedWithResult: (didPop, _) {
           // The tour takes back for its own steps.
           if (didPop || ref.read(phoneTourProvider).open) return;
-          ref.read(shellTabProvider.notifier).go(ShellTab.home);
+          if (ref.read(shellTabProvider) == ShellTab.home) {
+            unawaited(leaveApp());
+          } else {
+            ref.read(shellTabProvider.notifier).go(ShellTab.home);
+          }
         },
         child: PhoneTourAnchor(
           child: _Backdrop(
@@ -759,22 +689,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   // The Epicbox relay offer as a notice.
                   const RelayDownNotices(),
                   Positioned.fill(
-                    // A sideways swipe moves between the bar's tabs. Lists with swipe actions,
-                    // carousels and the like win the gesture arena first, so they keep working.
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onHorizontalDragEnd: (d) {
-                        final v = d.primaryVelocity ?? 0;
-                        if (v.abs() < 300) return;
-                        final next = tab.index + (v < 0 ? 1 : -1);
-                        if (next >= 0 && next < ShellTab.values.length) _goTab(next);
-                      },
-                      child: switch (tab) {
-                        ShellTab.home => HomeTab(onRefresh: _refresh),
-                        ShellTab.activity => const HistoryScreen(),
-                        ShellTab.contacts => const ContactsScreen(),
-                        ShellTab.settings => const SettingsScreen(),
-                      },
+                    // A sideways swipe moves between the bar's tabs, the screens following the
+                    // finger (reduced motion: a flick moves to the next one with no motion).
+                    // Lists with swipe actions, carousels and the like win the gesture arena first,
+                    // so they keep working.
+                    child: PhoneTabs(
+                      selected: tab.index,
+                      onSelect: _goTab,
+                      children: [
+                        HomeTab(onRefresh: _refresh),
+                        const HistoryScreen(),
+                        const ContactsScreen(),
+                        const SettingsScreen(),
+                      ],
+                      flat: (screen) => GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onHorizontalDragEnd: (d) {
+                          final v = d.primaryVelocity ?? 0;
+                          if (v.abs() < 300) return;
+                          final next = tab.index + (v < 0 ? 1 : -1);
+                          if (next >= 0 && next < ShellTab.values.length) _goTab(next);
+                        },
+                        child: screen,
+                      ),
                     ),
                   ),
                 ],
@@ -939,17 +876,6 @@ void showUpdateNotice(
   }
 }
 
-/// The recovery phrase reminder comes back on a later opening of home, at most this often.
-const Duration backupNoticeEvery = Duration(days: 1);
-
-/// The tag of the recovery phrase reminder's notice.
-const String backupNoticeTag = 'backup-phrase';
-
 /// The one notice about the changed Tor address (onion_notice.dart).
 const String onionNoticeTag = 'onion-notice';
-
-/// When the recovery phrase reminder last showed on [chain]'s wallet (milliseconds since the
-/// epoch). Stored beside the vault's entries for the chain (`wallet.<chain>.*`), so deleting the
-/// wallet forgets it too.
-String backupNoticeKey(Chain chain) => 'wallet.${chain.name}.backupNoticeAt';
 

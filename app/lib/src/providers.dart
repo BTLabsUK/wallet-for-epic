@@ -11,6 +11,7 @@ import 'dev_networks.dart';
 import 'server_list_file.dart' show useServerValues;
 import 'settings_file/settings_providers.dart';
 import 'epic1.dart';
+import 'epicbox_mux.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network.dart';
@@ -235,6 +236,30 @@ final epic1Provider = Provider<Epic1Wallet?>((ref) => ref.watch(sessionProvider)
 final paymentModeProvider = Provider<PaymentMode>(
   (ref) => ref.watch(sessionProvider)?.paymentMode ?? PaymentMode.classic,
 );
+
+/// The epic1 switch as stored during this unlock, or null while it has not moved. The switch
+/// sets it, so a turn-off reaches Receive at once.
+final epic1StoredProvider = NotifierProvider<Epic1StoredNotifier, bool?>(Epic1StoredNotifier.new);
+
+class Epic1StoredNotifier extends Notifier<bool?> {
+  @override
+  bool? build() {
+    ref.watch(sessionProvider);
+    return null;
+  }
+
+  void set(bool on) => state = on;
+}
+
+/// What Receive offers: epic1 only while this unlock is in epic1 mode and the switch is still
+/// on. Turned off, Receive shows the Epicbox address at once: the wallet takes classic payments
+/// in either mode, and an epic1 link is never handed out after the user said no. Turning it on
+/// still waits for the next unlock, as the rest of the epic1 UI does.
+final receiveModeProvider = Provider<PaymentMode>((ref) {
+  if (ref.watch(paymentModeProvider) != PaymentMode.epic1) return PaymentMode.classic;
+  final stored = ref.watch(epic1StoredProvider) ?? ref.watch(epic1Provider)?.storedOn ?? true;
+  return stored ? PaymentMode.epic1 : PaymentMode.classic;
+});
 
 class SessionNotifier extends Notifier<WalletSession?> {
   @override
@@ -1012,6 +1037,23 @@ Duration get listenerHealAfter => appConfig.listenerHealAfter;
 /// The longest wait between two self-heal restarts of a listener that does not connect.
 Duration get listenerHealMax => appConfig.listenerHealMax;
 
+/// The open wallet's push sessions to the Epicbox relays (`epicbox_mux.dart`): started with the
+/// wallet, ended with it. Null while locked, with `epicbox.mux` off, on a core without them, and
+/// while Node only, the Kill switch or the Epicbox switch keeps the wallet off the relays.
+final epicboxMuxProvider = Provider<EpicboxMux?>((ref) {
+  final session = ref.watch(sessionProvider);
+  if (ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch))) return null;
+  if (ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox ?? true)) == false) return null;
+  final mux = EpicboxMux.of(session, MuxPolicy.of(appConfig));
+  if (mux == null) return null;
+  ref.onDispose(() {
+    mux.close();
+    unawaited(mux.stopContacts());
+  });
+  unawaited(mux.startContacts());
+  return mux;
+});
+
 class ListenerNotifier extends Notifier<ListenerState> {
   StreamSubscription<ListenerEvent>? _events;
 
@@ -1127,10 +1169,14 @@ class ListenerNotifier extends Notifier<ListenerState> {
   /// which grows to 60 s and does not count the time the phone slept. Called when the app
   /// comes back to the foreground and when the network returns. A listener still making its
   /// first connection and a stopped one are left alone; a connected one only when the network
-  /// changed under it (its socket went with the old network, though LEPIC has not noticed).
-  Future<void> wake(String why) async {
-    if (!_down || state.stopped || state.offline) return;
-    if (state.connected && why != 'network') return;
+  /// changed under it (its socket went with the old network, though LEPIC has not noticed), or
+  /// after a long absence ([stale]: the app was in the background long enough for the socket to
+  /// be dead while the state still says connected).
+  Future<void> wake(String why, {bool stale = false}) async {
+    if (state.stopped || state.offline) return;
+    final staleSocket = stale && state.connected;
+    if (!_down && !staleSocket) return;
+    if (state.connected && why != 'network' && !staleSocket) return;
     // Blocked here stays blocked on a resume; another network may not block it.
     if (state.blocked && why != 'network') return;
     logInfo('listener', 'reconnect on $why');
@@ -1148,7 +1194,8 @@ class ListenerNotifier extends Notifier<ListenerState> {
     var failed = false;
     late final StreamSubscription<ListenerEvent> events;
     logInfo('listener', 'epicbox connecting');
-    events = session.startListener().listen(
+    final mux = ref.read(epicboxMuxProvider);
+    events = (mux?.startListener() ?? session.startListener()).listen(
       (event) {
         if (event.kind == ListenerEventKind.stopped) end();
         // A listener being replaced by [restart] no longer speaks for the wallet.
@@ -1647,8 +1694,16 @@ class IssuedInvoicesNotifier extends AsyncNotifier<List<IssuedInvoice>> {
   Future<IssuedInvoice> withdraw(String slateId) async {
     final withdrawn = await _session.withdrawInvoice(slateId: slateId);
     logInfo('invoices', 'issued invoice withdrawn');
-    ref.invalidateSelf();
-    await future;
+    // The withdraw is done. Reloading the list is only to show it: a failure or a dispose
+    // here (no screen watching the list) must not turn a withdrawn invoice into an error.
+    if (ref.mounted) {
+      ref.invalidateSelf();
+      try {
+        await future;
+      } catch (error) {
+        logInfo('invoices', 'list reload after a withdraw failed: ${error.runtimeType}');
+      }
+    }
     return withdrawn;
   }
 }
@@ -1734,6 +1789,16 @@ class PaymentsDrainNotifier extends Notifier<PaymentsDrainReport?> {
     final offline = ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch));
     if (session != null && !offline) Future<void>.delayed(Duration.zero, drain);
     return null;
+  }
+
+  /// The drain on a resume: skipped while the Epicbox listener is connected, because it takes
+  /// every payment that reaches the payments address as it comes. With the listener down,
+  /// reconnecting or not running, the drain runs as on open. After a long absence
+  /// ([afterLongAway]) the listener's state is not trusted: its socket may have died unnoticed,
+  /// so the drain runs whatever it says.
+  Future<void> drainOnResume({bool afterLongAway = false}) async {
+    if (!afterLongAway && ref.exists(listenerProvider) && ref.read(listenerProvider).connected) return;
+    await drain();
   }
 
   /// One drain, unless one is running. Failures are logged; the next resume tries again.

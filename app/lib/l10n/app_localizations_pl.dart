@@ -806,7 +806,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nic jeszcze nie dotarło. Jeśli ta płatność dotrze później, pokaże się jako odebrana.';
+      'Nic jeszcze nie dotarło. Nadawca zostanie powiadomiony. Jeśli mimo to ją wyśle, płatność dotrze i pokaże się jako odebrana.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1143,12 +1143,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get homeNoticePaymentFailed => 'Płatność nie powiodła się.';
-
-  @override
-  String get homeBackupCardText => 'Fraza bez kopii';
-
-  @override
-  String get homeBackupCardButton => 'Zabezpiecz';
 
   @override
   String get torAddressChangedTitle => 'Twój adres Tor się zmienił';
@@ -3527,14 +3521,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'Twoje saldo, a pod nim ikony węzła, Epicbox i Tora. To, co jeszcze się potwierdza, jest w kafelkach poniżej.';
+      'Twoje saldo oraz wysyłanie i odbieranie. Status w prawym górnym rogu pokazuje połączenie: dotknij go, by zobaczyć węzeł, Epicbox i Tora. Poniżej są ostatnie płatności.';
 
   @override
   String get tourPhoneSendTitle => 'Wyślij';
 
   @override
   String get tourPhoneSendText =>
-      'Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; QR pokazuje kod telefonowi obok ciebie. Więcej metod: Ustawienia › Transakcje. Najpierw jest podgląd.';
+      'Wklej lub zeskanuj adres albo wybierz kontakt. Epicbox płaci na adres; QR pokazuje kod telefonowi obok ciebie. Więcej metod: Ustawienia › Płatności. Najpierw jest podgląd.';
 
   @override
   String get tourPhoneReceiveTitle => 'Odbierz';
@@ -15598,7 +15592,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'Twoje saldo, a pod nim ikony węzła i Epicbox. To, co jeszcze się potwierdza, jest w kafelkach poniżej.';
+      'Twoje saldo oraz wysyłanie i odbieranie. Status w prawym górnym rogu pokazuje połączenie: dotknij go, by zobaczyć węzeł i Epicbox. Poniżej są ostatnie płatności.';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -16251,7 +16245,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netStatusTurnOnHint =>
-      'Wyłączone. Włącz w Ustawienia › Transakcje.';
+      'Wyłączone. Włącz w Ustawienia › Płatności.';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -21651,7 +21645,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety.';
+      'Szukanie Twoich monet zaczyna się od tego miesiąca. Jeśli nie wiesz, wybierz wcześniejszy: późniejszy może pominąć monety. Starszy miesiąc to dłuższe szukanie.';
 
   @override
   String get phoneSendRouteEpicbox => 'Adres Epicbox';
@@ -21887,4 +21881,173 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Następne pole, potem importuj';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'Druga strona anulowała tę płatność, więc jest anulowana także tutaj.';
+
+  @override
+  String get phoneSendMaxNoteNoFee => 'Wszystko, co masz, minus opłata';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'Portfel odbiorcy może być offline. Płatność zakończy się, gdy portfel zostanie otwarty.';
+
+  @override
+  String get phoneRestoreUseHeight => 'Zamiast tego podaj wysokość bloku';
+
+  @override
+  String get phoneRestoreUseMonth => 'Zamiast tego wybierz miesiąc';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'Portfel $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'Gdy puste, widzą $label.';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'Twoja fraza odzyskiwania nie jest zapisana. Bez niej zgubiony telefon oznacza utracony portfel.';
+
+  @override
+  String get phoneBackupReminderAction => 'Zapisz teraz';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount potwierdza się · czeka na $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount potwierdza się · czeka na odpowiedź';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount potwierdza się · czeka na $count odpowiedzi';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount potwierdza się · ok. $minutes min';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount potwierdza się · następne za $minutes min';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'czeka na przyjęcie';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'czeka na blok · ok. $minutes min';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'ok. $minutes min · $count z $target potwierdzeń';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'Dostępne teraz';
+
+  @override
+  String get phoneBalanceArriving => 'Nadchodzi';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'Wysyłka wydaje całe monety. Reszta wraca i można ją wydać po $target potwierdzeniach, ok. $target min po tym, jak płatność trafi do bloku. Jeśli wysyłka zostanie anulowana, wraca cała kwota.';
+  }
+
+  @override
+  String get deskRecvAskOpen => 'Poproś o kwotę';
+
+  @override
+  String get deskRecvAskAmount => 'Kwota';
+
+  @override
+  String get deskRecvAskNote => 'Notatka';
+
+  @override
+  String get deskRecvAskHint =>
+      'Kod zawiera teraz Twój adres i tę kwotę. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie do Ciebie z wpisaną kwotą.';
+
+  @override
+  String get deskRecvAskCopy => 'Kopiuj link';
+
+  @override
+  String get deskRecvAskCopied => 'Link skopiowany';
+
+  @override
+  String get deskRecvAskClose => 'Wróć do adresu';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Każdy, z moim adresem';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => 'Kod z Twoim adresem i kwotą';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Pokaż ten kod lub udostępnij link. Kto go zeskanuje albo wklei, dostanie zwykłe wysłanie na Twój adres z już wpisaną kwotą $amount.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Link skopiowany';
+
+  @override
+  String get phoneRecvLinkQrLabel => 'Twój adres z kwotą jako kod QR';
+
+  @override
+  String get announcementsTitle => 'Ogłoszenia';
+
+  @override
+  String get announcementsHint =>
+      'Krótkie wiadomości od BT Labs między wersjami, podpisane przez BT Labs. Wyłączone: nie są sprawdzane.';
+
+  @override
+  String get announcementDismiss => 'Ukryj';
+
+  @override
+  String get announcementOpensInBrowser => 'otwiera w przeglądarce';
+
+  @override
+  String get deskSetGrpAnnouncements => 'Od BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'ogłoszenia, ogloszenia, nowości, wiadomości, komunikaty, bt labs';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'Ten kod jest dla innej sieci.';
+
+  @override
+  String get deskE1ErrNotInPerson =>
+      'To nie jest kod, który ten portfel może opłacić lub sprawdzić.';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'Kod osobisty epic1. Włącz płatności epic1, aby go opłacić.';
+
+  @override
+  String get pairRefusesInvoices => 'Portfel tego kontaktu nie opłaca faktur.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Portfel kontaktu $name nie opłaca faktur.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres.';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.';
 }

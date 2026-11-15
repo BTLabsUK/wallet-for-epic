@@ -170,7 +170,7 @@ class DeskBackupSettingsGlue {
       changed += advanced;
     }
     if (!identical(s, was)) await desk.saveSettings(s);
-    for (final key in [BackupItem.updateCheck, BackupItem.price]) {
+    for (final key in [BackupItem.updateCheck, BackupItem.price, BackupItem.announcements]) {
       if (!v.containsKey(key)) continue;
       await read(hostSettingsProvider.notifier).set(key, v[key]! as bool);
       changed++;

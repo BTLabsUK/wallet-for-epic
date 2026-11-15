@@ -199,6 +199,7 @@ Future<void> _pump(
           MemorySecretStore({'app.network': 'mainnet'}),
         ),
         phoneTorProvider.overrideWith(() => _Tor(tor)),
+        nodeSettleProvider.overrideWithValue(Duration.zero),
         networkModeProvider.overrideWithValue(advanced.networkMode),
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         priceSourceProvider.overrideWithValue(_Price()),
@@ -312,7 +313,7 @@ void main() {
       expect(_dot(tester, torIconKey), t.faint);
       expect(find.byKey(directIconKey), findsOneWidget);
       expect(_label(tester, directIconKey), 'Link, Off');
-      expect(_hint(tester, directIconKey), contains('Turn on in Settings\u00a0›\u00a0Transactions'));
+      expect(_hint(tester, directIconKey), contains('Turn on in Settings\u00a0›\u00a0Payments'));
       expect(_label(tester, nodeStatusKey), isNot(contains('Tor')));
     });
 
@@ -439,7 +440,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
       expect(
         _tip_(tester, epicboxStatusKey),
-        'Off. Turn on in Settings\u00a0›\u00a0Transactions.',
+        'Off. Turn on in Settings\u00a0›\u00a0Payments.',
       );
     });
 

@@ -73,6 +73,8 @@ void main() {
       await wallet.setHttpListening(true);
       await httpStarted();
       await wallet.setEpicboxListening(true);
+      // The listener starts through the push sessions, once their group is read.
+      await pumpEventQueue();
       expect(session().listenerStarts, 1);
       expect((await wallet.status()).epicboxHealth, ServiceHealth.checking);
 

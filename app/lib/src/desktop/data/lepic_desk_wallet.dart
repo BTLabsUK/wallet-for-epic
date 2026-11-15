@@ -35,7 +35,7 @@ import '../../first_run_servers.dart' show firstRunServersSettled;
 import '../../devices/device_history.dart' show mergeDeviceHistory;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost, ForwardKind, ForwardedNotice, SessionDeviceHost;
-import '../../name_service/name_service_service.dart' show NameServiceHost, SessionNameServiceHost, netOfChain;
+import '../../name_service/name_service_service.dart' show ListingDrain, NameServiceHost, SessionNameServiceHost, netOfChain;
 import '../../name_service/verify.dart' show NameServiceVerifier;
 import '../../name_service/receipts.dart' show LinkPaymentRecords;
 import '../../devices/device_store.dart' show DeviceStore;
@@ -81,18 +81,20 @@ import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import '../../settings_file/settings_providers.dart' show DevSettingsMissing, installedSettingsFile, openAppSettings, writeHostSettings;
 import '../../seed_contacts.dart';
 import '../../sender_cancel.dart' show SenderCancelRelease;
-import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSettled, cancelSpendsBack, cancelledMayComplete;
+import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSettled, cancelSpendsBack, cancelledMayComplete, relayCancelFirst;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, isSealedText, replyFileName, sealedFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
-import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, listPace, nextWatchChange, postingNow, watchTipEvery;
+import '../../watch_mode.dart' show BlockWait, BlockWatch, postingNow;
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../trust/contact_trust.dart' show peerCompatRetention;
 import '../../trust/policy.dart' show PeerCompat;
 import '../../epic1.dart' show Epic1Wallet, Epic1Of;
+import '../../boosts.dart' show Boosts, PollDriver, Poller;
+import '../../epicbox_mux.dart' show EpicboxMux, MuxPolicy;
 import '../../wallet_service.dart' as core;
 import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
@@ -156,7 +158,6 @@ class LepicDeskWallet implements DeskWalletApi {
     Duration? nodePoll,
     Duration? nodeRecheck,
     Duration? nodeStale,
-    Duration? watchPoll,
     Duration? nodeTimeout,
     Duration? nodeTorTimeout,
     this.torNodeGrace = const Duration(minutes: 2),
@@ -181,7 +182,6 @@ class LepicDeskWallet implements DeskWalletApi {
   }) : nodePoll = nodePoll ?? appConfig.nodePoll,
        nodeRecheck = nodeRecheck ?? appConfig.nodeRecheck,
        nodeStale = nodeStale ?? appConfig.nodeStaleAfter,
-       watchPoll = watchPoll ?? watchTipEvery,
        nodeTimeout = nodeTimeout ?? appConfig.nodeCheckTimeout,
        nodeTorTimeout = nodeTorTimeout ?? appConfig.nodeTorCheckTimeout,
        torStartBackoff = torStartBackoff ?? appConfig.torStartBackoff,
@@ -315,10 +315,6 @@ class LepicDeskWallet implements DeskWalletApi {
   /// than compare a stale height with a fresh one.
   final Duration nodeStale;
 
-  /// How often the node is asked instead while a payment can move with the next block
-  /// (watch_mode.dart).
-  final Duration watchPoll;
-  late final TipPacer _tipPace = TipPacer(normal: nodePoll, watch: watchPoll);
   final Duration nodeTimeout;
 
   /// How long a node may take over Tor: LEPIC's own node timeout there, as a first onion
@@ -498,8 +494,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The open wallet's onion, `<56 characters>.onion`.
   String? _onion;
 
-  /// Whether the node is polled: the tip timer in [_tipPace] is set.
-  bool _poll = false;
+  /// The node poll, every [nodePoll] and faster while the node is boosted (watch_mode.dart);
+  /// null when the node is not polled.
+  PollDriver? _tipDriver;
   Future<void>? _syncing;
   bool _syncAgain = false;
   /// Why the last sync did not reach the node; null when it did.
@@ -512,7 +509,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   void _changed() {
     _followTor();
-    _armTip();
+    _watchBlocks();
     if (!_changes.isClosed) _changes.add(null);
   }
 
@@ -1084,6 +1081,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _dueAfterHeight = null;
     _restoreDue = await _restoreFlag(session) || (await _meta(metaKey))['scanPending'] == true;
     await _routeEpicbox(session);
+    unawaited(_startMux());
     if (!NetGate.restricted) unawaited(_resendUndelivered(session));
     _config = config;
     _password = password;
@@ -1252,6 +1250,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _stopPoll();
     _stopInvoices(forget: true);
     await _stopListener();
+    await _stopMux();
     await _stopHttp();
     await _stopTor();
     final session = _session;
@@ -1317,9 +1316,12 @@ class LepicDeskWallet implements DeskWalletApi {
     final tor = _tor != null;
     final config = await _makeConfig(nodeUrl: nodeUrl, relay: relay);
     await _stopListener();
+    await _stopMux();
     await _stopHttp();
     await _stopTor();
     _stopInvoices();
+    final polling = _tipDriver != null;
+    _stopPoll();
     _session?.dispose();
     _session = null;
     // A lock() while opening wins: the new session closes at once.
@@ -1331,10 +1333,12 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       _session = session;
       _sessionRevision++;
+      if (polling) _startPoll();
       // The coins the linked devices hold stay held through the reopen.
       session.heldOutputs = _deviceHeld;
       _config = c;
       await _routeEpicbox(session);
+      unawaited(_startMux());
       return true;
     }
 
@@ -2178,54 +2182,46 @@ class LepicDeskWallet implements DeskWalletApi {
     await _reload();
   }
 
-  /// How closely the list is watched now (watch_mode.dart).
-  WatchPace _pace() => listPace(
-    _entries ?? const <core.TxEntry>[],
-    now: DateTime.now(),
-    tip: BigInt.from(_tip),
-    minConfirmations: _minConf.toInt(),
-    steps: _blockWaits,
-  );
-
   /// The wait notes last shown, so a window that passes with no block (and so no sync) still
   /// shows its note.
   int? _waitsShown;
 
   void _startPoll() {
-    _poll = true;
-    _armTip();
+    _tipDriver?.stop();
+    _tipDriver = PollDriver(_open.boosts, Poller.node, base: nodePoll, tick: _tipTick)..start();
   }
 
   void _stopPoll() {
-    _poll = false;
-    _tipPace.stop();
+    _tipDriver?.stop();
+    _tipDriver = null;
   }
 
-  /// Sets the tip timer for the list now: to the next ask, or to the moment the pace or a wait
-  /// note can change by time alone. Each change ([_changed]) sets it again.
-  void _armTip() {
-    if (!_poll) return;
+  /// Boosts the node for the payments that took a step or saw a block ([BlockWatch.boostNode]).
+  /// Each change ([_changed]) calls it.
+  void _watchBlocks() {
     final entries = _entries;
-    if (entries != null) _blockWaits.saw(entries, BigInt.from(_tip));
-    final now = DateTime.now();
-    final change = entries == null ? null : nextWatchChange(entries, now: now, steps: _blockWaits);
-    _tipPace.arm(_pace(), change: change, now: now, fire: _tipTick);
+    if (_tipDriver == null || entries == null) return;
+    final tip = BigInt.from(_tip);
+    _blockWaits
+      ..saw(entries, tip)
+      ..boostNode(_session?.boosts, entries, tip, minConfirmations: _minConf.toInt());
   }
 
-  void _tipTick() {
+  Future<bool> _tipTick() async {
+    final answered = await _checkTip();
     final entries = _entries;
-    if (entries != null) _blockWaits.saw(entries, BigInt.from(_tip));
-    if (_tipPace.due(_pace())) unawaited(_checkTip());
-    _armTip();
-    if (entries == null) return;
-    final waits = Object.hashAll(entries.map(_waitOf));
-    if (_waitsShown != null && waits != _waitsShown) _changed();
-    _waitsShown = waits;
+    if (entries != null) {
+      final waits = Object.hashAll(entries.map(_waitOf));
+      if (_waitsShown != null && waits != _waitsShown) _changed();
+      _waitsShown = waits;
+    }
+    return answered;
   }
 
-  Future<void> _checkTip() async {
+  /// Asks the node for its tip. False when it did not answer: the poll then waits longer.
+  Future<bool> _checkTip() async {
     final config = _config;
-    if (config == null || _tipBusy || _nodeOff) return;
+    if (config == null || _tipBusy || _nodeOff) return true;
     // Over Tor, LEPIC holds the check until tor is connected; a failure meanwhile is not counted.
     final overTor = _nodeOverTor(config.nodeUrl);
     _tipBusy = true;
@@ -2233,12 +2229,11 @@ class LepicDeskWallet implements DeskWalletApi {
       // The node in use is asked within the failover's probe budget: a node that stopped
       // answering reads so as soon as a round would count it out.
       final tip = await _nodeTip(config, wait: nodeProbeBudget(config.nodeUrl, torOn: overTor));
-      if (tip == null) return;
+      if (tip == null) return true;
       _nodeReachedAt = DateTime.now();
-      // Back after failing: the payments it refused meanwhile are posted again at once.
-      if (_tipPace.answered()) _stall.nodeBack();
-      // A node back after failing is asked at the watch pace again, not the backed-off one.
-      _armTip();
+      // Back after failing twice in a row: the payments it refused meanwhile are posted again
+      // at once.
+      if ((_tipDriver?.failures ?? 0) >= 2) _stall.nodeBack();
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
@@ -2263,19 +2258,19 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       unawaited(_retryStalled());
       unawaited(_releaseSenderCancelled());
+      return true;
     } on Object catch (e) {
-      _tipPace.failed();
-      _armTip();
       final why = e is core.WalletError ? e.kind.name : e.runtimeType;
       if (overTor && _torGrace()) {
         logInfo('desk', 'node check over Tor failed: $why; not counted while tor settles or the node syncs');
-        return;
+        return false;
       }
       if (_nodeHealth != ServiceHealth.down) {
         logWarn('desk', 'node check failed: $why');
         _nodeHealth = ServiceHealth.down;
         _changed();
       }
+      return false;
     } finally {
       _tipBusy = false;
     }
@@ -3642,6 +3637,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!on) {
       _stopInvoices();
       await _stopListener();
+      await _stopMux();
       _epicboxHealth = ServiceHealth.off;
       _changed();
       return;
@@ -3677,6 +3673,7 @@ class LepicDeskWallet implements DeskWalletApi {
         _beforeOffline ??= (listening: _listener != null, http: _http != null, tor: _settings.tor);
         _stopInvoices();
         await _stopListener();
+        await _stopMux();
         await _stopHttp();
         _epicboxHealth = ServiceHealth.off;
         if (now == NetworkMode.killSwitch) {
@@ -4084,7 +4081,8 @@ class LepicDeskWallet implements DeskWalletApi {
     final session = _open;
     _epicboxHealth = ServiceHealth.checking;
     _changed();
-    _listener = session.startListener().listen(
+    unawaited(_startMux());
+    _listener = (mux?.startListener() ?? session.startListener()).listen(
       (e) {
         switch (e.kind) {
           case core.ListenerEventKind.connected:
@@ -4248,7 +4246,15 @@ class LepicDeskWallet implements DeskWalletApi {
     _epicboxOverTor = on;
     _clearBlocked();
     final session = _session;
-    if (session != null) await _routeTor(session);
+    if (session != null) {
+      await _routeTor(session);
+      // The groups follow the setting: the contacts start again in theirs.
+      final m = _mux;
+      if (m != null && m.contactsGroup != null) {
+        await m.stopContacts();
+        await _startMux();
+      }
+    }
     _changed();
   }
 
@@ -4591,6 +4597,27 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     await sub.cancel();
     _changed();
+  }
+
+  EpicboxMux? _mux;
+  core.WalletSession? _muxOf;
+
+  /// Push sessions for the contacts: started once Epicbox may run, ended with the wallet's
+  /// session (a lock forgets them) or when Epicbox stops.
+  Future<void> _startMux() async {
+    if (NetGate.restricted || !NetGate.epicbox) return;
+    final m = mux;
+    if (m == null || m.contactsGroup != null) return;
+    await m.startContacts();
+  }
+
+  Future<void> _stopMux() async {
+    final m = _mux;
+    _mux = null;
+    _muxOf = null;
+    if (m == null) return;
+    await m.stopContacts();
+    m.close();
   }
 
   Future<void> _stopListener() async {
@@ -5509,10 +5536,14 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> cancelRequestPayment(String slateId) async {
     final entries = _entries ?? await _open.transactions(refresh: false);
-    final txId = entries.where((e) => e.slateId == slateId && e.isRequest).firstOrNull?.id;
-    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'); // l10n-ok
+    final entry = entries.where((e) => e.slateId == slateId && e.isRequest).firstOrNull;
+    final txId = entry?.id;
+    if (entry == null || txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'); // l10n-ok
     try {
-      await _running(() => _open.cancelTransaction(txId: txId));
+      await _running(() async {
+        await relayCancelFirst(_open, entry);
+        await _open.cancelTransaction(txId: txId);
+      });
     } on core.WalletError catch (e) {
       throw _cancelError(e);
     }
@@ -5613,6 +5644,21 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Epic1Wallet? get epic1 => _session?.epic1;
+
+  @override
+  Boosts? get boosts => _session?.boosts;
+
+  @override
+  EpicboxMux? get mux {
+    final session = _session;
+    if (session == null) return null;
+    if (!identical(session, _muxOf)) {
+      _mux?.close();
+      _muxOf = session;
+      _mux = EpicboxMux.of(session, MuxPolicy.of(appConfig));
+    }
+    return _mux;
+  }
 
   @override
   Future<PeerCompat?> peerCompat(String address) => _service.peerCompat(address);
@@ -6021,7 +6067,7 @@ InvoiceError invoiceError(core.WalletError e, {bool issuing = false}) => Invoice
   core.WalletErrorKind.invoiceLockedAboveTip => InvoiceProblem.lockedAboveTip,
   core.WalletErrorKind.amountMismatch => InvoiceProblem.amountMismatch,
   _ => InvoiceProblem.invalid,
-}, deskErrorText(e), cause: e.kind.name);
+}, deskErrorText(e), cause: e.kind.name, source: e);
 
 /// History backups are small; a file far larger is not one (the phone's limit).
 const int maxDeskHistoryBytes = 32 << 20;
@@ -6095,6 +6141,9 @@ class _DeskNameServiceHost implements NameServiceHost {
   core.PairingApi get pairing => _host.pairing;
 
   @override
+  Boosts get boosts => _host.boosts;
+
+  @override
   bool get online => _online();
 
   @override
@@ -6112,6 +6161,9 @@ class _DeskNameServiceHost implements NameServiceHost {
 
   @override
   Future<core.PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _host.drain(serviceKeyHex, generation);
+
+  @override
+  Future<List<core.ListingDrainResult>> drainMany(List<ListingDrain> listings) => _host.drainMany(listings);
 }
 
 /// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now. While the
@@ -6132,6 +6184,9 @@ class _DeskDeviceHost implements DeviceHost {
 
   @override
   core.PairingApi get pairing => _session.pairing;
+
+  @override
+  Boosts get boosts => _session.boosts;
 
   @override
   bool get online => _online();

@@ -18,7 +18,8 @@ import '../../trust/policy.dart' show featureNameService, statedAutomated;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
-import '../../pairing_text.dart' show isUnnamed, sameNamedContact;
+import '../../providers.dart' show sessionProvider;
+import '../../pairing_text.dart' show isUnnamed, pairingPeerAddress, sameNamedContact, unnamedPeerLabel;
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart' show ContactPage;
@@ -74,7 +75,9 @@ const Key confirmRemovePairingKey = ValueKey('confirm-remove-pairing');
 /// the contact, so no address is needed. The contact saved, or null.
 Future<Contact?> savePairingAsNewContact(BuildContext context, PairingRecord r) {
   final count = ProviderScope.containerOf(context).read(contactsProvider).value?.length ?? 0;
-  final name = isUnnamed(r.name) ? context.l10n.pairDefaultLabel(count + 1) : r.name;
+  // No name: the start of its address when the app has it, else "Contact {n}".
+  final tag = pairingPeerAddress(r);
+  final name = !isUnnamed(r.name) ? r.name : (tag == null ? context.l10n.pairDefaultLabel(count + 1) : unnamedPeerLabel(context.l10n, tag));
   return Navigator.of(context).push<Contact>(
     MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: name, address: r.paymentsAddress, addressOptional: true)),
   );
@@ -137,7 +140,7 @@ class CheckWordsScreen extends ConsumerStatefulWidget {
 class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   bool _busy = false;
   bool _left = false;
-  PairingCollector? _collector;
+  void Function()? _unboost;
   StreamSubscription<PairingEvent>? _events;
 
   /// Where the name service's wait stands when the service has not said yet (its answer to
@@ -153,7 +156,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     final api = ref.read(pairingApiProvider);
     // The other wallet's verdict is heard within seconds, as on the desktop, not at the next
     // foreground tick.
-    if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
+    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, boostMinInterval);
     _events = api.events().listen((e) {
       // Ended while the words are open (the other wallet said they do not match): nothing is
       // left to check; the ended notice says why.
@@ -190,7 +193,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
 
   @override
   void dispose() {
-    _collector?.stop();
+    _unboost?.call();
     _events?.cancel();
     pairingWordsOnScreen.remove(_onScreen);
     // Leaving the screen stops the wait; the words step is what Back leaves the pairing at.

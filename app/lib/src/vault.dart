@@ -390,7 +390,7 @@ class WalletVault {
       'pinPassphrase',
       'pinPassphraseEver',
       'backupCardDismissed', // home's former recovery phrase card, still on older installs
-      'backupNoticeAt', // home's recovery phrase reminder (home_screen.dart)
+      'backupNoticeAt', // when the recovery phrase reminder was closed (home_slot.dart)
     ]) {
       await store.delete(_key(chain, name));
     }

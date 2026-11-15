@@ -15,6 +15,26 @@ AVD_HW = {"hw.ramSize": "3G", "hw.cpu.ncore": "4", "disk.dataPartition.size": "6
           "hw.keyboard": "yes", "hw.gpu.enabled": "no", "PlayStore.enabled": "no"}
 
 
+def kvm_wrap(cmd, dev="/dev/kvm", group_file="/etc/group"):
+    """cmd as given when this process can use /dev/kvm, else run through `sg kvm` when the user is
+    listed in the kvm group. The seat ACL on /dev/kvm goes to whoever holds the console (the login
+    greeter once the desktop session ends), and a process started before the user joined kvm does
+    not carry the group: x86_64 emulation then stops with "requires hardware acceleration"."""
+    if not os.path.exists(dev) or os.access(dev, os.R_OK | os.W_OK):
+        return list(cmd)
+    import grp
+    import pwd
+    import shlex
+    try:
+        user = pwd.getpwuid(os.getuid()).pw_name
+        members = grp.getgrnam("kvm").gr_mem if os.path.exists(group_file) else []
+    except KeyError:
+        return list(cmd)
+    if user not in members:
+        return list(cmd)
+    return ["sg", "kvm", "-c", "exec " + shlex.join(cmd)]
+
+
 def avd_name(variant):
     return "wfe_trust_%s" % variant
 

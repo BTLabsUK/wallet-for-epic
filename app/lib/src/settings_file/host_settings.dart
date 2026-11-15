@@ -209,6 +209,13 @@ class AppConfig {
   /// has not answered shows "Not answering".
   Duration get contactsCheckWait => _s('contacts.check_wait_s');
 
+  /// The foreground check reads a contact with something in flight this often,
+  Duration get contactsInFlightCheck => _s('contacts.in_flight_check_s');
+
+  /// ... and every contact at the first wait, then the next after each check with no message
+  /// (the last repeats).
+  List<Duration> get contactsIdleChecks => [for (final s in value('contacts.idle_check_s') as List<int>) Duration(seconds: s)];
+
   // [camera]
 
   /// The desktop QR scan says No picture when the first frame takes longer than this,
@@ -243,6 +250,20 @@ class AppConfig {
 
   Duration get listenerHealAfter => _s('epicbox.listener_heal_after_s');
   Duration get listenerHealMax => _s('epicbox.listener_heal_max_s');
+
+  /// A listener socket is left when no Challenge comes within this many of the relay's intervals; 2 to 10.
+  int get listenerChallengeRounds => _int('epicbox.listener_challenge_rounds');
+
+  /// Back from the background after this long, the payments drain runs and the listener
+  /// reconnects even when it says connected: its socket may have died meanwhile.
+  Duration get resumeReconnectAfter => _s('epicbox.resume_reconnect_after_s');
+
+  /// Push sessions (mux/1) to the Epicbox relays: the listener and the contacts share a socket per
+  /// relay and group; a relay without mux/1 keeps today's sockets. False: today's calls exactly.
+  bool get epicboxMux => value('epicbox.mux') as bool;
+
+  /// How often a relay re-checks the mailboxes of a waiting session on its own, in seconds; 1 to 86400.
+  int get epicboxMuxWaitingCheckS => _int('epicbox.mux_waiting_check_s');
 
   // [http]
   int get httpListenPort => _int('http.listen_port');
@@ -298,6 +319,7 @@ class AppConfig {
 
   // [support]
   Duration get supportTimeout => _s('support.timeout_s');
+  Duration get supportTorTimeout => _s('support.tor_timeout_s');
 
   /// Where a report is sent; null: no Send report.
   String? get supportReport => _orNull(_text('support.report'));
@@ -307,6 +329,14 @@ class AppConfig {
 
   /// BT Labs' signed public file; null: not read.
   String? get supportSignedFile => _orNull(_text('support.signed_file'));
+
+  // [announcements]: no feed, no announcements.
+  Duration get announcementsFirstCheck => _s('announcements.first_check_s');
+  Duration get announcementsEvery => Duration(hours: _int('announcements.check_every_h'));
+  Duration get announcementsTimeout => _s('announcements.timeout_s');
+
+  /// The signed announcements file; null: no announcements and no switch.
+  String? get announcementsFeed => _orNull(_text('announcements.feed'));
 
   // [links]: each null when left out (its link is not shown).
   String? get linkWebsite => _orNull(_text('links.website'));
@@ -339,9 +369,6 @@ class AppConfig {
   List<String> get vpnSuffixes => _texts('network.vpn_suffixes');
 
   // [payments]
-  Duration get watchFastEvery => _s('payments.watch_fast_every_s');
-  Duration get watchFastFor => _s('payments.watch_fast_for_s');
-  Duration get watchSlowEvery => _s('payments.watch_slow_every_s');
   Duration get watchFor => _s('payments.watch_for_s');
   List<Duration> get repostWaits => [for (final m in value('payments.repost_waits_min') as List<int>) Duration(minutes: m)];
   List<Duration> get answerResendWaits => [
@@ -474,6 +501,9 @@ class HostSettings {
   bool get updatesCheck => value('online.update_check') as bool;
   bool get priceEnabled => value('online.price') as bool;
 
+  /// `online.announcements`: the user's switch for messages from BT Labs; absent = on.
+  bool get announcementsEnabled => value('online.announcements') as bool;
+
   // app-config.toml, by the names the app has always read them under.
   List<String> get torOnionOnlyDomains => config.torOnionOnlyDomains;
   List<OnionRoute> get torOnions => config.torOnions;
@@ -488,6 +518,7 @@ class HostSettings {
   String? get supportReport => config.supportReport;
   String? get supportDonation => config.supportDonation;
   String? get supportDirectory => config.supportSignedFile;
+  String? get announcementsFeedUrl => config.announcementsFeed;
   String? get linkWebsite => config.linkWebsite;
   String? get linkCommunity => config.linkCommunity;
   String? get linkSource => config.linkSource;

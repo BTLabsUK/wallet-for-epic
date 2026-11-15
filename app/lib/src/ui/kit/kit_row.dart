@@ -99,6 +99,7 @@ class KitRow extends StatelessWidget {
     KitRowSize size = KitRowSize.settings,
     String? semanticsId,
     int subtitleLines = 2,
+    bool busy = false,
   }) => KitRow(
     key: key,
     title: title,
@@ -106,7 +107,7 @@ class KitRow extends StatelessWidget {
     subtitleLines: subtitleLines,
     leading: leading,
     size: size,
-    trailing: ExcludeSemantics(child: KitRadio(selected: selected)),
+    trailing: ExcludeSemantics(child: busy && selected ? const _RadioBusy() : KitRadio(selected: selected)),
     onTap: onChanged,
     semanticsId: semanticsId,
     toggled: null,
@@ -340,6 +341,21 @@ class KitSwitch extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The radio's place while its choice is being applied: a ring turning, the radio's size.
+class _RadioBusy extends StatelessWidget {
+  const _RadioBusy();
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: Kit.radio,
+    height: Kit.radio,
+    child: Padding(
+      padding: const EdgeInsets.all(2),
+      child: CircularProgressIndicator(strokeWidth: 2, color: context.tokens.accentText),
+    ),
+  );
 }
 
 /// The radio of a [KitRow.radio]: a 22 px ring, with a filled dot when chosen.

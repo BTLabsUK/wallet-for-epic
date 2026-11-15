@@ -12,7 +12,8 @@
 ///  "sendStrategy": "smallest", "splitChange": true, "fiat": "usd", "showFiat": true,
 ///  "tor": false, "seenAs": "Alice",
 ///  "servers": {"node": ["https://...", ...], "epicbox": ["host", "host:port", ...]},
-///  "online": {"status_site": true, "update_check": true, "price": true},
+///  "online": {"status_site": true, "update_check": true, "price": true,
+///             "announcements": true},
 ///  "desktop": {"invoiceExpiry": 86400, "seedsDeleted": ["btlabs"], "epicboxAutostart": true}}
 /// ```
 ///
@@ -80,6 +81,7 @@ abstract final class BackupKey {
   static const statusSite = 'status_site';
   static const updateCheck = 'update_check';
   static const price = 'price';
+  static const announcements = 'announcements';
 
   // In [desktop].
   static const invoiceExpiry = 'invoiceExpiry';
@@ -115,6 +117,7 @@ abstract final class BackupItem {
   static const statusSite = 'online.status_site';
   static const updateCheck = 'online.update_check';
   static const price = 'online.price';
+  static const announcements = 'online.announcements';
   static const invoiceExpiry = 'desktop.invoiceExpiry';
   static const seedsDeleted = 'desktop.seedsDeleted';
   static const epicboxAutostart = 'desktop.epicboxAutostart';
@@ -453,6 +456,7 @@ BackupSettingsPlan _plan(
         (BackupKey.statusSite, BackupItem.statusSite),
         (BackupKey.updateCheck, BackupItem.updateCheck),
         (BackupKey.price, BackupItem.price),
+        (BackupKey.announcements, BackupItem.announcements),
       ]) {
         if (!fileOnline.containsKey(key) || !mineOnline.containsKey(key)) continue;
         final value = fileOnline[key];
@@ -468,7 +472,7 @@ BackupSettingsPlan _plan(
         }
       }
       for (final k in fileOnline.keys) {
-        if (!const {BackupKey.statusSite, BackupKey.updateCheck, BackupKey.price}.contains(k)) skipped.add('${BackupKey.online}.$k');
+        if (!const {BackupKey.statusSite, BackupKey.updateCheck, BackupKey.price, BackupKey.announcements}.contains(k)) skipped.add('${BackupKey.online}.$k');
       }
     }
   }
@@ -578,6 +582,7 @@ Map<String, Object?> backupHostSettings(HostSettings s) => {
     BackupKey.statusSite: s.statusEnabled,
     BackupKey.updateCheck: s.updatesCheck,
     BackupKey.price: s.priceEnabled,
+    BackupKey.announcements: s.announcementsEnabled,
   },
 };
 

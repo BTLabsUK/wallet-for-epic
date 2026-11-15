@@ -118,6 +118,17 @@ class MainActivity : FlutterFragmentActivity() {
                     result.notImplemented()
                 }
             }
+        // Back on Home: the app goes to the background, as Android 12+ does for a launcher's
+        // first screen. Finishing the activity would end the Flutter engine while the wallet
+        // core keeps the wallet open in this process, and the next engine could not open it.
+        MethodChannel(messenger, "epic_wallet/app_task")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "toBack") {
+                    result.success(moveTaskToBack(true))
+                } else {
+                    result.notImplemented()
+                }
+            }
         // Transaction files opened or shared from other apps (Telegram, mail, files).
         incomingChannel = MethodChannel(messenger, "epic_wallet/incoming_slate").also {
             it.setMethodCallHandler { call, result ->
@@ -162,6 +173,27 @@ class MainActivity : FlutterFragmentActivity() {
                 }
             }
         // --- end tor binary ---
+        // --- system browser (epic_wallet/browser) ---
+        // An announcement's link: https only, started on a tap in the app, never by itself.
+        MethodChannel(messenger, "epic_wallet/browser")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "open") {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+                val uri = (call.arguments as? String)?.let { Uri.parse(it) }
+                if (uri == null || uri.scheme != "https" || uri.host.isNullOrEmpty()) {
+                    result.success(false)
+                    return@setMethodCallHandler
+                }
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    result.success(true)
+                } catch (e: android.content.ActivityNotFoundException) {
+                    result.success(false)
+                }
+            }
+        // --- end system browser ---
         // How the last process ended, for the "stopped responding last time" offer.
         ExitReasons.register(applicationContext, messenger)
         val channel = MethodChannel(messenger, "epic_wallet/updater")

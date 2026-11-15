@@ -1231,10 +1231,10 @@ abstract class AppLocalizations {
   /// **'Cancel this payment?'**
   String get txDetailsCancelTitle;
 
-  /// Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives.
+  /// Cancel dialog text for a pending receive. The wallet tells the sender through the relay when it can. The wallet keeps looking for a cancelled payment with no end date, so one the sender still finishes and posts arrives.
   ///
   /// In en, this message translates to:
-  /// **'Nothing has arrived yet. If this payment still arrives later, it shows as received.'**
+  /// **'Nothing has arrived yet. The sender is told. If they still send it, it arrives and shows as received.'**
   String get txDetailsCancelReceiveBody;
 
   /// Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain: nothing can be posted without this wallet's final signature. No fee.
@@ -1830,18 +1830,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A payment failed.'**
   String get homeNoticePaymentFailed;
-
-  /// Home's reminder toast while the recovery phrase (the 12 or 24 words) is not written down; one short line, Back up beside it.
-  ///
-  /// In en, this message translates to:
-  /// **'Phrase not backed up'**
-  String get homeBackupCardText;
-
-  /// Button on the recovery phrase card. Short: it shares a row with the card's text.
-  ///
-  /// In en, this message translates to:
-  /// **'Back up'**
-  String get homeBackupCardButton;
 
   /// Home: the one-line, one-time notice a wallet from before this update sees: the app's Tor address (its onion) changed with the update. Tor stays 'Tor'.
   ///
@@ -5542,7 +5530,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons.
   ///
   /// In en, this message translates to:
-  /// **'The balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.'**
+  /// **'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node, Epicbox and Tor. Your latest payments are below.'**
   String get tourPhoneWalletText;
 
   /// Title of the tour card for the Send tab (first-unlock tour). Short.
@@ -5554,7 +5542,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Send tab; names the two payment methods shown by default.
   ///
   /// In en, this message translates to:
-  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a nearby phone. More ways: Settings › Transactions. A review comes first.'**
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Payments. A review comes first.'**
   String get tourPhoneSendText;
 
   /// Title of the tour card for the Receive tab (first-unlock tour). Short.
@@ -23302,7 +23290,7 @@ abstract class AppLocalizations {
   /// tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'The balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.'**
+  /// **'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node and Epicbox. Your latest payments are below.'**
   String get tourPhoneWalletTextNoTor;
 
   /// Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').
@@ -24208,7 +24196,7 @@ abstract class AppLocalizations {
   /// Status icons: tooltip and hint of a payment method that is off; a tap opens the switch.
   ///
   /// In en, this message translates to:
-  /// **'Off. Turn on in Settings › Transactions.'**
+  /// **'Off. Turn on in Settings › Payments.'**
   String get netStatusTurnOnHint;
 
   /// Home status card: detail of the Tor row while Tor is off; names where the Tor switch is.
@@ -32884,7 +32872,7 @@ abstract class AppLocalizations {
   /// Help text under the Wallet created row on the Restore screen.
   ///
   /// In en, this message translates to:
-  /// **'The search for coins starts from this month. If unsure, pick an earlier month: a later one can miss coins.'**
+  /// **'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.'**
   String get phoneRestoreStartNote;
 
   /// Title of the method row under an Epicbox address on the Send page.
@@ -33294,6 +33282,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next field, then import'**
   String get deskOnbKeyNextImport;
+
+  /// Plain reason when a send or an answer is refused because the other wallet cancelled the payment first. The wallet has already cancelled it locally.
+  ///
+  /// In en, this message translates to:
+  /// **'The other side cancelled this payment, so it is cancelled here too.'**
+  String get errorCancelledOnRelay;
+
+  /// Line shown after Max when the fee is not known yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you have, less the fee'**
+  String get phoneSendMaxNoteNoFee;
+
+  /// Same hint when the person paid has no name yet (an address not in the contacts).
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet can be offline. The payment finishes when it next opens.'**
+  String get phoneSendReviewHintOfflineNoName;
+
+  /// Link in the start-month sheet: enter a block height instead of a month.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a block height instead'**
+  String get phoneRestoreUseHeight;
+
+  /// Link under the block height field: pick a month instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a month instead'**
+  String get phoneRestoreUseMonth;
+
+  /// What an unnamed wallet is called: the first characters of its address, so the user can match it by eye with a link or address. Never translated into a name.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet {code}'**
+  String phonePairUnnamedShort(String code);
+
+  /// Helper line under the name field when it is empty: the label the other side shows for this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Left empty, they see {label}.'**
+  String phonePairSeenAsEmptyShows(String label);
+
+  /// Home slot card while the recovery phrase is not backed up: what is at risk, in two short sentences. Shown beside a shield icon, two lines at most.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.'**
+  String get phoneBackupReminderText;
+
+  /// Gold link under the text of the recovery phrase reminder card on Home: opens the back-up. Two or three words.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get phoneBackupReminderAction;
+
+  /// Info chip under Home's balance: the change of a send comes back once it confirms; the send waits for the named contact to accept. 'confirming' is the word of the balance sheet's Confirming row. Keep short.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · waiting for {name}'**
+  String phoneChangeWaitingFor(String amount, String name);
+
+  /// Info chip under Home's balance: as phoneChangeWaitingFor, for a send to an address with no contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · waiting for reply'**
+  String phoneChangeWaitingReply(String amount);
+
+  /// Info chip under Home's balance: the change of several sends, none accepted yet. count is 2 or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · waiting for {count} replies'**
+  String phoneChangeWaitingReplies(String amount, int count);
+
+  /// Info chip under Home's balance: the change of one send can be spent in about this many minutes. 'min' is minutes, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · about {minutes} min'**
+  String phoneChangeAbout(String amount, int minutes);
+
+  /// Info chip under Home's balance: the change of several sends; the soonest can be spent in about this many minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} confirming · next in {minutes} min'**
+  String phoneChangeNextIn(String amount, int minutes);
+
+  /// Balance sheet, under a send's name in the Confirming part: the other side has not accepted the send yet.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for them to accept'**
+  String get phoneChangeRowReply;
+
+  /// Balance sheet, under a send's name: the payment is posted and waits for a block; its change can be spent in about this many minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting for a block · about {minutes} min'**
+  String phoneChangeRowBlock(int minutes);
+
+  /// Balance sheet, under a send's name: the payment is in a block; its change can be spent in about this many minutes. count of target confirmations so far.
+  ///
+  /// In en, this message translates to:
+  /// **'about {minutes} min · {count} of {target} confirmations'**
+  String phoneChangeRowConfirming(int minutes, int count, int target);
+
+  /// Balance sheet: first row, the amount that can be spent now (the figure on Home).
+  ///
+  /// In en, this message translates to:
+  /// **'Available now'**
+  String get phoneBalanceAvailableNow;
+
+  /// Balance sheet: payments to this wallet that are in a block and confirming.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving'**
+  String get phoneBalanceArriving;
+
+  /// Balance sheet: note under the rows while a send's change is confirming. target is the confirmations setting; one block is about a minute.
+  ///
+  /// In en, this message translates to:
+  /// **'A send spends whole coins. The rest comes back and can be spent after {target} confirmations, about {target} min after the payment is in a block. If a send is cancelled, the full amount comes back.'**
+  String phoneBalanceChangeNote(int target);
+
+  /// Button on Receive that opens the amount fields; the code then holds the Epicbox address with an amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for an amount'**
+  String get deskRecvAskOpen;
+
+  /// Label of the amount field under Ask for an amount on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get deskRecvAskAmount;
+
+  /// Label of the optional note field under Ask for an amount on Receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get deskRecvAskNote;
+
+  /// Line under the amount fields on Receive: what the changed code does.
+  ///
+  /// In en, this message translates to:
+  /// **'The code now holds your address and this amount. Whoever scans or pastes it gets a normal send to you with the amount filled in.'**
+  String get deskRecvAskHint;
+
+  /// Button that copies the payment link (address with the amount).
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get deskRecvAskCopy;
+
+  /// Toast after the payment link was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get deskRecvAskCopied;
+
+  /// Button that closes the amount fields and shows the plain address code again.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the address'**
+  String get deskRecvAskClose;
+
+  /// Choice in the who-pays sheet: a code with the wallet's own Epicbox address and the amount; the payer sends as usual with the amount filled in.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone, with my address'**
+  String get phoneRecvAnyoneAddress;
+
+  /// Line under the Anyone, with my address choice.
+  ///
+  /// In en, this message translates to:
+  /// **'A code with your address and the amount'**
+  String get phoneRecvAnyoneAddressLine;
+
+  /// Lead on the screen that shows the wallet's address with an amount as a code. {amount} is the amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this code or share the link. Whoever scans or pastes it gets a normal send to your address with {amount} filled in.'**
+  String phoneRecvLinkLead(String amount);
+
+  /// Notice after the payment link (address with an amount) was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get phoneRecvLinkCopied;
+
+  /// What a screen reader says for the code that holds the wallet's address and an amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address with the amount, as a QR code'**
+  String get phoneRecvLinkQrLabel;
+
+  /// Settings › Advanced: name of the switch for messages from BT Labs (phone row and desktop row).
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get announcementsTitle;
+
+  /// Settings › Advanced: the explanation behind the info icon of the Announcements switch (phone and desktop).
+  ///
+  /// In en, this message translates to:
+  /// **'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.'**
+  String get announcementsHint;
+
+  /// Announcement card: tooltip and screen-reader name of the × that closes a message from BT Labs for good.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get announcementDismiss;
+
+  /// Announcement card: screen-reader addition after the link, said when the link opens an https address in the system browser (lower case, follows the link label and host).
+  ///
+  /// In en, this message translates to:
+  /// **'opens in the browser'**
+  String get announcementOpensInBrowser;
+
+  /// Settings › Advanced: heading of the group that holds the Announcements switch (on its page and over search results). BT Labs is a name: keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'From BT Labs'**
+  String get deskSetGrpAnnouncements;
+
+  /// Settings search: other words that find the “Announcements” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'announcements, news, messages, notices, bt labs'**
+  String get deskSetSynAnnouncements;
+
+  /// A scanned in-person payment code belongs to another Epic Cash network.
+  ///
+  /// In en, this message translates to:
+  /// **'This code is for another network.'**
+  String get deskE1ErrCodeWrongNetwork;
+
+  /// A scanned animated code is neither an in-person code this wallet can pay nor an answer to one of its own codes (altered, or meant for another device).
+  ///
+  /// In en, this message translates to:
+  /// **'Not a code this wallet can pay or check.'**
+  String get deskE1ErrNotInPerson;
+
+  /// epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name.
+  ///
+  /// In en, this message translates to:
+  /// **'epic1 in-person code. Turn on epic1 payments to pay it.'**
+  String get deskE1ModeEpic1Code;
+
+  /// Invoice to a contact refused: the contact's card says its wallet does not pay invoices. No name known.
+  ///
+  /// In en, this message translates to:
+  /// **'This contact’s wallet does not pay invoices.'**
+  String get pairRefusesInvoices;
+
+  /// Invoice to a contact refused: the contact's card says its wallet does not pay invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet does not pay invoices.'**
+  String pairRefusesInvoicesTitle(String name);
+
+  /// Second line under pairRefusesInvoices: what to do instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was sent. Ask them to pay to your address instead.'**
+  String get pairRefusesInvoicesBody;
+
+  /// Error after Send invoice: the wallet refused it for a reason no other line names; nothing was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'The invoice was not sent. Nothing changed; try again.'**
+  String get deskInvIssuerFailed;
 }
 
 class _AppLocalizationsDelegate

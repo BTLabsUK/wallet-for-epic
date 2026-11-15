@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -84,6 +85,40 @@ void main() {
     expect(find.text(_l.deskKitQrShow), findsNothing);
     expect(find.text(_l.deskKitQrHide), findsNothing);
     expect(find.text('QR code: Epicbox address'), findsOneWidget);
+  });
+
+  testWidgets('Ask for amount makes the Epicbox code a link with the amount; closing it brings the address back', (tester) async {
+    final copied = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') copied.add((call.arguments as Map)['text'] as String);
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    await _pump(tester, const ReceiveArgs());
+    final reveal = find.byKey(const ValueKey('rx-qr-image-epicbox'));
+    expect(reveal, findsOneWidget);
+    expect(find.byKey(const ValueKey('rx-ask')), findsNothing);
+    final address = tester.widgetList<EQrReveal>(find.byType(EQrReveal)).first.address;
+    expect(address, isNot(startsWith('epic:')));
+    await tester.ensureVisible(find.byKey(const ValueKey('rx-ask-open')));
+    await tester.tap(find.byKey(const ValueKey('rx-ask-open')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rx-ask')), findsOneWidget);
+    // No amount yet: the plain address, nothing to copy.
+    expect(tester.widgetList<EQrReveal>(find.byType(EQrReveal)).first.address, address);
+    await tester.enterText(find.byKey(const ValueKey('rx-ask-amount')), '12.5');
+    await tester.enterText(find.byKey(const ValueKey('rx-ask-note')), 'Table 4');
+    await tester.pumpAndSettle();
+    expect(tester.widgetList<EQrReveal>(find.byType(EQrReveal)).first.address, 'epic:$address?amount=12.5&message=Table%204');
+    await tester.ensureVisible(find.byKey(const ValueKey('rx-ask-copy')));
+    await tester.tap(find.byKey(const ValueKey('rx-ask-copy')));
+    await tester.pumpAndSettle();
+    expect(copied, ['epic:$address?amount=12.5&message=Table%204']);
+    await tester.ensureVisible(find.byKey(const ValueKey('rx-ask-close')));
+    await tester.tap(find.byKey(const ValueKey('rx-ask-close')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('rx-ask')), findsNothing);
+    expect(tester.widgetList<EQrReveal>(find.byType(EQrReveal)).first.address, address);
   });
 
   testWidgets('the HTTP reveal opens and closes in the same number of frames', (tester) async {

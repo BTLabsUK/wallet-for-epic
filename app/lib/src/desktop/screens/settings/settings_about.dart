@@ -5,7 +5,6 @@ import '../../../app_info.dart';
 import '../../../dist_build.dart' show distStore;
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
-import '../../../tor_licence.dart' show TorSourceNote;
 import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl;
 import '../../../settings_file/host_settings.dart' show hostSettings;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
@@ -203,7 +202,6 @@ class _LicencesFoldState extends State<_LicencesFold> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (final line in licenceLines(l)) Padding(padding: EdgeInsets.only(bottom: Sp.x2), child: Text(line, style: ts.body)),
-                if (DeskFeatures.tor) ...[SizedBox(height: Sp.x2), TorSourceNote(style: ts.caption)],
               ],
             ),
           ),

@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
+import '../../providers.dart' show addressProvider, sessionProvider;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../wallet_service.dart';
@@ -74,7 +75,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   PairingRecord? _code;
   String? _error;
   bool _busy = false;
-  PairingCollector? _collector;
+  void Function()? _unboost;
   StreamSubscription<PairingEvent>? _events;
 
   /// Pairings answered while this screen is up: the status under the code follows them.
@@ -91,7 +92,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
     final api = ref.read(pairingApiProvider);
-    if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(api)..start();
+    if (ref.read(pairNetProvider) == PairNet.online) _unboost = boostRelays(ref.read(sessionProvider)?.boosts, boostMinInterval);
     _events = api.events().listen(_onEvent);
     WidgetsBinding.instance.addPostFrameCallback((_) => _makeCode());
   }
@@ -99,7 +100,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
-    _collector?.stop();
+    _unboost?.call();
     _events?.cancel();
     super.dispose();
   }
@@ -157,10 +158,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   }
 
   Future<void> _changeName() async {
-    final current = ref.read(pairingSeenAsProvider).value ?? '';
-    final name = await showKitSheet<String>(context: context, builder: (_) => _NameSheet(initial: current));
-    if (name == null || !mounted) return;
-    await ref.read(pairingSeenAsProvider.notifier).set(name);
+    if (!await editSeenAs(context, ref) || !mounted) return;
     await _makeCode();
   }
 
@@ -232,6 +230,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     final contact = widget.contact;
     final net = ref.watch(pairNetProvider);
     final seenAs = ref.watch(pairingSeenAsProvider).value ?? '';
+    final ownLabel = ownWalletLabel(l, ref);
     final canShare = ref.watch(slateFilesProvider).canShareText;
     final code = _code;
     final scan = offersQrScan(ref);
@@ -291,8 +290,8 @@ class _PairScreenState extends ConsumerState<PairScreen> {
           children: [
             KitRow(
               key: pairChangeNameKey,
-              title: seenAs.isEmpty ? l.pairSeenAsNone : l.pairSeenAsLine(seenAs),
-              value: seenAs.isEmpty ? l.pairSeenAsAdd : l.pairChange,
+              title: seenAsLine(l, seenAs, ownLabel),
+              value: seenAs.isEmpty && ownLabel == null ? l.pairSeenAsAdd : l.pairChange,
               chevron: true,
               size: KitRowSize.settings,
               semanticsId: TrustIds.pairflowNameRow,
@@ -457,12 +456,39 @@ class _FinishBox extends StatelessWidget {
   }
 }
 
+/// How the other side calls this wallet when the user keeps no name: "Wallet A7F3xy" from the
+/// start of its own address ([unnamedPeerLabel] on their side). Null until the address is read.
+String? ownWalletLabel(AppLocalizations l, WidgetRef ref, {bool watch = true}) {
+  final tag = walletTag((watch ? ref.watch(addressProvider) : ref.read(addressProvider)).value);
+  return tag == null ? null : l.phonePairUnnamedShort(tag);
+}
+
+/// The "They see you as" line: the kept name, else the label the other side will show, else
+/// that they see no name.
+String seenAsLine(AppLocalizations l, String seenAs, String? ownLabel) {
+  if (seenAs.isNotEmpty) return l.pairSeenAsLine(seenAs);
+  return ownLabel == null ? l.pairSeenAsNone : l.pairSeenAsLine(ownLabel);
+}
+
+/// Opens the name sheet and keeps the answer as this wallet's name (paired contacts get it too).
+/// True when it was saved. Used on the Pair screen and on the sheet that answers an invite.
+Future<bool> editSeenAs(BuildContext context, WidgetRef ref) async {
+  final current = ref.read(pairingSeenAsProvider).value ?? '';
+  final label = ownWalletLabel(context.l10n, ref, watch: false);
+  final name = await showKitSheet<String>(context: context, builder: (_) => _NameSheet(initial: current, emptyLabel: label));
+  if (name == null || !context.mounted) return false;
+  await ref.read(pairingSeenAsProvider.notifier).set(name);
+  return true;
+}
+
 /// Change "They see you as": one field, one name per wallet; applies to every later code and
-/// request, and the paired contacts get the new name.
+/// request, and the paired contacts get the new name. [emptyLabel] is what they show for the
+/// wallet while the field is empty.
 class _NameSheet extends StatefulWidget {
-  const _NameSheet({required this.initial});
+  const _NameSheet({required this.initial, this.emptyLabel});
 
   final String initial;
+  final String? emptyLabel;
 
   @override
   State<_NameSheet> createState() => _NameSheetState();
@@ -506,7 +532,7 @@ class _NameSheetState extends State<_NameSheet> {
               key: pairNameFieldKey,
               controller: _text,
               label: l.pairSeenAsField,
-              hint: l.pairSeenAsHint,
+              hint: widget.emptyLabel ?? l.pairSeenAsHint,
               autofocus: true,
               maxLength: 48,
               error: _error,
@@ -515,7 +541,7 @@ class _NameSheetState extends State<_NameSheet> {
               onSubmitted: (_) => _save(),
             ),
             const PairGap(8),
-            kitId(TrustIds.pairflowNameSheet, Text(l.pairSeenAsOptional, style: KitType.rowSub.copyWith(color: t.dim))),
+            kitId(TrustIds.pairflowNameSheet, Text(widget.emptyLabel == null ? l.pairSeenAsOptional : l.phonePairSeenAsEmptyShows(widget.emptyLabel!), style: KitType.rowSub.copyWith(color: t.dim))),
           ],
         ),
       ),

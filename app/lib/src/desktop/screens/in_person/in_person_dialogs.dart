@@ -146,7 +146,7 @@ class _DeskInPersonCodeDialogState extends ConsumerState<DeskInPersonCodeDialog>
       }
       final made = await _code(wallet, amount);
       if (!mounted) return;
-      setState(() => _watch = InPersonCodeWatch(wallet: wallet, stage: widget.stage, amount: amount, made: made)..addListener(_changed));
+      setState(() => _watch = InPersonCodeWatch(wallet: wallet, stage: widget.stage, amount: amount, made: made, boosts: ref.read(deskApiProvider).boosts)..addListener(_changed));
     } on Object catch (e) {
       if (mounted) setState(() => _failure = deskErrorText(e, l));
     } finally {

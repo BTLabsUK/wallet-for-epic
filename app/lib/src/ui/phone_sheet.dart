@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
+import 'phone_motion.dart';
 import 'kit/kit_sheet.dart' show KitGrabber;
 import 'kit/kit_tokens.dart' show Kit;
 
@@ -25,6 +26,7 @@ Future<T?> showPhoneSheet<T>({
   isScrollControlled: isScrollControlled,
   useSafeArea: useSafeArea,
   showDragHandle: false,
+  sheetAnimationStyle: phoneSheetAnimation(),
   isDismissible: isDismissible,
   enableDrag: enableDrag,
   backgroundColor: backgroundColor,
@@ -32,16 +34,15 @@ Future<T?> showPhoneSheet<T>({
   constraints: constraints,
   builder: (context) => SafeArea(
     top: false,
-    // On top of the inset, the last button keeps [Kit.groupGap] from the navigation bar.
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: Kit.groupGap),
-      child: showDragHandle
-        ? Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [const KitGrabber(), Flexible(child: builder(context))],
-          )
-        : builder(context),
-    ),
+    // The sheet's own bottom padding is the inset alone (34 on the frames); without an inset,
+    // the last button keeps [Kit.groupGap] from the screen's edge.
+    minimum: const EdgeInsets.only(bottom: Kit.groupGap),
+    child: showDragHandle
+      ? Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [const KitGrabber(), Flexible(child: builder(context))],
+        )
+      : builder(context),
   ),
 );

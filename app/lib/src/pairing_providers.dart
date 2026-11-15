@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart' show NetworkMode;
+import 'contact_check.dart' show contactsInFlight;
 import 'contacts.dart';
 import 'log.dart' show logWarn;
 import 'name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
@@ -64,6 +65,15 @@ class PairingsNotifier extends AsyncNotifier<List<PairingRecord>> {
   Future<List<PairingRecord>> build() async {
     final api = ref.watch(pairingApiProvider);
     if (!api.supported) return const [];
+    // A payment through a contact starting or finishing changes `awaiting`, with no pairing event.
+    ref.watch(
+      homeProvider.select(
+        (h) => [
+          for (final t in h.value?.transactions ?? const <TxEntry>[])
+            if (t.pairingId != null) '${t.key}:${t.status.name}',
+        ].join(','),
+      ),
+    );
     final sub = api.events().listen((_) => ref.invalidateSelf());
     ref.onDispose(sub.cancel);
     return api.pairings();
@@ -227,6 +237,13 @@ final contactPendingPairingProvider = Provider.family<PairingRecord?, String>(
   (ref, contactId) => ref.watch(pendingPairingsProvider).where((r) => r.contactId == contactId).firstOrNull,
 );
 
+/// The contacts something is in flight with, as the ids the foreground check reads
+/// ([contactsInFlight]): pairings in progress and contacts LEPIC marks as awaiting. Empty
+/// while the wallet is locked.
+final contactsInFlightProvider = Provider<List<String>>((ref) {
+  return contactsInFlight(ref.watch(pairingsProvider).value ?? const <PairingRecord>[]);
+});
+
 /// The pairing events of the open wallet, for the notices.
 final pairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(pairingApiProvider).events());
 
@@ -376,27 +393,6 @@ Future<void> writeProvenAddress(WidgetRef ref, PairingRecord r) async {
     await ref.read(contactsProvider.notifier).save(contact.withAddress(RecipientKind.epicbox, address));
   } on Object {
     // The page shows the pairing's address until then.
-  }
-}
-
-/// Opens the pairing mailboxes every [every] while something is pending, then not at all
-/// (RFC 8.2: every 10 s while the Pair screen is open, every 5 s while waiting). The screen
-/// that waits holds it; the timer stops with the screen.
-class PairingCollector {
-  PairingCollector(this._api, {this.every = const Duration(seconds: 10)});
-
-  final PairingApi _api;
-  final Duration every;
-  Timer? _timer;
-
-  void start() {
-    _timer ??= Timer.periodic(every, (_) => _api.collect().ignore());
-    _api.collect().ignore();
-  }
-
-  void stop() {
-    _timer?.cancel();
-    _timer = null;
   }
 }
 

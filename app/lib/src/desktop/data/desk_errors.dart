@@ -76,6 +76,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     WalletErrorKind.wrongKey => l.errorStoreWrongKey,
     WalletErrorKind.inputsSpentElsewhere => l.deskErrInputsSpentElsewhere,
     WalletErrorKind.inputsSpentByOwnPayment || WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
+    WalletErrorKind.cancelledOnRelay => l.errorCancelledOnRelay,
     WalletErrorKind.phraseMismatch => l.deskOnbForgotOtherWallet(l.deskOnbUnlockThisWallet),
     WalletErrorKind.epic1CannotPay => l.deskE1ErrCannotPay,
     WalletErrorKind.epic1NoMoreRelays => l.deskE1ErrNoMoreRelays,

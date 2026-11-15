@@ -2,6 +2,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:epic_wallet/src/announcements/announcements_service.dart'
+    show AnnouncementsNotifier, AnnouncementsState, announcementsProvider;
+import 'package:epic_wallet/src/announcements/announcement_card.dart' show AnnouncementCard;
+import 'package:epic_wallet/src/btlabs_public.dart' show Announcement;
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show AppConfig, hostSettings;
 import 'package:epic_wallet/src/dev_networks.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/epic1.dart' show FakeEpic1;
@@ -39,7 +43,6 @@ import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:epic_wallet/src/watch_mode.dart';
 import 'package:epic_wallet/src/ui/kit/kit_tab_bar.dart' show kitScanButtonKey;
 import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey, homePillKey;
 import 'package:epic_wallet/src/ui/home_status.dart' show connectionsSheetKey;
@@ -49,6 +52,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart' show SemanticsData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/pin_pad.dart';
@@ -314,6 +318,7 @@ class _Harness {
     this.advanced = AdvancedPrefs.none,
     FakeWalletSession? session,
     bool fromBeforeOnionKey = false,
+    this.extraOverrides = const [],
   }) : session =
            session ??
            FakeWalletSession(
@@ -334,6 +339,9 @@ class _Harness {
   }
 
   final Chain chain;
+
+  /// More provider overrides for the tree.
+  final List<Override> extraOverrides;
 
   /// The wallet's PIN, which a send asks for.
   static const _pin = '123456';
@@ -386,6 +394,7 @@ class _Harness {
           clockProvider.overrideWithValue(() => _now),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           walletConfigProvider.overrideWith(() => _Config(config)),
+          ...extraOverrides,
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -405,6 +414,27 @@ class _Harness {
       ),
     );
     await tester.pumpAndSettle();
+  }
+}
+
+/// The announcements service with a fixed list of live messages; records what the screen does.
+class _FakeAnnouncements extends AnnouncementsNotifier {
+  _FakeAnnouncements(this.messages);
+
+  final List<Announcement> messages;
+  final dismissed = <String>[];
+  final seen = <String>[];
+
+  @override
+  AnnouncementsState build() => AnnouncementsState(live: messages);
+
+  @override
+  Future<void> markSeen(String id) async => seen.add(id);
+
+  @override
+  Future<void> dismiss(String id) async {
+    dismissed.add(id);
+    state = AnnouncementsState(live: [for (final m in state.live) if (m.id != id) m]);
   }
 }
 
@@ -997,6 +1027,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text(_l.payConfirming(1, 3)), findsNothing);
         expect(find.text('Completed'), findsOneWidget);
+        await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
       });
     }
 
@@ -1056,6 +1087,67 @@ void main() {
       await tester.pump(tipCheckInterval);
       await tester.pumpAndSettle();
       expect(h.session.refreshCalls, refreshes);
+      await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
+    });
+
+    // The owner, 2026-11-14: the count is the wallet's own setting, 6 unless changed, never a
+    // fixed 10. A wallet with nothing stored counts to 6; a count stored later takes over.
+    testWidgets('the row counts to the wallet\'s confirmations: 6 by default, then the stored count', (
+      tester,
+    ) async {
+      TxEntry sent() => fakeTx(
+        id: 9,
+        slateId: 'to-desktop',
+        kind: TxKind.sent,
+        status: TxStatus.confirmed,
+        createdAtUnix: _at(DateTime(2026, 9, 30, 11)),
+        blockHeight: _tip,
+        amountCredited: epic(0.992),
+        amountDebited: epic(3),
+        fee: epic(0.008),
+        transport: 'http',
+      );
+      WalletSummary at(BigInt height, int stored) => WalletSummary(
+        lastConfirmedHeight: height,
+        minimumConfirmations: BigInt.from(stored),
+        total: epic(14.5),
+        spendable: epic(12.5),
+        awaitingConfirmation: epic(0.992),
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+      final session = FakeWalletSession(
+        summary: at(_tip, defaultMinimumConfirmations),
+        transactions: [sent(), ..._transactions()],
+      );
+      final h = _Harness(session: session);
+      await h.pump(tester);
+      Finder row(String text) => find.descendant(
+        of: find.byType(PhoneTxRow),
+        matching: find.textContaining(text),
+      );
+      expect(row(_l.payConfirming(1, 6)), findsOneWidget);
+      expect(row('of 10'), findsNothing);
+
+      // Four more blocks: 5 of 6, still confirming.
+      final later = _tip + BigInt.from(4);
+      h.service.nodeTipValue = NodeTip(height: later, nodeVersion: '3.6.0');
+      session.summaryValue = at(later, defaultMinimumConfirmations);
+      await tester.pump(tipCheckInterval);
+      await tester.pumpAndSettle();
+      expect(row(_l.payConfirming(5, 6)), findsOneWidget);
+
+      // The user stores 4 in Settings › Advanced › Confirmations: the next balance carries it
+      // and the payment is done.
+      final next = later + BigInt.one;
+      h.service.nodeTipValue = NodeTip(height: next, nodeVersion: '3.6.0');
+      session.summaryValue = at(next, 4);
+      await tester.pump(tipCheckInterval);
+      await tester.pumpAndSettle();
+      expect(row('Confirming'), findsNothing);
+      await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
     });
 
     testWidgets('a payment waiting for its block sees it within seconds (watch mode)', (
@@ -1089,21 +1181,22 @@ void main() {
         validatedWithNode: true,
       );
       h.session.transactionsValue = [answered(height: next), ..._transactions()];
-      await tester.pump(watchTipEvery);
+      await tester.pump(boostMinInterval);
       await tester.pumpAndSettle();
-      expect(h.session.refreshCalls, refreshes + 1, reason: 'one refresh, at the watch pace');
+      expect(h.session.refreshCalls, refreshes + 1, reason: 'one refresh, at the boosted pace');
       expect(
         find.descendant(of: find.byType(PhoneTxRow), matching: find.textContaining('Confirming 1 of 3')),
         findsOneWidget,
       );
+      await tester.pump(boostMaxWindow); // the payment's boost ends, so no timer outlives the test
     });
 
     testWidgets('with nothing pending the tip is asked at the normal pace only', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       final asks = h.session.nodeTipsFor.length;
-      // Not at the watch pace: none in three of its steps.
-      await tester.pump(watchTipEvery * 3);
+      // Not at the boosted pace: none in two of its steps.
+      await tester.pump(boostMinInterval * 2);
       expect(h.session.nodeTipsFor.length, asks);
       // One at the normal pace (the timer started while home loaded).
       await tester.pump(tipCheckInterval);
@@ -1148,8 +1241,18 @@ void main() {
       expect(await tester.binding.handlePopRoute(), isTrue);
       await tester.pumpAndSettle();
       expect(_selectedTab(tester), ShellWhere.home);
-      // On Wallet the system takes back: the app leaves.
-      expect(await tester.binding.handlePopRoute(), isFalse);
+      // On Wallet the app goes to the background; the activity stays, so the engine and the
+      // wallet open in the core stay together.
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('epic_wallet/app_task'), (call) async {
+        calls.add(call.method);
+        return true;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(const MethodChannel('epic_wallet/app_task'), null));
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(calls, ['toBack']);
+      expect(_selectedTab(tester), ShellWhere.home);
     });
 
     testWidgets('a recovery phrase QR says what it is, never its words', (tester) async {
@@ -1937,29 +2040,53 @@ void main() {
       expect(find.textContaining('receive payments'), findsNothing);
     });
 
-    testWidgets('the phrase reminder is a notice, on an opening of home at most once a day', (
-      tester,
-    ) async {
+    testWidgets('the phrase reminder is a card in the slot, not a notice', (tester) async {
       final h = _Harness(transactions: _backlog());
       _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
-      expect(find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.homeBackupCardButton)), findsOneWidget);
-      expect(h.store.values['wallet.mainnet.backupNoticeAt'], '${_now.millisecondsSinceEpoch}');
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderAction), findsOneWidget);
+      expect(find.byKey(noticeKey), findsNothing);
+      // Nothing is stored just by showing it.
+      expect(h.store.values['wallet.mainnet.backupNoticeAt'], isNull);
       // The history reminder waits until the phrase is written down.
       expect(find.textContaining('not in the exported wallet data'), findsNothing);
+
+      // It stays on the next opening, and the day after.
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
+    });
+
+    testWidgets('the cross hides the phrase reminder for a day, then it comes back', (tester) async {
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
+      h.store.values.remove('wallet.mainnet.backedUp');
+      await h.pump(tester);
+      await _tap(tester, find.byIcon(KitIcons.close));
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
+      expect(h.store.values['wallet.mainnet.backupNoticeAt'], '${_now.millisecondsSinceEpoch}');
 
       // Not on the next opening the same day.
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsNothing);
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
 
       // A day later it comes back.
       h.store.values['wallet.mainnet.backupNoticeAt'] = '${_now.subtract(const Duration(days: 1)).millisecondsSinceEpoch}';
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
+    });
+
+    testWidgets('a backed up phrase never shows the reminder', (tester) async {
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
+      h.store.values['wallet.mainnet.backedUp'] = '1';
+      await h.pump(tester);
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
+      expect(find.byKey(noticeKey), findsNothing);
     });
 
     testWidgets('deleting the wallet forgets the phrase reminder', (
@@ -1993,10 +2120,10 @@ void main() {
       created!.session.dispose();
       await h.pump(tester);
       expect(find.text(_l.torAddressChangedTitle), findsNothing);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
     });
 
-    testWidgets('a wallet from before the update sees one line, once; the phrase reminder comes next opening', (
+    testWidgets('a wallet from before the update sees one line, once; the phrase reminder is in the slot', (
       tester,
     ) async {
       final h = _Harness(transactions: _backlog(), fromBeforeOnionKey: true);
@@ -2016,7 +2143,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
       expect(find.text(_l.torAddressChangedTitle), findsNothing);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
     });
 
     testWidgets('epic1 mode: not shown and not spent, the classic mode still has it', (tester) async {
@@ -2513,7 +2640,7 @@ void main() {
           status: 'Received',
           hidden: false,
         ),
-        'Received 10.0\u00a0EPIC from Alice, received, Today, 10:01',
+        'Received 10.0\u00a0EPIC from Alice, completed, Today, 10:01',
       );
       expect(
         txSpokenLabel(
@@ -2549,7 +2676,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
         matchesSemantics(
-          label: 'Received 5.0\u00a0EPIC, received, Yesterday, 18:00',
+          label: 'Received 5.0\u00a0EPIC, completed, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -2576,7 +2703,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
         matchesSemantics(
-          label: 'Received a hidden amount, received, Yesterday, 18:00',
+          label: 'Received a hidden amount, completed, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -3030,7 +3157,7 @@ void main() {
       _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
       expect(find.text(reminder), findsNothing);
     });
 
@@ -3696,6 +3823,43 @@ void main() {
       expect(find.byKey(sendRecipientClearKey), findsOneWidget);
       expect(sendTo(), findsNothing);
       await clear(tester);
+    });
+  });
+
+  group('announcement toast', () {
+    const first = Announcement(id: 'first-2611', text: 'Faucet open for beta testers.');
+    const second = Announcement(id: 'second-2611', text: 'A second message.');
+    final card = find.byKey(const ValueKey('home-announcement'));
+
+    testWidgets('shows the first live message under the balance, seen but kept', (tester) async {
+      final fake = _FakeAnnouncements([first, second]);
+      final h = _Harness(extraOverrides: [announcementsProvider.overrideWith(() => fake)]);
+      await h.pump(tester);
+      expect(card, findsOneWidget);
+      expect(find.text('Faucet open for beta testers.'), findsOneWidget);
+      expect(find.text('A second message.'), findsNothing);
+      expect(fake.seen, ['first-2611']);
+      expect(fake.dismissed, isEmpty);
+      expect(tester.getTopLeft(card).dy, greaterThan(tester.getBottomLeft(find.byKey(homeFigureKey)).dy));
+    });
+
+    testWidgets('the × dismisses it and the next live message takes its place', (tester) async {
+      final fake = _FakeAnnouncements([first, second]);
+      final h = _Harness(extraOverrides: [announcementsProvider.overrideWith(() => fake)]);
+      await h.pump(tester);
+      await tester.tap(find.byKey(const ValueKey('announcement-dismiss')));
+      await tester.pumpAndSettle();
+      expect(fake.dismissed, ['first-2611']);
+      expect(find.text('Faucet open for beta testers.'), findsNothing);
+      expect(find.text('A second message.'), findsOneWidget);
+    });
+
+    testWidgets('nothing is shown, and no space kept, when nothing is live', (tester) async {
+      final fake = _FakeAnnouncements(const []);
+      final h = _Harness(extraOverrides: [announcementsProvider.overrideWith(() => fake)]);
+      await h.pump(tester);
+      expect(card, findsNothing);
+      expect(find.byType(AnnouncementCard), findsNothing);
     });
   });
 }

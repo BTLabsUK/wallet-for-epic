@@ -200,6 +200,9 @@ class _Harness {
   Future<void> switchOn(WidgetTester tester) async {
     await tester.tap(find.byKey(receiveTurnOnTorKey));
     await tester.pumpAndSettle();
+    // Epicbox moves onto Tor: the core ends the old listener, as LEPIC's does.
+    session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.stopped, message: ''));
+    await tester.pumpAndSettle();
   }
 }
 

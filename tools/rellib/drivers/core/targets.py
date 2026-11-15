@@ -193,9 +193,13 @@ _REG = {}
 
 
 def _registry(family):
-    if family not in _REG:
-        _REG[family] = load_registry(family=family)
-    return _REG[family]
+    # Keyed by the file's mtime: a continue reloads a module that builds targets at import (phone.py)
+    # before this one, so a cache kept across the reload would hand it the registry from before the fix.
+    stamp = os.stat(REGISTRY).st_mtime_ns
+    hit = _REG.get(family)
+    if hit is None or hit[0] != stamp:
+        hit = _REG[family] = (stamp, load_registry(REGISTRY, family=family))
+    return hit[1]
 
 
 def T(tid):

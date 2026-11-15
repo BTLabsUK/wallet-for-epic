@@ -43,6 +43,7 @@ String pairingFailureText(AppLocalizations l, PairingFailure failure, {String na
   PairingFailure.inviteDismissed => l.pairDismissedTitle(name),
   PairingFailure.ended => l.pairEndedShort,
   PairingFailure.waiting => l.pairWaitingFor(name),
+  PairingFailure.refusesInvoices => name.isEmpty ? l.pairRefusesInvoices : l.pairRefusesInvoicesTitle(name),
 };
 
 /// The second line of an outcome for [failure], or null where the title says it all.
@@ -70,6 +71,7 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.inviteDismissed => null,
       PairingFailure.ended => l.pairEndedBody,
       PairingFailure.waiting => l.pairWaitingSendBody,
+      PairingFailure.refusesInvoices => l.pairRefusesInvoicesBody,
     };
 
 /// The reason line of an ended pairing in a notice and on the contact's page, under the title
@@ -170,12 +172,42 @@ bool isUnnamed(String? name) {
   return t.isEmpty || t == unnamedPeerName;
 }
 
+/// How many characters of an address the short label shows.
+const int walletTagLength = 6;
+
+/// The characters of [address] that tell one wallet from another, for a person matching a
+/// link or address by eye: the key part (before `@`), without the prefix every address shares
+/// (`es` of a mainnet Epicbox key, `epic1` of an epic1 address), then the first
+/// [walletTagLength] characters, case kept. Null when [address] is null, empty or has too few
+/// characters left to tell wallets apart.
+String? walletTag(String? address) {
+  var key = (address ?? '').trim().split('@').first;
+  final lower = key.toLowerCase();
+  if (lower.startsWith('epic1')) {
+    key = key.substring(5);
+  } else if (lower.startsWith('es')) {
+    key = key.substring(2);
+  }
+  return key.length < walletTagLength ? null : key.substring(0, walletTagLength);
+}
+
+/// What an unnamed wallet is called: "Wallet A7F3xy" from the start of its [address] (see
+/// [walletTag]), or "Unnamed wallet" while the address is not known yet.
+String unnamedPeerLabel(AppLocalizations l, String? address) {
+  final tag = walletTag(address);
+  return tag == null ? l.pairUnnamed : l.phonePairUnnamedShort(tag);
+}
+
+/// The address the app has for the other side of [record]: the one its card proved, else the
+/// one a request went to or came from. Null for a code answered before either is known.
+String? pairingPeerAddress(PairingRecord record) => record.paymentsAddress ?? record.expectAddress;
+
 /// What a row calls [record]: the label the user gave, else the name the other side chose,
-/// else "Unnamed wallet" when it chose none.
+/// else [unnamedPeerLabel] when it chose none.
 String peerLabel(AppLocalizations l, PairingRecord record) {
   final label = record.label;
   if (label != null && label.isNotEmpty) return label;
-  return isUnnamed(record.name) ? l.pairUnnamed : record.name!.trim();
+  return isUnnamed(record.name) ? unnamedPeerLabel(l, pairingPeerAddress(record)) : record.name!.trim();
 }
 
 /// The name the app shows for [record]: the contact's when it is attached, else [peerLabel].

@@ -26,6 +26,7 @@ import 'package:crypto/crypto.dart' as hash;
 import 'package:cryptography/cryptography.dart';
 
 import 'net/http.dart';
+import 'net/tor_switch.dart';
 import 'settings_file/host_settings.dart' show appConfig, hostSettings;
 
 /// The developer's public key (the GUI's `src/shared/supportKey.js`), and its id: the first 8
@@ -46,6 +47,14 @@ const int maxSupportDescription = 2000;
 
 /// How long a send may take before it counts as failed (`support.timeout_s`).
 Duration get supportTimeout => appConfig.supportTimeout;
+
+/// The same over Tor (`support.tor_timeout_s`): over Tor the intake is its onion, and a fresh
+/// circuit to an onion alone takes 15 to 60 s.
+Duration get supportTorTimeout => appConfig.supportTorTimeout;
+
+/// The send's timeout for the way it goes now: [supportTorTimeout] while the Tor switch is on
+/// (the request goes through tor, or waits for it first), [supportTimeout] otherwise.
+Duration get supportSendTimeout => TorSwitch.on || TorSwitch.carried ? supportTorTimeout : supportTimeout;
 
 final Uint8List _magic = ascii.encode('EPICSUP1');
 final Uint8List _info = ascii.encode('epic-gui-support v1');
@@ -324,8 +333,8 @@ class HttpSupportSender implements SupportSender {
   final Uri url;
   final Duration? _timeout;
 
-  /// `support.timeout_s` unless given.
-  Duration get timeout => _timeout ?? supportTimeout;
+  /// [supportSendTimeout] unless given.
+  Duration get timeout => _timeout ?? supportSendTimeout;
 
   @override
   Future<String> send(SupportReport report, {required String appVersion}) async {

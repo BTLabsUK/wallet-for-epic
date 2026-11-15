@@ -77,11 +77,11 @@ int? nodeBehind(WidgetRef ref, NodeStatus node, NetworkPreset? preset) {
 }
 
 /// How the node's connection goes under the Tor switch: a node on this computer stays direct
-/// ([torSkipsLocalNode]); any other follows [torWay].
-TorWay nodeTorWay(String? nodeUrl, TorState state) =>
+/// ([torSkipsLocalNode]); any other follows [torWayIn] for the connection [mode].
+TorWay nodeTorWay(String? nodeUrl, TorState state, [NetworkMode mode = NetworkMode.standard]) =>
     torSkipsLocalNode && nodeUrl != null && isLoopbackUrl(Uri.parse(nodeUrl))
     ? TorWay.clearnet
-    : torWay(TorRoute.node, state);
+    : torWayIn(TorRoute.node, state, mode);
 
 /// The node, Epicbox and Tor rows in a hairline card. With [showTor] false the Tor row is
 /// left out: right above the Tor switch (Settings › Privacy & network) it would repeat it.
@@ -102,7 +102,10 @@ class NetworkStatusCard extends ConsumerWidget {
     final choice = ref.watch(networkChoiceProvider).value;
     final tor = ref.watch(phoneTorProvider);
     final torState = phoneTorState(tor);
-    TorWay way(TorRoute route) => torWay(route, torState);
+    final mode = ref.watch(networkModeProvider);
+    // The connection mode decides first: Epicbox is off in Node only and Kill switch, so it
+    // never says "Over Tor" there.
+    TorWay way(TorRoute route) => torWayIn(route, torState, mode);
     final preset = choice?.preset;
     final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
     final chain = config?.chain ?? preset?.chain;
@@ -117,7 +120,6 @@ class NetworkStatusCard extends ConsumerWidget {
         : choice?.relay.label ?? '';
     // A service the mode turns off is "Off (Node only)": neutral, never red or blue. Node only
     // keeps the node; Kill switch turns both off.
-    final mode = ref.watch(networkModeProvider);
     final pausedFace = (level: SignalLevel.none, color: t.dim, word: statusOffByModeWord(l, mode));
     final node = mode == NetworkMode.killSwitch
         ? pausedFace
@@ -155,7 +157,7 @@ class NetworkStatusCard extends ConsumerWidget {
         face: node,
         spoken: nodeWords.label,
         detail: nodeWords.detail,
-        torWay: nodeTorWay(nodeUrl, torState),
+        torWay: nodeTorWay(nodeUrl, torState, mode),
         onTap: () => showNodePicker(context),
       ),
       if (showTor && torRowShown(tor))

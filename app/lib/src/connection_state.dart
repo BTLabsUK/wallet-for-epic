@@ -26,6 +26,28 @@ import 'ui/status.dart';
 /// blip mends within it; a relay or node that is really gone shows after 5 s.
 const Duration statusSettle = Duration(seconds: 5);
 
+/// How long the node must fail before it reads offline: a slow or lost answer inside this
+/// window is a network blip (the owner 2026-11-01, "connection warnings"). After [statusSettle] the
+/// status reads connecting (amber); only after [nodeSettle] it reads offline, shows red and lets
+/// node failover start.
+const Duration nodeSettle = Duration(seconds: 25);
+
+/// Whether the node has failed for [nodeSettle] without a break (the settled status says so).
+final nodeDownSettledProvider = NotifierProvider<NodeDownSettled, bool>(NodeDownSettled.new);
+
+class NodeDownSettled extends Notifier<bool> {
+  @override
+  bool build() {
+    ref.watch(sessionProvider);
+    return false;
+  }
+
+  void set(bool to) => state = to;
+}
+
+/// [nodeSettle]; a test gives it another length.
+final nodeSettleProvider = Provider<Duration>((ref) => nodeSettle);
+
 /// How long after tor came up the relay's first connection over it may take before a lost
 /// one reads as offline again (android-09): a tor just up often fails its first connection to
 /// an onion, and builds a circuit to the relay in up to about half a minute.
@@ -84,6 +106,24 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
   /// The relay's connection waited for Tor and has not been up over it since ([_heldForTor]).
   bool _torWaited = false;
 
+  /// Runs while the raw node reads offline and [offlineSettled] is not yet.
+  Timer? _nodeDown;
+
+  /// The node has read offline for [nodeSettle] without a break.
+  bool _offlineSettled = false;
+
+  /// Whether a node reading offline has lasted [nodeSettle]: node failover starts only then.
+  bool get offlineSettled => _offlineSettled;
+
+  /// Sets [_offlineSettled] and tells [nodeDownSettledProvider] a microtask later.
+  void _setSettled(bool to) {
+    if (_offlineSettled == to) return;
+    _offlineSettled = to;
+    scheduleMicrotask(() {
+      if (ref.mounted) ref.read(nodeDownSettledProvider.notifier).set(to);
+    });
+  }
+
   /// Runs from tor up until [torRelayGrace] while [_torWaited].
   Timer? _torGrace;
 
@@ -103,7 +143,9 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
       _node?.cancel();
       _epicbox?.cancel();
       _torGrace?.cancel();
-      _node = _epicbox = _torGrace = null;
+      _nodeDown?.cancel();
+      _node = _epicbox = _torGrace = _nodeDown = null;
+      _offlineSettled = false;
       _torWaited = false;
     });
     // The raw status may be rebuilt while a widget builds, when no provider may change: the
@@ -157,7 +199,25 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
   /// first last, and starts or stops the timers to match. Returns the new state.
   WalletStatus _settle(WalletStatus raw, [WalletStatus? shown]) {
     final before = shown ?? _base;
-    final node = _waits(raw.node.state, before.node.state)
+    // A node that does not answer (not one that is behind) first reads connecting, and
+    // offline once it has failed for [nodeSettle].
+    final rawOffline = raw.node.state == NodeState.offline && raw.node.behind == null;
+    if (!rawOffline) {
+      _nodeDown?.cancel();
+      _nodeDown = null;
+      _setSettled(false);
+    } else if (!_offlineSettled && ref.read(nodeSettleProvider) <= Duration.zero) {
+      _setSettled(true);
+    } else if (!_offlineSettled) {
+      _nodeDown ??= Timer(ref.read(nodeSettleProvider), () {
+        _nodeDown = null;
+        _setSettled(true);
+        if (!ref.mounted) return;
+        _show(node: _heldForTor(ref.read(rawWalletStatusProvider)).node);
+      });
+    }
+    final holdOffline = rawOffline && !_offlineSettled;
+    final node = holdOffline || _waits(raw.node.state, before.node.state)
         ? before.node
         : raw.node;
     // A lost connection is retried at once: until offline has lasted, it reads connecting,
@@ -166,14 +226,16 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
         ? EpicboxState.connecting
         : raw.epicbox;
 
-    if (identical(node, raw.node)) {
+    if (identical(node, raw.node) || (holdOffline && node.state == NodeState.connecting)) {
       _node?.cancel();
       _node = null;
     } else {
       _node ??= Timer(statusSettle, () {
         _node = null;
         if (!ref.mounted) return;
-        _show(node: _heldForTor(ref.read(rawWalletStatusProvider)).node);
+        final now = _heldForTor(ref.read(rawWalletStatusProvider)).node;
+        final blip = _nodeDown != null && !_offlineSettled && now.state == NodeState.offline && now.behind == null;
+        _show(node: blip ? NodeStatus(NodeState.connecting, tip: now.tip, height: now.height) : now);
       });
     }
     if (epicbox == raw.epicbox) {

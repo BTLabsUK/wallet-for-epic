@@ -756,7 +756,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'ยังไม่มีอะไรมาถึง หากรายการนี้มาถึงในภายหลัง จะแสดงว่าได้รับแล้ว';
+      'ยังไม่มีอะไรมาถึง ผู้ส่งจะได้รับแจ้ง หากผู้ส่งยังส่งรายการนี้ รายการจะเข้ามาและแสดงว่าได้รับแล้ว';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1090,12 +1090,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get homeNoticePaymentFailed => 'รายการหนึ่งไม่สำเร็จ';
-
-  @override
-  String get homeBackupCardText => 'ยังไม่ได้สำรองวลี';
-
-  @override
-  String get homeBackupCardButton => 'สำรอง';
 
   @override
   String get torAddressChangedTitle => 'ที่อยู่ Tor ของคุณเปลี่ยนแล้ว';
@@ -3360,14 +3354,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'ยอดคงเหลือของคุณ และใต้ลงไปคือไอคอนโหนด Epicbox และ Tor สิ่งที่ยังอยู่ระหว่างยืนยันอยู่ในช่องด้านล่าง';
+      'ยอดคงเหลือของคุณ พร้อมการส่งและการรับ สถานะที่มุมขวาบนบอกการเชื่อมต่อ แตะเพื่อดูโหนด Epicbox และ Tor การชำระเงินล่าสุดอยู่ด้านล่าง';
 
   @override
   String get tourPhoneSendTitle => 'ส่ง';
 
   @override
   String get tourPhoneSendText =>
-      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
+      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › การชำระเงิน จะมีการตรวจสอบก่อนเสมอ';
 
   @override
   String get tourPhoneReceiveTitle => 'รับ';
@@ -14703,7 +14697,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'ยอดคงเหลือของคุณ และใต้ลงไปคือไอคอนโหนดและ Epicbox สิ่งที่ยังอยู่ระหว่างยืนยันอยู่ในช่องด้านล่าง';
+      'ยอดคงเหลือของคุณ พร้อมการส่งและการรับ สถานะที่มุมขวาบนบอกการเชื่อมต่อ แตะเพื่อดูโหนดและ Epicbox การชำระเงินล่าสุดอยู่ด้านล่าง';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -15326,7 +15320,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
+  String get netStatusTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › การชำระเงิน';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -20613,7 +20607,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'การค้นหาเหรียญของคุณเริ่มจากเดือนนี้ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า เดือนหลังอาจพลาดเหรียญ';
+      'การค้นหาเหรียญของคุณเริ่มจากเดือนนี้ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า เดือนหลังอาจพลาดเหรียญ เดือนที่เก่ากว่าทำให้การค้นหานานขึ้น';
 
   @override
   String get phoneSendRouteEpicbox => 'ที่อยู่ Epicbox';
@@ -20849,4 +20843,174 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'ช่องถัดไป แล้วนำเข้า';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'อีกฝ่ายยกเลิกรายการนี้แล้ว จึงถูกยกเลิกที่นี่ด้วย';
+
+  @override
+  String get phoneSendMaxNoteNoFee => 'ทั้งหมดที่คุณมี หักค่าธรรมเนียม';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'กระเป๋าของผู้รับออฟไลน์ได้ การชำระเงินจะเสร็จเมื่อกระเป๋าเปิดอีกครั้ง';
+
+  @override
+  String get phoneRestoreUseHeight => 'ใช้ความสูงบล็อกแทน';
+
+  @override
+  String get phoneRestoreUseMonth => 'เลือกเดือนแทน';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'กระเป๋า $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'ถ้าเว้นว่าง เขาจะเห็น $label';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'ยังไม่ได้สำรองวลีกู้คืนของคุณ หากไม่มีวลีนี้ เมื่อโทรศัพท์หาย กระเป๋าเงินก็หายไปด้วย';
+
+  @override
+  String get phoneBackupReminderAction => 'สำรองตอนนี้';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount กำลังยืนยัน · รอ $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount กำลังยืนยัน · รอการตอบกลับ';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount กำลังยืนยัน · รอการตอบกลับ $count รายการ';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount กำลังยืนยัน · ประมาณ $minutes นาที';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount กำลังยืนยัน · รายการถัดไปใน $minutes นาที';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'รออีกฝ่ายยอมรับ';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'รอบล็อก · ประมาณ $minutes นาที';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'ประมาณ $minutes นาที · ยืนยันแล้ว $count จาก $target';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'ใช้ได้ตอนนี้';
+
+  @override
+  String get phoneBalanceArriving => 'กำลังเข้า';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'การส่งใช้เหรียญทั้งเหรียญ ส่วนที่เหลือจะกลับมาและใช้ได้หลังยืนยัน $target ครั้ง ประมาณ $target นาทีหลังจากการชำระเงินอยู่ในบล็อก หากยกเลิกการส่ง จำนวนเต็มจะกลับมา';
+  }
+
+  @override
+  String get deskRecvAskOpen => 'ขอจำนวนเงิน';
+
+  @override
+  String get deskRecvAskAmount => 'จำนวนเงิน';
+
+  @override
+  String get deskRecvAskNote => 'บันทึก';
+
+  @override
+  String get deskRecvAskHint =>
+      'ตอนนี้โค้ดมีที่อยู่ของคุณและจำนวนเงินนี้ ใครสแกนหรือวางจะได้การส่งตามปกติมาหาคุณ โดยกรอกจำนวนเงินไว้แล้ว';
+
+  @override
+  String get deskRecvAskCopy => 'คัดลอกลิงก์';
+
+  @override
+  String get deskRecvAskCopied => 'คัดลอกลิงก์แล้ว';
+
+  @override
+  String get deskRecvAskClose => 'กลับไปที่ที่อยู่';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'ใครก็ได้ ด้วยที่อยู่ของฉัน';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => 'โค้ดที่มีที่อยู่ของคุณและจำนวนเงิน';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'แสดงโค้ดนี้หรือแชร์ลิงก์ ใครสแกนหรือวางจะได้การส่งตามปกติไปยังที่อยู่ของคุณ โดยกรอก $amount ไว้แล้ว';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'คัดลอกลิงก์แล้ว';
+
+  @override
+  String get phoneRecvLinkQrLabel =>
+      'ที่อยู่ของคุณพร้อมจำนวนเงินเป็นคิวอาร์โค้ด';
+
+  @override
+  String get announcementsTitle => 'ประกาศ';
+
+  @override
+  String get announcementsHint =>
+      'ข้อความสั้น ๆ จาก BT Labs ระหว่างรุ่น ลงนามโดย BT Labs ปิด: ไม่ตรวจหาข้อความเหล่านี้';
+
+  @override
+  String get announcementDismiss => 'ปิด';
+
+  @override
+  String get announcementOpensInBrowser => 'เปิดในเบราว์เซอร์';
+
+  @override
+  String get deskSetGrpAnnouncements => 'จาก BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'ประกาศ, ข่าว, ข้อความ, แจ้งเตือน, bt labs';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'โค้ดนี้เป็นของเครือข่ายอื่น';
+
+  @override
+  String get deskE1ErrNotInPerson => 'กระเป๋านี้จ่ายหรือตรวจสอบโค้ดนี้ไม่ได้';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'โค้ดแบบพบตัว epic1 เปิดการชำระเงิน epic1 เพื่อจ่าย';
+
+  @override
+  String get pairRefusesInvoices =>
+      'กระเป๋าเงินของผู้ติดต่อนี้ไม่ชำระใบแจ้งหนี้';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'กระเป๋าเงินของ $name ไม่ชำระใบแจ้งหนี้';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'ยังไม่ได้ส่งสิ่งใด ขอให้อีกฝ่ายชำระไปยังที่อยู่ของคุณแทน';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'ไม่ได้ส่งใบแจ้งหนี้ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง';
 }

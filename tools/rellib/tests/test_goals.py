@@ -550,6 +550,9 @@ class GoalGateNote(Goal):
         self.assertEqual(code, 0, err)
         self.assertIn("- linux: ok (fine)", builtins.gate_summary(eng))
         self.assertEqual(rel(*self.common(p), "walk", "toaster", "ok", "--run", run.path)[0], 64)
+        self.assertNotIn("Note:", text)
+        run.info["scope"]["publish"]["gate_note"] = "Signed with the local key copies; same keys."
+        self.assertIn("\nNote: Signed with the local key copies; same keys.\n", builtins.gate_summary(eng))
 
     def test_a08_every_platform_has_the_four_points(self):
         text = pathlib.Path(REPO, "release/person-walk.md").read_text()

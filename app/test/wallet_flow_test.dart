@@ -141,6 +141,7 @@ Future<void> _pumpApp(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
+        nodeSettleProvider.overrideWithValue(Duration.zero),
         // The network picker is for development builds; this flow picks Usernet.
         devNetworksProvider.overrideWithValue(true),
         walletServiceProvider.overrideWithValue(service),
@@ -353,15 +354,14 @@ void main() {
         service.createGate!.complete();
         await tester.pumpAndSettle();
         expect(find.byKey(homeFigureKey), findsOneWidget);
-        expect(find.text(_l.homeBackupCardText), findsOneWidget);
+        expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
 
         expect(service.createdConfig?.chain, Chain.mainnet);
         expect(service.createdConfig?.dataDir, _mainnetDir);
         expect(service.createdMnemonic, isNull);
         expect(service.createdPin, _pin);
         // Only the sealed text is stored; the biometric copy is the PIN.
-        // The phrase reminder's time aside (home_screen.dart).
-        expect({...device.store.values}..remove('app.level')..remove('wallet.mainnet.backupNoticeAt'), {
+        expect({...device.store.values}..remove('app.level'), {
           'wallet.mainnet.pinSealed': fakeSealedPassword(_pin),
           'wallet.mainnet.pinBiometrics': '1',
           onionNoticeKey('mainnet', null): onionNoticeSeen,
@@ -477,7 +477,7 @@ void main() {
       await _tapText(tester, _l.pinBiometricsNotNow);
       expect(find.byKey(homeFigureKey), findsOneWidget);
       // The old wallet's backed-up flag does not carry over to the new one.
-      expect(find.text(_l.homeBackupCardText), findsOneWidget);
+      expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
       for (final e in old.entries) {
         expect(device.store.values[e.key], e.value);
       }
@@ -534,8 +534,9 @@ void main() {
         200,
         scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first,
       );
+      // The row opens the month sheet; its link goes to the block height.
       await _tap(tester, find.byKey(ScanStart.changeKey));
-      await _tapText(tester, _l.restoreStartByHeight);
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
@@ -547,7 +548,7 @@ void main() {
       expect(service.createdPin, _pin);
       expect(service.session.scanCalls, 1);
       expect(find.byKey(homeFigureKey), findsOneWidget);
-      expect(find.text(_l.homeBackupCardText), findsNothing);
+      expect(find.text(_l.phoneBackupReminderText), findsNothing);
       expect(
         device.store.values['wallet.mainnet.pinSealed'],
         fakeSealedPassword(_pin),
@@ -784,11 +785,12 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      // The balance: 12.5 spendable and 1 confirming.
-      expect(tester.widget<Text>(find.byKey(homeFigureKey)).textSpan!.toPlainText(), '13.5');
+      // The figure is what can be spent now: 12.5.
+      expect(tester.widget<Text>(find.byKey(homeFigureKey)).textSpan!.toPlainText(), '12.5');
       final handle = tester.ensureSemantics();
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider); the connections sheet names it.
+      await tester.pump(statusSettle);
       await tester.pump(statusSettle);
       await tester.tap(find.byKey(homePillKey));
       await tester.pumpAndSettle();
@@ -796,17 +798,20 @@ void main() {
       handle.dispose();
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
-      // Total 16, balance 13.5: the chips under the figure name what is arriving and in sends,
+      // The chips under the figure name what is arriving and the change of the open send,
       // and the balance sheet lists every part.
       expect(find.text('+1.5 arriving'), findsOneWidget);
-      expect(find.text('2.0 in sends'), findsOneWidget);
+      expect(find.text(_l.phoneChangeWaitingReply('3.992')), findsOneWidget);
+      expect(find.textContaining('in sends'), findsNothing);
       await _clearNotices(tester);
       await tester.tap(find.byKey(homeFigureKey));
       await tester.pumpAndSettle();
       for (final (label, value) in [
-        (_l.homeBalanceConfirming, '1.0'),
-        (_l.homeBalanceLocked, '2.0'),
-        (_l.balanceTotal, '16.0'),
+        (_l.phoneBalanceAvailableNow, '12.5'),
+        (_l.homeBalanceConfirming, '3.992'),
+        (_l.phoneBalanceArriving, '1.0'),
+        (_l.homeBalanceImmature, '0.5'),
+        (_l.balanceTotal, '17.992'),
       ]) {
         expect(find.descendant(of: find.byKey(balanceSheetKey), matching: find.text(label)), findsOneWidget, reason: label);
         expect(find.descendant(of: find.byKey(balanceSheetKey), matching: find.textContaining(value)), findsWidgets, reason: label);
@@ -867,7 +872,7 @@ void main() {
         await _pumpApp(tester, service, device);
         await _unlockToHome(tester, keepNotices: true);
 
-        await tester.tap(find.text(_l.homeBackupCardButton));
+        await tester.tap(find.text(_l.phoneBackupReminderAction));
         await _pumpFrames(tester);
         // No PIN, and no phrase, until the user agrees to keep any copy private.
         expect(find.text(_l.pinPromptTitle), findsNothing);
@@ -888,7 +893,7 @@ void main() {
         await _tapText(tester, _l.commonDone);
 
         expect(find.text(_l.homeBackedUpNotice), findsOneWidget);
-        expect(find.text(_l.homeBackupCardText), findsNothing);
+        expect(find.text(_l.phoneBackupReminderText), findsNothing);
         expect(device.store.values['wallet.mainnet.backedUp'], '1');
       },
     );
@@ -899,7 +904,7 @@ void main() {
         final service = _existing();
         await _pumpApp(tester, service, _Device(sealedMainnet: true));
         await _unlockToHome(tester, keepNotices: true);
-        await tester.tap(find.text(_l.homeBackupCardButton));
+        await tester.tap(find.text(_l.phoneBackupReminderAction));
         await _pumpFrames(tester);
         await tester.tap(
           find.text(_l.backupCopyAgree),
@@ -1164,6 +1169,7 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
+      await tester.pump(statusSettle);
       await tester.pump(statusSettle);
       // Balances the node did not check count as the node being offline.
       await _connectionsSheet(tester, () {

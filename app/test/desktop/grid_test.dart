@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show NodeShot;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -93,6 +94,9 @@ Future<void> _done(WidgetTester tester) async {
 
 Rect _rect(RenderBox b) => b.localToGlobal(Offset.zero) & b.size;
 
+/// [row]'s title: an [Epic1Text], which draws the wordmark in place of "epic1" (no plain text then).
+Finder _titleOf(ESetRow row) => find.byWidgetPredicate((w) => w is Epic1Text && w.text == row.title);
+
 /// The two columns of the page's [PanelRow] and the bottom line of each column's first header band.
 ({Rect main, Rect side, double mainHead, double sideHead}) _columns(WidgetTester tester) {
   final row = tester.renderObject<RenderPanelRow>(find.byType(PanelRow));
@@ -170,7 +174,7 @@ void _expectRowControls(WidgetTester tester, String what) {
       final ctl = find.descendant(of: find.byWidget(row), matching: find.byWidget(row.control!)).evaluate().first;
       final r = _rect(ctl.renderObject! as RenderBox);
       // A row whose control went under its title (too little room beside it) has no right edge to share.
-      if (row.title != null && r.top >= _rect(find.descendant(of: find.byWidget(row), matching: find.text(row.title!)).evaluate().first.renderObject! as RenderBox).bottom) continue;
+      if (row.title != null && r.top >= _rect(find.descendant(of: find.byWidget(row), matching: _titleOf(row)).evaluate().first.renderObject! as RenderBox).bottom) continue;
       edges.add(r.right);
     }
     for (final x in edges) {

@@ -22,6 +22,9 @@ import '../trust_ids.dart';
 /// Whether the open wallet's recovery phrase has been written down.
 final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
   final config = ref.watch(walletConfigProvider);
+  // Read again for each session: a wallet deleted and made again on this chain has the same
+  // config, and Home's reminder keeps this provider alive in between.
+  ref.watch(sessionProvider);
   if (config == null) return true;
   return ref.watch(vaultProvider).isBackedUp(config.chain);
 });

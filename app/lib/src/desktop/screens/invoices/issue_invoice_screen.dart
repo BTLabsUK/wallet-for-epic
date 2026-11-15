@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show LocalizedFormatException;
-import '../../../models.dart' show PairingRecord, PairingState;
+import '../../../models.dart' show PairingRecord, PairingState, WalletError, WalletErrorKind, pairingFailureOf;
+import '../../../network_gate.dart' show NetBlocked;
+import '../../../pairing_text.dart' show pairingFailureBody, pairingFailureText;
 import '../../../slate_files.dart' show sendFileName;
 import '../../../trust_ids.dart';
 import '../../data/history_files.dart';
@@ -38,6 +40,33 @@ List<PairingRecord> deskRequestPayers(Iterable<PairingRecord> all) => [
     if (r.state == PairingState.verified && r.caps.paysInvoices) r,
 ];
 
+/// What Send invoice says when the wallet did not send it: what failed, and what to do where
+/// the first line does not say. [name] is the contact's, for the pairing failures that name it.
+({String title, String? body}) issueInvoiceFailure(AppLocalizations l, Object error, {String name = ''}) {
+  if (error is InvoiceError) {
+    switch (error.problem) {
+      case InvoiceProblem.notDelivered || InvoiceProblem.relayDown:
+        return (title: l.deskInvIssuerNotDelivered, body: null);
+      case InvoiceProblem.nodeDown:
+        return (title: l.deskInvIssuerNodeDown, body: null);
+      default:
+    }
+    final source = error.source;
+    return source == null ? (title: l.deskInvIssuerFailed, body: null) : issueInvoiceFailure(l, source, name: name);
+  }
+  // The contact's card or the pairing's state refused it: the pairing words name why.
+  if (pairingFailureOf(error) case final failure?) {
+    return (title: pairingFailureText(l, failure, name: name), body: pairingFailureBody(l, failure, name: name));
+  }
+  // An argument the wallet refused carries English detail only; the generic line reads better.
+  if (error is WalletError && (error.kind == WalletErrorKind.invalidArgument || error.kind == WalletErrorKind.other)) {
+    return (title: l.deskInvIssuerFailed, body: null);
+  }
+  // The network mode, a busy wallet, the network off: the app's usual words for each.
+  if (error is WalletError || error is NetBlocked) return (title: deskErrorText(error, l), body: null);
+  return (title: l.deskInvIssuerFailed, body: null);
+}
+
 class IssueInvoiceScreen extends ConsumerStatefulWidget {
   const IssueInvoiceScreen({super.key, this.arg});
 
@@ -62,7 +91,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
   String? _path;
   bool _submitted = false;
   bool _busy = false;
-  String? _failure;
+  ({String title, String? body})? _failure;
 
   @override
   void initState() {
@@ -134,17 +163,11 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
       if (!mounted) return;
       showEToast(context, l.reqSent(name), tone: ETone.ok);
       ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, InvoicesTab.issue);
-    } on InvoiceError catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _busy = false;
-        _failure = e.problem == InvoiceProblem.notDelivered || e.problem == InvoiceProblem.relayDown ? l.deskInvIssuerNotDelivered : l.deskInvFailed;
-      });
-    } on Object {
+    } on Object catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _failure = l.deskInvFailed;
+          _failure = issueInvoiceFailure(l, e, name: name);
         });
       }
     }
@@ -166,7 +189,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
       setState(() => _made = made);
       await _saveMade(made);
     } on Object catch (e) {
-      if (mounted) setState(() => _failure = deskErrorText(e, l));
+      if (mounted) setState(() => _failure = (title: deskErrorText(e, l), body: null));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -311,7 +334,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
         ),
         if (_failure != null) ...[
           SizedBox(height: Sp.x4),
-          ENotice(tone: ETone.risk, icon: EIcons.error, title: _failure!),
+          ENotice(tone: ETone.risk, icon: EIcons.error, title: _failure!.title, text: _failure!.body),
         ],
         SizedBox(height: Sp.x6),
         Wrap(

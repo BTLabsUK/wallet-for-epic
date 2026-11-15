@@ -119,6 +119,7 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.advHeight, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvRecheck, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvHeightHint, synonyms: (l) => l.deskSetSynAdvHeight),
   SetEntry(SetId.advLocal, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvBuiltInNode, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvLocalHint, synonyms: (l) => l.deskSetSynAdvLocal),
   SetEntry(SetId.advLogs, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvLogs, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvLogsHint, synonyms: (l) => l.deskSetSynAdvLogs),
+  SetEntry(SetId.announcements, DeskRoute.settingsAdvanced, label: (l) => l.announcementsTitle, group: (l) => l.deskSetGrpAnnouncements, hint: (l) => l.announcementsHint, synonyms: (l) => l.deskSetSynAnnouncements),
   SetEntry(SetId.walletRows, DeskRoute.settingsWallets, label: (l) => l.deskSetRowWalletRows, group: (l) => l.deskSetGrpOnComputer, hint: (l) => l.deskSetRowWalletRowsHint, synonyms: (l) => l.deskSetSynWalletRows),
   SetEntry(SetId.createWallet, DeskRoute.settingsWallets, label: (l) => l.deskSetWalletsCreate, group: (l) => l.deskSetGrpAddWallet, hint: (l) => l.deskSetRowCreateWalletHint, synonyms: (l) => l.deskSetSynCreateWallet),
   SetEntry(SetId.importWallets, DeskRoute.settingsWallets, label: (l) => l.deskSetWalletsImport, group: (l) => l.deskSetGrpAddWallet, hint: (l) => l.deskSetRowImportWalletsHint, synonyms: (l) => l.deskSetSynImportWallets),

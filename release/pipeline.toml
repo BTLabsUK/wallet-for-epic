@@ -130,8 +130,8 @@ min_free_gb = 30
 # The hard limit of a build-phase command step that sets no `timeout` of its own.
 timeout = "180m"
 # Pre-flight health pick for test drivers: the first healthy one, BT Labs first.
-nodes = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
-epicboxes = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
+nodes = ["https://node.btlabs.uk"]
+epicboxes = ["epicbox.btlabs.uk"]
 
 # The signed update manifests (update.json, update-v2.json; WAL-01). validity_days is how long a
 # signed manifest is valid (expires_at - issued_at), for a release, a rollback and

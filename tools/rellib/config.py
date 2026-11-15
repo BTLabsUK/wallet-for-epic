@@ -238,7 +238,7 @@ DEFAULT_SCOPE = {
     "platforms": {p: True for p in PLATFORMS},
     "variants": {v: True for v in VARIANTS},
     "stores": {"play": False, "play_promote": ""},
-    "publish": {"target": "live", "manifests": True, "notes": "", "github": True},
+    "publish": {"target": "live", "manifests": True, "notes": "", "github": True, "gate_note": ""},
     "apple": {"signed": True},
     "skip": {},
     "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "waive": {}},
@@ -404,6 +404,8 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
     notes = scope["publish"].get("notes", "")
     if "\t" in notes or "\r" in notes:
         errs.append("publish.notes: no tabs or carriage returns")
+    if any(c in scope["publish"].get("gate_note", "") for c in "\t\r\n"):
+        errs.append("publish.gate_note: one line, no tabs")
     steps = pipeline.steps
     for name, reason in scope["skip"].items():
         if name not in steps:

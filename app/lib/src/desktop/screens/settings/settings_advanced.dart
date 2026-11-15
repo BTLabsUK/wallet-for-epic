@@ -8,8 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../advanced.dart';
+import '../../../announcements/announcements_service.dart' show announcementsOffered;
 import '../../../trust_ids.dart';
 import '../../../ui/network_mode_text.dart';
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -59,7 +61,13 @@ class SettingsAdvancedScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // The tour lights the top of the page: the switches.
-          const TourTarget(id: 'advanced-top', child: _ShowsGroup()),
+          const TourTarget(
+            id: 'advanced-top',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [_ShowsGroup(), _AnnouncementsGroup()],
+            ),
+          ),
         ],
       ),
     );
@@ -122,6 +130,38 @@ class _ShowsGroup extends ConsumerWidget {
         row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint, anchor: SetId.advHeight),
         row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint, anchor: SetId.advLocal),
         row(AdvancedFeature.logs, l.deskSetAdvLogsHint, anchor: SetId.advLogs),
+      ],
+    );
+  }
+}
+
+/// Advanced › Announcements: one switch, with no gate, so anyone can turn the
+/// messages off. Shown only when the build has a feed (`[announcements] feed`).
+class _AnnouncementsGroup extends ConsumerWidget {
+  const _AnnouncementsGroup();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final host = ref.watch(hostSettingsProvider);
+    if (!announcementsOffered(host)) return const SizedBox.shrink();
+    final l = context.l10n;
+    return ESetGroup(
+      key: const ValueKey('adv-announcements'),
+      title: l.deskSetGrpAnnouncements,
+      rows: [
+        ESetRow(
+          key: const ValueKey('adv-announcements-row'),
+          anchor: SetId.announcements,
+          title: l.announcementsTitle,
+          hint: l.announcementsHint,
+          hintTitle: l.announcementsTitle,
+          control: ESwitch(
+            semanticsId: TrustIds.advancedAnnouncements,
+            value: host.announcementsEnabled,
+            semanticLabel: l.announcementsTitle,
+            onChanged: (v) => ref.read(hostSettingsProvider.notifier).set('online.announcements', v),
+          ),
+        ),
       ],
     );
   }

@@ -31,6 +31,12 @@ TOR_ONLY = T("g4.welcome.toronly")
 DEEP_END = tg.Target("g4.level.stop.3", role="checkbox", keys=("lvPickStopThree",), names=("Deep end",),
                      match="line", screen="level", family=("android",))
 LEVEL_PICK = DEEP_END
+# 26.11.3 and older start a phone at level 1, where Home's icons open no server list and Settings hides
+# Network: Settings › Advanced › Wallet view › Deep end › Save. Only those builds have the row.
+LEVEL_ROW = tg.Target("g4.advanced.level", role="row", keys=("levelRowTitle",), names=("Wallet view",),
+                      screen="advanced", family=("android",))
+LEVEL_SAVE = tg.Target("g4.common.save", keys=("commonSave",), names=("Save",), match="exact", screen="common",
+                       family=("android",))
 TOUR_SKIP = T("g4.tour.skip")
 BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 
@@ -146,7 +152,6 @@ RESTORE_MONTH_CELL = T("g4.restore.month.*")
 MONTH_TITLE = T("g4.restore.month.title")
 MONTH_EARLIER = T("g4.restore.month.earlier")
 MONTH_LATER = T("g4.restore.month.later")
-MONTH_START = T("g4.restore.month.start")
 RESTORE_PROBLEM = T("g4.restore.problem")
 RESTORE_SCANNING = T("g4.restore.scan")
 RESTORE_RETRY = T("g4.restore.retry")
@@ -345,14 +350,17 @@ class Phone:
             # a fresh install scans from block 0, whatever the wallet's birth
             self.log("restore start: the whole chain (this build offers no start choice at its level)")
             return
-        d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
+        # The row opens the month sheet (builds after 26.11.4; older ones open a By month / By height panel
+        # with the month button), or the height field when the start is a block height.
+        d.press(RESTORE_START, step="restore-start", then=shows(MONTH_TITLE, RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
         if height is None:
             year, mon = (int(x) for x in month.split("-")[:2])
             self._pick_month(year, mon)
-            line = d.wait(shows(MONTH_START), 10)
-            self.log("restore start: %04d-%02d (%s)" % (year, mon, line.name.split("\n")[0] if line else "no start line"))
+            line = d.seen(RESTORE_START)
+            self.log("restore start: %04d-%02d (%s)" % (year, mon, line.name.split("\n")[0] if line else "no start row"))
         else:
             if not d.seen(RESTORE_HEIGHT):
+                # The sheet's "Use a block height instead", or the older panel's Block height.
                 d.press(RESTORE_BY_HEIGHT, step="restore-by-height", then=shows(RESTORE_HEIGHT), timeout=20)
             d.fill(RESTORE_HEIGHT, str(int(height)), step="restore-height")
             self.log("restore start: block %d" % int(height))
@@ -376,7 +384,8 @@ class Phone:
         [year], then its cell ("November 2026")."""
         d = self.d
         cell = RESTORE_MONTH_CELL.at("%04d-%02d" % (year, mon), names=("%s %d" % (MONTHS[mon - 1], year),))
-        d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
+        if not d.seen(MONTH_TITLE):
+            d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
         for _ in range(20):
             tree = d.tree()
             if d.find_in(cell, tree):
@@ -597,16 +606,22 @@ class Phone:
 
     def tab(self, target):
         """Send or Receive: Home's two buttons open the flow over the tab bar (its own close button
-        marks it). Any other target is a tab of the bar."""
+        marks it); 26.11.3 and older have them as tabs of the bar (Send, Wallet, Receive), selected
+        when open. Any other target is a tab of the bar."""
         d = self.d
         self.home()
+
+        def picked(dd, tree):
+            return any(n.role == "tab" and "selected" in n.states for n in dd.find_in(target, tree))
         if target == TAB_SEND:
             # Send draws its own header: × on its first step, ‹ on a send left half-way.
             d.press(target, step="tab-send", timeout=20,
-                    then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree))))
+                    then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree)
+                                                                   or picked(dd, tree))))
             return
         if target == TAB_RECEIVE:
-            d.press(target, step="tab-receive", timeout=20, then=shows(RECEIVE_CLOSE))
+            d.press(target, step="tab-receive", timeout=20,
+                    then=Expect("Receive open", lambda dd, tree: bool(dd.find_in(RECEIVE_CLOSE, tree) or picked(dd, tree))))
             return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))
@@ -748,7 +763,7 @@ class Phone:
         over Tor is a SKIP. A slow start gets `budget` and one more try (Normal, then Tor only again);
         still not up is InfraFault tor. -> "skipped" | "done"."""
         d = self.d
-        self._view_deep_end() 
+        self._view_deep_end()   # the Network section shows from level 2 on a build with levels
         self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only network mode")
         chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
         self._look_up(EPICBOX_ROW, 3)
@@ -790,8 +805,38 @@ class Phone:
         self.home()
         return s
 
+    def _level_three(self, tree):
+        three = tg._norm("Let me explore everything")  # a previous release's row value; the candidate has no levels
+        return any(three in tg._norm(n.name) for n in self.d.find_in(LEVEL_ROW, tree))
+
     def _view_deep_end(self):
-        """The phone has no wallet views any more: every switch is on its own page, so nothing to set."""
+        """A build with wallet levels (26.11.3 and older) opens a new install at level 1, where Home's
+        icons open no server list and Settings hides Network: Settings › Advanced › Wallet view › Deep end
+        › Save. The candidate has no views on the phone: no Wallet view row, nothing to set. Looked up
+        once per build."""
+        d = self.d
+        if getattr(self, "_views_of", None) is d.labels:
+            return
+        if not d.has_control(LEVEL_ROW) or not self.section("advanced") or not self._look(LEVEL_ROW, 1):
+            self._views_of = d.labels
+            self.log("no Wallet view row: a build without wallet views on the phone")
+            self.home()
+            return
+        d.reached("find-%s" % LEVEL_ROW.id)
+        if not self._level_three(d.tree()):
+            d.press(LEVEL_ROW, step="wallet-view", then=shows(DEEP_END), timeout=20)
+            n = self._pressable(DEEP_END, d.tree())
+            if "checked" not in n.states and "selected" not in n.states:
+                d._act(d.s.press, n)
+                d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
+                                                                      for x in dd.find_in(DEEP_END, tree))), 10)
+            if d.seen(LEVEL_SAVE):
+                d.press(LEVEL_SAVE, step="wallet-view-save", timeout=30,
+                        then=Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)))
+            d.must(Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)), 20, step="wallet-view")
+            self.log("Settings › Advanced › Wallet view: Deep end")
+        self._views_of = d.labels
+        self.home()
 
     def _host_rows(self, tree, entry):
         return [n for n in self.d.find_in(SERVER_ROW, tree) if "press" in n.actions

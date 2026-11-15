@@ -62,7 +62,8 @@ final List<(String, _Start, _Visit)> _framesNotices = [
         KitSlotCard(
           title: 'Back up your recovery phrase',
           subtitle: 'Without it, a lost phone means a lost wallet.',
-          icon: KitIcons.info,
+          icon: KitIcons.security,
+          action: 'Back up now',
           onTap: () {},
         ),
       ]));

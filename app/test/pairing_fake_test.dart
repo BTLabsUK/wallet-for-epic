@@ -332,6 +332,17 @@ void main() {
       await api.setAllowInvoices(anna.id, false);
       expect(await parked('i2'), 0);
     });
+
+    test('an invoice to a contact whose card does not pay invoices is refused by that reason', () async {
+      final shop = api.seedPaired(
+        name: 'Shop',
+        kind: PairingParty.shop,
+        paymentsAddress: _tom,
+        caps: PairingCaps.fromBits(13),
+      );
+      await expectLater(api.requestPayment(id: shop.id, amount: BigInt.one), _failure(PairingFailure.refusesInvoices));
+      expect(api.calls, isNot(contains('request')));
+    });
   });
 
   group('attach', () {

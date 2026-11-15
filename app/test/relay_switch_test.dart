@@ -75,11 +75,11 @@ void main() {
     expect(offer(after: const Duration(minutes: 34), keptWaitingAt: t0.add(const Duration(minutes: 3))), isNotNull);
   });
 
-  test('the drain record lives 30 days, survives a round trip and drops the relay moved back to', () {
+  test('the drain record lives 7 days, survives a round trip and drops the relay moved back to', () {
     var list = recordDrainedRelay(const [], from: a, to: b, now: t0);
     list = decodeDrainedRelays(encodeDrainedRelays(list));
     expect(list.single.relay, a);
-    expect(liveDrainedRelays(list, t0.add(const Duration(days: 29)), inUse: b), hasLength(1));
+    expect(liveDrainedRelays(list, t0.add(const Duration(days: 6)), inUse: b), hasLength(1));
     expect(liveDrainedRelays(list, t0.add(relayDrainWindow), inUse: b), isEmpty);
     expect(liveDrainedRelays(list, t0, inUse: a), isEmpty);
     expect(recordDrainedRelay(list, from: b, to: a, now: t0).single.relay, b);

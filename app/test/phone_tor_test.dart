@@ -10,7 +10,10 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/tor_phone.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
@@ -32,12 +35,26 @@ class _Config extends WalletConfigNotifier {
   WalletConfig? build() => _config;
 }
 
+/// The network mode the tests flip (the app's comes from settings.toml).
+final _modeSource = NotifierProvider<_ModeSource, NetworkMode>(_ModeSource.new);
+
+class _ModeSource extends Notifier<NetworkMode> {
+  @override
+  NetworkMode build() => NetworkMode.standard;
+
+  void set(NetworkMode mode) {
+    NetGate.set(mode);
+    state = mode;
+  }
+}
+
 class _Harness {
   _Harness({TorBundle? bundle = _bundle, Duration startStall = const Duration(minutes: 5)}) {
     container = ProviderContainer(
       retry: (_, _) => null,
       overrides: [
         secretStoreProvider.overrideWithValue(store),
+        networkModeProvider.overrideWith((ref) => ref.watch(_modeSource)),
         walletConfigProvider.overrideWith(_Config.new),
         torBundleFinderProvider.overrideWithValue(() async => bundle),
         networkChangesProvider.overrideWithValue(network.stream),
@@ -201,6 +218,208 @@ void main() {
     expect(h.state.phase, PhoneTorPhase.off);
     expect(h.state.receiving, isFalse);
   });
+
+  test('Tor only to Normal: the switch, the routes and tor follow at once', () async {
+    addTearDown(() => NetGate.set(NetworkMode.standard));
+    await h.unlock();
+    final mode = h.container.read(_modeSource.notifier);
+    mode.set(NetworkMode.torOnly);
+    await h.until((s) => s.receiving);
+    expect(h.store.values[h.key], 'true');
+    expect(h.session.nodeAndHttpOverTorValue, isTrue);
+    expect(h.session.torStarts, hasLength(1));
+    final stops = h.session.torStops;
+
+    mode.set(NetworkMode.standard);
+    await h.until((s) => !s.receiving);
+    await h.settle();
+    expect(h.store.values[h.key], 'false');
+    expect(h.session.nodeAndHttpOverTorValue, isFalse);
+    expect(h.session.epicboxOverTorValue, isFalse);
+    expect(h.session.torStops, stops + 1);
+    expect(h.state.phase, PhoneTorPhase.off);
+
+    // And back: Tor only turns it all on again.
+    mode.set(NetworkMode.torOnly);
+    await h.until((s) => s.receiving);
+    expect(h.session.nodeAndHttpOverTorValue, isTrue);
+    expect(h.session.epicboxOverTorValue, isTrue);
+  });
+
+  test('Normal with the switch on keeps it on', () async {
+    await h.unlock();
+    await h.tor.setReceiving(true);
+    h.container.read(_modeSource.notifier).set(NetworkMode.nodeOnly);
+    await h.settle();
+    h.container.read(_modeSource.notifier).set(NetworkMode.standard);
+    await h.settle();
+    expect(h.state.receiving, isTrue);
+    expect(h.store.values[h.key], 'true');
+  });
+
+  /// Lets what is applied finish: tor that is starting comes up, until the change is over.
+  Future<void> drain() async {
+    final end = DateTime.now().add(const Duration(seconds: 3));
+    var quiet = 0;
+    while (quiet < 4) {
+      if (DateTime.now().isAfter(end)) fail('never settled; now ${h.state}');
+      if (h.state.phase == PhoneTorPhase.starting) h.emit(TorEventKind.bootstrapped);
+      await h.settle(10);
+      quiet = h.state.changing || h.state.phase == PhoneTorPhase.starting ? 0 : quiet + 1;
+    }
+  }
+
+  test('rapid taps on the Tor switch: the controls wait, the last tap is what stays', () async {
+    await h.unlock();
+    final taps = [
+      h.tor.setReceiving(true),
+      h.tor.setReceiving(false),
+      h.tor.setReceiving(true),
+      h.tor.setReceiving(false),
+      h.tor.setReceiving(true),
+    ];
+    expect(h.state.changing, isTrue, reason: 'from the first tap the switch is held');
+    await Future.wait(taps);
+    await drain();
+    expect(h.state.receiving, isTrue);
+    expect(h.store.values[h.key], 'true');
+    expect(h.state.changing, isFalse);
+    expect(h.state.phase, isNot(PhoneTorPhase.off));
+    // Starts and stops pair up: tor runs once, never twice at the same time.
+    expect(h.session.torStarts.length - h.session.torStops, 1);
+
+    final off = [h.tor.setReceiving(false), h.tor.setReceiving(true), h.tor.setReceiving(false)];
+    await Future.wait(off);
+    await drain();
+    expect(h.state.receiving, isFalse);
+    expect(h.store.values[h.key], 'false');
+    expect(h.state.changing, isFalse);
+    expect(h.state.phase, PhoneTorPhase.off);
+    expect(h.session.torStarts.length - h.session.torStops, 0);
+  });
+
+  test('the Tor switch is held while tor starts and free once it is up', () async {
+    await h.unlock();
+    await h.tor.setReceiving(true);
+    expect(h.state.phase, PhoneTorPhase.starting);
+    expect(h.state.changing, isTrue);
+    h.emit(TorEventKind.bootstrapped);
+    await h.until((s) => !s.changing);
+    expect(h.state.phase, PhoneTorPhase.connected);
+  });
+
+  test('a tor that fails to start frees the switch', () async {
+    await h.unlock();
+    await h.tor.setReceiving(true);
+    expect(h.state.changing, isTrue);
+    await h.settle();
+    h.emit(TorEventKind.failed, failure: TorFailure.network);
+    h.emit(TorEventKind.stopped);
+    await h.until((s) => !s.changing);
+    expect(h.state.receiving, isTrue);
+    expect(h.state.phase, PhoneTorPhase.failed);
+    expect(h.state.failure, TorFailure.network);
+  });
+
+  group('the Epicbox listener follows the route', () {
+    const connected = ListenerEvent(kind: ListenerEventKind.connected, message: 'addr');
+
+    /// The wallet's listener, kept alive as the app does. Its first connection is still
+    /// being made (no event yet).
+    Future<void> openListener() async {
+      await h.unlock();
+      h.container.listen(listenerProvider, (_, _) {}, fireImmediately: true);
+      await h.settle();
+      expect(h.container.read(listenerProvider).connected, isFalse);
+    }
+
+    /// The core ends the old listener with a `stopped` event; the new one starts after it.
+    Future<void> tick({bool ends = true}) async {
+      await drain();
+      await h.settle(30);
+      if (ends) h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.stopped, message: ''));
+      await h.settle(60);
+    }
+
+    test('Tor off while the listener is still connecting: it starts again and ends connected', () async {
+      await openListener();
+      await h.tor.setReceiving(true);
+      await tick();
+      expect(h.container.read(listenerProvider).connected, isFalse);
+      final starts = h.session.listenerStarts;
+
+      await h.tor.setReceiving(false);
+      await tick();
+      expect(h.session.epicboxOverTorValue, isFalse);
+      expect(h.session.listenerStarts, greaterThan(starts), reason: 'a listener begun for the Tor route is moved');
+      h.session.listenerEvents.add(connected);
+      await h.settle();
+      expect(h.container.read(listenerProvider).connected, isTrue, reason: 'the pill goes green');
+    });
+
+    test('Tor on while the listener is not connected: it starts again on the Tor route', () async {
+      await openListener();
+      final starts = h.session.listenerStarts;
+      await h.tor.setReceiving(true);
+      await tick();
+      expect(h.session.epicboxOverTorValue, isTrue);
+      expect(h.session.listenerStarts, greaterThan(starts));
+      h.session.listenerEvents.add(connected);
+      await h.settle();
+      expect(h.container.read(listenerProvider).connected, isTrue);
+    });
+
+    test('a connected listener is left alone when the route changes', () async {
+      await openListener();
+      h.session.listenerEvents.add(connected);
+      await h.settle();
+      await h.tor.setReceiving(true);
+      await tick(ends: false);
+      final starts = h.session.listenerStarts;
+      await h.tor.setReceiving(false);
+      await tick(ends: false);
+      expect(h.session.listenerStarts, starts);
+      expect(h.container.read(listenerProvider).connected, isTrue);
+    });
+  });
+
+  // Every mode change followed at once by another: the last one chosen is the one that stays.
+  for (final from in NetworkMode.values) {
+    for (final to in NetworkMode.values) {
+      if (from == to) continue;
+      for (final switchOn in [false, true]) {
+        test('${from.name} then ${to.name} in a row, Tor switch ${switchOn ? 'on' : 'off'}', () async {
+          addTearDown(() => NetGate.set(NetworkMode.standard));
+          await h.unlock();
+          final mode = h.container.read(_modeSource.notifier);
+          if (switchOn) {
+            await h.tor.setReceiving(true);
+            await drain();
+          }
+          // A third mode first, so the pair is never the first change.
+          final via = NetworkMode.values.firstWhere((m) => m != from && m != to);
+          mode.set(via);
+          mode.set(from);
+          mode.set(to);
+          await drain();
+          expect(h.container.read(networkModeProvider), to);
+          expect(h.state.changing, isFalse, reason: 'the change is over');
+          final stored = h.store.values[h.key] == 'true';
+          expect(h.state.receiving, stored, reason: 'the shown switch is the saved one');
+          if (to == NetworkMode.torOnly) expect(h.state.receiving, isTrue);
+          final running = h.session.torStarts.length - h.session.torStops;
+          if (to == NetworkMode.killSwitch || !h.state.receiving) {
+            expect(h.state.phase, PhoneTorPhase.off, reason: 'tor is wanted by nothing');
+            expect(running, 0);
+          } else {
+            expect(h.state.phase, isNot(PhoneTorPhase.off));
+            expect(running, 1);
+          }
+          expect(h.session.nodeAndHttpOverTorValue ?? false, h.state.receiving || to == NetworkMode.torOnly);
+        });
+      }
+    }
+  }
 
   test('ensureForSend starts tor and completes once bootstrapped', () async {
     await h.unlock();

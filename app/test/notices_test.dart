@@ -379,6 +379,26 @@ void main() {
     },
   );
 
+  testWidgets('an info notice draws its action in the quiet blue, the others keep the gold', (tester) async {
+    final c = await _pump(tester);
+    Color actionColor() {
+      final text = tester.widget<Text>(find.text('Install'));
+      final button = tester.widget<TextButton>(find.ancestor(of: find.text('Install'), matching: find.byType(TextButton)));
+      return (button.style!.foregroundColor!.resolve(<WidgetState>{}))!.withAlpha(255).withValues(alpha: text.style?.color?.a ?? 1);
+    }
+
+    c.notices.show('Update ready', level: NoticeLevel.info, persistent: true, action: NoticeAction('Install', () {}));
+    await tester.pumpAndSettle();
+    final t = tester.element(find.text('Install')).tokens;
+    expect(actionColor(), t.info);
+    c.notices.dismiss();
+    await tester.pumpAndSettle();
+
+    c.notices.show('Update ready', level: NoticeLevel.warning, persistent: true, action: NoticeAction('Install', () {}));
+    await tester.pumpAndSettle();
+    expect(actionColor(), t.accentText);
+  });
+
   testWidgets('the toast floats 50 dp from the top and 12 dp from the sides, and moves nothing', (
     tester,
   ) async {

@@ -6,12 +6,11 @@
 //   WFE_LEPIC_LIB=<liblepic_ffi.so> WFE_PACE_DIR=<dir> WFE_PACE_ROLE=receiver \
 //     WFE_PACE_HOME=<home>/.epic_cash_desktop WFE_PACE_PASSWORD=<pw> WFE_PACE_NODE=<url> \
 //     WFE_PACE_SECRETS=<the wallet's secrets as a JSON file> \
-//     [WFE_PACE_WATCH=off] flutter test test/desktop/confirm_pace_live_test.dart
+//     flutter test test/desktop/confirm_pace_live_test.dart
 //   ... the same with WFE_PACE_ROLE=sender WFE_PACE_METHOD=epicbox|file in a second shell.
 //
 // Each side writes `<role>.log`: one line per change of the payment as the app shows it (ms,
-// state, confirmations). WFE_PACE_WATCH=off asks the node at the normal pace only, as before
-// watch mode. Without the library and WFE_PACE_DIR it is skipped.
+// state, confirmations). Without the library and WFE_PACE_DIR it is skipped.
 import 'dart:convert';
 import 'dart:io';
 
@@ -60,7 +59,6 @@ void main() {
     final role = _env['WFE_PACE_ROLE']!;
     final home = _env['WFE_PACE_HOME']!;
     final method = _env['WFE_PACE_METHOD'] ?? 'epicbox';
-    final watch = _env['WFE_PACE_WATCH'] != 'off';
     final log = File('${dir.path}/$role.log').openWrite(mode: FileMode.append);
     void note(String s) {
       final line = '${DateTime.now().millisecondsSinceEpoch} $s';
@@ -80,7 +78,6 @@ void main() {
       walletDir: (chain) async => WalletRegistry.firstWalletDir(home, chain),
       secrets: secrets,
       filesDir: () async => files,
-      watchPoll: watch ? const Duration(seconds: 4) : const Duration(seconds: 30),
       rememberDir: () async => Directory('${dir.path}/$role-remember'),
       listProcesses: () async => const [],
     );
@@ -92,7 +89,7 @@ void main() {
     await wallet.syncNow();
     final b = await wallet.balance();
     note('balance spendable=${b.spendable} waiting=${b.awaitingConfirmation} locked=${b.locked}');
-    note('open watch=${watch ? 'on' : 'off'} method=$method');
+    note('open method=$method');
     if (method == 'epicbox') await wallet.setListening(true);
 
     Future<File> waitFor(String name) async {

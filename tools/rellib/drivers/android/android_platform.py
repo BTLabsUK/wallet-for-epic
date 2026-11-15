@@ -39,7 +39,7 @@ from core import state as st  # noqa: E402
 from core import walletdata as wd  # noqa: E402
 from core.faults import HarnessFault, HarnessGone, ProductFault  # noqa: E402
 from core.lane import Platform  # noqa: E402
-from avd import AVD_DEVICE, AVD_IMAGE, create_avd  # noqa: E402
+from avd import AVD_DEVICE, AVD_IMAGE, create_avd, kvm_wrap  # noqa: E402
 from files import PKG, AppFiles  # noqa: E402
 from uia import ADB, Device, Uia  # noqa: E402
 
@@ -128,9 +128,9 @@ class AndroidPlatform(Platform):
             self.log("created AVD %s (%s, %s)" % (self.avd, AVD_IMAGE, AVD_DEVICE))
         logf = open(os.path.join(self.out, "emulator.log"), "a")
         t0 = time.time()
-        self.emu = subprocess.Popen([os.path.join(SDK, "emulator", "emulator"), "-avd", self.avd, "-no-window", "-no-audio",
-                                     "-no-boot-anim", "-no-snapshot-load", "-no-snapshot-save", "-port", str(self.port),
-                                     "-gpu", "swiftshader_indirect"], stdout=logf, stderr=subprocess.STDOUT,
+        self.emu = subprocess.Popen(kvm_wrap([os.path.join(SDK, "emulator", "emulator"), "-avd", self.avd, "-no-window",
+                                              "-no-audio", "-no-boot-anim", "-no-snapshot-load", "-no-snapshot-save",
+                                              "-port", str(self.port), "-gpu", "swiftshader_indirect"]), stdout=logf, stderr=subprocess.STDOUT,
                                     stdin=subprocess.DEVNULL, start_new_session=True)
         end = t0 + 300
         while time.time() < end:
@@ -286,7 +286,10 @@ class AndroidPlatform(Platform):
             return self.surface
         since = self.dev.sh("date '+%m-%d %H:%M:%S.000'").strip()   # the app's log lines of this run start here
         self.dev.sh("am force-stop %s" % PKG)
-        self.dev.run("shell", "monkey -p %s -c android.intent.category.LAUNCHER 1" % PKG, timeout=60)
+        # Impeller off: its GLES shaders crash the emulator's software GPU (host side, not the app)
+        self.dev.run("shell", "am start -n $(cmd package resolve-activity --brief -a android.intent.action.MAIN"
+                     " -c android.intent.category.LAUNCHER %s | tail -n 1) --ez enable-impeller false"
+                     % PKG, timeout=60)
         for _ in range(30):
             if self.dev.sh("pidof %s" % PKG).strip():
                 break

@@ -81,6 +81,10 @@
   "@phoneSendMaxNote": {
     "description": "Line shown after Max: everything, less the fee."
   },
+  "phoneSendMaxNoteNoFee": "Everything you have, less the fee",
+  "@phoneSendMaxNoteNoFee": {
+    "description": "Line shown after Max when the fee is not known yet."
+  },
   "phoneSendViewPayment": "View payment",
   "@phoneSendViewPayment": {
     "description": "Quiet button on the Sent page."
@@ -109,6 +113,10 @@
         "type": "String"
       }
     }
+  },
+  "phoneSendReviewHintOfflineNoName": "Their wallet can be offline. The payment finishes when it next opens.",
+  "@phoneSendReviewHintOfflineNoName": {
+    "description": "Same hint when the person paid has no name yet (an address not in the contacts)."
   },
   "phoneSendHelpTitle": "How sending works",
   "@phoneSendHelpTitle": {

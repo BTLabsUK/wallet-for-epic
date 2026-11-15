@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_info.dart';
 import '../app_log.dart';
+import '../announcements/announcements_service.dart' show announcementsOffered;
 import '../settings_file/host_settings.dart' show hostSettings;
 import '../dev_networks.dart';
 import '../epic1.dart' show PaymentMode;
@@ -509,7 +510,15 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ),
     SettingsSection.advanced => SettingsPageHelp(
       title: l.advTitle,
-      lines: [l.advIntro, l.advOutputsHint, l.advTechnicalHint, l.advSendOptionsHint, l.advServerDetailsHint, l.advRecheckHeightHint],
+      lines: [
+        l.advIntro,
+        l.advOutputsHint,
+        l.advTechnicalHint,
+        l.advSendOptionsHint,
+        l.advServerDetailsHint,
+        l.advRecheckHeightHint,
+        if (announcementsOffered(ref.watch(hostSettingsProvider))) l.announcementsHint,
+      ],
       topic: HelpId.advanced,
       sheetId: TrustIds.settingsHelpSheet,
       moreId: TrustIds.settingsHelpMore,
@@ -637,6 +646,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final walletOpen = ref.watch(sessionProvider) != null;
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    final mode = ref.watch(networkModeProvider);
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
     final devNetworks = ref.watch(devNetworksProvider);
@@ -674,7 +684,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   final host? => HostText(host, style: TextStyle(color: dim)),
                   null => Text(l.commonUnknown),
                 },
-                torWay(TorRoute.epicbox, torState),
+                torWayIn(TorRoute.epicbox, torState, mode),
+                TorRoute.epicbox,
               ),
               chevron: true,
               semanticsId: TrustIds.networkEpicbox,
@@ -686,7 +697,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
               title: l.serverNodeTitle,
               subtitleWidget: withTorWay(
                 network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: dim)),
-                nodeTorWay(network?.nodeUrl, torState),
+                nodeTorWay(network?.nodeUrl, torState, mode),
+                TorRoute.node,
               ),
               chevron: true,
               semanticsId: TrustIds.networkNode,
@@ -968,7 +980,10 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         subtitle: line,
         subtitleLines: 2,
         value: payments.offers(m),
-        onChanged: m == MethodKind.linkTor && !torPayCanSwitch(ref.watch(phoneTorPayProvider)) ? null : (on) => set(m, on),
+        // Link · Tor starts and stops tor: it waits while a change is being applied.
+        onChanged: m == MethodKind.linkTor && (!torPayCanSwitch(ref.watch(phoneTorPayProvider)) || ref.watch(phoneTorProvider.select((s) => s.changing)))
+            ? null
+            : (on) => set(m, on),
         semanticsId: _methodId(m),
       );
     }
@@ -1087,6 +1102,24 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         dividerInset: Kit.dividerInsetPlain,
         children: [feature(AdvancedFeature.transactionFiles, l.advTransactionFiles, l.phoneSettingsAdvFilesLine, TrustIds.advancedFiles)],
       ),
+      // In every view (no level gate): anyone can turn the messages off. No feed in
+      // app-config.toml: no row. Label only; the explanation is in the page's "?".
+      if (announcementsOffered(ref.watch(hostSettingsProvider))) ...[
+        const SizedBox(height: 14),
+        KitGroup(
+          dividerInset: Kit.dividerInsetPlain,
+          children: [
+            KitRow.toggle(
+              key: const ValueKey('adv-announcements'),
+              title: l.announcementsTitle,
+              size: KitRowSize.list,
+              value: ref.watch(hostSettingsProvider).announcementsEnabled,
+              onChanged: (on) => ref.read(hostSettingsProvider.notifier).set('online.announcements', on),
+              semanticsId: TrustIds.advancedAnnouncements,
+            ),
+          ],
+        ),
+      ],
       // As on the desktop: the way back (GP-038).
       if (adv.shownFeatures.isNotEmpty)
         Align(
@@ -1197,16 +1230,16 @@ String languageLabel(AppLocalizations l, String? code) {
   return l.languageSystem;
 }
 
-/// [subtitle] with the [TorWayLine] under it while the Epicbox connection goes over Tor or
+/// [subtitle] with the [TorWayLine] for [route] under it while that connection goes over Tor or
 /// waits for it ([way]); [subtitle] alone otherwise.
-Widget? withTorWay(Widget? subtitle, TorWay way) {
+Widget? withTorWay(Widget? subtitle, TorWay way, TorRoute route) {
   if (way != TorWay.overTor && way != TorWay.wait && way != TorWay.blocked) {
     return subtitle;
   }
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
-    children: [?subtitle, const TorWayLine(route: TorRoute.epicbox)],
+    children: [?subtitle, TorWayLine(route: route)],
   );
 }
 

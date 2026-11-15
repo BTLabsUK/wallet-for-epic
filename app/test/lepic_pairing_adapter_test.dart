@@ -31,6 +31,7 @@ lepic.ContactView _view(
   lepic.ContactKind? kind,
   int? heard,
   int peerProfile = 0,
+  int peerCaps = 7,
   Uint8List? enc,
 }) => lepic.ContactView(
   contactId: id,
@@ -46,6 +47,7 @@ lepic.ContactView _view(
       : lepic.PairingStatus.paired,
   peerFeatures: 0,
   peerProfile: peerProfile,
+  peerCaps: peerCaps,
   paymentsAddress: proven,
   peerHeardAtMs: created,
   endedReason: removed ? lepic.PairingEndReason.unpaired : null,
@@ -541,6 +543,17 @@ void main() {
   test("the peer's profile bits reach the record", () async {
     wallet.paired.add(_view('svc', peerProfile: 3));
     expect((await session.pairing.pairing('svc'))!.peerProfile, 3);
+  });
+
+  test("the peer card's caps reach the record: a shop that does not pay invoices is not offered", () async {
+    // The pairing kit's shop: opens sealed files, issues invoices, fixed hint; no bit 1.
+    wallet.paired.add(_view('shop', peerCaps: 13));
+    wallet.paired.add(_view('anna'));
+    final shop = (await session.pairing.pairing('shop'))!.caps;
+    expect(shop.paysInvoices, isFalse);
+    expect(shop.issuesInvoices, isTrue);
+    expect(shop.opensSealed, isTrue);
+    expect((await session.pairing.pairing('anna'))!.caps.paysInvoices, isTrue);
   });
 
   test('a pairing that ended keeps its record with the reason', () async {

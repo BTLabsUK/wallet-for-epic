@@ -728,7 +728,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelTitle => '取消这笔付款？';
 
   @override
-  String get txDetailsCancelReceiveBody => '尚未收到任何款项。如果这笔付款之后到达，会显示为已收到。';
+  String get txDetailsCancelReceiveBody =>
+      '尚未收到任何款项。发送方会收到通知。如果对方仍然发出，这笔付款会到账，并显示为已收到。';
 
   @override
   String get txDetailsCancelSendBody => '尚未支付任何款项：取消免费且一定成功。';
@@ -1049,12 +1050,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeNoticePaymentFailed => '有一笔付款失败。';
-
-  @override
-  String get homeBackupCardText => '助记词未备份';
-
-  @override
-  String get homeBackupCardButton => '备份';
 
   @override
   String get torAddressChangedTitle => '你的 Tor 地址已更改';
@@ -3224,14 +3219,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      '你的余额，下面是节点、Epicbox 和 Tor 的图标。仍在确认中的金额在下方的卡片里。';
+      '你的余额，以及发送和接收。右上角的状态显示连接情况：点按可查看节点、Epicbox 和 Tor。最近的付款在下方。';
 
   @override
   String get tourPhoneSendTitle => '发送';
 
   @override
   String get tourPhoneSendText =>
-      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 交易。发出前会先确认。';
+      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 付款。发出前会先确认。';
 
   @override
   String get tourPhoneReceiveTitle => '接收';
@@ -14207,7 +14202,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      '你的余额，下面是节点和 Epicbox 的图标。仍在确认中的金额在下方的卡片里。';
+      '你的余额，以及发送和接收。右上角的状态显示连接情况：点按可查看节点和 Epicbox。最近的付款在下方。';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -14807,7 +14802,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
+  String get netStatusTurnOnHint => '已关闭。在“设置 › 付款”中开启。';
 
   @override
   String get netStatusTurnOnHintNet => '已关闭。在“设置 › 网络与隐私”中开启。';
@@ -19862,7 +19857,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get phoneRestoreStartNote => '寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。';
+  String get phoneRestoreStartNote =>
+      '寻找你的币将从这个月开始。不确定就选更早的月份：太晚可能漏掉币。月份越早，寻找越久。';
 
   @override
   String get phoneSendRouteEpicbox => 'Epicbox 地址';
@@ -20086,4 +20082,164 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => '下一个字段，然后导入';
+
+  @override
+  String get errorCancelledOnRelay => '对方已取消这笔付款，所以这里也已取消。';
+
+  @override
+  String get phoneSendMaxNoteNoFee => '你的全部余额,减去手续费';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName => '收款方的钱包可以离线。钱包下次打开时，付款即完成。';
+
+  @override
+  String get phoneRestoreUseHeight => '改用区块高度';
+
+  @override
+  String get phoneRestoreUseMonth => '改选月份';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return '钱包 $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return '留空时，对方会看到 $label。';
+  }
+
+  @override
+  String get phoneBackupReminderText => '你的恢复短语尚未备份。没有它，手机丢失就意味着钱包丢失。';
+
+  @override
+  String get phoneBackupReminderAction => '立即备份';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount 确认中 · 等待 $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount 确认中 · 等待回复';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount 确认中 · 等待 $count 个回复';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount 确认中 · 约 $minutes 分钟';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount 确认中 · 下一笔约 $minutes 分钟';
+  }
+
+  @override
+  String get phoneChangeRowReply => '等待对方接受';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return '等待区块 · 约 $minutes 分钟';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return '约 $minutes 分钟 · $count/$target 次确认';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => '现可用';
+
+  @override
+  String get phoneBalanceArriving => '到账中';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return '一笔发送会花掉整枚币。余额会退回，在 $target 次确认后可用，即付款进入区块后约 $target 分钟。若发送被取消，全部金额会退回。';
+  }
+
+  @override
+  String get deskRecvAskOpen => '请求金额';
+
+  @override
+  String get deskRecvAskAmount => '金额';
+
+  @override
+  String get deskRecvAskNote => '备注';
+
+  @override
+  String get deskRecvAskHint => '现在二维码包含你的地址和此金额。扫描或粘贴它的人会得到一笔发给你的普通转账，并已填好金额。';
+
+  @override
+  String get deskRecvAskCopy => '复制链接';
+
+  @override
+  String get deskRecvAskCopied => '链接已复制';
+
+  @override
+  String get deskRecvAskClose => '返回地址';
+
+  @override
+  String get phoneRecvAnyoneAddress => '任何人，用我的地址';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => '包含你的地址和金额的码';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return '出示此码或分享链接。扫描或粘贴它的人会得到一笔发往你地址的普通转账，并已填好 $amount。';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => '链接已复制';
+
+  @override
+  String get phoneRecvLinkQrLabel => '包含你的地址和金额的二维码';
+
+  @override
+  String get announcementsTitle => '公告';
+
+  @override
+  String get announcementsHint =>
+      'BT Labs 在版本更新之间发布的简短消息，由 BT Labs 签名。关闭后：不再检查这些消息。';
+
+  @override
+  String get announcementDismiss => '不再显示';
+
+  @override
+  String get announcementOpensInBrowser => '在浏览器中打开';
+
+  @override
+  String get deskSetGrpAnnouncements => '来自 BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements => '公告, 通知, 消息, 新闻, bt labs';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => '此码属于另一个网络。';
+
+  @override
+  String get deskE1ErrNotInPerson => '此钱包无法支付或核对此码。';
+
+  @override
+  String get deskE1ModeEpic1Code => 'epic1 当面代码。开启 epic1 付款后才能支付。';
+
+  @override
+  String get pairRefusesInvoices => '此联系人的钱包不支付账单。';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return '$name 的钱包不支付账单。';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody => '未发送任何内容。请让对方改为直接付款到你的地址。';
+
+  @override
+  String get deskInvIssuerFailed => '账单未发送。没有任何更改；请重试。';
 }

@@ -88,7 +88,7 @@ void main() {
     expect(settings[BackupKey.v], 2);
     expect(settings[BackupKey.from], 'mobile');
     expect(settings[BackupKey.servers], {BackupKey.node: nodes, BackupKey.epicbox: boxes});
-    expect(settings[BackupKey.online], {BackupKey.statusSite: false, BackupKey.updateCheck: true, BackupKey.price: false});
+    expect(settings[BackupKey.online], {BackupKey.statusSite: false, BackupKey.updateCheck: true, BackupKey.price: false, BackupKey.announcements: true});
     expect(settings.keys, isNot(contains('push')));
     expect((settings[BackupKey.advanced] as Map)['networkMode'], 'torOnly', reason: 'the mode travels with the other switches');
 

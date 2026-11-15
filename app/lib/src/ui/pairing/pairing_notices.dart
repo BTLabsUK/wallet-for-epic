@@ -11,7 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
 import '../../connection_grace.dart';
+import '../../connection_state.dart' show rawWalletStatusProvider, walletStatusProvider;
+import '../status.dart' show EpicboxState, NodeState;
+import '../../contact_check.dart';
 import '../../contacts.dart';
+import '../../epicbox_mux.dart';
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../notice_digest.dart';
 import '../../notice_digest_text.dart';
@@ -20,7 +24,8 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../relay_moves.dart' show relayMoveToAsk;
-import '../../providers.dart' show homeProvider, noticeDigestProvider, pendingInvoicesProvider, sessionProvider;
+import '../../providers.dart' show epicboxMuxProvider, homeProvider, noticeDigestProvider, paymentsDrainProvider, pendingInvoicesProvider, sessionProvider;
+import '../../settings_file/host_settings.dart' show appConfig;
 import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../trust/profile_watch.dart';
 import '../../wallet_service.dart';
@@ -128,33 +133,62 @@ class PairingNotices extends ConsumerStatefulWidget {
 
 class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBindingObserver {
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
-  static const _tick = Duration(seconds: 45);
-  Timer? _timer;
+  ContactCheck? _check;
+
+  /// The push sessions to the relays: the check rests while they are live.
+  late final MuxLive _mux = MuxLive(
+    relays: () => muxRelaysOf(ref.read(pairingsProvider).value ?? const <PairingRecord>[]),
+  );
   late final PeerProfileWatch _profiles = PeerProfileWatch(ref.read(pairingClockProvider));
 
   /// A service's relay move sheet is up: the next waits until it closes.
   bool _askingMove = false;
 
-  void _collect(PairingCollectTrigger trigger) {
-    final api = ref.read(pairingApiProvider);
-    if (api.supported) api.collect(trigger: trigger).ignore();
-    // The name services' payloads and listing drains go with every collect.
+  /// What a collect reads besides the contacts: the name services' payloads and listing drains.
+  Future<void> _sync(PairingCollectTrigger trigger) async {
     final sync = trigger == PairingCollectTrigger.open ? NameServiceSyncTrigger.resume : NameServiceSyncTrigger.tick;
-    unawaited(ref.read(nameServiceProvider)?.sync(sync) ?? Future<void>.value());
+    await ref.read(nameServiceProvider)?.sync(sync);
+  }
+
+  /// The check of every contact, for an open or a resume.
+  Future<void> _open() async {
+    final check = _check;
+    if (check != null) return check.checkAll(PairingCollectTrigger.open);
+    final api = ref.read(pairingApiProvider);
+    if (api.supported) await api.collect(trigger: PairingCollectTrigger.open);
+    await _sync(PairingCollectTrigger.open);
   }
 
   void _startTick() {
-    _timer?.cancel();
-    _timer = Timer.periodic(_tick, (_) => _collect(PairingCollectTrigger.foreground));
+    final boosts = ref.read(sessionProvider)?.boosts;
+    if (boosts == null) return;
+    _check ??= ContactCheck(
+      boosts: boosts,
+      collect: (trigger, {only}) async {
+        final api = ref.read(pairingApiProvider);
+        return api.supported ? collectCounting(api, trigger, only: only) : 0;
+      },
+      sync: _sync,
+      inFlight: () => ref.read(contactsInFlightProvider),
+      idleChecks: appConfig.contactsIdleChecks,
+      inFlightEvery: appConfig.contactsInFlightCheck,
+      // Locked: the tick reads nothing. The node down: the check of every contact waits, pairing
+      // does not need the node.
+      paused: () => ref.read(sessionProvider) == null,
+      idlePaused: () => ref.read(walletStatusProvider).node.state == NodeState.offline,
+      live: () => _mux.live,
+    );
+    _mux.check = _check;
+    _check!.start();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _collect(PairingCollectTrigger.open);
       _startTick();
+      _open().ignore();
     } else if (state == AppLifecycleState.paused) {
-      _timer?.cancel();
+      _check?.stop();
     }
   }
 
@@ -171,7 +205,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     unregisterInviteHandler(InviteKind.pair, _pairInvite);
-    _timer?.cancel();
+    _check?.stop();
+    _mux.dispose();
     super.dispose();
   }
 
@@ -182,12 +217,26 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     WidgetsBinding.instance.addObserver(this);
     registerInviteHandler(InviteKind.pair, _pairInvite);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _collect(PairingCollectTrigger.open);
+      if (mounted) _open().ignore();
     });
     _startTick();
     ref.listenManual<AsyncValue<PairingEvent>>(pairingEventsProvider, (_, next) {
       final e = next.value;
-      if (e != null && mounted) unawaited(_show(e));
+      if (e == null || !mounted) return;
+      // A pairing moved: the next check of every contact is the first wait away, or runs at
+      // once while the push sessions are live.
+      _check?.pairingEvent();
+      unawaited(_show(e));
+    });
+    // Something is in flight with another contact: its check runs within the in-flight interval.
+    ref.listenManual(contactsInFlightProvider, (_, _) => _check?.inFlightChanged());
+    ref.listenManual(epicboxMuxProvider, (_, mux) => _mux.bind(mux), fireImmediately: true);
+    // Unlocked, or the node back: the check of every contact runs at once.
+    ref.listenManual(sessionProvider, (_, _) => _check?.wake());
+    ref.listenManual(walletStatusProvider.select((s) => s.node.state), (_, _) => _check?.wake());
+    // A payment reached the payments address (the drain on open and resume).
+    ref.listenManual(paymentsDrainProvider, (_, next) {
+      if (next != null && (next.received > 0 || next.finalized > 0)) _check?.reset();
     });
     // Reloading keeps the last value: a digest shows once.
     ref.listenManual<AsyncValue<NoticeDigest>>(noticeDigestProvider, (_, next) {
@@ -200,6 +249,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     ref.listenManual(pairingsProvider, (_, next) {
       final records = next.value;
       if (records == null || !mounted) return;
+      _mux.relaysChanged();
       for (final c in _profiles.update(records)) {
         final l = context.l10n;
         final name = pairingName(c.record, ref.read(contactsProvider).value ?? const <Contact>[], l: l);
@@ -265,6 +315,12 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // Item 11: no server warning during the connection grace after start and resume; the
     // contact's page still says it.
     if (event.kind == PairingEventKind.homeRelayUnreachable && ref.read(connectionGraceProvider)) return;
+    // Nor while our own Epicbox connection is down (no network, say): the status at the top
+    // already says so, and the contact's server is not the one to blame.
+    if (event.kind == PairingEventKind.homeRelayUnreachable &&
+        (ref.read(walletStatusProvider).epicbox != EpicboxState.online || ref.read(rawWalletStatusProvider).epicbox != EpicboxState.online)) {
+      return;
+    }
     final id = event.pairingId;
     // An answer or a confirm gives the record its words: the list read before the event does
     // not have them yet, and the action would be missing.

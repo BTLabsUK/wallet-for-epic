@@ -1,5 +1,7 @@
 {
   "phoneLinkScanSub": "Code auf dem anderen Gerät scannen",
   "phoneLinkShowSub": "Das andere Gerät scannt ihn",
-  "phoneLinkPasteSub": "Einen erhaltenen Code oder Link einfügen"
+  "phoneLinkPasteSub": "Einen erhaltenen Code oder Link einfügen",
+  "phonePairUnnamedShort": "Wallet {code}",
+  "phonePairSeenAsEmptyShows": "Bleibt es leer, sehen sie {label}."
 }

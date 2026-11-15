@@ -21,8 +21,8 @@ Map<String, Object?> _servers({List<String> nodes = const [_defaultNode], List<S
 };
 
 /// The switches part of a map.
-Map<String, Object?> _online({bool site = true, bool update = true, bool price = true}) => {
-  BackupKey.online: {BackupKey.statusSite: site, BackupKey.updateCheck: update, BackupKey.price: price},
+Map<String, Object?> _online({bool site = true, bool update = true, bool price = true, bool ann = true}) => {
+  BackupKey.online: {BackupKey.statusSite: site, BackupKey.updateCheck: update, BackupKey.price: price, BackupKey.announcements: ann},
 };
 
 /// A map as either app writes it; [over] replaces keys.
@@ -169,6 +169,17 @@ void main() {
       // A switch the user changed here is taken too: the fresh-install rule.
       final changed = _plan(_map(BackupPlatform.mobile, _online(site: true)), mine: _online(site: false));
       expect(changed.values(takeConflicts: false), {BackupItem.statusSite: true});
+    });
+
+    test('the announcements switch travels like price; a file without it leaves the value alone', () {
+      final off = _plan(_map(BackupPlatform.mobile, _online(ann: false)), mine: _online(ann: true));
+      expect(off.values(takeConflicts: false), {BackupItem.announcements: false});
+      final asked = _plan(_map(BackupPlatform.desktop, _online(ann: true)), here: BackupPlatform.desktop, shared: true, mine: _online(ann: false));
+      expect(_keys(asked.conflicts), {BackupItem.announcements});
+      final bare = {
+        BackupKey.online: {BackupKey.statusSite: true, BackupKey.updateCheck: true, BackupKey.price: true},
+      };
+      expect(_plan(_map(BackupPlatform.mobile, bare), mine: _online(ann: false)).isEmpty, isTrue);
     });
 
     test('lists compare in order: the same servers in another order are a change, the same order is none', () {

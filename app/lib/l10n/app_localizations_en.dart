@@ -771,7 +771,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nothing has arrived yet. If this payment still arrives later, it shows as received.';
+      'Nothing has arrived yet. The sender is told. If they still send it, it arrives and shows as received.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1104,12 +1104,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeNoticePaymentFailed => 'A payment failed.';
-
-  @override
-  String get homeBackupCardText => 'Phrase not backed up';
-
-  @override
-  String get homeBackupCardButton => 'Back up';
 
   @override
   String get torAddressChangedTitle => 'Tor address changed';
@@ -3414,14 +3408,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'The balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.';
+      'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node, Epicbox and Tor. Your latest payments are below.';
 
   @override
   String get tourPhoneSendTitle => 'Send';
 
   @override
   String get tourPhoneSendText =>
-      'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a nearby phone. More ways: Settings › Transactions. A review comes first.';
+      'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Payments. A review comes first.';
 
   @override
   String get tourPhoneReceiveTitle => 'Receive';
@@ -15058,7 +15052,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'The balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.';
+      'Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node and Epicbox. Your latest payments are below.';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -15690,7 +15684,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => 'Off. Turn on in Settings › Transactions.';
+  String get netStatusTurnOnHint => 'Off. Turn on in Settings › Payments.';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -21038,7 +21032,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'The search for coins starts from this month. If unsure, pick an earlier month: a later one can miss coins.';
+      'The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.';
 
   @override
   String get phoneSendRouteEpicbox => 'Epicbox address';
@@ -21275,4 +21269,175 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Next field, then import';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'The other side cancelled this payment, so it is cancelled here too.';
+
+  @override
+  String get phoneSendMaxNoteNoFee => 'Everything you have, less the fee';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'Their wallet can be offline. The payment finishes when it next opens.';
+
+  @override
+  String get phoneRestoreUseHeight => 'Use a block height instead';
+
+  @override
+  String get phoneRestoreUseMonth => 'Pick a month instead';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'Wallet $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'Left empty, they see $label.';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.';
+
+  @override
+  String get phoneBackupReminderAction => 'Back up now';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount confirming · waiting for $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount confirming · waiting for reply';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount confirming · waiting for $count replies';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount confirming · about $minutes min';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount confirming · next in $minutes min';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'waiting for them to accept';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'waiting for a block · about $minutes min';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'about $minutes min · $count of $target confirmations';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'Available now';
+
+  @override
+  String get phoneBalanceArriving => 'Arriving';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'A send spends whole coins. The rest comes back and can be spent after $target confirmations, about $target min after the payment is in a block. If a send is cancelled, the full amount comes back.';
+  }
+
+  @override
+  String get deskRecvAskOpen => 'Ask for an amount';
+
+  @override
+  String get deskRecvAskAmount => 'Amount';
+
+  @override
+  String get deskRecvAskNote => 'Note';
+
+  @override
+  String get deskRecvAskHint =>
+      'The code now holds your address and this amount. Whoever scans or pastes it gets a normal send to you with the amount filled in.';
+
+  @override
+  String get deskRecvAskCopy => 'Copy link';
+
+  @override
+  String get deskRecvAskCopied => 'Link copied';
+
+  @override
+  String get deskRecvAskClose => 'Back to the address';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Anyone, with my address';
+
+  @override
+  String get phoneRecvAnyoneAddressLine =>
+      'A code with your address and the amount';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Show this code or share the link. Whoever scans or pastes it gets a normal send to your address with $amount filled in.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Link copied';
+
+  @override
+  String get phoneRecvLinkQrLabel =>
+      'Your address with the amount, as a QR code';
+
+  @override
+  String get announcementsTitle => 'Announcements';
+
+  @override
+  String get announcementsHint =>
+      'Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.';
+
+  @override
+  String get announcementDismiss => 'Dismiss';
+
+  @override
+  String get announcementOpensInBrowser => 'opens in the browser';
+
+  @override
+  String get deskSetGrpAnnouncements => 'From BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'announcements, news, messages, notices, bt labs';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'This code is for another network.';
+
+  @override
+  String get deskE1ErrNotInPerson => 'Not a code this wallet can pay or check.';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'epic1 in-person code. Turn on epic1 payments to pay it.';
+
+  @override
+  String get pairRefusesInvoices =>
+      'This contact’s wallet does not pay invoices.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return '$name’s wallet does not pay invoices.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Nothing was sent. Ask them to pay to your address instead.';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'The invoice was not sent. Nothing changed; try again.';
 }

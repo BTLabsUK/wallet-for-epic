@@ -29,12 +29,12 @@ MethodKind? sendMethodKind(RecipientInput to) => switch (to.typing ?? to.kind) {
 };
 
 /// The host exactly as it will be contacted, as plain text: the Epicbox relay, the onion, or
-/// `scheme://host:port/path` (the port always written).
+/// `scheme://host[:port]/path` (the port written unless it is the scheme's own).
 String sendContactedText(RecipientInput to) => switch (to.typing ?? to.kind) {
   RecipientInputKind.epicbox => to.host,
   RecipientInputKind.onion => to.host,
-  RecipientInputKind.https => 'https://${to.hostShown}:${to.port}${to.path}',
-  RecipientInputKind.http => 'http://${to.hostShown}:${to.port}${to.path}',
+  RecipientInputKind.https => 'https://${to.hostShown}${to.portShown}${to.path}',
+  RecipientInputKind.http => 'http://${to.hostShown}${to.portShown}${to.path}',
   _ => '',
 };
 
@@ -82,12 +82,11 @@ String sendHoldReason(AppLocalizations l, SendHold h) => switch (h) {
   SendHold.torOnPlainHttp => l.sendHeldWhileTorOn,
 };
 
-/// Who the reach check asked, for its sentence: the host (with a port other than 443 or 80), or
-/// "their Tor address".
+/// Who the reach check asked, for its sentence: the host (with a port other than its scheme's
+/// own), or "their Tor address".
 String sendReachWho(AppLocalizations l, RecipientInput to) {
   if (to.kind == RecipientInputKind.onion) return l.sendReachTheirOnion;
-  final port = to.port;
-  return port == null || port == 443 || port == 80 ? to.hostShown : '${to.hostShown}:$port';
+  return '${to.hostShown}${to.portShown}';
 }
 
 /// The reach check's failure line, and the line under it; null when there is none to show.

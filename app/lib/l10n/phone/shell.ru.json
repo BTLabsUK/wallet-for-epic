@@ -16,5 +16,18 @@
   "phoneHomeFirstPayment": "Ваш первый платёж",
   "phoneHomeFirstPaymentHint": "Появится здесь, когда поступит",
   "phoneTourOffer": "Показать, как устроен кошелёк?",
-  "phoneTourOfferShow": "Показать"
+  "phoneTourOfferShow": "Показать",
+  "phoneBackupReminderText": "Фраза восстановления не сохранена. Без неё потерянный телефон означает потерянный кошелёк.",
+  "phoneBackupReminderAction": "Сохранить сейчас",
+  "phoneChangeWaitingFor": "{amount} подтверждается · ждёт {name}",
+  "phoneChangeWaitingReply": "{amount} подтверждается · ждёт ответа",
+  "phoneChangeWaitingReplies": "{amount} подтверждается · ждёт ответов: {count}",
+  "phoneChangeAbout": "{amount} подтверждается · около {minutes} мин",
+  "phoneChangeNextIn": "{amount} подтверждается · следующий через {minutes} мин",
+  "phoneChangeRowReply": "ждёт принятия",
+  "phoneChangeRowBlock": "ждёт блока · около {minutes} мин",
+  "phoneChangeRowConfirming": "около {minutes} мин · {count} из {target} подтверждений",
+  "phoneBalanceAvailableNow": "Доступно сейчас",
+  "phoneBalanceArriving": "Поступает",
+  "phoneBalanceChangeNote": "Отправка тратит монеты целиком. Остаток возвращается и доступен после {target} подтверждений, примерно через {target} мин после попадания платежа в блок. Если отправку отменить, вернётся вся сумма."
 }

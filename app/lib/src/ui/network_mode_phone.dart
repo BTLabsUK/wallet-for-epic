@@ -139,6 +139,9 @@ class NetworkModeSection extends ConsumerWidget {
     final l = context.l10n;
     final mode = ref.watch(networkModeProvider);
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    // A change is being applied (tor coming up or going down for it): the choices wait, the
+    // chosen one turns, so a tap in a row cannot leave services half started.
+    final changing = ref.watch(phoneTorProvider.select((s) => s.changing));
     Widget row(NetworkMode m) {
       final enabled = m != NetworkMode.torOnly || torAvailable;
       return KitRow.radio(
@@ -154,7 +157,8 @@ class NetworkModeSection extends ConsumerWidget {
         subtitleLines: 3,
         size: KitRowSize.list,
         selected: mode == m,
-        onChanged: enabled ? () => chooseNetworkMode(context, ref, m) : null,
+        busy: changing,
+        onChanged: enabled && !changing ? () => chooseNetworkMode(context, ref, m) : null,
       );
     }
     final rows = KitGroup(

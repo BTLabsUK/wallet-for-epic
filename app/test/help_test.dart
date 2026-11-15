@@ -4,7 +4,9 @@ import 'package:epic_wallet/src/help/help_i18n.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/ui/help_language_switch.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
+import 'package:epic_wallet/src/ui/kit/kit_row.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -241,6 +243,38 @@ void main() {
       expect(find.byType(HelpTopicScreen), findsNothing);
       expect(find.byKey(helpSearchKey), findsOneWidget);
     });
+
+    for (final size in const [Size(360, 640), Size(390, 844)]) {
+      testWidgets('at ${size.width.round()}x${size.height.round()}: the language switch is first; at the end the feedback entry and About are in view and tappable', (tester) async {
+        final h = AppHarness();
+        await h.pump(tester, const HelpScreen());
+        tester.view.physicalSize = size * 3;
+        await tester.pumpAndSettle();
+        final lang = find.byType(HelpLanguageSwitch);
+        expect(lang, findsOneWidget);
+        // First: above every row of the list.
+        final firstRow = find.byType(KitRow).first;
+        expect(tester.getTopLeft(lang).dy, lessThan(tester.getTopLeft(firstRow).dy));
+        // To the end of the list.
+        await tester.drag(_list.last, const Offset(0, -3000));
+        await tester.pumpAndSettle();
+        final view0 = Offset.zero & size;
+        expect(view0.contains(tester.getTopLeft(lang)), isTrue, reason: 'the switch stays in view');
+        final view = Offset.zero & size;
+        for (final k in [find.byKey(helpFeedbackKey), find.text(_l.phoneSettingsAboutRow)]) {
+          expect(k, findsOneWidget);
+          final rect = tester.getRect(k);
+          expect(view.contains(rect.topLeft) && view.contains(rect.bottomRight), isTrue, reason: '$rect inside $size');
+        }
+        // Hittable: the feedback entry is not under the list or its fade.
+        final feedback = tester.getCenter(find.byKey(helpFeedbackKey));
+        final hit = tester.hitTestOnBinding(feedback);
+        expect(hit.path.map((e) => e.target), contains(tester.renderObject(find.byKey(helpFeedbackKey))));
+        await tester.tap(find.byKey(helpFeedbackKey));
+        await tester.pumpAndSettle();
+        expect(find.byKey(helpSearchKey), findsNothing, reason: 'the tap opened the feedback sheet');
+      });
+    }
 
     testWidgets('the handshake topic offers the animated sheet', (tester) async {
       final h = AppHarness();

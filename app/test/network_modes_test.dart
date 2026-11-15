@@ -340,16 +340,19 @@ void main() {
       expect(p.container.read(epicboxOverTorProvider), isTrue);
     }, skip: !torBuilt ? 'no Tor in this build' : null);
 
-    test('choosing Tor only while open turns the switch on; Standard leaves it on', () async {
+    test('choosing Tor only while open turns the switch on; Standard turns it off again', () async {
       await p.unlock();
       expect(p.tor.receiving, isFalse);
       await p.mode(NetworkMode.torOnly);
       await p.until(() => p.tor.receiving);
       expect(p.session.torStarts, hasLength(1));
       await p.mode(NetworkMode.standard);
+      await p.until(() => !p.tor.receiving);
+      expect(p.store.values[p.torKey], 'false');
+      expect(p.session.nodeAndHttpOverTorValue, isFalse);
+      // The user's own switch works in Normal as before.
+      await p.container.read(phoneTorProvider.notifier).setReceiving(true);
       expect(p.tor.receiving, isTrue);
-      await p.container.read(phoneTorProvider.notifier).setReceiving(false);
-      expect(p.tor.receiving, isFalse);
     }, skip: !torBuilt ? 'no Tor in this build' : null);
   });
 }

@@ -585,8 +585,8 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
       idle: invoices.isLoading && !invoices.hasValue
           ? SlotProgress(label: l.invoicesChecking)
           : null,
+      // A page of its own: its header goes below the status bar, as on the other pages.
       body: SafeArea(
-        top: false,
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),

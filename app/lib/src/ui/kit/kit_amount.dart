@@ -304,7 +304,7 @@ class KitLeavesLine extends StatelessWidget {
 /// A sentence under the amount (`.after`): [line] holds [first] and [second] where the figures
 /// [figures] go, which are drawn in mono and in the text colour (risk when [bad]).
 class KitAfterLine extends StatelessWidget {
-  const KitAfterLine({super.key, required this.line, this.figures = const [], this.bad = false, this.textKey, this.live = false});
+  const KitAfterLine({super.key, required this.line, this.figures = const [], this.bad = false, this.textKey, this.live = false, this.oneLine = false});
 
   static const first = '\u0001';
   static const second = '\u0002';
@@ -318,6 +318,9 @@ class KitAfterLine extends StatelessWidget {
 
   /// Announces the line when it appears.
   final bool live;
+
+  /// Keeps the line on one row: it shrinks to fit the width, never wraps (the frame's over line).
+  final bool oneLine;
 
   @override
   Widget build(BuildContext context) {
@@ -351,7 +354,12 @@ class KitAfterLine extends StatelessWidget {
       excludeSemantics: true,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
-        child: Text.rich(TextSpan(style: base, children: spans), key: textKey, textAlign: TextAlign.center),
+        child: oneLine
+            ? FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text.rich(TextSpan(style: base, children: spans), key: textKey, maxLines: 1, softWrap: false, textAlign: TextAlign.center),
+              )
+            : Text.rich(TextSpan(style: base, children: spans), key: textKey, textAlign: TextAlign.center),
       ),
     );
   }

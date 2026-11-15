@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
+import '../../cancel_final.dart' show relayCancelFirst;
 import '../../contacts.dart';
 import '../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../trust/policy.dart' show statedAutomated;
@@ -213,6 +214,7 @@ class ContactPairingBlock extends ConsumerWidget {
     Future<void> cancelSend(TxEntry tx) => run(() async {
       final id = tx.id;
       if (session == null || id == null) return;
+      await relayCancelFirst(session, tx);
       await session.cancelTransaction(txId: id);
       ref.invalidate(homeProvider);
     });

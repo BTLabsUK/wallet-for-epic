@@ -184,6 +184,22 @@ void main() {
       expect(find.byKey(const ValueKey('rx-files-drop')), findsNothing);
       expect(find.text(_l.deskTfPickTitle), findsNothing);
     });
+
+    testWidgets('epic1 turned off in Settings: Receive shows the Epicbox address at once', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, epic1: true);
+      await _tap(tester, 'e1-switch');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+      expect(_wallet.epic1Fake.storedOn, isFalse);
+      expect(_container.read(deskPaymentModeProvider), PaymentMode.epic1);
+      expect(_container.read(deskReceiveModeProvider), PaymentMode.classic);
+
+      _container.read(deskNavProvider.notifier).reset(DeskRoute.receive);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('e1-link-card')), findsNothing);
+      expect(find.byKey(const ValueKey('rx-ask-open')), findsOneWidget);
+    });
   });
 
   group('Send', () {

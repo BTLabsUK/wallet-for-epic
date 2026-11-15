@@ -19,6 +19,8 @@ import 'package:epic_wallet/src/watch_mode.dart' show postingFor;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
+import '../support/no_boosts.dart';
+
 const _password = 'test-pass-1234';
 const _shop = 'esShopKey@epicbox.example';
 const _payer = 'esPayerInvoiceKey@epicbox.example';
@@ -40,6 +42,7 @@ lepic.TransactionDetails _tx({
   bool releasable = false,
   int createdAtMs = 1790000000000,
 }) => lepic.TransactionDetails(
+  relayCancellable: false,
   txId: txId,
   direction: direction,
   status: status,
@@ -64,7 +67,7 @@ lepic.TransactionDetails _tx({
 
 /// LEPIC's wallet in memory: a paired shop, its invoices, transactions and a summary. Fails any
 /// other call.
-class _Wallet implements lepic.EpicWallet {
+class _Wallet with NoBoosts implements lepic.EpicWallet {
   final List<lepic.ContactInvoiceView> waiting = [];
   final List<lepic.TransactionDetails> stored = [];
   final StreamController<lepic.WalletEvent> events$ = StreamController<lepic.WalletEvent>.broadcast();
@@ -104,6 +107,7 @@ class _Wallet implements lepic.EpicWallet {
   Future<List<lepic.ContactView>> contacts() async => const [
     lepic.ContactView(
       peerProfile: 0,
+      peerCaps: 7,
       contactId: _shopContact,
       label: 'Shop',
       state: lepic.PairingState.verified,
@@ -342,6 +346,7 @@ void main() {
     test('an unpaid request waits for its payer; once finished it is posted (windows-05)', () {
       core.TxEntry issued(lepic.TxStatus status, {String? kernel}) => lepicTxEntry(
         lepic.TransactionDetails(
+          relayCancellable: false,
           txId: 12,
           direction: lepic.TxDirection.incoming,
           status: status,

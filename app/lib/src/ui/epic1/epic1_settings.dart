@@ -81,7 +81,9 @@ class _Epic1SwitchRowState extends ConsumerState<Epic1SwitchRow> {
     }
     setState(() => _busy = true);
     try {
+      final stored = ref.read(epic1StoredProvider.notifier);
       await epic1.setStoredOn(on);
+      stored.set(on);
       if (mounted) setState(() => _stored = on);
     } catch (e) {
       if (mounted) ref.read(noticeProvider.notifier).show(describeError(l, e), level: NoticeLevel.error);

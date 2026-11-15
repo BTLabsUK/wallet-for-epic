@@ -16,5 +16,18 @@
   "phoneHomeFirstPayment": "Twoja pierwsza płatność",
   "phoneHomeFirstPaymentHint": "Pojawi się tutaj, gdy dotrze",
   "phoneTourOffer": "Chcesz krótki przewodnik po portfelu?",
-  "phoneTourOfferShow": "Pokaż"
+  "phoneTourOfferShow": "Pokaż",
+  "phoneBackupReminderText": "Twoja fraza odzyskiwania nie jest zapisana. Bez niej zgubiony telefon oznacza utracony portfel.",
+  "phoneBackupReminderAction": "Zapisz teraz",
+  "phoneChangeWaitingFor": "{amount} potwierdza się · czeka na {name}",
+  "phoneChangeWaitingReply": "{amount} potwierdza się · czeka na odpowiedź",
+  "phoneChangeWaitingReplies": "{amount} potwierdza się · czeka na {count} odpowiedzi",
+  "phoneChangeAbout": "{amount} potwierdza się · ok. {minutes} min",
+  "phoneChangeNextIn": "{amount} potwierdza się · następne za {minutes} min",
+  "phoneChangeRowReply": "czeka na przyjęcie",
+  "phoneChangeRowBlock": "czeka na blok · ok. {minutes} min",
+  "phoneChangeRowConfirming": "ok. {minutes} min · {count} z {target} potwierdzeń",
+  "phoneBalanceAvailableNow": "Dostępne teraz",
+  "phoneBalanceArriving": "Nadchodzi",
+  "phoneBalanceChangeNote": "Wysyłka wydaje całe monety. Reszta wraca i można ją wydać po {target} potwierdzeniach, ok. {target} min po tym, jak płatność trafi do bloku. Jeśli wysyłka zostanie anulowana, wraca cała kwota."
 }

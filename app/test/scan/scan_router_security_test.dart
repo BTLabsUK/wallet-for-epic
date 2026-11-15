@@ -709,8 +709,11 @@ void main() {
       }
     });
 
-    test('an @ address behind http in a code is a bad address, not a URL', () {
-      _refused('epic:http://$_e', UnknownReason.badAddress);
+    test('an @ address behind http in a code is the Epicbox address, not a URL', () {
+      final to = _pay('epic:http://$_e').recipient;
+      expect(to.kind, RecipientKind.epicbox);
+      expect(to.address, _e);
+      _refused('epic:http://$_e/x', UnknownReason.badAddress);
     });
 
     test('epicbox:// inside a code is the address', () {

@@ -123,6 +123,8 @@ FakeWalletSession frameSession(String visit) {
     ],
   );
   session.address = _address('me');
+  // The wallet sweeps invoices by its own clock: the seeded ones expire a day after the frame's time.
+  session.clock = () => frameClockAt;
   session.contactsValue.addAll([
     Contact(id: 'f-nw', name: 'Northwind Exchange', address: _fNorthwind),
     Contact(id: 'f-anna', name: 'Anna Kowalska', address: _fAnna),

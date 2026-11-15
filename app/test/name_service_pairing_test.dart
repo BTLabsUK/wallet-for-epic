@@ -2,6 +2,7 @@
 // Name service pairing on the fakes: the hello and the Check the code step, Join and Leave, the
 // name service's unlisted, and the payload routing between the devices and the name service services.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -70,10 +71,11 @@ class _Rig {
       store: NameServiceStore(store, chain: Chain.mainnet, walletId: 'w1'),
       clock: clock.call,
       wait: wait,
-      poll: const Duration(seconds: 1),
+      onDrained: drained.add,
     );
   }
 
+  final drained = <PaymentsDrainReport>[];
   final session = FakeWalletSession();
   final store = MemorySecretStore();
   final clock = _Now();
@@ -119,6 +121,18 @@ void main() {
       expect(await rig.api.payloads(), isEmpty, reason: 'acknowledged once stored');
     });
 
+    test('F3: the wait ends at its deadline when no read runs after it', () async {
+      final rig = _Rig(wait: const Duration(seconds: 2));
+      await rig.service.load();
+      final r = rig.paired();
+      expect(await rig.service.beginHello(r.id), HelloStep.waiting);
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      rig.clock.now = rig.clock.now.add(const Duration(seconds: 3));
+      expect(rig.service.stepOf(r.id), HelloStep.waiting);
+      await Future<void>.delayed(const Duration(milliseconds: 2200));
+      expect(rig.service.stepOf(r.id), HelloStep.words);
+    });
+
     test('a hello bound to other words is dropped: the words step follows the wait', () async {
       final rig = _Rig(wait: const Duration(seconds: 3));
       await rig.service.load();
@@ -129,7 +143,7 @@ void main() {
       expect(rig.service.book.byPairing(r.id), isNull);
       expect(await rig.api.payloads(), isEmpty, reason: 'acknowledged and dropped');
       rig.clock.now = rig.clock.now.add(const Duration(seconds: 4));
-      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(rig.service.stepOf(r.id), HelloStep.words);
     });
 
@@ -326,6 +340,55 @@ void main() {
       await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(rig.session.fakeListing.drains.map((d) => d.$2).toSet(), {1});
     });
+
+    /// Seventeen retired generations and the joined one: 18 live listings of one service.
+    Future<_Rig> eighteenListings() async {
+      final rig = _Rig();
+      await rig.verified();
+      for (var i = 0; i < 17; i++) {
+        await rig.service.join(_serviceKeyHex);
+        await rig.service.leave(_serviceKeyHex);
+      }
+      await rig.service.join(_serviceKeyHex);
+      rig.session.fakeListing.drains.clear();
+      rig.session.fakeListing.batches.clear();
+      return rig;
+    }
+
+    test('the drains go in batches of at most 16 listings, in order, one report each', () async {
+      final rig = await eighteenListings();
+      final keys = rig.session.fakeListing;
+      keys.reports[(_serviceKeyHex, 3)] = const PaymentsDrainReport(received: 2);
+      keys.reports[(_serviceKeyHex, 16)] = const PaymentsDrainReport(finalized: 1, bounced: 1);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
+      expect(keys.batches.map((b) => b.length), [16, 2]);
+      expect([for (final b in keys.batches) for (final l in b) l.$2], [17, for (var g = 0; g < 17; g++) g]);
+      // The joined generation comes first, then the retired ones as the book lists them.
+      // A report with something in it reaches the host, in the order of the listings.
+      expect(rig.drained.map((r) => (r.received, r.finalized, r.bounced)), [(2, 0, 0), (0, 1, 1)]);
+    });
+
+    test('a failed listing is logged; the others of its batch still report', () async {
+      final rig = await eighteenListings();
+      final keys = rig.session.fakeListing;
+      keys.failures[(_serviceKeyHex, 3)] = const WalletError(kind: WalletErrorKind.transportFailed, message: 'cut off');
+      keys.reports[(_serviceKeyHex, 4)] = const PaymentsDrainReport(received: 1);
+      keys.reports[(_serviceKeyHex, 16)] = const PaymentsDrainReport(finalized: 1);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
+      expect(keys.batches.map((b) => b.length), [16, 2], reason: 'one call for each batch, none repeated');
+      expect(rig.drained.map((r) => (r.received, r.finalized)), [(1, 0), (0, 1)]);
+    });
+
+    test('a batch that failed as a whole is logged and left for the next drain: the next batch goes on, nothing is retried', () async {
+      final rig = await eighteenListings();
+      final keys = rig.session.fakeListing;
+      keys.drainFailure = StateError('relay down');
+      keys.reports[(_serviceKeyHex, 16)] = const PaymentsDrainReport(received: 1);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
+      expect(keys.batches.map((b) => b.length), [16, 2], reason: 'one call for each batch, none repeated');
+      expect(keys.drains.map((d) => d.$2), [15, 16], reason: 'only the second batch went through');
+      expect(rig.drained.single.received, 1);
+    });
   });
 
   group('payload routing', () {
@@ -404,7 +467,8 @@ void main() {
       expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
       expect(find.byKey(nsWaitCancelKey), findsOneWidget);
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
       expect(find.descendant(of: find.byKey(nsCodeKey), matching: find.byType(WordTiles)), findsOneWidget);
@@ -440,7 +504,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
       rig.api.nameServiceHello(answered.id, serviceKey: _serviceKey);
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
@@ -465,7 +530,8 @@ void main() {
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
       rig.clock.now = rig.clock.now.add(const Duration(seconds: 31));
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
@@ -477,7 +543,8 @@ void main() {
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.byKey(checkNoMatchKey));
       // The sheet slides in; its action is pressed once it is in place.
@@ -498,7 +565,8 @@ void main() {
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@alice_test');
-      await tester.pump(const Duration(seconds: 1));
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pump(const Duration(milliseconds: 300));

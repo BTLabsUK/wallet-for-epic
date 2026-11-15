@@ -802,7 +802,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Пока ничего не пришло. Если этот платёж придёт позже, он будет показан как полученный.';
+      'Пока ничего не пришло. Отправитель получит уведомление. Если он всё же отправит платёж, тот поступит и будет показан как полученный.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -1137,12 +1137,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get homeNoticePaymentFailed => 'Платёж не удался.';
-
-  @override
-  String get homeBackupCardText => 'Фраза не сохранена';
-
-  @override
-  String get homeBackupCardButton => 'Сохранить';
 
   @override
   String get torAddressChangedTitle => 'Ваш адрес Tor изменился';
@@ -3508,14 +3502,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneWalletText =>
-      'Ваш баланс, а под ним значки узла, Epicbox и Tor. То, что ещё подтверждается, — в плитках ниже.';
+      'Ваш баланс, отправка и получение. Статус справа вверху показывает подключение: нажмите на него, чтобы увидеть узел, Epicbox и Tor. Ниже — последние платежи.';
 
   @override
   String get tourPhoneSendTitle => 'Отправить';
 
   @override
   String get tourPhoneSendText =>
-      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Транзакции. Сначала — проверка.';
+      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Платежи. Сначала — проверка.';
 
   @override
   String get tourPhoneReceiveTitle => 'Получить';
@@ -15582,7 +15576,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneWalletTextNoTor =>
-      'Ваш баланс, а под ним значки узла и Epicbox. То, что ещё подтверждается, — в плитках ниже.';
+      'Ваш баланс, отправка и получение. Статус справа вверху показывает подключение: нажмите на него, чтобы увидеть узел и Epicbox. Ниже — последние платежи.';
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
@@ -16236,7 +16230,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netStatusTurnOnHint =>
-      'Выключено. Включите в «Настройки › Транзакции».';
+      'Выключено. Включите в «Настройки › Платежи».';
 
   @override
   String get netStatusTurnOnHintNet =>
@@ -21644,7 +21638,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneRestoreStartNote =>
-      'Поиск ваших монет начнётся с этого месяца. Если не уверены, выберите более ранний: поздний может пропустить монеты.';
+      'Поиск ваших монет начнётся с этого месяца. Если не уверены, выберите более ранний: поздний может пропустить монеты. Чем раньше месяц, тем дольше поиск.';
 
   @override
   String get phoneSendRouteEpicbox => 'Адрес Epicbox';
@@ -21881,4 +21875,175 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbKeyNextImport => 'Следующее поле, затем импортировать';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'Вторая сторона отменила этот платёж, поэтому он отменён и здесь.';
+
+  @override
+  String get phoneSendMaxNoteNoFee =>
+      'Всё, что у вас есть, за вычетом комиссии';
+
+  @override
+  String get phoneSendReviewHintOfflineNoName =>
+      'Кошелёк получателя может быть не в сети. Платёж завершится, когда он снова откроется.';
+
+  @override
+  String get phoneRestoreUseHeight => 'Вместо этого указать высоту блока';
+
+  @override
+  String get phoneRestoreUseMonth => 'Вместо этого выбрать месяц';
+
+  @override
+  String phonePairUnnamedShort(String code) {
+    return 'Кошелёк $code';
+  }
+
+  @override
+  String phonePairSeenAsEmptyShows(String label) {
+    return 'Если пусто, они увидят $label.';
+  }
+
+  @override
+  String get phoneBackupReminderText =>
+      'Фраза восстановления не сохранена. Без неё потерянный телефон означает потерянный кошелёк.';
+
+  @override
+  String get phoneBackupReminderAction => 'Сохранить сейчас';
+
+  @override
+  String phoneChangeWaitingFor(String amount, String name) {
+    return '$amount подтверждается · ждёт $name';
+  }
+
+  @override
+  String phoneChangeWaitingReply(String amount) {
+    return '$amount подтверждается · ждёт ответа';
+  }
+
+  @override
+  String phoneChangeWaitingReplies(String amount, int count) {
+    return '$amount подтверждается · ждёт ответов: $count';
+  }
+
+  @override
+  String phoneChangeAbout(String amount, int minutes) {
+    return '$amount подтверждается · около $minutes мин';
+  }
+
+  @override
+  String phoneChangeNextIn(String amount, int minutes) {
+    return '$amount подтверждается · следующий через $minutes мин';
+  }
+
+  @override
+  String get phoneChangeRowReply => 'ждёт принятия';
+
+  @override
+  String phoneChangeRowBlock(int minutes) {
+    return 'ждёт блока · около $minutes мин';
+  }
+
+  @override
+  String phoneChangeRowConfirming(int minutes, int count, int target) {
+    return 'около $minutes мин · $count из $target подтверждений';
+  }
+
+  @override
+  String get phoneBalanceAvailableNow => 'Доступно сейчас';
+
+  @override
+  String get phoneBalanceArriving => 'Поступает';
+
+  @override
+  String phoneBalanceChangeNote(int target) {
+    return 'Отправка тратит монеты целиком. Остаток возвращается и доступен после $target подтверждений, примерно через $target мин после попадания платежа в блок. Если отправку отменить, вернётся вся сумма.';
+  }
+
+  @override
+  String get deskRecvAskOpen => 'Запросить сумму';
+
+  @override
+  String get deskRecvAskAmount => 'Сумма';
+
+  @override
+  String get deskRecvAskNote => 'Заметка';
+
+  @override
+  String get deskRecvAskHint =>
+      'Теперь код содержит ваш адрес и эту сумму. Кто отсканирует или вставит его, получит обычную отправку вам с уже заполненной суммой.';
+
+  @override
+  String get deskRecvAskCopy => 'Копировать ссылку';
+
+  @override
+  String get deskRecvAskCopied => 'Ссылка скопирована';
+
+  @override
+  String get deskRecvAskClose => 'Назад к адресу';
+
+  @override
+  String get phoneRecvAnyoneAddress => 'Любой, по моему адресу';
+
+  @override
+  String get phoneRecvAnyoneAddressLine => 'Код с вашим адресом и суммой';
+
+  @override
+  String phoneRecvLinkLead(String amount) {
+    return 'Покажите этот код или поделитесь ссылкой. Кто отсканирует или вставит её, получит обычную отправку на ваш адрес с уже заполненной суммой $amount.';
+  }
+
+  @override
+  String get phoneRecvLinkCopied => 'Ссылка скопирована';
+
+  @override
+  String get phoneRecvLinkQrLabel => 'Ваш адрес с суммой в виде QR-кода';
+
+  @override
+  String get announcementsTitle => 'Объявления';
+
+  @override
+  String get announcementsHint =>
+      'Короткие сообщения от BT Labs между выпусками, подписанные BT Labs. Выключено: их не проверяют.';
+
+  @override
+  String get announcementDismiss => 'Скрыть';
+
+  @override
+  String get announcementOpensInBrowser => 'открывается в браузере';
+
+  @override
+  String get deskSetGrpAnnouncements => 'От BT Labs';
+
+  @override
+  String get deskSetSynAnnouncements =>
+      'объявления, новости, сообщения, уведомления, bt labs';
+
+  @override
+  String get deskE1ErrCodeWrongNetwork => 'Этот код для другой сети.';
+
+  @override
+  String get deskE1ErrNotInPerson =>
+      'Этот кошелёк не может оплатить или проверить этот код.';
+
+  @override
+  String get deskE1ModeEpic1Code =>
+      'Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его.';
+
+  @override
+  String get pairRefusesInvoices =>
+      'Кошелёк этого контакта не оплачивает счета.';
+
+  @override
+  String pairRefusesInvoicesTitle(String name) {
+    return 'Кошелёк контакта $name не оплачивает счета.';
+  }
+
+  @override
+  String get pairRefusesInvoicesBody =>
+      'Ничего не отправлено. Попросите вместо этого заплатить на ваш адрес.';
+
+  @override
+  String get deskInvIssuerFailed =>
+      'Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.';
 }

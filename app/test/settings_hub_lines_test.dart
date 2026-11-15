@@ -181,4 +181,16 @@ void main() {
     final row = find.ancestor(of: find.descendant(of: find.byType(KitPickerSheet<int>), matching: find.text(_l.autoLockNever)), matching: find.byType(KitRow));
     expect(find.descendant(of: row.first, matching: find.byIcon(KitIcons.check)), findsOneWidget);
   });
+
+  testWidgets('Advanced › Announcements: the title and the switch, no description line', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.byKey(settingsGroupKey(SettingsSection.advanced)));
+    await tester.pumpAndSettle();
+    final row = find.byKey(const ValueKey('adv-announcements'));
+    expect(row, findsOneWidget);
+    expect(tester.widget<KitRow>(row).subtitle, isNull);
+    expect(find.text(_l.announcementsTitle), findsOneWidget);
+    expect(find.text(_l.announcementsHint), findsNothing, reason: 'the explanation waits behind the page\'s help');
+    expect(find.textContaining('between releases'), findsNothing);
+  });
 }

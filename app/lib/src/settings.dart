@@ -525,8 +525,15 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> setFeature(AdvancedFeature f, bool on) async =>
       setAdvanced((await _current()).advanced.withFeature(f, on));
 
-  Future<void> setNetworkMode(NetworkMode mode) async =>
-      setAdvanced((await _current()).advanced.withMode(mode));
+  /// One mode change at a time, in the order of the taps: each reads the settings as the one
+  /// before left them, so the last mode chosen is the one that stays.
+  Future<void> _modeChain = Future.value();
+
+  Future<void> setNetworkMode(NetworkMode mode) {
+    final run = _modeChain.then((_) async => setAdvanced((await _current()).advanced.withMode(mode)));
+    _modeChain = run.catchError((Object _) {});
+    return run;
+  }
 
   /// The first-unlock tour was shown: written first, and the state copied after the write from
   /// what the settings are then, so a setting saved meanwhile is not undone.

@@ -26,6 +26,7 @@ import '../wallet_service.dart';
 import 'address_view.dart';
 import 'common.dart';
 import 'epic1/epic1_receive.dart';
+import 'in_person/in_person_entry.dart' show openScannedInPerson;
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import '../relay_switch_providers.dart' show relaySwitchResultProvider;
@@ -143,7 +144,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
 
   @override
   Widget build(BuildContext context) {
-    if (ref.watch(paymentModeProvider) == PaymentMode.epic1) return const Epic1ReceiveView();
+    if (ref.watch(receiveModeProvider) == PaymentMode.epic1) return const Epic1ReceiveView();
     ref.listen(
       homeProvider.select((h) => arrivingPayment(h.value?.transactions ?? const [])?.key),
       (_, key) => _announce(key),
@@ -208,7 +209,8 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
       top = const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: LinearProgressIndicator());
     }
     final rows = [
-      if (invoices)
+      // Without invoices the row still asks for an amount: the address with it, as a code.
+      if (invoices || (payments.epicbox && value != null))
         KitRow(
           leading: KitIconWell(KitIcons.invoice, color: context.tokens.accentText),
           title: l.phoneRecvAsk,
@@ -488,7 +490,8 @@ class _EpicboxOffByMode extends StatelessWidget {
 const Key receiveEpicboxOffModeKey = ValueKey('receive-epicbox-off-mode');
 
 /// Where the epicbox listener stands, in one quiet line under the address: a green dot and
-/// "Listening for payments". Offline or stopped, it says what that means for receiving and offers
+/// "Listening for payments" (with Advanced server details, "Connected · server", the port only when
+/// it is not 443: one line, the server is not repeated below). Offline or stopped, it says what that means for receiving and offers
 /// Retry, which restarts the listener. Blocked by this network, it says so and offers another
 /// relay in one tap ([RelayBlockedNote]).
 class _EpicboxLine extends ConsumerWidget {
@@ -541,11 +544,6 @@ class _EpicboxLine extends ConsumerWidget {
             ],
           ),
         )),
-        if (config != null)
-          Advanced(
-            feature: AdvancedFeature.serverDetails,
-            child: Center(child: Readout(l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'))),
-          ),
         if (offline) ...[
           const SizedBox(height: 4),
           Text(
@@ -615,7 +613,8 @@ Future<void> pasteSlate(BuildContext context, WidgetRef ref) async {
 
 /// Reads an animated payment QR with the camera and opens what it carried in
 /// [SlateFileScreen], as pasted text would be. "Open a file instead" on the camera screen
-/// runs the file picker. [first] is a part Home's scan already read.
+/// runs the file picker. [first] is a part Home's scan already read. An in-person code is
+/// drawn the same way and tells itself apart only once whole: it goes to the in-person flow.
 Future<void> scanSlateQr(
   BuildContext context,
   WidgetRef ref, {
@@ -624,7 +623,13 @@ Future<void> scanSlateQr(
   final notice = ref.read(noticeProvider.notifier);
   final l = context.l10n;
   // A payment read opens over the scanner (InPerson-3); the scanner closes once it is taken.
-  final result = await scanQrSlate(context, QrScanKind.payment, first: first, open: openScannedPayment);
+  final result = await scanQrSlate(
+    context,
+    QrScanKind.payment,
+    first: first,
+    open: openScannedPayment,
+    inPerson: (bytes) => context.mounted ? openScannedInPerson(context, bytes) : Future.value(),
+  );
   if (!context.mounted) return;
   switch (result) {
     case QrScanned(:final json):

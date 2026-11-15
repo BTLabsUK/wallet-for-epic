@@ -174,7 +174,7 @@ Future<void> _pump(
   await tester.pump();
   await tester.pump();
   // Offline and syncing show once they last (walletStatusProvider).
-  await tester.pump(statusSettle);
+  await tester.pump(nodeSettle);
 }
 
 Finder _in(Key row, String text) =>

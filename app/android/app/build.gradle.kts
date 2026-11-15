@@ -76,6 +76,7 @@ val torAbis: List<String> = (project.findProperty("target-platform") as String?)
 // (or ORG_GRADLE_PROJECT_wfeUnsigned=true, which tool/build_android_release.sh sets for the release
 // signer, docs/RELEASING.md "Signer") leaves any release unsigned, for the signer to sign. Every
 // other build is still signed with the release key or stops.
+val testBuild = findProperty("wfeTestBuild") == "true"
 val unsignedRelease = (dist == "fdroid" && System.getenv("WFE_ANDROID_UNSIGNED") == "1") ||
     findProperty("wfeUnsigned") == "true"
 // Every build reads QR codes with the free scanner (camera + flutter_zxing): Google ML Kit
@@ -104,6 +105,11 @@ android {
         // installing it never replaces them, and its data starts empty (app/README.md, "App ids
         // and data folders"; docs/install-contract.md).
         applicationId = "uk.btlabs.btwallet"
+        // -PwfeTestBuild=true: a test build that installs beside the store app (id
+        // uk.btlabs.btwallet.test, label "BT Wallet test", own data) and is signed with the debug
+        // key. Never for a release.
+        if (testBuild) applicationId = "uk.btlabs.btwallet.test"
+        manifestPlaceholders["appLabel"] = if (testBuild) "BT Wallet test" else "BT Wallet"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -148,7 +154,8 @@ android {
 
     buildTypes {
         release {
-            if (!unsignedRelease) signingConfig = signingConfigs.getByName("release")
+            if (testBuild) signingConfig = signingConfigs.getByName("debug")
+            else if (!unsignedRelease) signingConfig = signingConfigs.getByName("release")
         }
     }
 }
@@ -163,7 +170,7 @@ androidComponents {
 }
 
 val checkReleaseSigning by tasks.registering {
-    val problem = if (unsignedRelease) null else releaseSigningProblem
+    val problem = if (unsignedRelease || testBuild) null else releaseSigningProblem
     doLast {
         if (problem != null) {
             throw GradleException(

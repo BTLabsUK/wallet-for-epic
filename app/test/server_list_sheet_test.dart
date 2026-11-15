@@ -203,6 +203,13 @@ class _Env {
   /// Holds a live switch until completed.
   Completer<void>? hold;
 
+  /// Thrown by the live switch once the hold ends: the wallet refused the server.
+  Object? liveError;
+
+  /// How often the sheet asked to close, and how long a switch may run.
+  int closed = 0;
+  Duration switchTimeout = const Duration(seconds: 45);
+
   List<Override> get overrides => [
     secretStoreProvider.overrideWithValue(store),
     walletServiceProvider.overrideWithValue(service),
@@ -228,6 +235,7 @@ class _Env {
   }) async {
     live.add((nodeUrl: nodeUrl, relay: relay.label));
     await hold?.future;
+    if (liveError != null) throw liveError!;
     if (liveAnswer) return true;
     // No wallet open: save and hand over, as the real one does.
     await switchServersLive(ref, nodeUrl: nodeUrl, relay: relay);
@@ -256,6 +264,8 @@ Future<void> _pump(WidgetTester tester, ServerKind kind, _Env env, {bool tall = 
             kind: kind,
             afterSave: (_) => env.saved++,
             liveSwitch: env._liveSwitch,
+            onClose: (_) => env.closed++,
+            switchTimeout: env.switchTimeout,
             selection: selection,
           ),
         ),
@@ -277,6 +287,19 @@ Finder _inRow(String value, String text) => find.descendant(
 Finder _foot(String text) =>
     find.descendant(of: find.byKey(serverListFootKey), matching: find.text(text));
 Finder _field() => find.byKey(serverListFieldKey);
+
+/// The text of the notice showing now.
+String? _notice(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(ServerListSheet))).read(noticeProvider)?.text;
+
+/// The opacity a row is dimmed with, or null when it is not dimmed.
+double? _serverRowOpacity(WidgetTester tester, String value) {
+  final o = find.descendant(
+    of: _row(value),
+    matching: find.byWidgetPredicate((w) => w is Opacity && w.opacity == 0.55),
+  );
+  return o.evaluate().isEmpty ? null : tester.widget<Opacity>(o.first).opacity;
+}
 Finder _check(String value) => find.descendant(of: _row(value), matching: find.byIcon(KitIcons.check));
 
 String _fieldText(WidgetTester tester) => tester.widget<TextField>(_field()).controller!.text;
@@ -416,12 +439,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(_confirm(), findsNothing);
       expect(env.live.single, (nodeUrl: _epicnet, relay: _stack));
-      expect(_foot('Switched to node.net.invalid:3413'), findsOneWidget);
+      expect(_notice(tester), 'Switched to node.net.invalid:3413');
       expect(_fieldText(tester), '');
       await _timers(tester);
     });
 
-    testWidgets('node: a tap while a switch runs is taken; the row tapped last is the one marked', (
+    testWidgets('node: while a switch runs every other row is greyed and does nothing; one switch only', (
       tester,
     ) async {
       final env = _Env()
@@ -431,17 +454,110 @@ void main() {
       await tester.tap(_row(_epicnet));
       await tester.pump();
       expect(_inRow(_epicnet, 'Connecting'), findsOneWidget);
-      await tester.tap(_row(_epiccash));
+      // The old server keeps its mark: one "In use", never two.
+      expect(_check(_btlabs), findsOneWidget);
+      expect(_check(_epicnet), findsNothing);
+      final saved = _saved(tester, ServerKind.node).entries.length;
+      // Rapid taps on the other rows, the same row, the bin, the field's Add.
+      for (final v in [_epiccash, _epicnet, _btlabs, _epiccash]) {
+        await tester.tap(_row(v), warnIfMissed: false);
+        await tester.pump();
+      }
+      await tester.tap(find.byKey(serverListRemoveKey(_epiccash)), warnIfMissed: false);
       await tester.pump();
-      expect(env.live.map((e) => e.nodeUrl), [_epicnet, _epiccash]);
-      expect(_inRow(_epiccash, 'Connecting'), findsOneWidget);
-      expect(_inRow(_epicnet, 'Connecting'), findsNothing);
+      expect(env.live.map((e) => e.nodeUrl), [_epicnet]);
+      expect(_inRow(_epiccash, 'Connecting'), findsNothing);
+      expect(_serverRowOpacity(tester, _epiccash), 0.55);
+      expect(_serverRowOpacity(tester, _epicnet), isNull);
+      expect(find.byKey(serverListRemoveKey(_epiccash)), findsOneWidget);
+      expect(tester.widget<IconButton>(find.byKey(serverListRemoveKey(_epiccash))).onPressed, isNull);
+      expect(_saved(tester, ServerKind.node).entries.length, saved, reason: 'nothing was removed');
       env.hold!.complete();
       await tester.pump();
       await tester.pump();
-      // The older switch's answer is not shown; the latest one is.
-      expect(_foot('Switched to node.epic.invalid:3413'), findsOneWidget);
-      expect(_foot('Switched to node.net.invalid:3413'), findsNothing);
+      expect(env.live.length, 1);
+      expect(_inRow(_epicnet, 'Connected'), findsOneWidget);
+      // Still locked while the sheet is closing.
+      await tester.tap(_row(_epiccash), warnIfMissed: false);
+      await tester.pump();
+      expect(env.live.length, 1);
+      await _timers(tester);
+    });
+
+    testWidgets('node: a switch that connects closes the sheet and says so in a notice', (tester) async {
+      final env = _Env()
+        ..liveAnswer = true
+        ..hold = Completer<void>();
+      await _pump(tester, ServerKind.node, env);
+      await tester.tap(_row(_epicnet));
+      await tester.pump();
+      expect(env.closed, 0);
+      env.hold!.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(_inRow(_epicnet, 'Connected'), findsOneWidget);
+      expect(env.closed, 0);
+      await tester.pump(const Duration(milliseconds: 800));
+      expect(env.closed, 1);
+      expect(_notice(tester), 'Switched to node.net.invalid:3413');
+      await _timers(tester);
+      expect(env.closed, 1);
+    });
+
+    testWidgets('node: a refused switch keeps the sheet open, frees the rows and marks the row', (tester) async {
+      final env = _Env()
+        ..liveAnswer = true
+        ..liveError = StateError('refused')
+        ..hold = Completer<void>();
+      await _pump(tester, ServerKind.node, env);
+      await tester.tap(_row(_epicnet));
+      await tester.pump();
+      env.hold!.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(env.closed, 0);
+      expect(_inRow(_epicnet, 'Connecting'), findsNothing);
+      expect(_inRow(_epicnet, _l.serverNotResponding), findsOneWidget);
+      // The old server is the one in use, alone.
+      expect(_check(_btlabs), findsOneWidget);
+      expect(_check(_epicnet), findsNothing);
+      expect(_serverRowOpacity(tester, _epiccash), isNull);
+      // Another server can be tried at once; the mark goes with the new attempt.
+      env.liveError = null;
+      env.hold = Completer<void>();
+      await tester.tap(_row(_epiccash));
+      await tester.pump();
+      expect(env.live.map((e) => e.nodeUrl), [_epicnet, _epiccash]);
+      expect(_inRow(_epicnet, _l.serverNotResponding), findsNothing);
+      expect(_inRow(_epiccash, 'Connecting'), findsOneWidget);
+      env.hold!.complete();
+      await tester.pump();
+      await tester.pump();
+      await _timers(tester);
+    });
+
+    testWidgets('node: a switch that never answers times out, frees the rows and marks the row', (tester) async {
+      final env = _Env()
+        ..liveAnswer = true
+        ..hold = Completer<void>()
+        ..switchTimeout = const Duration(seconds: 5);
+      await _pump(tester, ServerKind.node, env);
+      await tester.tap(_row(_epicnet));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 4));
+      expect(_inRow(_epicnet, 'Connecting'), findsOneWidget);
+      expect(_serverRowOpacity(tester, _epiccash), 0.55);
+      await tester.pump(const Duration(seconds: 2));
+      expect(_inRow(_epicnet, _l.serverNotResponding), findsOneWidget);
+      expect(_serverRowOpacity(tester, _epiccash), isNull);
+      expect(env.closed, 0);
+      expect(_check(_btlabs), findsOneWidget);
+      // The late answer of the stuck switch changes nothing in the sheet.
+      env.hold!.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(_inRow(_epicnet, 'Connected'), findsNothing);
+      expect(env.closed, 0);
       await _timers(tester);
     });
 
@@ -492,7 +608,7 @@ void main() {
       expect(find.byKey(serverListAddKey), findsNothing);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
-      expect(_foot('Switched to node.net.invalid:3413'), findsOneWidget);
+      expect(_notice(tester), 'Switched to node.net.invalid:3413');
       await _timers(tester);
     });
 
@@ -553,6 +669,36 @@ void main() {
       expect(_inRow('box.net.invalid', 'Connected'), findsOneWidget);
       await _timers(tester);
       expect(_inRow('box.net.invalid', 'Connected'), findsNothing);
+      expect(env.closed, 1);
+    });
+
+    testWidgets('epicbox: while it switches the other rows are greyed; a refused one frees them', (
+      tester,
+    ) async {
+      final env = _Env()
+        ..liveAnswer = true
+        ..liveError = StateError('refused')
+        ..hold = Completer<void>();
+      await _pump(tester, ServerKind.relay, env);
+      await tester.tap(_row('box.net.invalid'));
+      await tester.pumpAndSettle();
+      await tester.tap(_confirmSwitch());
+      await tester.pump();
+      // The confirm sheet slides away first.
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(_serverRowOpacity(tester, _stack), 0.55);
+      await tester.tap(_row(_stack), warnIfMissed: false);
+      await tester.pump();
+      expect(_confirm(), findsNothing);
+      env.hold!.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(_inRow('box.net.invalid', _l.serverNotResponding), findsOneWidget);
+      expect(_serverRowOpacity(tester, _stack), isNull);
+      expect(env.closed, 0);
+      expect(_check(_stack), findsOneWidget);
+      expect(_check('box.net.invalid'), findsNothing);
+      await _timers(tester);
     });
 
     testWidgets('epicbox: the server up but this wallet not connected says so, and Retry '

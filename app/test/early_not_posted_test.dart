@@ -52,6 +52,7 @@ class _PostingWallet implements lepic.EpicWallet {
   }
 
   void status(int txId, lepic.TxStatus status) => stored[txId] = lepic.TransactionDetails(
+    relayCancellable: false,
     txId: txId,
     direction: lepic.TxDirection.outgoing,
     status: status,

@@ -4,12 +4,15 @@
 // hand, the confirmation after an answer taken by hand, the words check without Skip, the
 // contact page's Pairing block in every state, Contacts rows and the Pair requests row, the
 // Way 1 sheet, and the Experimental switch gone.
+import 'package:epic_wallet/src/connection_grace.dart' show connectionGraceProvider;
+import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, rawWalletStatusProvider, walletStatusProvider;
+import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, NodeStatus, WalletStatus;
 
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName;
+import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, pairingEndedText, pairingSpan, relayHostOf, unnamedPeerName, walletTag;
 import 'package:epic_wallet/src/ui/key_picture.dart' show KeyPictureView;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
@@ -61,6 +64,18 @@ class _NoPrice implements PriceSource {
   Future<double?> price(String currency) async => null;
 }
 
+/// The node is up, so the contact check reads.
+class _OnlineStatus extends WalletStatusNotifier {
+  @override
+  WalletStatus build() => (node: const NodeStatus(NodeState.online), epicbox: EpicboxState.online);
+}
+
+/// Our own Epicbox connection is down, the node too: the phone has no network.
+class _OfflineStatus extends WalletStatusNotifier {
+  @override
+  WalletStatus build() => (node: const NodeStatus(NodeState.offline), epicbox: EpicboxState.offline);
+}
+
 class _Harness {
   _Harness({String? seenAs = 'Alex', this.prefs}) {
     if (seenAs != null) store.values['pairing.seen_as'] = seenAs;
@@ -77,7 +92,7 @@ class _Harness {
 
   ProviderContainer container(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
 
-  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, bool settle = true}) async {
+  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, bool settle = true, bool offline = false}) async {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -92,6 +107,13 @@ class _Harness {
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
           slateFilesProvider.overrideWithValue(files),
           sessionProvider.overrideWith(() => _OpenSession(session)),
+          walletStatusProvider.overrideWith(offline ? _OfflineStatus.new : _OnlineStatus.new),
+          // The status this moment, which the notices read too, before the shown one settles.
+          rawWalletStatusProvider.overrideWithValue(
+            offline
+                ? (node: const NodeStatus(NodeState.offline), epicbox: EpicboxState.offline)
+                : (node: const NodeStatus(NodeState.online), epicbox: EpicboxState.online),
+          ),
           if (net != null) pairNetProvider.overrideWithValue(net),
         ],
         child: MaterialApp(
@@ -184,8 +206,9 @@ void main() {
       await h.pump(tester, const PairScreen(), settle: false);
       expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'nothing is asked');
       expect(h.api.standingName, unnamedPeerName);
-      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
-      expect(find.text(_l.pairSeenAsAdd), findsOneWidget);
+      // No name: the line says what they will show instead, the first characters of this address.
+      expect(find.text(_l.pairSeenAsLine(_l.phonePairUnnamedShort(walletTag(h.session.address)!))), findsOneWidget);
+      expect(find.text(_l.pairChange), findsOneWidget);
       expect(h.store.values['pairing.seen_as'], isNull);
     });
 
@@ -205,7 +228,7 @@ void main() {
       await tester.tap(find.byKey(pairNameSaveKey));
       await _frames(tester);
       expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'an empty name is accepted');
-      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
+      expect(find.text(_l.pairSeenAsLine(_l.phonePairUnnamedShort(walletTag(h.session.address)!))), findsOneWidget);
       expect(h.api.standingName, unnamedPeerName);
       expect(h.store.values['pairing.seen_as'], '');
     });
@@ -421,7 +444,7 @@ void main() {
       expect(_notice(tester), _l.pairEndedNotice);
     });
 
-    testWidgets('the other side says they do not match while the words are open: heard within 5 s, the screen closes', (tester) async {
+    testWidgets('the other side says they do not match while the words are open: heard within 10 s, the screen closes', (tester) async {
       final h = _Harness();
       final r = h.api.seedPaired(name: 'Anna', state: PairingState.waiting);
       await h.pump(tester, const Scaffold(body: PairingNotices()));
@@ -429,7 +452,7 @@ void main() {
       unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))));
       await tester.pumpAndSettle();
       final before = h.api.collects.length;
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 10));
       expect(h.api.collects.length, greaterThan(before), reason: 'the verdict is collected while the words are open');
       h.api.peerMismatch(r.id);
       await tester.pumpAndSettle();
@@ -779,6 +802,26 @@ void main() {
     });
   });
 
+  group('the contact\'s Epicbox server', () {
+    testWidgets('unreachable: a warning while our own connection is up', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      h.container(tester).read(connectionGraceProvider.notifier).end();
+      h.api.emit(const PairingEvent(PairingEventKind.homeRelayUnreachable, name: 'Anna'));
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.noticeRelayDown('Anna'));
+    });
+
+    testWidgets('no warning while the phone is offline: the status already says so', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const Scaffold(body: PairingNotices()), offline: true);
+      h.container(tester).read(connectionGraceProvider.notifier).end();
+      h.api.emit(const PairingEvent(PairingEventKind.homeRelayUnreachable, name: 'Anna'));
+      await tester.pumpAndSettle();
+      expect(_notice(tester), isNull);
+    });
+  });
+
   group('a run\'s notices', () {
     PairingEvent invoice(String slate) => PairingEvent(PairingEventKind.invoiceFromContact, name: 'Anna', slateId: slate, amount: BigInt.from(100000000));
 
@@ -910,6 +953,57 @@ void main() {
       expect(find.text(_l.pairIncomingBody('Anna')), findsNothing);
       expect(fact(tester, incomingSourceKey), '${_l.pairIncomingSource} · ${_l.pairIncomingSourceRequest}');
       expect(fact(tester, incomingServerKey), '${_l.pairIncomingServer} · epicbox.example.org');
+    });
+
+    testWidgets('a request from a wallet with no name: the title and the avatar use the start of its address', (tester) async {
+      final h = _Harness();
+      final from = 'es${'Q' * 6}${'z' * 44}@epicbox.epiccash.com';
+      final preview = PairingInvitePreview(token: 't4', name: unnamedPeerName, expiresAt: DateTime.now().add(const Duration(hours: 2)), homeRelay: 'epicbox.example.org', fromAddress: from);
+      await h.pump(tester, opener(preview, InviteSource.opened));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final label = _l.phonePairUnnamedShort(walletTag(from)!);
+      expect(label, 'Wallet QQQQQQ');
+      expect(find.text(_l.pairIncomingTitle(label)), findsOneWidget);
+      expect(find.text(label), findsOneWidget, reason: 'the name line under the avatar');
+      expect(find.text(_l.pairIncomingTitle(_l.commonUnknown)), findsNothing);
+    });
+
+    testWidgets('an invite by code with no name and no address yet: Unknown, as before', (tester) async {
+      final h = _Harness();
+      final preview = PairingInvitePreview(token: 't5', name: unnamedPeerName, expiresAt: DateTime.now().add(const Duration(hours: 2)));
+      await h.pump(tester, opener(preview, InviteSource.pasted));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairIncomingTitle(_l.commonUnknown)), findsOneWidget);
+    });
+
+    testWidgets('the sheet that answers an invite lets this side set its own name; the field hints the label the other side will show', (tester) async {
+      final h = _Harness(seenAs: null);
+      final preview = PairingInvitePreview(token: 't6', name: 'Anna', expiresAt: DateTime.now().add(const Duration(hours: 2)));
+      await h.pump(tester, opener(preview, InviteSource.pasted));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final own = _l.phonePairUnnamedShort(walletTag(h.session.address)!);
+      expect(find.descendant(of: find.byKey(incomingSeenAsKey), matching: find.text(_l.pairSeenAsLine(own))), findsOneWidget);
+      await tester.tap(find.byKey(incomingSeenAsKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.phonePairSeenAsEmptyShows(own)), findsOneWidget, reason: 'optional: empty is fine, and says what they see');
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Alex');
+      await tester.tap(find.byKey(pairNameSaveKey));
+      await tester.pumpAndSettle();
+      expect(h.store.values['pairing.seen_as'], 'Alex');
+      expect(find.descendant(of: find.byKey(incomingSeenAsKey), matching: find.text(_l.pairSeenAsLine('Alex'))), findsOneWidget);
+      expect(find.byKey(incomingPairKey), findsOneWidget, reason: 'still on the invite');
+    });
+
+    testWidgets('pairing checks the relays every 5 s while the Pair screen is open, and stops after', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairScreen(), settle: false);
+      expect(h.session.boosts.interval(Poller.relays, const Duration(minutes: 1)), boostMinInterval);
+      expect(boostMinInterval, const Duration(seconds: 5));
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(h.session.boosts.interval(Poller.relays, const Duration(minutes: 1)), const Duration(minutes: 1));
     });
 
     testWidgets('the time left counts down each second on the pairing clock', (tester) async {

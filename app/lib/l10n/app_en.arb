@@ -870,9 +870,9 @@
   "@txDetailsCancelTitle": {
     "description": "Title of the dialog that confirms cancelling a pending payment."
   },
-  "txDetailsCancelReceiveBody": "Nothing has arrived yet. If this payment still arrives later, it shows as received.",
+  "txDetailsCancelReceiveBody": "Nothing has arrived yet. The sender is told. If they still send it, it arrives and shows as received.",
   "@txDetailsCancelReceiveBody": {
-    "description": "Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives."
+    "description": "Cancel dialog text for a pending receive. The wallet tells the sender through the relay when it can. The wallet keeps looking for a cancelled payment with no end date, so one the sender still finishes and posts arrives."
   },
   "txDetailsCancelSendBody": "Nothing has been paid yet: cancelling is free and certain.",
   "@txDetailsCancelSendBody": {
@@ -1326,14 +1326,6 @@
   "homeNoticePaymentFailed": "A payment failed.",
   "@homeNoticePaymentFailed": {
     "description": "Notice: something went wrong with one payment."
-  },
-  "homeBackupCardText": "Phrase not backed up",
-  "@homeBackupCardText": {
-    "description": "Home's reminder toast while the recovery phrase (the 12 or 24 words) is not written down; one short line, Back up beside it."
-  },
-  "homeBackupCardButton": "Back up",
-  "@homeBackupCardButton": {
-    "description": "Button on the recovery phrase card. Short: it shares a row with the card's text."
   },
   "torAddressChangedTitle": "Tor address changed",
   "@torAddressChangedTitle": {
@@ -4356,7 +4348,7 @@
   "@tourPhoneWalletTitle": {
     "description": "Title of the tour card for the Wallet tab (first-unlock tour). Short."
   },
-  "tourPhoneWalletText": "The balance, and under it the icons for the node, Epicbox and Tor. What is still confirming is in the tiles below.",
+  "tourPhoneWalletText": "Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node, Epicbox and Tor. Your latest payments are below.",
   "@tourPhoneWalletText": {
     "description": "Text of the tour card for the Wallet tab; one or two short sentences. Names the status icons."
   },
@@ -4364,7 +4356,7 @@
   "@tourPhoneSendTitle": {
     "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
   },
-  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a nearby phone. More ways: Settings › Transactions. A review comes first.",
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Payments. A review comes first.",
   "@tourPhoneSendText": {
     "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
   },
@@ -20165,7 +20157,7 @@
   "@handshakeLink1NoTor": {
     "description": "handshakeLink1 in the build without Tor: the same caption without Tor."
   },
-  "tourPhoneWalletTextNoTor": "The balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.",
+  "tourPhoneWalletTextNoTor": "Your balance, with Send and Receive. The status at the top right shows the connection: tap it for the node and Epicbox. Your latest payments are below.",
   "@tourPhoneWalletTextNoTor": {
     "description": "tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox."
   },
@@ -21045,7 +21037,7 @@
       }
     }
   },
-  "netStatusTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "netStatusTurnOnHint": "Off. Turn on in Settings › Payments.",
   "@netStatusTurnOnHint": {
     "description": "Status icons: tooltip and hint of a payment method that is off; a tap opens the switch."
   },
@@ -28546,7 +28538,7 @@
       }
     }
   },
-  "phoneRestoreStartNote": "The search for coins starts from this month. If unsure, pick an earlier month: a later one can miss coins.",
+  "phoneRestoreStartNote": "The search for your coins starts from this month. If unsure, pick an earlier one: a later one can miss coins. An older month means a longer search.",
   "@phoneRestoreStartNote": {
     "description": "Help text under the Wallet created row on the Restore screen."
   },
@@ -28872,5 +28864,280 @@
   "deskOnbKeyNextImport": "Next field, then import",
   "@deskOnbKeyNextImport": {
     "description": "Start steps' key strip: what Enter does on an old wallet's password form in Import wallets."
+  },
+  "errorCancelledOnRelay": "The other side cancelled this payment, so it is cancelled here too.",
+  "@errorCancelledOnRelay": {
+    "description": "Plain reason when a send or an answer is refused because the other wallet cancelled the payment first. The wallet has already cancelled it locally."
+  },
+  "phoneSendMaxNoteNoFee": "Everything you have, less the fee",
+  "@phoneSendMaxNoteNoFee": {
+    "description": "Line shown after Max when the fee is not known yet."
+  },
+  "phoneSendReviewHintOfflineNoName": "Their wallet can be offline. The payment finishes when it next opens.",
+  "@phoneSendReviewHintOfflineNoName": {
+    "description": "Same hint when the person paid has no name yet (an address not in the contacts)."
+  },
+  "phoneRestoreUseHeight": "Use a block height instead",
+  "@phoneRestoreUseHeight": {
+    "description": "Link in the start-month sheet: enter a block height instead of a month."
+  },
+  "phoneRestoreUseMonth": "Pick a month instead",
+  "@phoneRestoreUseMonth": {
+    "description": "Link under the block height field: pick a month instead."
+  },
+  "phonePairUnnamedShort": "Wallet {code}",
+  "phonePairSeenAsEmptyShows": "Left empty, they see {label}.",
+  "@phonePairUnnamedShort": {
+    "description": "What an unnamed wallet is called: the first characters of its address, so the user can match it by eye with a link or address. Never translated into a name.",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "A7F3xy"
+      }
+    }
+  },
+  "@phonePairSeenAsEmptyShows": {
+    "description": "Helper line under the name field when it is empty: the label the other side shows for this wallet.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Wallet A7F3xy"
+      }
+    }
+  },
+  "phoneBackupReminderText": "Your recovery phrase is not backed up. Without it, a lost phone means a lost wallet.",
+  "phoneBackupReminderAction": "Back up now",
+  "@phoneBackupReminderText": {
+    "description": "Home slot card while the recovery phrase is not backed up: what is at risk, in two short sentences. Shown beside a shield icon, two lines at most."
+  },
+  "@phoneBackupReminderAction": {
+    "description": "Gold link under the text of the recovery phrase reminder card on Home: opens the back-up. Two or three words."
+  },
+  "phoneChangeWaitingFor": "{amount} confirming · waiting for {name}",
+  "@phoneChangeWaitingFor": {
+    "description": "Info chip under Home's balance: the change of a send comes back once it confirms; the send waits for the named contact to accept. 'confirming' is the word of the balance sheet's Confirming row. Keep short.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "994.992"
+      },
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "phoneChangeWaitingReply": "{amount} confirming · waiting for reply",
+  "@phoneChangeWaitingReply": {
+    "description": "Info chip under Home's balance: as phoneChangeWaitingFor, for a send to an address with no contact name.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "994.992"
+      }
+    }
+  },
+  "phoneChangeWaitingReplies": "{amount} confirming · waiting for {count} replies",
+  "@phoneChangeWaitingReplies": {
+    "description": "Info chip under Home's balance: the change of several sends, none accepted yet. count is 2 or more.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,152.492"
+      },
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "phoneChangeAbout": "{amount} confirming · about {minutes} min",
+  "@phoneChangeAbout": {
+    "description": "Info chip under Home's balance: the change of one send can be spent in about this many minutes. 'min' is minutes, abbreviated.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "994.992"
+      },
+      "minutes": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "phoneChangeNextIn": "{amount} confirming · next in {minutes} min",
+  "@phoneChangeNextIn": {
+    "description": "Info chip under Home's balance: the change of several sends; the soonest can be spent in about this many minutes.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,152.492"
+      },
+      "minutes": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "phoneChangeRowReply": "waiting for them to accept",
+  "@phoneChangeRowReply": {
+    "description": "Balance sheet, under a send's name in the Confirming part: the other side has not accepted the send yet."
+  },
+  "phoneChangeRowBlock": "waiting for a block · about {minutes} min",
+  "@phoneChangeRowBlock": {
+    "description": "Balance sheet, under a send's name: the payment is posted and waits for a block; its change can be spent in about this many minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "phoneChangeRowConfirming": "about {minutes} min · {count} of {target} confirmations",
+  "@phoneChangeRowConfirming": {
+    "description": "Balance sheet, under a send's name: the payment is in a block; its change can be spent in about this many minutes. count of target confirmations so far.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "3"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      },
+      "target": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "phoneBalanceAvailableNow": "Available now",
+  "@phoneBalanceAvailableNow": {
+    "description": "Balance sheet: first row, the amount that can be spent now (the figure on Home)."
+  },
+  "phoneBalanceArriving": "Arriving",
+  "@phoneBalanceArriving": {
+    "description": "Balance sheet: payments to this wallet that are in a block and confirming."
+  },
+  "phoneBalanceChangeNote": "A send spends whole coins. The rest comes back and can be spent after {target} confirmations, about {target} min after the payment is in a block. If a send is cancelled, the full amount comes back.",
+  "@phoneBalanceChangeNote": {
+    "description": "Balance sheet: note under the rows while a send's change is confirming. target is the confirmations setting; one block is about a minute.",
+    "placeholders": {
+      "target": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "deskRecvAskOpen": "Ask for an amount",
+  "@deskRecvAskOpen": {
+    "description": "Button on Receive that opens the amount fields; the code then holds the Epicbox address with an amount."
+  },
+  "deskRecvAskAmount": "Amount",
+  "@deskRecvAskAmount": {
+    "description": "Label of the amount field under Ask for an amount on Receive."
+  },
+  "deskRecvAskNote": "Note",
+  "@deskRecvAskNote": {
+    "description": "Label of the optional note field under Ask for an amount on Receive."
+  },
+  "deskRecvAskHint": "The code now holds your address and this amount. Whoever scans or pastes it gets a normal send to you with the amount filled in.",
+  "@deskRecvAskHint": {
+    "description": "Line under the amount fields on Receive: what the changed code does."
+  },
+  "deskRecvAskCopy": "Copy link",
+  "@deskRecvAskCopy": {
+    "description": "Button that copies the payment link (address with the amount)."
+  },
+  "deskRecvAskCopied": "Link copied",
+  "@deskRecvAskCopied": {
+    "description": "Toast after the payment link was copied."
+  },
+  "deskRecvAskClose": "Back to the address",
+  "@deskRecvAskClose": {
+    "description": "Button that closes the amount fields and shows the plain address code again."
+  },
+  "phoneRecvAnyoneAddress": "Anyone, with my address",
+  "@phoneRecvAnyoneAddress": {
+    "description": "Choice in the who-pays sheet: a code with the wallet's own Epicbox address and the amount; the payer sends as usual with the amount filled in."
+  },
+  "phoneRecvAnyoneAddressLine": "A code with your address and the amount",
+  "@phoneRecvAnyoneAddressLine": {
+    "description": "Line under the Anyone, with my address choice."
+  },
+  "phoneRecvLinkLead": "Show this code or share the link. Whoever scans or pastes it gets a normal send to your address with {amount} filled in.",
+  "@phoneRecvLinkLead": {
+    "description": "Lead on the screen that shows the wallet's address with an amount as a code. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25 EPIC"
+      }
+    }
+  },
+  "phoneRecvLinkCopied": "Link copied",
+  "@phoneRecvLinkCopied": {
+    "description": "Notice after the payment link (address with an amount) was copied."
+  },
+  "phoneRecvLinkQrLabel": "Your address with the amount, as a QR code",
+  "@phoneRecvLinkQrLabel": {
+    "description": "What a screen reader says for the code that holds the wallet's address and an amount."
+  },
+  "announcementsTitle": "Announcements",
+  "@announcementsTitle": {
+    "description": "Settings › Advanced: name of the switch for messages from BT Labs (phone row and desktop row)."
+  },
+  "announcementsHint": "Short messages from BT Labs between releases, signed by BT Labs. Off: no checks for them.",
+  "@announcementsHint": {
+    "description": "Settings › Advanced: the explanation behind the info icon of the Announcements switch (phone and desktop)."
+  },
+  "announcementDismiss": "Dismiss",
+  "@announcementDismiss": {
+    "description": "Announcement card: tooltip and screen-reader name of the × that closes a message from BT Labs for good."
+  },
+  "announcementOpensInBrowser": "opens in the browser",
+  "@announcementOpensInBrowser": {
+    "description": "Announcement card: screen-reader addition after the link, said when the link opens an https address in the system browser (lower case, follows the link label and host)."
+  },
+  "deskSetGrpAnnouncements": "From BT Labs",
+  "@deskSetGrpAnnouncements": {
+    "description": "Settings › Advanced: heading of the group that holds the Announcements switch (on its page and over search results). BT Labs is a name: keep it."
+  },
+  "deskSetSynAnnouncements": "announcements, news, messages, notices, bt labs",
+  "@deskSetSynAnnouncements": {
+    "description": "Settings search: other words that find the “Announcements” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskE1ErrCodeWrongNetwork": "This code is for another network.",
+  "@deskE1ErrCodeWrongNetwork": {
+    "description": "A scanned in-person payment code belongs to another Epic Cash network."
+  },
+  "deskE1ErrNotInPerson": "Not a code this wallet can pay or check.",
+  "@deskE1ErrNotInPerson": {
+    "description": "A scanned animated code is neither an in-person code this wallet can pay nor an answer to one of its own codes (altered, or meant for another device)."
+  },
+  "deskE1ModeEpic1Code": "epic1 in-person code. Turn on epic1 payments to pay it.",
+  "@deskE1ModeEpic1Code": {
+    "description": "epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name."
+  },
+  "pairRefusesInvoices": "This contact’s wallet does not pay invoices.",
+  "@pairRefusesInvoices": {
+    "description": "Invoice to a contact refused: the contact's card says its wallet does not pay invoices. No name known."
+  },
+  "pairRefusesInvoicesTitle": "{name}’s wallet does not pay invoices.",
+  "@pairRefusesInvoicesTitle": {
+    "description": "Invoice to a contact refused: the contact's card says its wallet does not pay invoices.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairRefusesInvoicesBody": "Nothing was sent. Ask them to pay to your address instead.",
+  "@pairRefusesInvoicesBody": {
+    "description": "Second line under pairRefusesInvoices: what to do instead."
+  },
+  "deskInvIssuerFailed": "The invoice was not sent. Nothing changed; try again.",
+  "@deskInvIssuerFailed": {
+    "description": "Error after Send invoice: the wallet refused it for a reason no other line names; nothing was sent."
   }
 }

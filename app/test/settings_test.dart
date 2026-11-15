@@ -429,10 +429,12 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
-      await _tapKey(tester, ScanStart.changeKey);
       // January 2025 until another month is picked.
+      await _reveal(tester, find.byKey(ScanStart.changeKey));
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
-      await _tapKey(tester, StartMonthChoice.buttonKey);
+      // The row opens the shared month sheet at once, not an inline panel.
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
       // Year and month, no day: the picker opens on the chosen month's year; four years back, July.
       expect(find.text('2025'), findsOneWidget);
       for (var i = 0; i < 4; i++) {
@@ -441,17 +443,18 @@ void main() {
       }
       await tester.tap(find.byKey(StartMonthPicker.monthKey(const StartMonth(2021, 7))));
       await tester.pumpAndSettle();
-      final dayStart = DateTime(2021, 7);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('July 2021')), findsOneWidget);
-      expect(find.text('Scanning starts from block ${localInt(englishStrings, mainnetHeightForDate(dayStart))}.'), findsOneWidget);
+      expect(find.byType(StartMonthPicker), findsNothing);
       // An old month: no warning that coins may be missed.
-      expect(find.byKey(StartMonthChoice.recentKey), findsNothing);
+      expect(find.byKey(StartMonthRecent.recentKey), findsNothing);
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
 
-      expect(h.session.lastStart, mainnetHeightForDate(dayStart));
+      expect(h.session.lastStart, mainnetHeightForDate(DateTime(2021, 7)));
       expect(find.text(_l.restoreDoneTitle), findsOneWidget);
+      // The restored wallet may live on another device too: the offer to link one stays here.
+      expect(find.text(_l.offerLinkRestore), findsOneWidget);
       expect(find.textContaining('come back from a wallet data file'), findsOneWidget);
 
       h.files.picks.add(await h.session.exportHistory());
@@ -850,6 +853,61 @@ void main() {
       expect(h.container.read(sessionProvider), isNotNull);
     });
 
+    testWidgets('a resume drains the payments address unless the listener is connected', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      // Opening drained once; the listener has not connected yet.
+      expect(h.session.drainPaymentCalls, 1);
+
+      await _leave(tester);
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, 2, reason: 'listener not connected: drained on resume');
+
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
+      await _leave(tester);
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, 2, reason: 'listener connected: nothing to drain');
+
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.disconnected, message: 'a'));
+      await tester.pumpAndSettle();
+      await _leave(tester);
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, 3, reason: 'listener down: drained on resume');
+      // Connected again: the heal timer of a down listener ends with the test.
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(minutes: 2));
+    });
+
+    testWidgets('a resume after 60 s or more away drains and reconnects a listener that says connected', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
+      final drains = h.session.drainPaymentCalls;
+      final stops = h.session.listenerStops;
+
+      // 59 s away: the connected listener is trusted.
+      await _leave(tester);
+      h.now = h.now.add(const Duration(seconds: 59));
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, drains);
+      expect(h.session.listenerStops, stops);
+
+      // 60 s away: drained, and the socket is replaced.
+      await _leave(tester);
+      h.now = h.now.add(const Duration(seconds: 60));
+      await _return(tester);
+      expect(h.session.drainPaymentCalls, drains + 1);
+      expect(h.session.listenerStops, stops + 1);
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(minutes: 2));
+    });
+
     testWidgets('closes the wallet in the background once the time passes', (tester) async {
       final h = _Harness();
       h.store.values['app.auto_lock'] = '1';
@@ -1246,9 +1304,12 @@ void main() {
       // only, the height stays behind the Advanced switch; the info holds Scan from the start.
       expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
-      expect(find.byKey(ScanStart.byKey), findsNothing);
-      expect(find.text(_l.restoreStartByHeight), findsNothing);
+      // The same month sheet as Restore's; the height stays behind the Advanced switch, so the
+      // sheet has no link to it.
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsNothing);
+      expect(find.text(_l.phoneRestoreUseHeight), findsNothing);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       await _tapText(tester, _l.settingsRescanButton);
       expect(h.session.lastStart, defaultStartMonth.height);
 
@@ -1286,7 +1347,7 @@ void main() {
 
       await _tapText(tester, _l.settingsRescan);
       await _tapKey(tester, ScanStart.changeKey);
-      await _tapText(tester, _l.restoreStartByHeight);
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       // An empty height is the start; a typed one shows on the line.
       expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
       await _enter(tester, _l.restoreStartHeightLabel, '3000000');
@@ -1776,13 +1837,13 @@ void main() {
       expect(find.text(_l.settingsLicences), findsOneWidget);
     });
 
-    testWidgets('About shows the Tor GPL notice offline, only in a build with Tor', (tester) async {
+    testWidgets('About shows no Tor source note: it is on the Licences page', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.about);
       await _reveal(tester, find.byKey(settingsLicencesKey));
-      expect(find.textContaining('GNU General Public License'), torBuilt ? findsOneWidget : findsNothing);
+      expect(find.textContaining('GNU General Public License'), findsNothing);
     });
   });
 
@@ -1975,7 +2036,8 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreStartByHeight), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsOneWidget);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       await _tapText(tester, 'Cancel');
 
       // Off again: the page's own reset.
@@ -1985,7 +2047,8 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.text(_l.restoreStartByHeight), findsNothing);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsNothing);
     });
 
     // Every width gets the same Settings rows (Connection servers on the tablet as on the
@@ -2088,6 +2151,8 @@ void main() {
       expect(find.text(_l.scanStartInfoTitle), findsOneWidget);
       // Under the row the restore note stands; the sheet carries the full text.
       expect(find.text(_l.phoneRestoreStartNote), findsOneWidget);
+      // It says what an earlier month costs: a longer search.
+      expect(find.textContaining('An older month means a longer search.'), findsOneWidget);
       expect(find.text(_l.scanStartInfo), findsOneWidget);
       await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
@@ -2095,14 +2160,15 @@ void main() {
       await _tapKey(tester, ScanStart.infoKey);
       expect(find.byKey(ScanStart.fromStartKey), findsNothing);
       await _tapText(tester, _l.commonClose);
-      // The way back: the calendar opens the month, January 2025 again.
+      // The way back: the row opens the month sheet; choosing January 2025 again.
       await _tapKey(tester, ScanStart.changeKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      await _tapKey(tester, StartMonthPicker.monthKey(defaultStartMonth));
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text('January 2025')), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
       await _tapKey(tester, ScanStart.infoKey);
       await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.descendant(of: find.byKey(ScanStart.changeKey), matching: find.text(_l.restoreScanFromStart)), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsNothing, reason: 'the choices fold away');
+      expect(find.byType(StartMonthPicker), findsNothing);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapText(tester, _l.commonContinue);
       await _enter(tester, 'PIN', _pin);
@@ -2120,16 +2186,19 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       expect(find.byKey(ScanStart.changeKey), findsOneWidget);
-      expect(find.byKey(ScanStart.byKey), findsNothing);
       await _tapKey(tester, ScanStart.changeKey);
-      expect(find.byKey(ScanStart.byKey), findsOneWidget);
-      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
+      // The month sheet, with the way to a block height under the months.
+      expect(find.byType(StartMonthPicker), findsOneWidget);
+      expect(find.byKey(StartMonthPicker.otherKey), findsOneWidget);
       expect(find.text('January 2025'), findsWidgets);
-      await _tapText(tester, 'Block height');
+      await _tapText(tester, _l.phoneRestoreUseHeight);
       expect(
         find.widgetWithText(TextField, _l.restoreStartHeightLabel),
         findsOneWidget,
       );
+      // And back: the month sheet opens again.
+      await _tapKey(tester, ScanStart.monthKey);
+      expect(find.byType(StartMonthPicker), findsOneWidget);
     });
   });
 }

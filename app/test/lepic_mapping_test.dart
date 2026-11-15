@@ -50,6 +50,7 @@ class _SendingWallet extends _NoNativeWallet {
   Future<String?> contactOfTransaction({required int txId}) async => null;
 
   lepic.TransactionDetails get _stored => lepic.TransactionDetails(
+    relayCancellable: false,
     txId: 5,
     direction: lepic.TxDirection.outgoing,
     status: lepic.TxStatus.sent,
@@ -230,6 +231,10 @@ void main() {
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.inviteDismissed, 86))), PairingFailure.inviteDismissed);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingEnded, 87))), PairingFailure.ended);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingWaiting, 88))), PairingFailure.waiting);
+      expect(
+        pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.contactRefusesInvoices, 93))),
+        PairingFailure.refusesInvoices,
+      );
       expect(mapLepicError(e(lepic.WalletErrorKind.foreignProofAddress, 89)).kind, WalletErrorKind.invalidArgument);
       expect(mapLepicError(e(lepic.WalletErrorKind.wrongKey, 90)).kind, WalletErrorKind.wrongKey);
     });
@@ -375,6 +380,7 @@ void main() {
       bool undelivered = true,
       lepic.TxStatus status = lepic.TxStatus.sent,
     }) => lepic.TransactionDetails(
+      relayCancellable: false,
       txId: 7,
       direction: lepic.TxDirection.outgoing,
       status: status,
@@ -802,6 +808,7 @@ void main() {
       List<String> outputCommits = const [],
       bool coinbase = false,
     }) => lepic.TransactionDetails(
+      relayCancellable: false,
       txId: 7,
       direction: direction,
       status: status,

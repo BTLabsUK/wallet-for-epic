@@ -39,11 +39,10 @@ import 'theme/tokens.dart';
 
 export 'settings_sections.dart';
 
-/// Opens Settings at Network & privacy, where the Tor switch is: the page over the hub, so
-/// Back lands on the hub.
-Future<void> openPrivacySettings(BuildContext context) => Navigator.of(context).push(
-  MaterialPageRoute<void>(builder: (_) => const SettingsScreen(privacy: true)),
-);
+/// Opens Settings at Network & privacy, where the Tor switch is: the page alone, as the other
+/// status rows open theirs, so Back goes back to where it was opened. A second hub under it
+/// would have no tab bar.
+Future<void> openPrivacySettings(BuildContext context) => openSettingsSection(context, SettingsSection.privacyNetwork);
 
 /// The key of a hub row, for tests: `settingsGroupKey(SettingsSection.x)`.
 Key settingsGroupKey(SettingsSection section) => ValueKey('settings-group-${section.name}');
@@ -125,9 +124,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (payments.offers(MethodKind.directFile)) l.phoneSettingsHubFile,
       if (payments.offers(MethodKind.linkTor)) l.phoneSettingsHubTor,
     ].join(', ');
+    // The language the app shows, named: "System" twice (theme and language) read as one word
+    // repeated.
     final lookLine = [
       themeLabel(l, s.themeMode),
-      languageLabel(l, s.language),
+      languageLabel(l, s.language ?? Localizations.localeOf(context).languageCode),
       s.fiatCurrency.toUpperCase(),
     ].join(' · ');
 

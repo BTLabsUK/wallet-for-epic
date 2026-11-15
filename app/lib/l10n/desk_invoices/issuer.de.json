@@ -11,6 +11,7 @@
   "deskInvIssuerExpiry": "Der Zahler hat {hours} Stunden Zeit zum Zahlen.",
   "deskInvIssuerRelayDown": "Der Epicbox-Server antwortet nicht, daher kann jetzt keine Rechnung gesendet werden.",
   "deskInvIssuerNotDelivered": "Die Rechnung hat den Epicbox-Server nicht erreicht. Es wurde nichts gesendet. Versuchen Sie es erneut.",
+  "deskInvIssuerFailed": "Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut.",
   "deskInvIssuerEmpty": "Noch keine Rechnungen ausgestellt. Eine Rechnung bittet einen Kontakt oder Dienst, Sie zu bezahlen; sie kostet nichts.",
   "deskInvIssuerTo": "Rechnung an {payer}",
   "deskInvIssuerToAnyone": "Rechnung an jede Person mit der Datei",
