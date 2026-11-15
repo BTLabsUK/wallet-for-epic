@@ -253,11 +253,11 @@ smoke_stack_lock() {
 }
 
 smoke_run() {
-  local name="$1" logs="$2/.work/logs" t0=$SECONDS line step="" failed="" rc=0 newest names
+  local name="$1" logs="$2/.work/logs" t0=$SECONDS line step="" failed="" rc="" newest names
   names="$(printf 'setup and funding\n'; sed -n "/^$3=(/,/^)/p" "$2"/*.sh | sed -n 's/^ *"\([^:"]*\):.*/\1/p')"
   shift 3
   echo "== smoke: $name"
-  exec {pipe}< <(exec timeout --kill-after=60 "${LEPIC_SMOKE_TIMEOUT:-1800}" "$@" 2>&1; echo "== exit $?")
+  exec {pipe}< <(timeout --kill-after=60 "${LEPIC_SMOKE_TIMEOUT:-1800}" "$@" 2>&1; echo "== exit $?")
   while IFS= read -r line <&"$pipe"; do
     printf '%s\n' "$line" >> "$out/$name.log"
     case "$line" in
@@ -279,7 +279,9 @@ smoke_run() {
     return 0
   fi
   if [ -z "$failed" ]; then
-    [ "$rc" = 124 ] && failed="timed out after ${LEPIC_SMOKE_TIMEOUT:-1800}s" || failed="exit $rc at: $step"
+    if [ -z "$rc" ]; then failed="the run ended without its exit line at: $step"
+    elif [ "$rc" = 124 ]; then failed="timed out after ${LEPIC_SMOKE_TIMEOUT:-1800}s"
+    else failed="exit $rc at: $step"; fi
     tail -n 30 "$out/$name.log"
   fi
   echo "LEPIC core smoke FAILED after $((SECONDS - t0))s: $name: $failed (log: $out/$name.log)" >&2
