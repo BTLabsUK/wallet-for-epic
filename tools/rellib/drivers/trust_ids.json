@@ -78,7 +78,7 @@
 {"id": "g4.backup.done", "screen": "backup", "family": ["android"], "keys": ["commonDone"], "names": ["Done"], "match": "exact", "secret": true},
 {"id": "g4.settings.section.security", "screen": "settings", "role": "menu_item", "keys": ["settingsSectionSecurity"], "names": ["Security"]},
 {"id": "g4.settings.section.display", "screen": "settings", "family": ["android"], "role": "menu_item", "keys": ["settingsSectionDisplay"], "names": ["Appearance"]},
-{"id": "g4.appearance.theme", "screen": "display", "family": ["android"], "role": "row", "keys": ["settingsTheme"], "names": ["Theme"]},
+{"id": "g4.appearance.theme", "screen": "appearance", "keys": ["deskSetAppearTheme"], "names": ["Theme"], "android": {"screen": "display", "role": "row", "keys": ["settingsTheme"]}},
 {"id": "g4.restore.phrase", "screen": "restore", "role": "text_field", "keys": ["restorePhraseLabel", "deskOnbWordN"], "names": ["Recovery phrase"], "match": "starts", "secret": true},
 {"id": "g4.restore.start", "screen": "restore", "role": "other", "keys": ["scanStartChange"], "names": ["Change the start", "Start from a month or height"], "match": "exact", "secret": true, "android": {"role": "button", "keys": ["phoneRestoreCreated"], "names": ["Wallet created"], "match": "starts"}},
 {"id": "g4.restore.info", "screen": "restore", "keys": ["scanStartInfoTitle"], "names": ["Scan start"], "match": "exact", "secret": true},

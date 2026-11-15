@@ -179,7 +179,11 @@ class PairPlatform(Platform):
         e = os.environ
         p = self.pair["a"]
         h = hashlib.sha256()
-        with open(p.appimage(e.get("REL_CANDIDATE_DIR", ""), e.get("REL_CANDIDATE_VERSION", "")), "rb") as f:
+        app = p.appimage(e.get("REL_CANDIDATE_DIR", ""), e.get("REL_CANDIDATE_VERSION", ""))
+        if os.path.isdir(app):  # a test build's bundle: its SHA256SUMS (tools/testbin.sh), else the binary
+            sums = os.path.join(app, "SHA256SUMS")
+            app = sums if os.path.isfile(sums) else os.path.join(app, "btwallet")
+        with open(app, "rb") as f:
             for chunk in iter(lambda: f.read(1 << 20), b""):
                 h.update(chunk)
         return h.hexdigest()

@@ -66,6 +66,10 @@ class LinuxPlatform(Platform):
     # ---- preparation
 
     def appimage(self, folder, version):
+        """The release AppImage in [folder], or [folder] itself when it is a Flutter bundle (a test build
+        from tools/testbin.sh: btwallet beside data/ and lib/), run the way the AppImage runs it."""
+        if is_bundle(folder):
+            return folder
         sfx = "-notor" if self.variant == "notor" else ""
         for n in ("bt-wallet-%s%s-linux-x86_64.AppImage" % (version, sfx), "EpicCashDesktop-%s%s-x86_64.AppImage" % (version, sfx)):
             if os.path.isfile(os.path.join(folder, n)):
@@ -134,6 +138,8 @@ class LinuxPlatform(Platform):
     def _extract(self, appimage, which):
         dest = os.path.join(self.work, which)
         os.makedirs(dest, exist_ok=True)
+        if is_bundle(appimage):
+            return self._bundle_root(appimage, dest, which)
         copy = os.path.join(dest, "app.AppImage")
         shutil.copyfile(appimage, copy)
         os.chmod(copy, 0o700)
@@ -143,6 +149,21 @@ class LinuxPlatform(Platform):
         if r.returncode != 0 or not os.path.exists(os.path.join(root, "AppRun")):
             raise HarnessFault("prepare", "could not extract %s: %s" % (appimage, r.stderr[-300:]))
         self.log("%s: %s" % (which, os.path.basename(appimage)))
+        return root
+
+    def _bundle_root(self, bundle, dest, which):
+        """An AppDir for a test build's bundle: the AppImage's own AppRun (scripts/linux/in-container.sh)
+        over usr/bin, a link to the bundle (read only; the app writes in HOME)."""
+        root = os.path.join(dest, "squashfs-root")
+        os.makedirs(os.path.join(root, "usr"), exist_ok=True)
+        link = os.path.join(root, "usr", "bin")
+        if not os.path.islink(link):
+            os.symlink(os.path.abspath(bundle), link)
+        run = os.path.join(root, "AppRun")
+        with open(run, "w") as f:
+            f.write('#!/bin/sh\nHERE="$(dirname "$(readlink -f "$0")")"\nexec "$HERE/usr/bin/btwallet" "$@"\n')
+        os.chmod(run, 0o700)
+        self.log("%s: test build %s" % (which, bundle))
         return root
 
     def install_previous(self):
@@ -336,6 +357,12 @@ class LinuxPlatform(Platform):
             shutil.rmtree(os.path.join(self.work, which), ignore_errors=True)
         shutil.rmtree(os.path.join(self.work, "read"), ignore_errors=True)
         self.log("sandbox stopped; wallet data, phrase and password kept in %s (mode 700)" % self.sb)
+
+
+def is_bundle(path):
+    """A Flutter Linux bundle (tools/testbin.sh get linux): btwallet, data/flutter_assets, lib/."""
+    return (os.path.isdir(path) and os.access(os.path.join(path, "btwallet"), os.X_OK)
+            and os.path.isdir(os.path.join(path, "data", "flutter_assets")))
 
 
 def free_port():
