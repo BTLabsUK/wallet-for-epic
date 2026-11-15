@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/scan/scan_router.dart' show maxUriAddressLength;
 import 'package:epic_wallet/src/scan/scan_text.dart' show directHostBesideOf;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/send_reach.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
@@ -286,6 +287,9 @@ Finder _origin(String text) => find.descendant(
 );
 
 void main() {
+  // Review waits for the wallet at a Link address to answer; here one always does.
+  setUp(() => reachCheckForTest = (_) async => ReachResult.answers);
+  tearDown(() => reachCheckForTest = null);
   group('Home scan of a payment code', () {
     testWidgets('fills Send and stops at the amount step, nothing sent', (
       tester,

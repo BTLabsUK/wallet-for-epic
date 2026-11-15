@@ -104,15 +104,16 @@ void main() {
     expect(nodes.map((n) => n.operator), [for (final s in hostSettings.nodeServers) s.operator]);
     final boxes = await w.epicboxes();
     expect(boxes.map((b) => b.domain), _boxes);
-    // A fresh install: the new default.
-    expect((await w.status()).epicbox.domain, defaultEpicboxHost);
+    // A fresh install: the first relay of the settings in use.
+    expect((await w.status()).epicbox.domain, hostSettings.epicboxUse);
   });
 
-  test('the default Epicbox server is one constant: preset, first relay, status', () {
-    expect(defaultEpicboxHost, hostSettings.epicboxUse);
-    expect(mainnetPreset.epicboxDomain, defaultEpicboxHost);
-    expect(builtInRelays.first.relay.host, defaultEpicboxHost);
-    expect(deskEpicboxes.first.domain, defaultEpicboxHost);
+  test('the Epicbox server in use is one setting: preset, first relay, status', () {
+    expect(mainnetPreset.epicboxDomain, hostSettings.epicboxUse);
+    expect(builtInRelays.first.relay.host, hostSettings.epicboxUse);
+    expect(deskEpicboxes.first.domain, hostSettings.epicboxUse);
+    // An address written without a server gets epicbox.address_default, a setting of its own.
+    expect(defaultEpicboxHost, hostSettings.config.epicboxAddressDefault);
   });
 
   test('a node and a relay the monitor adds show after the built-in ones', () async {
@@ -129,7 +130,10 @@ void main() {
     expect(boxes.map((b) => b.domain), containsAllInOrder([..._boxes, 'box.example']));
     expect(boxes.firstWhere((b) => b.domain == 'box.example').operator, 'Box op');
     expect(hostSettings.nodeUrls, isNot(contains('https://new.example:3413')), reason: 'never into the list');
-    expect(boxes.first.health, ServiceHealth.ok);
+    // The monitor's health reaches a built-in relay it lists; the first (epicbox.btlabs.uk) is
+    // not in the 2026-10-22 sample, so it stays checking.
+    expect(boxes.firstWhere((b) => b.domain == 'epicbox.stackwallet.com').health, ServiceHealth.ok);
+    expect(boxes.first.health, ServiceHealth.checking);
   });
 
   test('Tor still connecting at start: the built-in lists, the directory read once Tor is up', () async {

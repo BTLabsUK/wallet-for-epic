@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart' show who
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/desktop/widgets/pay_steps.dart' show DeskPaymentSteps;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/send_reach.dart' show ReachResult, reachCheckForTest;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -62,6 +63,9 @@ void main() {
   });
 
   group('Send result', () {
+    // Review waits for the wallet at a Link address to answer; here one always does.
+    setUp(() => reachCheckForTest = (_) async => ReachResult.answers);
+    tearDown(() => reachCheckForTest = null);
     late ProviderContainer container;
 
     setUp(() => container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]));

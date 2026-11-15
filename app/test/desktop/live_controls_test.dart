@@ -85,9 +85,12 @@ void main() {
 
   testWidgets('the Overview balance shows four decimals and the exact amount on hover', (tester) async {
     final container = await _open(tester, _Wallet(), DeskRoute.overview);
-    final spendable = BigInt.from(container.read(deskProvider).balance!.spendable);
-    final exact = amount.exactEpic(spendable);
-    final headline = amount.displayEpic(spendable);
+    // The headline is the wallet's balance (Balance.figure), as Overview works it out.
+    final state = container.read(deskProvider);
+    final b = state.balance!;
+    final figure = BigInt.from(b.figure(ownChangeOffChain(state.txs ?? const <Tx>[]).clamp(0, b.awaitingFinalization)));
+    final exact = amount.exactEpic(figure);
+    final headline = amount.displayEpic(figure);
     // The mock's balance has more than four decimals, so the cut shows.
     expect(exact.length, greaterThan(headline.length), reason: exact);
     final row = find.byKey(const ValueKey('balance-row'));

@@ -745,7 +745,8 @@ void main() {
       ];
       await h.container.read(homeProvider.notifier).reload();
       await tester.pump();
-      expect(find.text('Posted. Confirming 1/3'), findsOneWidget);
+      // Posted: the done card counts the confirmations.
+      expect(find.text(_l.lvPayConfirmingOf(1, 3)), findsOneWidget);
       // Posted: the hidden card and its Show again give way to the done card, Done is primary.
       expect(find.byKey(qrDoneCardKey), findsOneWidget);
       expect(find.text(_l.qrShowAgain), findsNothing);

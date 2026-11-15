@@ -98,7 +98,8 @@ void main() {
     await w.nodes();
     await listed.timeout(const Duration(seconds: 2));
     expect((await w.nodes()).map((n) => n.url), contains('https://new.example:3413'));
-    expect((await w.epicboxes()).first.health, ServiceHealth.ok);
+    // A built-in relay the site lists (the first, epicbox.btlabs.uk, is not in the 2026-10-22 sample).
+    expect((await w.epicboxes()).firstWhere((b) => b.domain == 'epicbox.stackwallet.com').health, ServiceHealth.ok);
     expect(hosts, hasLength(1));
 
     final dropped = w.changes().first;

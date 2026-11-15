@@ -1838,13 +1838,13 @@ void main() {
       expect(find.text(_l.settingsLicences), findsOneWidget);
     });
 
-    testWidgets('About shows the Tor GPL notice offline, only in a build with Tor', (tester) async {
+    testWidgets('About shows no Tor source note: it is on the Licences page', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.about);
       await _reveal(tester, find.byKey(settingsLicencesKey));
-      expect(find.textContaining('GNU General Public License'), torBuilt ? findsOneWidget : findsNothing);
+      expect(find.textContaining('GNU General Public License'), findsNothing);
     });
   });
 

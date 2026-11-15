@@ -286,7 +286,12 @@ void main() {
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-files-offline-node')), findsOneWidget);
       expect(find.text(_l.netOfflineNodeHint), findsOneWidget);
-      for (final button in tester.widgetList<EButton>(find.descendant(of: find.byKey(tourKey('receive-files')), matching: find.byType(EButton)))) {
+      // Scan QR follows the camera (none in a test), not the network mode.
+      final scan = find.descendant(of: find.byKey(const ValueKey('rx-files-scan')), matching: find.byType(EButton));
+      final buttons = find.descendant(of: find.byKey(tourKey('receive-files')), matching: find.byType(EButton));
+      expect(buttons, findsWidgets);
+      for (final button in tester.widgetList<EButton>(buttons)) {
+        if (tester.widgetList<EButton>(scan).contains(button)) continue;
         expect(button.onPressed, isNotNull, reason: button.label);
       }
     });

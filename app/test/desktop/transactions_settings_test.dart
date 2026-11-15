@@ -275,7 +275,7 @@ void main() {
       await _settle(tester);
       expect(_payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text(_l.netBlockMethodOff(_l.methodDirectTor)), findsWidgets);
       await tester.tap(find.widgetWithText(EButton, 'Turn on Link · Tor'));
       await _settle(tester);
       expect(_payments.linkTor, isTrue);
@@ -309,7 +309,7 @@ void main() {
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text(_l.netBlockMethodOff(_l.methodDirectTor)), findsWidgets);
       expect(find.textContaining('has only'), findsNothing);
     }, skip: !torBuilt);
 
