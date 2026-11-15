@@ -750,14 +750,22 @@ class DeskInPersonExpiredDialog extends StatelessWidget {
   const DeskInPersonExpiredDialog({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return EDialog(
-      title: l.deskE1ErrCodeExpired,
-      tone: ETone.warn,
-      actions: [EButton(label: l.commonClose, onPressed: () => Navigator.of(context).pop())],
-    );
-  }
+  Widget build(BuildContext context) => DeskInPersonRefusedDialog(title: context.l10n.deskE1ErrCodeExpired);
+}
+
+/// A scanned code the wallet will not use, [title] saying why: expired, for another network,
+/// or altered.
+class DeskInPersonRefusedDialog extends StatelessWidget {
+  const DeskInPersonRefusedDialog({super.key, required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => EDialog(
+    title: title,
+    tone: ETone.warn,
+    actions: [EButton(label: context.l10n.commonClose, onPressed: () => Navigator.of(context).pop())],
+  );
 }
 
 /// Whether [e] says the code expired.
