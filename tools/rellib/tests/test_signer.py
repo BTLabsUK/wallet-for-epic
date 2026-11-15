@@ -80,7 +80,7 @@ class SignerTest(Base):
                                                           "x-notor.apk", "x.apk"])
         self.assertEqual({j["op"] for j in jobs}, {"apk"})
         signed = signer.read_signed(run)
-        self.assertIn("emulator/x.apk", signed)  # the emulator APK the trust drivers install
+        self.assertIn("emulator/x.apk", signed)  # the emulator APK extra (kept for the reuse key)
         self.assertTrue(tail(os.path.join(run.extra, "emulator/x.apk")))
         for n, h in before.items():
             now = sha256_file(os.path.join(run.files, n))
@@ -107,7 +107,7 @@ class SignerTest(Base):
         self.assertEqual(res["status"], "failed")  # a run that may publish needs every Android file
         self.assertIn("build-android-notor", res["note"])
         self.assertEqual(self.fake.requests, [])
-        run.taint("trust-android-tor run with unmet needs: build-android-notor")
+        run.taint("artefacts run with unmet needs: build-android-notor")
         res = signer.sign_android(eng, step, self.say)
         self.assertEqual(res["status"], "done", res)
         req, = self.fake.requests

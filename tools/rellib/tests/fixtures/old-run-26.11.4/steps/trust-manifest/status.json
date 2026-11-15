@@ -1,0 +1,26 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:35:44Z",
+ "ended": "2026-11-15T13:35:45Z",
+ "note": "both manifests verify; serial 1794749740",
+ "hint": null,
+ "rc": null,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "duration_s": 1.5,
+ "attempt_seconds": [
+  1.5
+ ],
+ "warned": null,
+ "input_hash": "f3f575bec312b274",
+ "inputs_digest": "36ea3c351d09d7967b368160"
+}

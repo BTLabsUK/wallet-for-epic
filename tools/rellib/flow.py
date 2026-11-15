@@ -1,41 +1,42 @@
 # SPDX-License-Identifier: Apache-2.0
 """The release flow as data: the stages in order with class, needs and outputs (`tools/rel flow`, the
-header block of pipeline.toml), the lane table (`tools/rel lanes`, `tools/rel lane`) and the record a
-night leaves per commit (<night root>/../lanes/<sha>.json), which `tools/rel cut` and the gate note read."""
-import glob
-import json
+header block of pipeline.toml), and the cut of a release branch (`tools/rel cut`)."""
 import os
-import re
 import subprocess
 import tempfile
-import tomllib
 
-from .config import ConfigError, PLATFORMS, Pipeline, is_night
-from .run import now_iso, read_json
+from .config import ConfigError
 
 BEGIN = "# flow:begin"
 END = "# flow:end"
-ORDER = ("common", "night", "release", "publish")
-# A stage with several instances (one per variant) shows its worst.
-WORST = ("failed", "running", "waiting", "held", "closed", "pending", "refused", "done", "skipped")
+ORDER = ("common", "release", "publish")
+# The checks every run makes first (G0, G1, the source, G2): source-check and what it needs.
+COMMON_TO = "source-check"
 
 
 def class_of(spec):
     return "informs" if spec.get("warn_only") else "blocks"
 
 
-def _stage_of(name, spec, night_names):
+def _common(pipeline):
+    names, todo = set(), [COMMON_TO] if COMMON_TO in pipeline.steps else []
+    while todo:
+        n = todo.pop()
+        if n not in names:
+            names.add(n)
+            todo.extend(d.split("@")[0] for d in pipeline.steps[n].get("needs", []))
+    return names
+
+
+def _stage_of(name, spec, common):
     if spec.get("publish") or spec.get("kind") == "publish":
         return "publish"
-    if is_night(spec):
-        return "night"
-    return "common" if name in night_names else "release"
+    return "common" if name in common else "release"
 
 
 def flow_stages(pipeline):
-    """The steps by name, in the order they run: what night and release share, night, release, publish."""
-    night_names = pipeline.stage_steps("night")
-    release_names = pipeline.stage_steps("release")
+    """The steps by name, in the order they run: the common checks, the release up to the gate, publish."""
+    common = _common(pipeline)
     seen, order = set(), []
 
     def visit(name):
@@ -51,9 +52,7 @@ def flow_stages(pipeline):
     rows = []
     for name in order:
         spec = pipeline.steps[name]
-        stage = _stage_of(name, spec, night_names)
-        rows.append({"name": name, "title": spec.get("title", name), "stage": stage,
-                     "runs_in": [s for s, names in (("night", night_names), ("release", release_names)) if name in names],
+        rows.append({"name": name, "title": spec.get("title", name), "stage": _stage_of(name, spec, common),
                      "class": class_of(spec), "kind": spec.get("kind", "command"),
                      "needs": list(spec.get("needs", [])), "outputs": list(spec.get("outputs", []))})
     rows.sort(key=lambda r: ORDER.index(r["stage"]))  # stable: the order inside a stage stays
@@ -89,156 +88,7 @@ def rewrite_header(text, pipeline):
     return text[:a] + header_block(pipeline) + text[b:]
 
 
-# ---- the lane table ----
-
-def lane_bases(pipeline):
-    """A lane: a night step, or a proof step of the release (G4)."""
-    return [(n, "night" if is_night(s) else "release") for n, s in pipeline.steps.items()
-            if is_night(s) or s.get("proof")]
-
-
-def lanes_dir(pipeline):
-    return os.path.join(os.path.dirname(pipeline.night_root()), "lanes")
-
-
-def night_records(lanes_path):
-    """The night records, oldest first."""
-    out = []
-    for p in glob.glob(os.path.join(lanes_path, "*.json")):
-        rec = read_json(p, None)
-        if isinstance(rec, dict) and rec.get("sha") and isinstance(rec.get("lanes"), dict):
-            out.append(rec)
-    return sorted(out, key=lambda r: r.get("ended") or "")
-
-
-def _metric_runs(path):
-    """The proof lanes' runs from metrics.jsonl: {base: [one summary per run, oldest first]}."""
-    by = {}
-    try:
-        lines = open(path, encoding="utf-8").read().splitlines()
-    except OSError:
-        return {}
-    for line in lines:
-        try:
-            r = json.loads(line)
-        except ValueError:
-            continue
-        if not isinstance(r, dict) or not r.get("base") or r.get("dry") or r.get("reused"):
-            continue
-        runs = by.setdefault(r["base"], {})
-        cur = runs.setdefault(r.get("run"), {"status": r.get("status"), "warned": False, "sha": "", "ended": ""})
-        cur["status"] = worst(cur["status"], r.get("status"))
-        cur["warned"] = cur["warned"] or bool(r.get("warned"))
-        cur["sha"] = r.get("commit") or cur["sha"]  # older lines have none
-        cur["ended"] = r.get("ended") or cur["ended"]
-    return {b: list(runs.values()) for b, runs in by.items()}
-
-
-def worst(a, b):
-    rank = lambda s: WORST.index(s) if s in WORST else 0
-    return a if rank(a) <= rank(b) else b
-
-
-def _green(entry):
-    return entry["status"] == "done" and not entry["warned"]
-
-
-def lanes_table(pipeline, state_root):
-    records = night_records(lanes_dir(pipeline))
-    metrics = _metric_runs(os.path.join(state_root, "metrics.jsonl"))
-    table = []
-    for base, stage in lane_bases(pipeline):
-        spec = pipeline.steps[base]
-        if stage == "night":
-            history = [{"status": r["lanes"][base].get("status"), "warned": bool(r["lanes"][base].get("warned")),
-                        "sha": r["sha"], "ended": r.get("ended") or ""} for r in records if base in r["lanes"]]
-        else:
-            history = metrics.get(base, [])
-        streak = 0
-        for e in reversed(history):
-            if not _green(e):
-                break
-            streak += 1
-        table.append({"base": base, "title": spec.get("title", base).replace(" ({variant})", ""), "class": class_of(spec), "stage": stage,
-                      "last": history[-1] if history else None, "green_streak": streak})
-    return table
-
-
-def set_class(text, base, cls, path="release/pipeline.toml"):
-    """The file with this one step's class changed and the header block matching. Raises ConfigError
-    when the pipeline refuses it (warn_only never goes on a gate, proof or build)."""
-    m = re.search(rf"^\[step\.{re.escape(base)}\]\n(.*?)(?=^\[|\Z)", text, re.M | re.S)
-    if not m:
-        raise ConfigError(f"no step {base} in {path}")
-    body = re.sub(r"^warn_only = true\n", "", m.group(1), flags=re.M)
-    if cls == "informs":
-        title = re.search(r"^title = .*\n", body, re.M)
-        at = title.end() if title else 0
-        body = body[:at] + "warn_only = true\n" + body[at:]
-    text = text[:m.start(1)] + body + text[m.end(1):]
-    return rewrite_header(text, Pipeline(tomllib.loads(text), path))
-
-
-def change_class(main, base, cls, pipeline):
-    """Rewrite one line of the main checkout's pipeline.toml and commit only that file. -> commit or
-    a refusal as ConfigError."""
-    rel = "release/pipeline.toml"
-    if base not in {b for b, _ in lane_bases(pipeline)}:
-        raise ConfigError(f"{base} is not a lane (tools/rel lanes)")
-
-    def git(*args):
-        return subprocess.run(["git", "-C", main, *args], capture_output=True, text=True, check=False)
-
-    branch = git("rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
-    if branch != "main":
-        raise ConfigError(f"{main} is on {branch or '?'}, not main")
-    if git("status", "--porcelain", "--", rel).stdout.strip():
-        raise ConfigError(f"{main}/{rel} has uncommitted changes: nothing rewritten")
-    path = os.path.join(main, rel)
-    with open(path, encoding="utf-8") as f:
-        text = f.read()
-    new = set_class(text, base, cls, path)
-    if new == text:
-        return None
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(new)
-    done = git("commit", "-q", "-m", f"Lanes: {base} {cls}", "--", rel)
-    if done.returncode:
-        git("checkout", "--", rel)
-        raise ConfigError(f"git commit: {done.stderr.strip()}")
-    return git("rev-parse", "HEAD").stdout.strip()
-
-
 # ---- the cut ----
-
-def cut_refusal(rec, blocks):
-    """Why a night's record is no base for a cut, or None."""
-    if (rec.get("source") or {}).get("status") != "done":
-        return f"source is {(rec.get('source') or {}).get('status') or 'missing'}"
-    lanes = rec["lanes"]
-    names = set(blocks) | {b for b, v in lanes.items() if v.get("class") == "blocks"}
-    bad = [f"{b} is {lanes.get(b, {}).get('status', 'missing')}" for b in sorted(names)
-           if lanes.get(b, {}).get("status") != "done" or lanes[b].get("warned")]
-    return ", ".join(bad) or None
-
-
-def cut_base(pipeline, main):
-    """-> (commit, [why the newer nights do not count]): the newest commit of main with a green
-    source and every Blocks night lane passed."""
-    blocks = [b for b, stage in lane_bases(pipeline) if stage == "night" and class_of(pipeline.steps[b]) == "blocks"]
-    records = {r["sha"]: r for r in night_records(lanes_dir(pipeline))}
-    p = subprocess.run(["git", "-C", main, "rev-list", "--max-count", "2000", "main"], capture_output=True, text=True, check=False)
-    if p.returncode:
-        raise ConfigError(f"git rev-list main: {p.stderr.strip()}")
-    why = []
-    for sha in p.stdout.split():
-        if sha in records:
-            no = cut_refusal(records[sha], blocks)
-            if not no:
-                return sha, why
-            why.append(f"{sha[:12]}: {no}")
-    return None, why
-
 
 def make_cut(main, version, base, work_root):
     """Branch release/<version> at base plus the version commit. -> (tip, made). A branch that is
@@ -275,90 +125,3 @@ def make_cut(main, version, base, work_root):
     finally:
         git("worktree", "remove", "--force", wt)
     return tip, True
-
-
-# ---- the gate note ----
-
-def night_of(pipeline, repo, commit):
-    """The night record of commit, or of the newest commit it stands on: a cut adds the version
-    commit and maybe exception fixes on top of the night it came from."""
-    p = subprocess.run(["git", "-C", repo, "rev-list", "--max-count", "50", commit], capture_output=True, text=True, check=False)
-    for sha in p.stdout.split():
-        rec = read_json(os.path.join(lanes_dir(pipeline), f"{sha}.json"), None)
-        if isinstance(rec, dict) and isinstance(rec.get("lanes"), dict):
-            return rec
-    return None
-
-
-def result_word(status, warned):
-    return "warned" if warned else {"done": "passed"}.get(status, status or "not run")
-
-
-def lane_lines(engine):
-    """Every lane with its class and result: the night's, then this run's. Warned lanes hold nothing."""
-    run = engine.run
-    groups = {}
-
-    def add(base, cls, status, warned):
-        groups.setdefault((cls, result_word(status, warned)), []).append(base)
-
-    rec = night_of(engine.pipeline, engine.repo, engine.info["commit"])
-    for base, v in sorted((rec or {}).get("lanes", {}).items()):
-        add(base, v.get("class") or "blocks", v.get("status"), v.get("warned"))
-    mine = {}
-    for s in run.steps:
-        if s.proof or s.warn_only:
-            st = run.status(s.id)
-            cur = mine.setdefault(s.base, ["informs" if s.warn_only else "blocks", st["status"], False])
-            cur[1] = worst(cur[1], st["status"])
-            cur[2] = cur[2] or bool(st.get("warned"))
-    for base, (cls, status, warned) in mine.items():
-        add(base, cls, status, warned)
-    head = f"Lanes (night {rec['sha'][:12]}; warned lanes hold nothing):" if rec else \
-        "Lanes (no night record for this commit; warned lanes hold nothing):"
-    return [head] + [f"- {cls} {word}: {', '.join(names)}" for (cls, word), names in sorted(groups.items())]
-
-
-def walk_path(run):
-    return os.path.join(run.path, "person-walk.json")
-
-
-def walk_lines(run):
-    """The person walk (release/person-walk.md): one result per platform of the run."""
-    done = read_json(walk_path(run), {}) or {}
-    lines = ["Person walk (release/person-walk.md):"]
-    for p in PLATFORMS:
-        if run.info["scope"]["platforms"].get(p):
-            w = done.get(p)
-            lines.append(f"- {p}: " + (f"{w['result']}" + (f" ({w['note']})" if w.get("note") else "") if w else "not walked yet"))
-    return lines
-
-
-# ---- what a night leaves ----
-
-def write_night_record(run):
-    """<night root>/../lanes/<sha>.json: every night step of the run. Rewritten at each end, so a
-    retry of one lane shows. `class` is the run's own (plan.json froze warn_only)."""
-    lanes = {}
-    for s in run.steps:
-        st = run.status(s.id)
-        status = st.get("status")
-        cur = lanes.setdefault(s.base, {"class": "informs" if s.warn_only else "blocks", "status": status, "warned": False, "note": "",
-                                        "duration_s": 0.0})
-        if worst(status, cur["status"]) == status and status != cur["status"]:
-            cur["note"] = ""
-        cur["status"] = worst(cur["status"], status)
-        cur["warned"] = cur["warned"] or bool(st.get("warned"))
-        cur["note"] = cur["note"] or st.get("note") or st.get("reason") or ""
-        cur["duration_s"] += st.get("duration_s") or 0.0
-    night = set(run.info.get("night_steps") or [])
-    source = lanes.get("source-check", {}).get("status", "missing")
-    rec = {"sha": run.info["commit"], "ended": now_iso(), "run_id": run.info["run_id"], "version": run.info["version"],
-           "source": {"status": source}, "lanes": {b: v for b, v in lanes.items() if b in night}}
-    d = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(run.path))), "lanes")
-    os.makedirs(d, exist_ok=True)
-    tmp = os.path.join(d, f".{rec['sha']}.tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(rec, f, indent=1)
-    os.replace(tmp, os.path.join(d, f"{rec['sha']}.json"))
-    return rec

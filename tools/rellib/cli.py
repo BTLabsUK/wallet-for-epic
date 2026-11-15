@@ -11,7 +11,6 @@ failed, tools/rel stopped by SIGTERM/SIGINT/SIGHUP while driving, or a new run o
 -> aborted. 10, 20, 40, 64 and 75 are not an end: the same run goes on (retry, resume, gate)."""
 import pathlib
 import argparse
-import fcntl
 import json
 import os
 import re
@@ -20,17 +19,15 @@ import signal
 import subprocess
 import sys
 import tempfile
-import time
 
-from . import builtins, evidence, failures as known, flow, guards, health, hosted, repeats, retention
-from .config import (ConfigError, PLATFORMS, Pipeline, VERSION_RE, is_night, load_hosts, load_scope, scope_summary, scope_toml,
-                     validate_scope)
+from . import failures as known, flow, guards, hosted, retention, slow
+from .config import (ConfigError, PLATFORMS, Pipeline, VERSION_RE, load_hosts, load_scope, previous_of, scope_summary,
+                     scope_toml, validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, STALE_BYTES, relmsg_state)
 from .graph import build_graph, dependents
 from .relmsg import Relmsg
 from .run import Busy, Run, now_iso, read_json, write_json
 
-CONTINUE_WAIT = 60  # a parked lane looks for the word each second, then reloads
 EXIT_TEXT = {0: "ok", 10: "waiting", 20: "step failed", 30: "preflight failed", 40: "gate closed", 64: "usage", 75: "busy"}
 
 
@@ -66,7 +63,7 @@ RUNNER = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 
 # A follow-up run (--follow-up) skips these: the same commit's screens were checked and published
 # by the run it follows.
-FOLLOW_UP_SKIP = ("screens", "screens-check", "screens-publish")
+FOLLOW_UP_SKIP = ("screens", "screens-publish")
 # The base run's files a follow-up does not carry: it writes its own.
 CARRY_NOT = ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", "sbom.cdx.json")
 
@@ -81,7 +78,6 @@ def context(version, commit, run_path, run_id, src, scope, hosts, previous, buil
         "notes_file": f"{run_path}/notes.txt",
         "previous_dir": previous.get("dir", ""), "previous_version": previous.get("version", ""),
         "previous_ref": previous.get("ref", ""),
-        "node": "$REL_NODE", "epicbox": "$REL_EPICBOX",
         "host": Lenient(hosts["host"], "host"), "path": Lenient(hosts["path"], "path"),
     }
 
@@ -115,9 +111,6 @@ class App:
         self.pipeline = Pipeline.load(args.pipeline or os.path.join(self.repo, "release/pipeline.toml"))
         self.hosts = load_hosts(args.hosts)
         self.state_root = self.pipeline.state_root(args.state_root)
-        self.night = bool(getattr(args, "night", False))
-        if self.night:
-            self.state_root = args.state_root or self.pipeline.night_root()
         self.failures = known.load(os.path.join(self.repo, "release/failures.toml"))
 
     def out(self, code, message, run=None, **extra):
@@ -139,8 +132,6 @@ class App:
             print(text, flush=True)
 
     def engine(self, run, relmsg_on=True, dry=False):
-        if run.info.get("kind") == "night":
-            os.environ.setdefault("REL_TESTDB", os.path.join(self.pipeline.state_root(), "tests.db"))  # one DB
         rm = None
         if not run.info.get("dry") and not dry:
             rm = Relmsg(run, self.pipeline.relmsg, enabled=relmsg_on and not run.info.get("no_relmsg"))
@@ -157,15 +148,11 @@ class App:
                                             text=True, check=True).stdout.strip()
         commit = subprocess.run(["git", "-C", self.repo, "rev-parse", "--verify", f"{commit}^{{commit}}"],
                                 capture_output=True, text=True).stdout.strip() or commit
-        if getattr(a, "night", False):
-            a.test = True
-            a.version = a.version or version_at(self.repo, commit)
-        elif not a.version and a.cmd != "doctor":
-            raise ConfigError("a version, e.g. tools/rel start 26.11.5 (only --night reads it from the commit)")
-        scope = load_scope(a.scope, a.version, a.only, a.skip_platform, a.no_variant, a.set, a.skip,
-                           a.test, None, a.waive)
+        if not a.version and a.cmd != "doctor":
+            raise ConfigError("a version, e.g. tools/rel start 26.11.5")
+        scope = load_scope(a.scope, a.version, a.only, a.skip_platform, a.no_variant, a.set, a.skip, a.test)
         if a.previous:
-            scope["proof"]["previous_dir"] = a.previous
+            scope["previous"]["dir"] = a.previous
         if getattr(a, "builds", "local") == "hosted":
             scope["builds"] = {"hosted": True}  # local runs carry no [builds]: their plan is as before
             if getattr(a, "local_build", None):
@@ -181,28 +168,25 @@ class App:
         if base:
             if a.previous:
                 raise ConfigError("--follow-up takes the previous release of the run it follows: no --previous")
-            # The release it adds to keeps its previous release: G4, the version check and the rollback
-            # backup are as they were for that run.
+            # The release it adds to keeps its previous release: the version check, the manifests and the
+            # rollback backup are as they were for that run.
             prev = base["previous"]
             for name in FOLLOW_UP_SKIP:
                 if name in self.pipeline.steps and name not in scope["skip"]:
                     scope["skip"][name] = (f"follow-up of {base['run_id']}: the same commit, its screens were "
-                                           "checked and published there")
-        elif scope["proof"]["previous_dir"]:
-            d = os.path.expanduser(scope["proof"]["previous_dir"])
+                                           "rendered and published there")
+        elif previous_of(scope)["dir"]:
+            given = previous_of(scope)
+            d = os.path.expanduser(given["dir"])
             name = os.path.basename(d.rstrip("/"))
             m = re.match(r"\d{2}\.\d{1,2}\.\d+", name)
-            prev = {"dir": d, "version": scope["proof"]["previous_version"] or (m.group(0) if m else name),
-                    "ref": scope["proof"]["previous_ref"] or f"v{name}"}
+            prev = {"dir": d, "version": given["version"] or (m.group(0) if m else name),
+                    "ref": given["ref"] or f"v{name}"}
         elif pubs:
             p = pubs[-1]
-            # extra/ holds the emulator APKs trust-android installs first. Preflight sets the same
-            # (resolve_previous), but skips it when every platform is waived (a --test run without P).
-            prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", ""),
-                    "extra": os.path.join(p["run"], "extra")}
+            prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", "")}
         else:
-            # Releases published by hand (26.10.23, 26.10.24-r2) are the previous release too (G1 finds
-            # them again from the state root, builtins.previous_candidates).
+            # Releases published by hand (26.10.23, 26.10.24-r2) are the previous release too.
             by_hand = [p for p in retention.published_by_hand(self.state_root)
                        if p["version"] != scope["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
             if by_hand:
@@ -284,8 +268,8 @@ class App:
         path, run_id = Run.next_path(self.state_root, scope["version"])
         src = a.src or os.path.join(self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees")),
                                     f"rel-{scope['version']}-{commit[:7]}")
-        steps = build_graph(self.pipeline, scope, context(scope["version"], commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)),
-                            stage="night" if a.night else "release")
+        steps = build_graph(self.pipeline, scope, context(scope["version"], commit, path, run_id, src, scope, self.hosts, prev,
+                                                          self.build_id(commit)))
         if a.json:
             return self.out(0, "plan", steps=[s.to_dict() for s in steps], scope=scope, warnings=warns,
                             summary=scope_summary(scope))
@@ -294,21 +278,15 @@ class App:
         for w in warns:
             print(f"warning: {w}")
         if prev:
-            by_plat = builtins.previous_by_platform(scope, self.pipeline, self.state_root, scope["version"], prev)
-            text = builtins.previous_text(prev, by_plat)
-            print(f"previous release (G4): {prev['version']} at {prev['dir']}"
-                  + (f" · per platform: {text}" if text != prev["version"] else ""))
-        drivers = self.pipeline.proof.get("drivers", {})
+            print(f"previous release: {prev['version']} at {prev['dir']}")
         for s in steps:
-            waived = s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"]
-            skip = scope["skip"].get(s.base) or (f"waived: {scope['proof']['waive'][s.platforms[0]]}"
-                                                  if waived and not drivers.get(s.platforms[0]) else None)
+            skip = scope["skip"].get(s.base)
             print(f"  {'P' if s.publish else ' '} {s.id:28} {s.host:8} {s.kind:8} {s.lane:20} needs {', '.join(s.needs) or '-'}"
-                  + (f"   SKIP ({skip})" if skip else "   (waived: runs, shown, blocks nothing)" if waived else ""))
+                  + (f"   SKIP ({skip})" if skip else ""))
             if a.verbose and s.run:
                 print(f"      {s.run}")
         print("P = publish phase (tools/rel publish, after the publish gate); steps in one lane run one at a time, "
-              "lanes side by side (screens renders beside the builds and G4, screens-check reads it before the gate)")
+              "lanes side by side (screens renders beside the builds and holds neither the gate nor the publish)")
         return EXIT_OK
 
     # ---- start / resume / publish ----
@@ -325,12 +303,12 @@ class App:
         path, run_id = Run.next_path(self.state_root, version)
         wt = self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees"))
         src = os.path.abspath(a.src) if a.src else os.path.join(wt, f"rel-{version}-{commit[:7]}")
-        steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)),
-                            stage="night" if a.night else "release")
+        steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev,
+                                                          self.build_id(commit)))
         g2 = next((s for s in steps if s.base == "source-check"), None)
         if g2 and not a.dry_run and g2.base not in scope["skip"]:
             # Cheapest first: a candidate whose content passed the whole suite (full and full-notor:
-            # an earlier run, the nightly, a `tools/check.sh --full` on that commit) reuses it; any
+            # an earlier run, a `tools/check.sh --full` on that commit) reuses it; any
             # other runs G2 here first. Nothing builds or dispatches before G2 passes.
             found, key = self.green_source(commit, version, g2)
             if found:
@@ -338,14 +316,10 @@ class App:
             else:
                 self.echo(f"G2: no green full check for {commit[:12]} (key {key}): tools/check.sh --full runs "
                           "first in this run; no build or hosted dispatch before it passes")
-        conc = {k: v for k, v in (("max_heavy", a.max_heavy), ("shared", False if a.exclusive_machine else None))
-                if v is not None}
+        conc = {"max_heavy": a.max_heavy} if a.max_heavy is not None else {}
         info = {"version": version, "commit": commit, "scope": scope, "test": scope["test"], "dry": bool(a.dry_run),
                 "target": scope["publish"]["target"], "src": src, "src_made": not a.src, "warnings": warns,
-                "previous": prev, "kind": "night" if a.night else "release",
-                "no_relmsg": bool(a.no_relmsg or a.night), "argv": sys.argv[1:]}
-        if a.night:
-            info["night_steps"] = sorted({s.base for s in steps if is_night(self.pipeline.steps[s.base])})
+                "previous": prev, "kind": "release", "no_relmsg": bool(a.no_relmsg), "argv": sys.argv[1:]}
         if conc:
             info["concurrency"] = conc
         if a.sign_inline:
@@ -385,10 +359,6 @@ class App:
         for s in run.steps:
             if s.base in scope["skip"]:
                 run.set_status(s.id, status="skipped", reason=f"release.toml [skip]: {scope['skip'][s.base]}")
-            elif (s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"]
-                  and not self.pipeline.proof.get("drivers", {}).get(s.platforms[0])):
-                # A waived platform with a driver still runs it: the gate shows what it found.
-                run.set_status(s.id, status="skipped", reason=f"waived: {scope['proof']['waive'][s.platforms[0]]}")
         self.echo(f"run {run.info['run_id']} in {run.path}")
         self.echo(f"scope: {scope_summary(scope)}")
         for w in warns:
@@ -405,12 +375,10 @@ class App:
         return self.drive(run, eng, phase="build", until=a.until, stop_on_fail=a.stop_on_fail)
 
     def concurrency_overrides(self, run, a):
-        """--max-heavy N / --exclusive-machine: kept in run.json, so a resume keeps them."""
+        """--max-heavy N: kept in run.json, so a resume keeps it."""
         over = dict(run.info.get("concurrency") or {})
         if getattr(a, "max_heavy", None):
             over["max_heavy"] = a.max_heavy
-        if getattr(a, "exclusive_machine", False):
-            over["shared"] = False
         if over != (run.info.get("concurrency") or {}):
             run.info["concurrency"] = over
             run.save_info()
@@ -441,9 +409,6 @@ class App:
                     frontier = nxt - need
                     need |= nxt
                 sel = [x for x in sel if x in need]
-            from . import evidence
-            manifest = evidence.read_manifest(run)
-            stale = {sid for sid, _ in evidence.stale_proofs(eng, manifest)} if manifest else set()
             with run.short("admit"):
                 elsewhere = {s.id for s in run.elsewhere()}
             for sid in sel:
@@ -451,11 +416,6 @@ class App:
                     continue  # another tools/rel runs it on its lane; the drive picks up what follows
                 st = run.status(sid)
                 s = run.step(sid)
-                if sid in stale:
-                    run.set_status(sid, status="pending", note="not applicable any more: it tested other bytes "
-                                                               "than rc-manifest.json")
-                    run.event(sid, "invalidated", reason="tested other bytes than rc-manifest.json")
-                    continue
                 if st["status"] == "failed" and retry_failed:
                     run.set_status(sid, retry=True)
                 why = eng.stale_why(s, st)
@@ -482,9 +442,7 @@ class App:
         return self.finish(run, eng, code)
 
     def finish(self, run, eng, code):
-        report(run, self.pipeline.health)
-        if run.info.get("kind") == "night" and not run.info.get("dry") and not eng.dry:
-            flow.write_night_record(run)
+        report(run)
         rows = run.summary_rows()
         waiting = [r for r in rows if r["status"] in ("waiting", "held", "closed")]
         failed = [r for r in rows if r["status"] == "failed"]
@@ -496,7 +454,7 @@ class App:
                    + (f"hint: {f['hint']}\n" if f.get("hint") else "")
                    + f"log: {os.path.join(run.step_dir(f['id']), 'log.txt')}\n"
                    + f"last lines:\n{known.tail(os.path.join(run.step_dir(f['id']), 'log.txt'), 25)}\n"
-                   + f"debug: tools/rel debug {f['id']}   " + self.retry_line(run, eng, f))
+                   + f"debug: tools/rel debug {f['id']}   retry: tools/rel retry {f['id']}")
         elif waiting:
             msg = f"{run.info['run_id']}: waiting: " + "; ".join(f"{w['id']}: {w.get('note') or w['status']}" for w in waiting)
         else:
@@ -506,12 +464,6 @@ class App:
             # an end: retry, resume and the gate carry the same run on; publish ends it.)
             eng.relmsg.done("failed", note=msg[:500])
         return self.out(code, msg, run)
-
-    @staticmethod
-    def retry_line(run, eng, row):
-        """What the end of a run tells the reader to do next about a failed step."""
-        no = repeats.verdict(eng, run.step(row["id"]), manual=True)
-        return no["line"] if no else f"retry: tools/rel retry {row['id']}"
 
     def supersede(self, new_run):
         """A new run of a version replaces the older runs of it: their live messages end aborted."""
@@ -543,14 +495,14 @@ class App:
                 eng.relmsg.step(s.id, relmsg_state(st), note=st.get("note") or st.get("reason"), label=s.title)
 
     def green_source(self, commit, version, step):
-        """(source, key): where the G2 result for this content key already is (an earlier run, the
-        nightly, a green record of `tools/check.sh --full`), or (None, key)."""
+        """(source, key): where the G2 result for this content key already is (an earlier run, a
+        green record of `tools/check.sh --full`), or (None, key)."""
         from . import reuse
         spec = self.pipeline.steps.get(step.base) or {}
         if not spec.get("reuse"):
             return None, "-"
         k, _, src = reuse.find_source(self.repo, self.state_root, {"commit": commit, "version": version}, step,
-                                      spec["reuse"], reuse.nightly_dir(spec), reuse.green_dir(spec))
+                                      spec["reuse"], reuse.green_dir(spec))
         return src, k
 
     def cmd_sign(self, a):
@@ -603,9 +555,6 @@ class App:
         unmet_of = {}
         for s in sel:
             st = run.status(s.id)
-            no = self.parked_refusal(run, s)
-            if no is not None:
-                return no
             if s.publish and st["status"] == "done" and not a.again:
                 return self.out(EXIT_USAGE, f"{s.id} is a publish step and already done: --again to run it again", run)
             if s.publish and not run.info.get("dry"):
@@ -623,10 +572,6 @@ class App:
             if unmet and s.publish:
                 return self.out(EXIT_USAGE, "a publish step never runs with --ignore-needs", run)
             unmet_of[s.id] = unmet
-            no = None if getattr(a, "gated", False) else repeats.verdict(eng, s, st, manual=True)
-            if no:
-                run.event(s.id, "repeat-refused", rule=no["rule"], line=no["line"], manual=True)
-                return self.out(EXIT_DENIED, no["line"], run)
         whole = any(s.publish for s in sel)
         try:
             if whole:
@@ -667,7 +612,7 @@ class App:
             frontier.extend(s.needs)
         return sorted(out)
 
-    DOING = ("fixing", "probing", "rerun-queued", "rerunning", "continuing", "accepted", "waits", "none")
+    DOING = ("fixing", "rerun-queued", "rerunning", "accepted", "waits", "none")
 
     @staticmethod
     def doing(run, sid, state, note, commit=None, by="rel"):
@@ -688,7 +633,7 @@ class App:
 
     def cmd_doing(self, a):
         """Says what is being done about a failed step: fixing (with the commit), rerun-queued, accepted
-        for the gate (with the reason), or none. Probe, retry and continue set it themselves."""
+        for the gate (with the reason), or none. Retry sets it itself."""
         run = self.load_run()
         s = run.step(a.step)
         state = a.state
@@ -697,52 +642,25 @@ class App:
         mark = self.doing(run, s.id, state, (a.note or "").strip() or None, a.commit, by="lead")
         return self.out(EXIT_OK, f"{s.id}: {mark['state']}{': ' + mark['note'] if mark['note'] else ''}", run)
 
-    def parked_refusal(self, run, s):
-        """A lane parked with its app up is gone on from, never started again: the refusal, or None."""
-        if not repeats.gated(s):
-            return None
-        stage = os.path.join(run.step_dir(s.id), "out")
-        park = repeats.parked(stage)
-        if not park or not repeats.lane_of(park["pid"], stage):
-            return None
-        line = (f"refused: {s.id} is parked at {park['step']} with its app up. Commit the fix to the drivers: it goes "
-                f"on by itself. Or now: tools/rel go {s.id} (--stop ends the park)")
-        run.event(s.id, "repeat-refused", rule="parked", line=line, manual=True)
-        return self.out(EXIT_DENIED, line, run)
-
     def cmd_retry(self, a):
         run = self.load_run()
         s = run.step(a.step)
         st = run.status(s.id)
-        no = self.parked_refusal(run, s)
-        if no is not None:
-            return no
         if st["status"] not in ("failed", "waiting", "held", "closed") and not a.again:
             return self.out(EXIT_USAGE, f"{s.id} is {st['status']}; retry is for a failed step (--again to re-run a done one)", run)
         if s.publish and st["status"] == "done" and not a.again:
             return self.out(EXIT_USAGE, f"{s.id} publishes and is done: --again to run it again", run)
-        fresh = None if a.fresh is None else a.fresh.strip()
-        if fresh is not None and (not fresh or not repeats.gated(s)):
-            return self.out(EXIT_USAGE, "--fresh needs a reason" if not fresh else f"{s.id} is no lane: --fresh is for lanes", run)
-        no = repeats.verdict(self.engine(run, relmsg_on=False), s, st, manual=True, fresh=fresh)
-        if no:
-            run.event(s.id, "repeat-refused", rule=no["rule"], line=no["line"], manual=True)
-            return self.out(EXIT_DENIED, no["line"], run)
         try:
             run.claim_lanes([s])
         except Busy as e:
             return self.out(EXIT_BUSY, str(e), run)
         try:
-            if fresh:
-                run.set_status(s.id, fresh=fresh)
-                run.event(s.id, "fresh-forced", reason=fresh, attempt=st.get("attempts", 0) + 1)
             run.set_status(s.id, status="pending", retry=False)
             run.event(s.id, "retry-requested")
-            a.ignore_needs, a.dry_run, a.gated = False, False, True
+            a.ignore_needs, a.dry_run = False, False
             a.step = s.id
             n = st.get("attempts", 0) + 1
-            self.doing(run, s.id, "rerunning", f"attempt {n}" + (f" from the very beginning: {fresh}" if fresh else ""),
-                       evidence.driver_record(self.repo).get("commit"))
+            self.doing(run, s.id, "rerunning", f"attempt {n}")
             try:
                 return self.cmd_run(a, run)
             finally:
@@ -750,138 +668,13 @@ class App:
         finally:
             run.release_lanes([s])
 
-    def cmd_continue(self, a):
-        """The fix goes in where the lane stopped: a parked lane reloads the drivers and goes on from the
-        failed action. A lane that is gone goes on from its nearest resume point, by the retry's road.
-        It takes no lock: the lane is running, and the tools/rel that started it holds its rig."""
-        run = self.load_run()
-        s = run.step(a.step)
-        if not repeats.gated(s):
-            return self.out(EXIT_USAGE, f"{s.id} is no lane", run)
-        eng = self.engine(run, relmsg_on=False)
-        stage = os.path.join(run.step_dir(s.id), "out")
-        park = repeats.parked(stage)
-        if park:
-            return self.go_on(eng, run, s, stage, park, a.stop)
-        st = run.status(s.id)
-        if a.stop:
-            return self.out(EXIT_USAGE, f"{s.id} is not parked", run)
-        if st["status"] == "running":
-            return self.out(EXIT_BUSY, f"{s.id} is running and not parked: nothing to continue yet", run)
-        if st["status"] != "failed":
-            return self.out(EXIT_USAGE, f"{s.id} is {st['status']}: nothing to continue", run)
-        fails = st.get("failures") or []
-        last = fails[-1] if fails else None
-        if last and last["kind"] == "harness":
-            why = self.lane_gone(eng, s, last)
-            if why:
-                run.event(s.id, "repeat-refused", rule="continue-gone", line=why, manual=True)
-                return self.out(EXIT_DENIED, why, run)
-            run.set_status(s.id, go_on=last["attempt"])
-        self.echo(f"{s.id} has no lane left to hold it: it goes back to the nearest resume point")
-        a.fresh, a.again = None, False
-        return self.cmd_retry(a)
-
-    def cmd_go(self, a):
-        return self.cmd_continue(a)
-
-    def go_on(self, eng, run, s, stage, park, stop):
-        now = evidence.driver_record(eng.runner)
-        if now.get("dirty") and not stop:
-            return self.out(EXIT_DENIED, f"refused: {s.id} is parked at {park['step']}, and this checkout has "
-                                         "uncommitted driver changes. Commit the fix: the proof names a commit.", run)
-        token = repeats.ask_park(stage, now, stop)
-        deadline = time.time() + CONTINUE_WAIT
-        answer = None
-        while answer is None and time.time() < deadline and repeats.parked(stage):
-            time.sleep(0.5)
-            answer = repeats.park_answer(stage, token)
-        answer = answer or repeats.park_answer(stage, token)
-        if answer is None:
-            return self.out(EXIT_FAILED, f"{s.id} did not answer: it is {'still parked' if repeats.parked(stage) else 'gone'}", run)
-        if not answer.get("ok"):
-            return self.out(EXIT_FAILED, f"not continued: the drivers do not load: {answer.get('note')}. {s.id} stays "
-                                         f"parked at {park['step']}: fix, commit, tools/rel continue {s.id}", run)
-        if stop:
-            run.event(s.id, "park-stopped", name=park["step"])
-            return self.out(EXIT_OK, f"{s.id} leaves {park['step']}: the fault takes its way as without a park", run)
-        run.event(s.id, "continue", name=park["step"], driver=evidence.driver_label(now), acts=answer.get("acts"))
-        self.doing(run, s.id, "continuing", f"going on from {park['step']} on the fix", now.get("commit"))
-        was = self.park_outside(eng.runner, run.status(s.id).get("driver"), now)
-        return self.out(EXIT_OK, f"{s.id}: {answer.get('modules')} driver modules reloaded, {answer.get('acts')} actions of "
-                                 f"phase {answer.get('phase')} replayed without touching the app, live again at "
-                                 f"{answer.get('step')}, on {evidence.driver_label(now)}.{was}", run)
-
-    @staticmethod
-    def park_outside(repo, old, now):
-        changed = repeats.changed(repo, (old or {}).get("commit"), now.get("commit"))
-        moved = [p for p in repeats.OUTSIDE if any(c.endswith(p) for c in changed)]
-        return f" Not reloaded, they run beside the lane: {', '.join(moved)}." if moved else ""
-
-    @staticmethod
-    def lane_gone(eng, s, last):
-        """Why a harness failure whose lane has gone may not go on, or None: the drivers must have moved on."""
-        now = evidence.driver_record(eng.runner)
-        old = (last.get("driver") or {}).get("commit")
-        moved = (not now.get("dirty") and repeats.newer(eng.runner, old, now.get("commit"))
-                 and repeats.tree(eng.runner, old) != repeats.tree(eng.runner, now.get("commit")))
-        if moved or not old:
-            return None
-        return (f"refused: {s.id} is not parked (the lane is gone) and the drivers have not changed since it failed at "
-                f"{last['step']}. Commit the fix, then tools/rel continue {s.id}")
-
-    def cmd_probe(self, a):
-        """The failing step alone: the target lane by the shortest route to it, recorded in the run. It
-        holds the target's lane, so it runs while other lanes do; a step on that lane holds it off."""
-        run = self.load_run()
-        s = run.step(a.target)
-        if not repeats.gated(s):
-            return self.out(EXIT_USAGE, f"{s.id} is no lane", run)
-        eng = self.engine(run, relmsg_on=False)
-        if eng.dry or run.info.get("dry"):
-            return self.out(EXIT_DENIED, "a dry run has no failure to probe", run)
-        no = self.parked_refusal(run, s)
-        if no is not None:
-            return no
-        busy = [x.id for x in run.steps if x.lane == s.lane and run.status(x.id)["status"] == "running"]
-        if busy:
-            return self.out(EXIT_BUSY, f"{', '.join(busy)} is running on this lane: probe when it has ended", run)
-        fail = repeats.failing_step(run, s, a.step)
-        if not fail:
-            names = ", ".join(repeats.failing_names(run, s)) or "none"
-            return self.out(EXIT_DENIED, f"refused: {a.step} is no failing step in {run.info['run_id']}. A probe stops at "
-                                         f"a step that failed, or it would run the whole lane. Failed on {s.id}: {names}", run)
-        os.makedirs(run.step_dir(s.id), exist_ok=True)
-        with open(os.path.join(run.step_dir(s.id), ".probe"), "w") as held:
-            try:
-                fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError:
-                return self.out(EXIT_BUSY, f"another probe is running on {s.id}", run)
-            try:
-                run.claim_lanes([s])
-            except Busy as e:
-                return self.out(EXIT_BUSY, str(e), run)
-            commit = evidence.driver_record(eng.runner).get("commit")
-            self.doing(run, s.id, "probing", f"probe of {a.step}", commit)
-            rec = None
-            try:
-                rec = eng.probe(s, fail)
-            finally:
-                run.release_lanes([s])
-                if rec and rec["passed"]:
-                    self.doing(run, s.id, "rerun-queued", f"probe {rec['n']} passed {rec['step']}: rerun due", commit)
-                else:
-                    self.doing(run, s.id, "none", f"probe{' %s' % rec['n'] if rec else ''} of {a.step} failed", commit)
-        return self.out(EXIT_OK if rec["passed"] else EXIT_FAILED,
-                        f"probe {rec['n']} of {rec['step']} on {rec['platform']}: {repeats.counts(rec)}", run, probe=rec)
-
     def cmd_skip(self, a):
         run = self.load_run()
         s = run.step(a.step)
         spec = self.pipeline.steps.get(s.base, {})
         if not spec.get("skippable"):
             return self.out(EXIT_USAGE, f"{s.id} cannot be skipped (builds and gates never are; drop a platform in "
-                                        "release.toml and start a new run, or waive its proof)", run)
+                                        "release.toml and start a new run)", run)
         if not a.reason.strip():
             return self.out(EXIT_USAGE, "--reason is required", run)
         run.set_status(s.id, status="skipped", reason=a.reason)
@@ -897,66 +690,22 @@ class App:
         what the run was planned with, so a new step would never show. Nothing runs."""
         run = self.load_run()
         i = run.info
-        stage = "night" if i.get("kind") == "night" else "release"
         scope = load_scope(os.path.join(run.path, "release.toml"))
         ctx = context(i["version"], i["commit"], run.path, i["run_id"], i["src"], scope, self.hosts, i.get("previous"))
-        known = {s.id: s for s in build_graph(self.pipeline, scope, ctx, stage=stage)}
+        known = {s.id: s for s in build_graph(self.pipeline, scope, ctx)}
         have = {s.id for s in run.steps}
         new = [x for x in a.step if x not in have]
         for x in new:
             if x not in known:
-                return self.out(EXIT_USAGE, f"{x}: no such step in this run's stage", run)
+                return self.out(EXIT_USAGE, f"{x}: no such step in this run's scope", run)
             if any(n not in have for n in known[x].needs):
                 return self.out(EXIT_USAGE, f"{x} needs a step this run does not have", run)
         with run.short("info"):
             run.steps.extend(known[x] for x in new)
             write_json(os.path.join(run.path, "plan.json"), [s.to_dict() for s in run.steps])
-        if stage == "night":
-            i["night_steps"] = sorted(set(i.get("night_steps") or []) | {known[x].base for x in new})
-            run.save_info()
         for x in new:
             run.event(x, "step-added", by="add-step")
         return self.out(EXIT_OK, f"added: {', '.join(new) or 'nothing, all were there'}", run)
-
-    def cmd_adopt(self, a):
-        """A step's work that began outside tools/rel, on the record: a process still running stays
-        untouched and this waits for it, then the proof it wrote is the result: no proof is a failure.
-        Holds no lane: the work did not ask for one."""
-        run = self.load_run()
-        s = run.step(a.step)
-        src = os.path.abspath(a.out)
-        os.makedirs(run.step_dir(s.id), exist_ok=True)
-        stage = os.path.join(run.step_dir(s.id), "out")
-        log = os.path.join(src, "trust.log" if os.path.isfile(os.path.join(src, "trust.log")) else "driver.log")
-        for link, to in ((stage, src), (os.path.join(run.step_dir(s.id), "log.txt"), log)):
-            if not os.path.lexists(link):
-                os.symlink(to, link)
-        started = os.path.getctime(src)
-        note = f"adopted: began outside tools/rel in {src}"
-        run.set_status(s.id, status="running", attempts=1, pid=a.pid or None, log=log, note=note,
-                       started=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)))
-        run.event(s.id, "adopted", out=src, pid=a.pid or None)
-        proof_path = os.path.join(src, "proof.json")
-        while not os.path.isfile(proof_path) and a.pid and os.path.exists(f"/proc/{a.pid}"):
-            time.sleep(10)
-        proof = read_json(proof_path)
-        dur = round(time.time() - started, 1)
-        result = {"pid": None, "ended": now_iso(), "duration_s": dur, "rc": 0, "note": note, "warned": None}
-        bad = sorted(k for k, v in ((proof or {}).get("checks") or {"proof.json": False}).items() if v is not True)
-        if bad:
-            fault = (proof or {}).get("fault") or {}
-            what = fault.get("step") or ("no proof.json" if proof is None else "checks not true")
-            result.update(rc=1, failed_checks=bad, cause=f"harness: {fault['step']}" if fault.get("step") else "step")
-            fail = repeats.failure(self.engine(run, relmsg_on=False), s, 1, result, dur, started, None)
-            if s.warn_only:
-                result.update(status="done", warned=True, note=f"WARNING, not blocking: {what}; {note}", failures=[fail])
-            else:
-                result.update(status="failed", note=f"{what}; {note}", failures=[fail])
-        else:
-            result["status"] = "done"
-        run.set_status(s.id, **result)
-        run.event(s.id, "adopted-end", status=result["status"], warned=result["warned"], rc=result["rc"], note=result["note"])
-        return self.out(EXIT_OK if not bad else EXIT_FAILED, f"{s.id}: {result['note']}", run)
 
     def cmd_gate(self, a):
         run = self.load_run()
@@ -1041,10 +790,8 @@ class App:
             print(f"gate watcher running: {w.get('unit') or 'pid ' + str(w.get('pid'))}, log {gatewatch.log_path(run)}")
         for r in rows:
             d = f"{r['duration_s']:.0f}s" if r.get("duration_s") is not None else ""
-            extra = (repeat_note(r) + (r.get("stopped") or r.get("note") or r.get("reason") or "")).strip()
-            if r.get("parked"):
-                extra = f"at {r['parked']['step']}, app up: fix, commit, tools/rel continue {r['id']}"
-            print(f"  {'parked' if r.get('parked') else r['status']:8} {r['id']:28} {d:>7}  {extra[:110]}")
+            extra = (r.get("note") or r.get("reason") or "").strip()
+            print(f"  {r['status']:8} {r['id']:28} {d:>7}  {extra[:110]}")
         return EXIT_OK
 
     def cmd_logs(self, a):
@@ -1088,9 +835,6 @@ class App:
                 return self.out(EXIT_USAGE, "--exec is for command steps", run)
             if s.publish:
                 return self.out(EXIT_USAGE, "never --exec a publish step", run)
-            if repeats.gated(s) and st.get("attempt_causes") and not run.info.get("dry"):
-                return self.out(EXIT_DENIED, f"refused: --exec would run the whole of {s.id} again. "
-                                             f"tools/rel probe <step> {s.id} reaches the failing step alone", run)
             print("\n(--exec: runs it here with the console attached; the log is debug-<n>.log; the step's status is not changed)")
             n = len([f for f in os.listdir(run.step_dir(s.id)) if f.startswith("debug-")]) + 1
             dlog = os.path.join(run.step_dir(s.id), f"debug-{n}.log")
@@ -1163,8 +907,7 @@ class App:
             bad, good = rollback.choose(self.state_root, a.to)
         except ValueError as e:
             return self.out(EXIT_USAGE, str(e))
-        base_ctx = {"rel": RUNNER, "host": Lenient(self.hosts["host"], "host"), "path": Lenient(self.hosts["path"], "path"),
-                    "node": "$REL_NODE", "epicbox": "$REL_EPICBOX"}
+        base_ctx = {"rel": RUNNER, "host": Lenient(self.hosts["host"], "host"), "path": Lenient(self.hosts["path"], "path")}
         run = rollback.make_run(self.state_root, self.pipeline, self.hosts, self.repo, bad, good, a.test, base_ctx)
         if a.dry_run:
             run.info["dry"] = True
@@ -1209,72 +952,24 @@ class App:
         print("\n".join(flow.flow_lines(self.pipeline)))
         return EXIT_OK
 
-    def cmd_lanes(self, a):
-        """The lane table: class, stage, last result and green streak of every lane."""
-        table = flow.lanes_table(self.pipeline, self.state_root)
-        if a.json:
-            print(json.dumps(table))
-            return EXIT_OK
-        for r in table:
-            last = r["last"] or {}
-            print(f"{r['stage']:8} {r['class']:8} {r['base']:24} {last.get('status') or '-':8}"
-                  f"{' warned' if last.get('warned') else ''}  streak {r['green_streak']}  {last.get('sha', '')[:12]}")
-        return EXIT_OK
-
-    def cmd_lane(self, a):
-        """Blocks or Informs for one lane: one line of pipeline.toml, committed on main. The run in
-        flight keeps its plan.json: the change applies to the next run."""
-        main = os.path.expanduser(self.hosts["path"].get("main_checkout") or self.repo)
-        sha = flow.change_class(main, a.base, a.cls, self.pipeline)
-        return self.out(EXIT_OK, f"{a.base} {a.cls}: {sha[:12] if sha else 'already so'}", commit=sha)
-
     def cmd_cut(self, a):
-        """Branch release/<version> from the newest green night, plus the version commit. The app is
-        frozen on that branch: main may move, an exception fix is cherry-picked and reruns G2."""
+        """Branch release/<version> from the tip of main (or --from), plus the version commit. The app
+        is frozen on that branch: main may move, an exception fix is cherry-picked and reruns G2."""
         if not VERSION_RE.fullmatch(a.version):
             return self.out(EXIT_USAGE, f"--version {a.version}: expected YY.MM.patch")
         main = os.path.expanduser(self.hosts["path"].get("main_checkout") or self.repo)
-        base, why = flow.cut_base(self.pipeline, main)
-        branch = f"release/{a.version}"
-        have = subprocess.run(["git", "-C", main, "rev-parse", "-q", "--verify", f"refs/heads/{branch}"],
+        ref = getattr(a, "from_commit", None) or "main"
+        base = subprocess.run(["git", "-C", main, "rev-parse", "-q", "--verify", f"{ref}^{{commit}}"],
                               capture_output=True, text=True, check=False).stdout.strip()
-        if base is None and not have:
-            return self.out(EXIT_FAILED, "no commit of main has a green night"
-                            + (": " + "; ".join(why[:5]) if why else " (tools/rel start --night)"), nights=why)
+        if not base:
+            return self.out(EXIT_USAGE, f"{ref}: no such commit in {main}")
+        branch = f"release/{a.version}"
         tip, made = flow.make_cut(main, a.version, base, self.state_root)
         start = f"tools/rel start {a.version} --commit {tip}"
         return self.out(EXIT_OK, f"{branch} at {tip[:12]}{'' if made else ' (already cut)'}\n{start}",
                         version=a.version, commit=tip, branch=branch, base=base, start=start)
 
-    def cmd_walk(self, a):
-        """The person walk's result for one platform (release/person-walk.md); the gate note shows it."""
-        run = self.load_run()
-        if a.platform not in PLATFORMS or not run.info["scope"]["platforms"].get(a.platform):
-            return self.out(EXIT_USAGE, f"{a.platform} is not in this run", run)
-        done = read_json(flow.walk_path(run), {}) or {}
-        done[a.platform] = {"result": a.result, "note": a.note or "", "at": now_iso()}
-        write_json(flow.walk_path(run), done)
-        run.event("", "person-walk", platform=a.platform, result=a.result, note=a.note or "")
-        return self.out(EXIT_OK, f"person walk {a.platform}: {a.result}", run)
-
-    def cmd_lane_health(self, a):
-        """`stats --lanes`: the lane health table (tools/rellib/health.py)."""
-        lanes = health.lanes_of(os.path.join(self.state_root, "metrics.jsonl"), self.pipeline.health)
-        if a.json:
-            return self.out(EXIT_OK, "lanes", lanes=lanes, health=health.settings(self.pipeline.health))
-        if not lanes:
-            print("no trust lane has run yet")
-            return EXIT_OK
-        print(health.title(self.pipeline.health))
-        t = health.rows(lanes)
-        w = [max(len(r[i]) for r in t) for i in range(len(t[0]))]
-        for r in t:
-            print("  ".join(c.ljust(w[i]) for i, c in enumerate(r)).rstrip())
-        return EXIT_OK
-
     def cmd_stats(self, a):
-        if getattr(a, "lanes", False):
-            return self.cmd_lane_health(a)
         path = os.path.join(self.state_root, "metrics.jsonl")
         rows = []
         if os.path.isfile(path):
@@ -1287,7 +982,7 @@ class App:
         by = {}
         for r in rows:
             by.setdefault(r["base"], []).append(r)
-        slow = {h["step"]: h for h in health.slow_steps(path)}
+        slows = {h["step"]: h for h in slow.slow_steps(path)}
         table = []
         for base, rs in by.items():
             done = [r["duration_s"] for r in rs if r["status"] == "done"]
@@ -1297,9 +992,7 @@ class App:
             table.append({"step": base, "runs": len(rs), "failed": sum(1 for r in rs if r["status"] == "failed"),
                           "last_s": last, "avg_prev5_s": round(avg, 1) if avg else None,
                           "slower": bool(last and avg and last > 1.25 * avg),
-                          "over_median": slow.get(base),
-                          "repeated_s": round(sum(r.get("repeated_s") or 0 for r in rs), 1),
-                          "forced": sum(r.get("forced") or 0 for r in rs)})
+                          "over_median": slows.get(base)})
         if a.json:
             return self.out(EXIT_OK, "stats", stats=table)
         print(f"{'step':24} {'runs':>5} {'failed':>6} {'last':>8} {'avg(5)':>8}")
@@ -1307,13 +1000,13 @@ class App:
             fmt = lambda v: f"{v:.0f}s" if v is not None else "-"
             print(f"{t['step']:24} {t['runs']:>5} {t['failed']:>6} {fmt(t['last_s']):>8} {fmt(t['avg_prev5_s']):>8}"
                   + ("  slower" if t["slower"] else ""))
-        for h in slow.values():
-            print(health.slow_line(h))
+        for h in slows.values():
+            print(slow.slow_line(h))
         return EXIT_OK
 
     def cmd_report(self, a):
         run = self.load_run()
-        md, html = report(run, self.pipeline.health)
+        md, html = report(run)
         return self.out(EXIT_OK, f"{md}\n{html}", run)
 
     def cmd_runs(self, a):
@@ -1348,32 +1041,17 @@ def tries_cell(r):
     return f"flaky ({r['attempts']} tries)" if r.get("flaky") else str(r["attempts"])
 
 
-def repeat_note(r):
-    """`repeat 2, 1115 s repeated, 1 forced; `, or nothing for a step that never ran again after a failure."""
-    if not r.get("repeats"):
-        return ""
-    forced = f", {r['repeats_forced']} forced" if r.get("repeats_forced") else ""
-    return f"repeat {r['repeats']}, {r['seconds_repeated']:.0f} s repeated{forced}; "
-
-
 def row_note(r):
-    """The report's note column: the note (or skip reason), what the driver was, the known-failure hint."""
-    note = ("DRIVERS CHANGED between attempts; " if r.get("driver_changed") else "") + repeat_note(r) + (r.get("note") or r.get("reason") or "")
-    if r.get("parked"):
-        note = f"PARKED at {r['parked']['step']}: {r['parked']['what']}; " + note
-    if r.get("continues"):
-        note += f" — continued {r['continues']}×"
-    if r.get("stopped"):
-        note += f" — {r['stopped']}"
+    """The report's note column: the note (or skip reason) and the known-failure hint."""
+    note = r.get("note") or r.get("reason") or ""
     if r.get("hint"):
         note += f" — hint: {r['hint']}"
     return note
 
 
-def report(run, health_conf=None):
-    """summary.md and report.html in the run folder: steps, times, sizes, gates, skips, lane health."""
+def report(run):
+    """summary.md and report.html in the run folder: steps, times, sizes, gates, skips."""
     rows = run.summary_rows()
-    lanes = health.lanes_of(health.metrics_path(run), health_conf)
     info = run.info
     tot = sum(r["duration_s"] or 0 for r in rows)
     md = [f"# {'TEST ' if info.get('test') else ''}{'DRY RUN ' if info.get('dry') else ''}Epic Wallet {info['version']} — {info['run_id']}",
@@ -1381,8 +1059,6 @@ def report(run, health_conf=None):
           f"- step time (sum): {tot / 60:.1f} min"]
     if info.get("tainted"):
         md.append(f"- **TAINTED** (never publishable): {info['tainted'][-1]['reason']}")
-    if info.get("net"):
-        md.append(f"- test network: node {info['net'].get('node')}, Epicbox {info['net'].get('epicbox')}")
     for g, v in info.get("gates", {}).items():
         md.append(f"- gate {g}: {v.get('state')} (id {v.get('gate_id')}" + (f", by {v.get('decided_by')} via {v.get('via')}" if v.get("decided_by") else "") + ")")
     md += ["", "| step | status | time | tries | size | note |", "|---|---|---|---|---|---|"]
@@ -1391,7 +1067,6 @@ def report(run, health_conf=None):
         size = f"{r['bytes'] / 1e6:.0f} MB" if r.get("bytes") else ""
         note = row_note(r).replace("|", "/")
         md.append(f"| {r['id']} | {r['status']} | {d} | {tries_cell(r)} | {size} | {note[:160]} |")
-    md += health.markdown(lanes, health_conf)
     text = "\n".join(md) + "\n"
     mdp = os.path.join(run.path, "summary.md")
     with open(mdp, "w", encoding="utf-8") as f:
@@ -1405,13 +1080,6 @@ def report(run, health_conf=None):
                 f"<td>{d}</td><td>{h.escape(tries_cell(r))}</td><td>{size}</td><td>{h.escape(note)}</td></tr>")
 
     trs = "".join(cell(r) for r in rows)
-    lane_table = ""
-    if lanes:
-        t = health.rows(lanes)
-        lane_table = (f"<h2>{h.escape(health.title(health_conf))}</h2><div class=\"wrap\"><table><tr>"
-                      + "".join(f"<th>{h.escape(c)}</th>" for c in t[0]) + "</tr>"
-                      + "".join("<tr>" + "".join(f"<td>{h.escape(c)}</td>" for c in r) + "</tr>" for r in t[1:])
-                      + "</table></div>")
     page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{h.escape(info['run_id'])}</title><style>
 :root{{--bg:#111418;--fg:#e6e8eb;--mut:#9aa3ad;--ok:#3fb950;--bad:#f85149;--wait:#d29922;--line:#2a2f36}}
@@ -1421,7 +1089,7 @@ table{{border-collapse:collapse;width:100%}}td,th{{border-bottom:1px solid var(-
 .done td:nth-child(2){{color:var(--ok)}}.failed td:nth-child(2){{color:var(--bad)}}.waiting td:nth-child(2),.held td:nth-child(2),.warned td:nth-child(2){{color:var(--wait)}}
 .skipped td:nth-child(2){{color:var(--mut)}}button{{float:right}}.wrap{{overflow-x:auto}}</style></head><body>
 <button onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'':'light'">Light/dark</button>
-<pre>{h.escape(chr(10).join(md[:12]))}</pre><div class="wrap"><table><tr><th>step</th><th>status</th><th>time</th><th>tries</th><th>size</th><th>note</th></tr>{trs}</table></div>{lane_table}</body></html>"""
+<pre>{h.escape(chr(10).join(md[:12]))}</pre><div class="wrap"><table><tr><th>step</th><th>status</th><th>time</th><th>tries</th><th>size</th><th>note</th></tr>{trs}</table></div></body></html>"""
     hp = os.path.join(run.path, "report.html")
     with open(hp, "w", encoding="utf-8") as f:
         f.write(page)
@@ -1444,11 +1112,10 @@ def parser():
         sp.add_argument("--no-variant", help="drop a variant: tor or notor")
         sp.add_argument("--set", action="append", help="a scope key, e.g. stores.play=true, publish.notes=...")
         sp.add_argument("--skip", action="append", help="skip a skippable step: name=reason")
-        sp.add_argument("--waive", action="append", help="ship a platform without the update proof: platform=reason")
         sp.add_argument("--test", action="store_true", help="a TEST run: scratch target, test key, TEST in Telegram")
         sp.add_argument("--commit", help="the commit to release (default HEAD of this checkout)")
         sp.add_argument("--src", help="use this clean checkout at the commit instead of a new worktree")
-        sp.add_argument("--previous", help="the previous release's folder for G4 (default: the last published run)")
+        sp.add_argument("--previous", help="the previous release's folder (default: the last published run)")
         sp.add_argument("--builds", choices=("local", "hosted"), default="local",
                         help="hosted: android, linux and windows build on GitHub runners from the published commit "
                              "(release/pipeline.toml [hosted]); default local")
@@ -1480,8 +1147,6 @@ def parser():
 
     def machine_args(sp):
         sp.add_argument("--max-heavy", type=int, help="heavy steps at once (default [concurrency] max_heavy, 2)")
-        sp.add_argument("--exclusive-machine", action="store_true",
-                        help="no agents share this machine: Android and Windows trust may run side by side")
         sp.add_argument("--stop-on-fail", action="store_true",
                         help="the first failed step stops the run (default: only the steps that need it; "
                              "publishing always stops)")
@@ -1511,9 +1176,6 @@ def parser():
             sp.add_argument("--again", action="store_true", help="also a step that is done (publish steps need it)")
             sp.add_argument("--stop-on-fail", action="store_true",
                             help="a failed step stops the others too (default: only the steps that need it)")
-        if name == "retry":
-            sp.add_argument("--fresh", metavar="REASON", help="a lane from the very beginning, or a failure repeated: "
-                            "counted as a repeat, the reason goes to the journal")
         if name == "run":
             sp.add_argument("more", nargs="*", metavar="step", help="more steps, run side by side across their lanes")
             sp.add_argument("--keep-going", action="store_true", help=argparse.SUPPRESS)  # the default now
@@ -1530,26 +1192,11 @@ def parser():
     sp = sub.add_parser("add-step", help="steps of the current pipeline into a run planned before them; runs nothing")
     sp.add_argument("step", nargs="+")
     sp.add_argument("--run")
-    sp = sub.add_parser("adopt", help="a step's work that began outside tools/rel, on the record; waits for it to end")
-    sp.add_argument("step")
-    sp.add_argument("--out", required=True, help="its folder: proof.json and logs")
-    sp.add_argument("--pid", type=int, default=0, help="the process doing it; 0 when it has ended")
-    sp.add_argument("--run")
-    sp = sub.add_parser("continue", aliases=["go"], help="a parked lane: reload the committed fix, go on from the failed action "
-                        "(it does so by itself on the fix's commit); a lane that ended: from its nearest resume point")
-    sp.add_argument("step")
-    sp.add_argument("--run")
-    sp.add_argument("--stop", action="store_true", help="end the park: the fault takes its way as without one")
-    sp.add_argument("--stop-on-fail", action="store_true", help=argparse.SUPPRESS)
     sp = sub.add_parser("doing", help="what is being done about a failed step, for the panel: fixing, accepted, none...")
     sp.add_argument("step")
     sp.add_argument("state", choices=App.DOING)
     sp.add_argument("--note", help="what is fixed, why it is accepted, what waits")
     sp.add_argument("--commit", help="the fix's commit")
-    sp.add_argument("--run")
-    sp = sub.add_parser("probe", help="the failing step alone: a retry after a driver failure needs its pass")
-    sp.add_argument("step", help="the failing step, as the failure names it (find-g4.advanced.technical)")
-    sp.add_argument("target", help="the lane to run it on")
     sp.add_argument("--run")
     sp = sub.add_parser("sign", help="sign the Android files now (the owner's code only without the signer credential), then carry on")
     sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
@@ -1570,28 +1217,14 @@ def parser():
     sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
     sp.add_argument("--every", type=float, help="seconds between checks (default [gate] watch_every, 60)")
     sp.add_argument("--foreground", action="store_true", help="watch here instead of starting a detached watcher")
-    sp = sub.add_parser("stats", help="per-step times and failures across runs")
-    sp.add_argument("--lanes", action="store_true", help="per trust lane: first-try pass rate, tries a run, recoveries, causes")
+    sub.add_parser("stats", help="per-step times and failures across runs")
     sub.add_parser("runs", help="every run kept")
     sp = sub.add_parser("flow", help="the stages in order: class, needs, outputs (the header of pipeline.toml)")
     sp.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="one JSON object on stdout")
     sp.add_argument("--write", action="store_true", help="regenerate the header block of pipeline.toml")
-    sp = sub.add_parser("cut", help="branch release/<version> from the newest green night, with the version commit")
+    sp = sub.add_parser("cut", help="branch release/<version> from the tip of main (or --from), with the version commit")
     sp.add_argument("--version", required=True)
-    sp = sub.add_parser("walk", help="record the person walk of one platform (release/person-walk.md)")
-    sp.add_argument("platform")
-    sp.add_argument("result", choices=("ok", "fail"))
-    sp.add_argument("--note", default="")
-    sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
-    sp = sub.add_parser("lanes", help="every lane: Blocks or Informs, stage, last result, green streak")
-    sp.add_argument("--json", action="store_true", default=argparse.SUPPRESS, help="a JSON list on stdout")
-    sp = sub.add_parser("lane", help="make one lane Blocks or Informs: commits one line on main; the next run takes it")
-    sp.add_argument("base")
-    sp.add_argument("cls", choices=("blocks", "informs"), metavar="blocks|informs")
-    for name in ("plan", "start", "resume", "status", "gate", "report", "run", "retry", "continue", "probe", "doing", "logs", "debug", "skip", "add-step", "adopt",
-                 "stats", "runs", "cleanup", "walk"):
-        sub.choices[name].add_argument("--night", action="store_true",
-                                       help="the night stage: its steps and its runs (release/pipeline.toml [night])")
+    sp.add_argument("--from", dest="from_commit", metavar="COMMIT", help="branch from this commit instead of main's tip")
     return p
 
 

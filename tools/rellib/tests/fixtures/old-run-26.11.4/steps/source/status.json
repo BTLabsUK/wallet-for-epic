@@ -1,0 +1,26 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:24:05Z",
+ "ended": "2026-11-15T13:24:06Z",
+ "note": "commit f1ffd8a8022c; LEPIC 1bcbe6f31e",
+ "hint": null,
+ "rc": null,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "duration_s": 0.4,
+ "attempt_seconds": [
+  0.4
+ ],
+ "warned": null,
+ "input_hash": "f3f575bec312b274",
+ "inputs_digest": null
+}

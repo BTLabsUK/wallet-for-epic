@@ -1,0 +1,29 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:23:48Z",
+ "ended": "2026-11-15T13:24:05Z",
+ "note": "ok; node https://node.btlabs.uk, epicbox epicbox.btlabs.uk; 1 warning(s)",
+ "hint": null,
+ "rc": null,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "warnings": [
+  "lane seed macos-tor: no balance on record (first run): counted as needing the top-up"
+ ],
+ "duration_s": 16.9,
+ "attempt_seconds": [
+  16.9
+ ],
+ "warned": null,
+ "input_hash": "f3f575bec312b274",
+ "inputs_digest": null
+}

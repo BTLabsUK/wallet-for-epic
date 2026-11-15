@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The engine on fake steps: order, outputs, failures and hints, resume, proofs, gates (fail
-closed), skips, the publish phase and exit codes."""
+"""The engine on fake steps: order, outputs, failures and hints, resume, gates (fail closed),
+skips, the publish phase and exit codes."""
 import pathlib
 import json
 import os
@@ -9,7 +9,6 @@ import time
 import unittest
 
 from support import FAKE_PIPELINE, REPO, Base
-from rellib import builtins
 from rellib.engine import EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_WAITING, Engine
 
 
@@ -27,7 +26,7 @@ class EngineTest(Base):
         st = run.status("build-android-tor")
         self.assertEqual(st["outputs"]["bt-wallet-26.10.25-android-arm64-v8a.apk"]["bytes"], 2000000)
         self.assertNotIn("publish", self.calls())  # nothing outward in the build phase
-        self.assertIn("driver tor checks=wallet_opens,history_kept,send_ok funds=1", self.calls())
+        self.assertIn("check", self.calls())
         ev = [e["event"] for e in run.events()]
         self.assertIn("start", ev)
         self.assertIn("end", ev)
@@ -66,7 +65,7 @@ class EngineTest(Base):
         st = run.status("build-android-notor")
         self.assertEqual(st["status"], "failed")
         self.assertEqual(st["hint"], "remove the fail file")
-        self.assertEqual(run.status("trust-android-tor")["status"], "pending")
+        self.assertEqual(run.status("check")["status"], "pending")
         self.assertIn("alert build-android-notor failed", self.relmsg_calls())
         self.assertIn("--no-alert", self.relmsg_calls())
 
@@ -108,40 +107,6 @@ class EngineTest(Base):
         self.assertEqual(st["status"], "failed")
         self.assertIn("outputs missing", st["note"])
 
-    def proof(self, mode):
-        with open(os.path.join(self.src, "proof-mode"), "w") as f:
-            f.write(mode)
-        run = self.make_run(only="android", sets=["publish.manifests=false"])
-        eng = self.engine(run)
-        eng.drive(self.build_ids(run))
-        return run
-
-    def test_proof_all_true_passes(self):
-        run = self.proof("good")
-        self.assertEqual(run.status("trust-android-tor")["status"], "done")
-        self.assertTrue(run.status("trust-android-tor")["proven"])
-        self.assertEqual(run.status("update-trust")["status"], "done")
-
-    def test_proof_fails_closed(self):
-        for mode in ("bad", "liar", "none"):
-            with self.subTest(mode=mode):
-                self.tearDown()
-                self.setUp()
-                run = self.proof(mode)
-                self.assertEqual(run.status("trust-android-tor")["status"], "failed", mode)
-                self.assertEqual(run.status("update-trust")["status"], "pending")
-                self.assertEqual(run.status("publish-gate")["status"], "pending")
-
-    def test_proof_beside_drops_only_carried_checks_for_a_listed_pair(self):
-        run = self.proof("beside")
-        self.assertEqual(run.status("trust-android-tor")["status"], "done")
-        self.assertTrue(run.status("trust-android-tor")["proven"])
-
-    def test_proof_beside_refused_for_another_pair(self):
-        run = self.proof("beside-other")
-        self.assertEqual(run.status("trust-android-tor")["status"], "failed")
-        self.assertIn("history_kept", run.status("trust-android-tor")["note"])
-
     def test_same_inputs_reuse_an_earlier_passing_build(self):
         a = self.make_run(only="linux", sets=["publish.manifests=false"])
         self.engine(a).drive(self.build_ids(a))
@@ -173,40 +138,6 @@ class EngineTest(Base):
         self.assertNotEqual(app, no_tests)
         self.assertEqual(no_tests, reuse.path_id(REPO, head, "app", ["app/test"]))
         self.assertEqual(reuse.path_id(REPO, head, "no/such/path"), "missing")
-
-    def test_waived_platform_runs_its_driver_and_shows_what_it_found(self):
-        with open(os.path.join(self.src, "proof-mode"), "w") as f:
-            f.write("bad")
-        run = self.make_run(only="android", sets=["publish.manifests=false"], waive=["android=bug #143 open"])
-        eng = self.engine(run)
-        eng.drive(self.build_ids(run))
-        st = run.status("trust-android-tor")
-        self.assertEqual(st["status"], "done")          # reported, blocks nothing
-        self.assertFalse(st["proven"])
-        self.assertIn("NOT PROVEN (waived: bug #143 open): not proven: history_kept (0 of 3 txs)", st["note"])
-        self.assertEqual(run.status("update-trust")["status"], "done")
-        summary = builtins.gate_summary(eng)
-        self.assertIn("NOT PROVEN — waived: bug #143 open · driver: tor: NOT PROVEN", summary)
-        self.assertIn("history_kept", summary)
-
-    def test_waived_platform_is_shown_not_proven(self):
-        run = self.make_run(only="android", sets=["publish.manifests=false"], waive=["android=no emulator today"])
-        eng = self.engine(run)
-        eng.drive(self.build_ids(run))
-        self.assertEqual(run.status("trust-android-tor")["status"], "done")   # the driver still ran
-        ut = run.status("update-trust")
-        self.assertEqual(ut["status"], "done")
-        self.assertIn("NOT PROVEN", ut["note"])
-        summary = builtins.gate_summary(eng)
-        self.assertIn("NOT PROVEN — waived: no emulator today", summary)
-
-    def test_update_trust_fails_for_a_platform_without_proof(self):
-        run = self.make_run(only="android", sets=["publish.manifests=false"])
-        eng = self.engine(run)
-        s = run.step("update-trust")
-        st = eng.execute(s)
-        self.assertEqual(st["status"], "failed")
-        self.assertIn("android", st["note"])
 
     def gate(self, answer, relmsg=True, taint=False):
         run = self.make_run(only="android", sets=["publish.manifests=false"])
@@ -307,6 +238,56 @@ scratch = "scratch_noop"
         self.assertNotIn("alert after failed", relmsg)   # … with no alert,
         self.assertNotIn("link L", relmsg)                # and a failed step's links are not shown
 
+    def test_needs_ok_skips_the_step_after_a_warned_need_and_the_rest_runs(self):
+        import tomllib
+        from rellib.config import ConfigError, Pipeline
+        from support import FAKE_PIPELINE
+        extra = """
+[step.screens]
+warn_only = true
+needs = ["scope"]
+run = "echo screens >> {src}/calls; test ! -e {src}/fail-screens"
+
+[step.screens-publish]
+kind = "publish"
+skippable = true
+needs = ["publish-source", "screens"]
+needs_ok = ["screens"]
+run = "echo screens-publish >> {src}/calls"
+scratch = "scratch_noop"
+
+[step.cleanup]
+kind = "publish"
+needs = ["screens-publish"]
+run = "echo cleanup >> {src}/calls"
+scratch = "scratch_noop"
+"""
+        with self.assertRaises(ConfigError):
+            Pipeline(tomllib.loads(FAKE_PIPELINE + extra.replace('needs_ok = ["screens"]', 'needs_ok = ["check"]')))
+        for fail in (False, True):
+            with self.subTest(screens_fail=fail):
+                self.tearDown()
+                self.setUp()
+                self.pipeline = Pipeline(tomllib.loads(FAKE_PIPELINE + extra))
+                if fail:
+                    pathlib.Path(os.path.join(self.src, "fail-screens")).touch()
+                run = self.make_run(only="android", sets=["publish.manifests=false", "publish.github=false"])
+                os.environ["REL_FAKE_GATE"] = "approved"
+                eng = self.engine(run)
+                eng.drive(self.build_ids(run))
+                self.assertEqual(eng.drive([s.id for s in run.steps]), EXIT_OK)
+                st = run.status("screens-publish")
+                if fail:
+                    self.assertEqual(run.status("screens")["warned"], True)
+                    self.assertEqual(st["status"], "skipped")
+                    self.assertIn("screens failed (warn_only)", st["note"])
+                    self.assertNotIn("screens-publish", self.calls())
+                else:
+                    self.assertEqual(st["status"], "done")
+                    self.assertIn("screens-publish", self.calls())
+                self.assertEqual(run.status("cleanup")["status"], "done")
+                self.assertIn("cleanup", self.calls())
+
     def test_warn_only_is_refused_on_a_gate_or_build(self):
         import tomllib
         from rellib.config import ConfigError, Pipeline
@@ -324,25 +305,12 @@ scratch = "scratch_noop"
         run.set_status("preflight", status="pending")
         self.pipeline.defaults["min_free_gb"] = 10 ** 9
         self.hosts["exists"] = False
-        builtins.health_node, saved_n = (lambda u, timeout=10: False), builtins.health_node
-        builtins.health_epicbox, saved_b = (lambda h, timeout=8: True), builtins.health_epicbox
-        try:
-            eng = self.engine(run)
-            code = eng.drive(["preflight"])
-        finally:
-            builtins.health_node, builtins.health_epicbox = saved_n, saved_b
+        eng = self.engine(run)
+        code = eng.drive(["preflight"])
         self.assertEqual(code, EXIT_PREFLIGHT)
         st = run.status("preflight")
         self.assertTrue(any("disk" in p for p in st["problems"]))
-        self.assertTrue(any("node for tests" in p for p in st["problems"]))
         self.assertTrue(any("release-hosts" in p or "hosts.example" in p for p in st["problems"]))
-
-    def test_health_pick_order(self):
-        seen = []
-        pick, tried = builtins.pick(["a", "b", "c"], lambda x: seen.append(x) or x == "b")
-        self.assertEqual((pick, tried), ("b", ["a", "b"]))
-        pick, tried = builtins.pick(["a", "b"], lambda x: False, override="z")
-        self.assertEqual((pick, tried), (None, ["z", "a", "b"]))
 
     def test_dry_run_runs_nothing(self):
         run = self.make_run(only="android", sets=["publish.manifests=false"])
@@ -356,51 +324,6 @@ scratch = "scratch_noop"
         self.assertEqual(os.listdir(run.files), [])
         log = pathlib.Path(os.path.join(run.step_dir("build-android-tor"), "log.txt")).read_text()
         self.assertIn("# run: echo build tor", log)
-
-
-FLOW_PIPELINE = FAKE_PIPELINE.replace('funds_variant = "tor"', 'funds_variant = "tor"\nfunds_in = "flow"').replace(
-    "[step.build-android]", """[step.flow-linux]
-platform = "linux"
-for_each = "proof_variant"
-needs = ["scope"]
-capped = true
-run = "bash {src}/driver.sh"
-env = { REL_TRUST_MODE = "flow" }
-
-[step.build-android]""").replace('needs = ["scope"]\nrun = "echo build', 'needs = ["scope", "flow-linux"]\nrun = "echo build').replace(
-    'needs = ["scope"]\nrun = "echo linux', 'needs = ["scope", "flow-linux"]\nrun = "echo linux')
-
-
-class FlowLaneTest(Base):
-    """A flow lane (REL_TRUST_MODE=flow) on the test build, before the release builds."""
-
-    def setUp(self):
-        super().setUp()
-        import tomllib
-        from rellib.config import Pipeline
-        self.pipeline = Pipeline(tomllib.loads(FLOW_PIPELINE))
-
-    def test_flow_lane_takes_the_funds_legs_and_the_update_lanes_do_not(self):
-        run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
-        self.assertEqual(self.engine(run).drive(self.build_ids(run)), EXIT_WAITING)
-        calls = self.calls()
-        self.assertEqual(calls[0], "driver tor checks=wallet_opens,history_kept,send_ok funds=1")
-        self.assertEqual(calls.count("driver tor checks=wallet_opens,history_kept funds=0"), 2)  # trust-android, trust-linux
-        self.assertIn("flow passed on the test build", run.status("flow-linux-tor")["note"])
-
-    def test_a_failed_flow_lane_fails_closed_before_any_build(self):
-        with open(os.path.join(self.src, "proof-mode"), "w") as f:
-            f.write("liar")  # exit 0, but proof.json lacks a required check
-        run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
-        self.assertEqual(self.engine(run).drive(self.build_ids(run)), EXIT_FAILED)
-        self.assertEqual(run.status("flow-linux-tor")["status"], "failed")
-        self.assertFalse([c for c in self.calls() if c.startswith(("build", "linux"))], "no build started")
-
-    def test_funds_in_is_checked(self):
-        import tomllib
-        from rellib.config import ConfigError, Pipeline
-        with self.assertRaises(ConfigError):
-            Pipeline(tomllib.loads(FLOW_PIPELINE.replace('funds_in = "flow"', 'funds_in = "both"')))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """The step graph of one run: pipeline.toml's steps, filtered by the scope, expanded per variant,
 with every {placeholder} filled in. Pure: no files are touched."""
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, fields, asdict
 
 from .config import ConfigError, PLATFORMS, VARIANTS, parse_duration, render
 
@@ -17,6 +17,7 @@ class Step:
     platforms: list
     variant: str = None
     needs: list = field(default_factory=list)
+    needs_ok: list = field(default_factory=list)  # needs that must not have failed as a warning or been skipped
     run: str = None
     cwd: str = None
     env: dict = field(default_factory=dict)
@@ -25,7 +26,6 @@ class Step:
     extras: list = field(default_factory=list)
     results: list = field(default_factory=list)
     send: list = field(default_factory=list)
-    proof: bool = False
     publish: bool = False
     skippable: bool = False
     timeout: float = None
@@ -33,20 +33,7 @@ class Step:
     scratch: str = None
     warn_only: bool = False
     capped: bool = False  # counts toward [concurrency] max_heavy although not heavy (tools/rellib/window.py)
-    remote: bool = False  # its load is on another machine (a rig): never counts toward max_heavy
     local_run: str = None  # a hosted build's local command (runs only if build-fetch's fallback is re-enabled)
-
-    @property
-    def driven(self):
-        """A lane run by a trust driver: a proof step, or a flow lane (REL_TRUST_MODE=flow) on the run's
-        test build. Both fail closed on proof.json; only a proof step counts as release proof."""
-        return self.proof or self.env.get("REL_TRUST_MODE") == "flow"
-
-    @property
-    def proof_kept(self):
-        """Its proof.json is set aside before each attempt (proof.before-attempt-N.json): a driven lane, or a
-        night's trust pair, whose rerun resumes from it. A refused start must not write over it."""
-        return self.driven or bool(self.env.get("REL_TRUST_PAIR"))
 
     @property
     def phase(self):
@@ -60,7 +47,9 @@ class Step:
 
     @classmethod
     def from_dict(cls, d):
-        return cls(**d)
+        """A plan.json step; fields a run made before 26.11.4 kept (proof) are left out."""
+        known = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in d.items() if k in known})
 
 
 def _in_scope(spec, scope):
@@ -69,8 +58,7 @@ def _in_scope(spec, scope):
         pls = [pl] if isinstance(pl, str) else pl
         if not any(scope["platforms"].get(p) for p in pls):
             return False
-    when = spec.get("when", [])
-    for w in [] if isinstance(when, str) else when:  # the string form names the stage: build_graph
+    for w in spec.get("when", []):
         if not _switch(scope, w):
             return False
     for w in spec.get("unless", []):
@@ -86,7 +74,7 @@ def _switch(scope, path):
     return bool(cur)
 
 
-def variants_for(spec, scope, pipeline):
+def variants_for(spec, scope):
     fe = spec.get("for_each")
     if not fe:
         return [None]
@@ -94,11 +82,7 @@ def variants_for(spec, scope, pipeline):
     only = spec.get("variants", list(VARIANTS))
     if fe == "variant":
         return [v for v in VARIANTS if scope["variants"].get(v) and v in only]
-    if fe == "proof_variant":
-        # [proof] variants are the tested builds; a step's own list replaces them (iOS has only notor).
-        allowed = spec.get("variants") or pipeline.proof.get("variants", list(VARIANTS))
-        return [v for v in VARIANTS if scope["variants"].get(v) and v in allowed]
-    raise ConfigError(f"for_each {fe!r}: variant or proof_variant")
+    raise ConfigError(f"for_each {fe!r}: variant")
 
 
 def lane_of(spec, host):
@@ -112,15 +96,13 @@ def lane_of(spec, host):
     return host
 
 
-def build_graph(pipeline, scope, ctx, stage="release"):
-    """-> ordered list of Step (topological, pipeline order among equals). stage: release, or night
-    (Pipeline.stage_steps says which steps each one has)."""
+def build_graph(pipeline, scope, ctx):
+    """-> ordered list of Step (topological, pipeline order among equals)."""
     instances = {}
-    wanted = pipeline.stage_steps(stage)
     for name, spec in pipeline.steps.items():
-        if name not in wanted or not _in_scope(spec, scope):
+        if not _in_scope(spec, scope):
             continue
-        instances[name] = variants_for(spec, scope, pipeline)
+        instances[name] = variants_for(spec, scope)
     steps = []
     for name, vars_ in instances.items():
         spec = pipeline.steps[name]
@@ -136,7 +118,6 @@ def build_graph(pipeline, scope, ctx, stage="release"):
             c["tor"] = "0" if var == "notor" else "1"
             c["github"] = "1" if scope["publish"].get("github") else "0"
             c["play_promote"] = str(scope.get("stores", {}).get("play_promote") or "")
-            c["update_funds"] = "1" if scope.get("proof", {}).get("update_funds") else "0"
             c["stage"] = f"{ctx['run']}/steps/{sid}/out"
             c.setdefault("build_id", ctx.get("short", ""))
             where = f"step {sid}"
@@ -152,10 +133,6 @@ def build_graph(pipeline, scope, ctx, stage="release"):
                 else:
                     needs.extend(f"{base}-{v}" if v else base for v in instances[base])
             run = spec.get("run")
-            if spec.get("proof") and not run:
-                plat = spec["platform"]
-                driver = pipeline.proof.get("drivers", {}).get(plat)
-                run = driver or f"echo 'no update-trust driver for {plat} (release/pipeline.toml [proof.drivers])' >&2; exit 2"
             publish = bool(spec.get("publish")) or kind == "publish"
             # Every build-phase command has a hard limit: its own `timeout`, else [defaults] timeout.
             timeout = spec.get("timeout") or (pipeline.defaults.get("timeout")
@@ -166,6 +143,7 @@ def build_graph(pipeline, scope, ctx, stage="release"):
                 host=host, lane=render(spec["lane"], c, where) if spec.get("lane") else lane_of(spec, host),
                 platforms=([spec["platform"]] if isinstance(spec.get("platform"), str) else list(spec.get("platform") or [])),
                 variant=var, needs=needs,
+                needs_ok=[n for n in needs for b in spec.get("needs_ok", []) if n == b or n in (f"{b}-{v}" for v in VARIANTS)],
                 run=render(run, c, where) if run else None,
                 cwd=render(spec.get("cwd", "{src}"), c, where),
                 env={k: render(str(v), c, where) for k, v in spec.get("env", {}).items()},
@@ -174,7 +152,6 @@ def build_graph(pipeline, scope, ctx, stage="release"):
                 extras=[render(o, c, where) for o in spec.get("extras", [])],
                 results=[render(o, c, where) for o in spec.get("results", [])],
                 send=[render(o, c, where) for o in spec.get("send", [])],
-                proof=bool(spec.get("proof")),
                 publish=publish,
                 skippable=bool(spec.get("skippable")),
                 timeout=parse_duration(timeout),
@@ -182,7 +159,6 @@ def build_graph(pipeline, scope, ctx, stage="release"):
                 scratch=spec.get("scratch"),
                 warn_only=bool(spec.get("warn_only")),
                 capped=bool(spec.get("capped")),
-                remote=bool(spec.get("remote")),
             )
             builds = scope.get("builds") or {}
             if spec.get("hosted") and builds.get("hosted") and spec["hosted"] not in str(builds.get("local", "")).split(","):
@@ -192,7 +168,7 @@ def build_graph(pipeline, scope, ctx, stage="release"):
                 plat = spec["hosted"]
                 step.local_run, step.run = step.run, render(
                     f"python3 {{rel}}/tools/rellib/steps/build-fetch.py {plat} {{variant}} {{stage}}", c, where)
-                step.host, step.heavy, step.capped, step.remote = "local", False, False, False
+                step.host, step.heavy, step.capped = "local", False, False
                 step.lane = render(f"hosted-{plat}-{{variant}}", c, where)
                 step.title += " (hosted)"
             steps.append(step)

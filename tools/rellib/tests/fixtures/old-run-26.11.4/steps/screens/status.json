@@ -1,0 +1,28 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:27:27Z",
+ "ended": "2026-11-15T13:42:59Z",
+ "note": null,
+ "hint": null,
+ "rc": 0,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "outputs": {},
+ "bytes": null,
+ "duration_s": 932.2,
+ "attempt_seconds": [
+  932.2
+ ],
+ "warned": null,
+ "input_hash": "817e67e0a555a5ca",
+ "inputs_digest": "af3c2e0713081ae355254e50"
+}

@@ -290,7 +290,7 @@ def reused(engine, step):
     if not spec.get("reuse"):
         return False
     try:
-        _, _, src = reuse.find(engine, step, spec["reuse"], reuse.nightly_dir(spec), reuse.green_dir(spec))
+        _, _, src = reuse.find(engine, step, spec["reuse"], reuse.green_dir(spec))
     except Exception:
         return False
     return bool(src)

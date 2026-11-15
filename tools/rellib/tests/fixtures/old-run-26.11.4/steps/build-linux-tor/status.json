@@ -1,0 +1,34 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:24:09Z",
+ "ended": "2026-11-15T13:24:32Z",
+ "note": null,
+ "hint": null,
+ "rc": 0,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "outputs": {
+  "bt-wallet-26.11.4-linux-x86_64.AppImage": {
+   "sha256": "96f503dea1cc95405a3536142cb69fc2fc277f2c1b28f9f103b8e5b31f35c2c8",
+   "bytes": 42301944
+  }
+ },
+ "bytes": 42301944,
+ "duration_s": 22.5,
+ "attempt_seconds": [
+  22.5
+ ],
+ "warned": null,
+ "input_hash": "51e412e079a2b08d",
+ "inputs_digest": null,
+ "reuse_key": "bdcc7fa5f3215ea0ad65ae84"
+}

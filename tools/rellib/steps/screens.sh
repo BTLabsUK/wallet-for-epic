@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # Step `screens` of tools/rel, BEFORE the publish gate: the release's screen catalogue, rendered
-# from the release source as soon as G2 (source-check) passed, in its own lane beside the builds and
-# G4 (docs/RELEASING.md, "Screens"):
+# from the release source as soon as G2 (source-check) passed, in its own lane beside the builds
+# (docs/RELEASING.md, "Screens"):
 #   tools/screens.sh <version> --src <release checkout> --candidate
 # renders both screenshot tours (each flutter test through build-slot, so it takes the machine's
 # build slots like a build) into /tmp/epic-build/screens/<version>/. --candidate: `latest` stays on the
 # published release (the gallery and everyone reading `latest` see the release that is live) and
-# that release's catalogue is never pruned: it is what step screens-check compares with. Step
-# screens-publish points `latest` here and deploys the gallery after the read-back (G6).
+# that release's catalogue is never pruned. Step screens-publish points `latest` here and deploys
+# the gallery after the read-back (G6).
 # Reuse: the catalogue is a function of the app and the catalogue tools. Their content key (git
 # ids at the release commit, plus the version) is kept in <catalogue>/.rel-key; a catalogue of
 # this version with the same key is not rendered again. A version bump changes the app, so another
 # version is always rendered.
 # Leaves <stage>/render.json {version, ok, reused, key, catalogue, seconds, note}. The step is
-# warn_only (release/pipeline.toml): a failed render holds nothing by itself; screens-check, before
-# the gate, turns a missing catalogue or a failed tour into a FAIL with the failed tests named.
+# warn_only (release/pipeline.toml): a failed render holds nothing; screens-publish is then skipped.
 # Usage: screens.sh <version> <stage dir>   (from the release checkout; env REL_SRC REL_COMMIT)
 set -euo pipefail
 v="${1:?usage: $0 <version> <stage dir>}" stage="${2:?}"

@@ -122,7 +122,7 @@ class RollbackTest(Base):
         r.info["scope"] = {"publish": {"target": "scratch", "manifests": True, "notes": ""},
                            "platforms": {"android": True, "linux": False, "windows": False, "macos": False, "ios": False},
                            "variants": {"tor": True, "notor": False}, "stores": {"play": False}, "skip": {},
-                           "proof": {"waive": {}, "previous_dir": "", "previous_version": "", "previous_ref": ""},
+                           "previous": {"dir": "", "version": "", "ref": ""},
                            "test": True, "version": version}
         r.save_info()
         return r, ring
@@ -218,24 +218,57 @@ class PublishedByHandTest(unittest.TestCase):
         self.assertEqual(retention.published_by_hand(tempfile.mkdtemp()), [])
 
 
-class DoctorPreviousTest(Base):
-    """tools/rel doctor's throwaway run lives under .doctor/<tmp>/: it still finds the published release
-    in the state root it names (26.10.26 doctor said G4 had no previous release while start found it)."""
+class OldRunTest(Base):
+    """A run folder made before the release tool was cut down (26.11.4 run-16, trimmed: trust and
+    screens-check steps, a [proof] scope, proof fields in status.json) still loads."""
+    FIXTURE = os.path.join(os.path.dirname(__file__), "fixtures", "old-run-26.11.4")
 
-    def test_throwaway_run_reads_the_named_state_root(self):
-        import tempfile
-        from types import SimpleNamespace
-        from rellib.builtins import resolve_previous
-        prev = fake_run(self.root, "26.10.25", "1")
-        os.makedirs(os.path.join(self.root, ".doctor"))
-        tmp = tempfile.mkdtemp(dir=os.path.join(self.root, ".doctor"))
-        run = Run.create(tmp, "26.10.26", {"version": "26.10.26", "commit": "c" * 40, "scope": {}}, "", [])
-        info = {"version": "26.10.26", "scope": {"proof": {}}, "state_root": self.root}
-        got = resolve_previous(SimpleNamespace(info=info, run=run))
-        self.assertEqual(got["version"], "26.10.25")
-        self.assertEqual(got["dir"], os.path.join(prev.path, "files"))
-        del info["state_root"]
-        self.assertEqual(resolve_previous(SimpleNamespace(info=info, run=run)), {})
+    def old_run(self):
+        import shutil
+        path = os.path.join(self.root, "26.11.4", "run-16")
+        shutil.copytree(self.FIXTURE, path)
+        info = json.loads(pathlib.Path(path, "run.json").read_text())
+        info["run"] = path
+        write_json(os.path.join(path, "run.json"), info)
+        for d in ("files", "extra", "manifests"):
+            os.makedirs(os.path.join(path, d), exist_ok=True)
+        return Run(path)
+
+    def rel(self, *args):
+        import io
+        from contextlib import redirect_stderr, redirect_stdout
+        from rellib.cli import main
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = main(["--state-root", self.root, "--hosts", os.path.join(self.tmp, "no-hosts.toml"), *args])
+        return code, out.getvalue() + err.getvalue()
+
+    def test_status_report_runs_cleanup_and_rollback_read_an_old_run(self):
+        run = self.old_run()
+        self.assertIn("trust-linux-tor", [x.id for x in run.steps])
+        self.assertEqual(run.status("trust-linux-tor")["status"], "done")
+        for args in (("status", "--run", "26.11.4"), ("report", "--run", "26.11.4"), ("runs",), ("cleanup", "--dry-run")):
+            code, out = self.rel(*args)
+            self.assertNotIn("Traceback", out, args)
+            self.assertEqual(code, 0, (args, out))
+        code, out = self.rel("status", "--run", "26.11.4")
+        self.assertIn("trust-linux-tor", out)
+        # Rollback to the old release: its [proof] scope plans the publish steps of today's pipeline.
+        pubs = [{"version": "26.11.4", "run_id": run.info["run_id"], "run": run.path, "at": "1", "tag": "v26.11.4"}]
+        write_json(os.path.join(self.root, "published.json"), pubs)
+        bad = fake_run(self.root, "26.11.5", published_at="2")
+        b, g = rollback.choose(self.root)
+        self.assertEqual((b["version"], g["version"]), ("26.11.5", "26.11.4"))
+        from rellib.cli import Lenient
+        from rellib.config import Pipeline
+        pipe = Pipeline.load(os.path.join(REPO, "release/pipeline.toml"))
+        made = rollback.make_run(self.root, pipe, self.hosts, REPO, b, g, True,
+                                 {"host": Lenient({}, "host"), "path": Lenient({}, "path"), "rel": REPO})
+        self.assertEqual([s.id for s in made.steps][:2], ["rollback-resign", "rollback-gate"])
+        self.assertEqual([s.base for s in made.steps][2:], ["publish-downloads", "publish-page", "publish-manifests",
+                                                            "verify-live"])
+        self.assertEqual(bad.info["version"], "26.11.5")
+
 
 if __name__ == "__main__":
     unittest.main()

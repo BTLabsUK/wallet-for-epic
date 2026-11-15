@@ -78,26 +78,17 @@ def render(text, ctx, where=""):
 
 # ---- pipeline ----------------------------------------------------------------------------------
 
-def is_night(spec):
-    return spec.get("when") == "night"
-
-
 class Pipeline:
     def __init__(self, data, path="pipeline.toml"):
         self.path = path
         self.data = data
         self.defaults = data.get("defaults", {})
         self.relmsg = data.get("relmsg", {})
-        self.proof = data.get("proof", {})
         self.steps = data.get("step", {})
         # How a drive shares the machine (tools/rellib/window.py) and when Android signing asks
         # for the owner's code (tools/rellib/signer.py).
         self.concurrency = data.get("concurrency", {})
         self.sign = data.get("sign", {})
-        self.health = data.get("health", {})  # per-lane health (tools/rellib/health.py)
-        self.serverlogs = data.get("serverlogs", {})  # server-side lines for a failed lane (tools/rellib/serverlogs.py)
-        self.night = data.get("night", {})  # where `tools/rel start --night` keeps its runs
-        self.ledger = data.get("ledger", {})  # the bug ledger file (Engine.record_bug)
         if not self.steps:
             raise ConfigError(f"{path}: no [step.*] tables")
         c = self.concurrency
@@ -111,13 +102,6 @@ class Pipeline:
             for pair in c.get(k, []):
                 if not (isinstance(pair, list) and len(pair) == 2 and all(p in self.steps for p in pair)):
                     raise ConfigError(f"{path}: [concurrency] {k}: {pair!r} is not a pair of step names")
-        h = self.health
-        for k, ok in (("runs", lambda v: type(v) is int and v >= 1), ("min_runs", lambda v: type(v) is int and v >= 1),
-                      ("min_first_try", lambda v: type(v) in (int, float) and 0 <= v <= 1)):
-            if k in h and not ok(h[k]):
-                raise ConfigError(f"{path}: [health] {k} = {h[k]!r}: " + ("a number from 0 to 1" if k == "min_first_try" else "a whole number, 1 or more"))
-        if self.proof.get("funds_in", "proof") not in ("proof", "flow"):
-            raise ConfigError(f"{path}: [proof] funds_in = {self.proof.get('funds_in')!r}: proof or flow")
         if self.sign.get("when", "inline") not in ("inline", "on-demand"):
             raise ConfigError(f"{path}: [sign] when = {self.sign.get('when')!r}: inline or on-demand")
         parse_duration(self.defaults.get("timeout"))
@@ -125,7 +109,7 @@ class Pipeline:
             kind = s.get("kind", "command")
             if kind not in KINDS:
                 raise ConfigError(f"{path}: step {name}: kind {kind!r} is not one of {', '.join(KINDS)}")
-            if kind in ("command", "handoff") and not s.get("run") and not s.get("proof"):
+            if kind in ("command", "handoff") and not s.get("run"):
                 raise ConfigError(f"{path}: step {name}: a {kind} step needs `run`")
             if kind == "publish" and not s.get("run"):
                 raise ConfigError(f"{path}: step {name}: a publish step needs `run`")
@@ -137,13 +121,11 @@ class Pipeline:
                 if p not in PLATFORMS:
                     raise ConfigError(f"{path}: step {name}: unknown platform {p}")
             parse_duration(s.get("timeout"))
-            when = s.get("when", [])
-            if isinstance(when, str) and when != "night":
-                raise ConfigError(f"{path}: step {name}: when = {when!r}: \"night\" or a list of scope switches")
-            if not is_night(s):
-                for n in s.get("needs", []):
-                    if is_night(self.steps[n.split("@")[0]]):
-                        raise ConfigError(f"{path}: step {name} is in the release but needs night step {n}")
+            if not isinstance(s.get("when", []), list):
+                raise ConfigError(f"{path}: step {name}: when = {s['when']!r}: a list of scope switches")
+            for n in s.get("needs_ok", []):
+                if n not in [x.split("@")[0] for x in s.get("needs", [])]:
+                    raise ConfigError(f"{path}: step {name}: needs_ok {n} is not one of its needs")
             for v in s.get("variants", []):
                 if v not in VARIANTS:
                     raise ConfigError(f"{path}: step {name}: unknown variant {v}")
@@ -153,10 +135,9 @@ class Pipeline:
                 if not s.get("for_each") or set(over) - {"run", "results", "outputs", "title"}:
                     raise ConfigError(f"{path}: step {name}: by_variant needs for_each and sets only run, results, outputs, title")
             # warn_only: a failure is shown as a warning and holds nothing. For what comes after the
-            # release is live, and for a pre-gate step another step judges (the screens render,
-            # judged by screens-check); a gate, a proof or a build never just warns.
-            if s.get("warn_only") and (kind in ("gate", "builtin", "handoff") or s.get("proof") or s.get("outputs")):
-                raise ConfigError(f"{path}: step {name}: warn_only is never for a gate, proof or build")
+            # release is live, and for the screens render; a gate or a build never just warns.
+            if s.get("warn_only") and (kind in ("gate", "builtin", "handoff") or s.get("outputs")):
+                raise ConfigError(f"{path}: step {name}: warn_only is never for a gate or a build")
         from . import hosted  # [hosted] and the build steps' `hosted` keys (tools/rellib/hosted.py)
         hosted.check_pipeline(self)
         self._check_cycles()
@@ -196,22 +177,6 @@ class Pipeline:
     def state_root(self, override=None):
         return expand(override or os.environ.get("REL_STATE_ROOT") or self.defaults.get("state_root", "/tmp/epic-build/rel"))
 
-    def night_root(self):
-        """Where night runs live: their own run folders, and lanes/<sha>.json beside them."""
-        return expand(os.environ.get("REL_NIGHT_ROOT") or self.night.get("state_root", "/tmp/epic-build/nightly/rel"))
-
-    def stage_steps(self, stage):
-        """The step names of a stage. release: every step without `when = "night"`. night: the night
-        steps and what they need (scope, preflight, source, G2)."""
-        if stage == "release":
-            return {n for n, s in self.steps.items() if not is_night(s)}
-        names, todo = set(), [n for n, s in self.steps.items() if is_night(s)]
-        while todo:
-            n = todo.pop()
-            if n not in names:
-                names.add(n)
-                todo.extend(d.split("@")[0] for d in self.steps[n].get("needs", []))
-        return names
 
 
 # ---- hosts -------------------------------------------------------------------------------------
@@ -228,7 +193,7 @@ def load_hosts(path=None):
     hosts = {k: {kk: (vv if kk == "workdir" else expand(vv)) for kk, vv in v.items()}
              for k, v in data.get("host", {}).items()}
     paths = {k: expand(v) for k, v in data.get("paths", {}).items()}
-    return {"host": hosts, "path": paths, "serverlogs": data.get("serverlogs", {}), "file": path,
+    return {"host": hosts, "path": paths, "file": path,
             "exists": os.path.exists(path)}
 
 
@@ -243,9 +208,18 @@ DEFAULT_SCOPE = {
     "publish": {"target": "live", "manifests": True, "notes": "", "github": True, "gate_note": ""},
     "apple": {"signed": True},
     "skip": {},
-    # update_funds: the night update lanes (update-<platform>) also run the send and receive legs with P
-    "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "update_funds": False, "waive": {}},
+    # The release before this one: prune-downloads keeps its files, announce compares its app id,
+    # the version check and the rollback backup use it. Empty: the newest published run.
+    "previous": {"dir": "", "version": "", "ref": ""},
 }
+
+
+def previous_of(scope):
+    """The scope's [previous] (dir, version, ref); a run made before 26.11.4 kept them in [proof]."""
+    if isinstance(scope.get("previous"), dict):
+        return {k: scope["previous"].get(k) or "" for k in ("dir", "version", "ref")}
+    old = scope.get("proof") or {}
+    return {k: old.get(f"previous_{k}") or "" for k in ("dir", "version", "ref")}
 
 
 def _merge(base, over, where):
@@ -253,7 +227,7 @@ def _merge(base, over, where):
     for k, v in over.items():
         if k not in base:
             raise ConfigError(f"{where}: unknown key {k!r} (known: {', '.join(base)})")
-        if isinstance(base[k], dict) and k not in ("skip", "waive"):
+        if isinstance(base[k], dict) and k != "skip":
             if not isinstance(v, dict):
                 raise ConfigError(f"{where}: {k} must be a table")
             out[k] = _merge(base[k], v, f"{where} [{k}]")
@@ -282,11 +256,16 @@ def _split(text):
 
 
 def load_scope(path=None, version=None, only=None, skip_platform=None, no_variant=None,
-               sets=None, skips=None, test=None, target=None, waive=None):
+               sets=None, skips=None, test=None, target=None):
     """release.toml (or the defaults) + command-line overrides, unvalidated (see validate_scope)."""
     scope = copy.deepcopy(DEFAULT_SCOPE)
     if path:
-        scope = _merge(scope, load_toml(path), path)
+        data = load_toml(path)
+        if "proof" in data and "previous" not in data:
+            # A release.toml from before 26.11.4 (a kept run's own copy): its previous release only.
+            old = data.pop("proof")
+            data["previous"] = {k: old[f"previous_{k}"] for k in ("dir", "version", "ref") if old.get(f"previous_{k}")}
+        scope = _merge(scope, data, path)
     if version:
         if scope["version"] and scope["version"] != version:
             raise ConfigError(f"the version on the command line ({version}) differs from {path} ({scope['version']})")
@@ -329,11 +308,6 @@ def load_scope(path=None, version=None, only=None, skip_platform=None, no_varian
             raise ConfigError(f"--skip {item}: give a reason, e.g. --skip publish-source=\"token renewal\"")
         k, v = item.split("=", 1)
         scope["skip"][k.strip()] = v.strip()
-    for item in waive or []:
-        if "=" not in item or not item.split("=", 1)[1].strip():
-            raise ConfigError(f"--waive {item}: give a reason, e.g. --waive macos=\"no Apple update test yet\"")
-        k, v = item.split("=", 1)
-        scope["proof"]["waive"][k.strip()] = v.strip()
     if test is not None:
         scope["test"] = bool(test) or scope["test"]
     if target:
@@ -364,7 +338,7 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
         errs.append("a TEST run publishes only to scratch")
     if previous_version and not VERSION_RE.match(previous_version):
         errs.append(f"the previous release's version {previous_version!r} is not a version: "
-                    "set [proof] previous_version (or name the folder after it)")
+                    "set [previous] version (or name the folder after it)")
         previous_version = None
     if previous_version and v and VERSION_RE.match(v):
         key = lambda s: tuple(int(x) for x in s.split("-")[0].split("."))
@@ -417,21 +391,12 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
         s = steps[name]
         if not s.get("skippable"):
             kind = s.get("kind", "command")
-            what = "a gate" if kind == "gate" or name.startswith(("trust-", "update-trust", "artefacts", "preflight", "scope", "source")) else f"a {kind} step"
+            what = "a gate" if kind == "gate" or name.startswith(("trust-", "artefacts", "preflight", "scope", "source")) else f"a {kind} step"
             fix = ("to drop a platform or variant, switch it off in [platforms] / [variants]"
-                   if name.startswith(("build-", "apple-")) else
-                   "to ship a platform without the update proof, waive it in [proof.waive]"
-                   if name.startswith("trust-") else "gates never skip")
+                   if name.startswith(("build-", "apple-")) else "gates never skip")
             errs.append(f"[skip] {name}: {what} cannot be skipped ({fix})")
         if not str(reason).strip():
             errs.append(f"[skip] {name}: give a reason")
-    for p, reason in scope["proof"]["waive"].items():
-        if p not in PLATFORMS:
-            errs.append(f"[proof.waive] {p}: not a platform")
-        elif not scope["platforms"].get(p):
-            errs.append(f"[proof.waive] {p}: not in scope, nothing to waive")
-        elif not str(reason).strip():
-            errs.append(f"[proof.waive] {p}: give a reason")
     left = [p for p in ("windows", "linux", "macos") if not scope["platforms"].get(p) and p not in carried]
     if left and scope["publish"].get("manifests"):
         warns.append(f"{', '.join(left)} out of scope: the update manifests keep those systems' live entries, "
@@ -467,8 +432,6 @@ def scope_summary(scope):
                      + ("; a failed one is built locally" if fb else ""))
     if scope["skip"]:
         parts.append("skip: " + "; ".join(f"{k} ({v})" for k, v in scope["skip"].items()))
-    if scope["proof"]["waive"]:
-        parts.append("NOT PROVEN (waived): " + "; ".join(f"{k} ({v})" for k, v in scope["proof"]["waive"].items()))
     parts.append(f"target: {scope['publish']['target']}")
     return " · ".join(parts)
 
@@ -488,12 +451,7 @@ def scope_toml(scope):
         lines.append(f"\n[{table}]")
         for k, v in scope.get(table, {}).items():  # runs from before a table was added lack it
             lines.append(f"{k if re.fullmatch(r'[A-Za-z0-9_-]+', k) else val(k)} = {val(v)}")
-    lines.append("\n[proof]")
-    for k in ("previous_dir", "previous_version", "previous_ref"):
-        lines.append(f"{k} = {val(scope['proof'][k])}")
-    if scope["proof"].get("update_funds"):
-        lines.append("update_funds = true")
-    lines.append("\n[proof.waive]")
-    for k, v in scope["proof"]["waive"].items():
+    lines.append("\n[previous]")
+    for k, v in previous_of(scope).items():
         lines.append(f"{k} = {val(v)}")
     return "\n".join(lines) + "\n"

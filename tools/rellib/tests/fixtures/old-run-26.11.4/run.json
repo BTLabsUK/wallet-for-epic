@@ -1,0 +1,94 @@
+{
+ "version": "26.11.4",
+ "commit": "f1ffd8a8022c1978abce9607057dba48efee6cc7",
+ "scope": {
+  "version": "26.11.4",
+  "test": false,
+  "platforms": {
+   "android": true,
+   "linux": true,
+   "windows": true,
+   "macos": true,
+   "ios": false
+  },
+  "variants": {
+   "tor": true,
+   "notor": true
+  },
+  "stores": {
+   "play": false,
+   "play_promote": ""
+  },
+  "publish": {
+   "target": "live",
+   "manifests": true,
+   "notes": "New desktop design. Stability improvements and bug fixes.",
+   "github": true,
+   "gate_note": ""
+  },
+  "apple": {
+   "signed": true
+  },
+  "skip": {},
+  "proof": {
+   "previous_dir": "",
+   "previous_version": "",
+   "previous_ref": "",
+   "update_funds": false,
+   "waive": {}
+  }
+ },
+ "test": false,
+ "dry": false,
+ "target": "live",
+ "src": "/WT/rel-26.11.4-f1ffd8a",
+ "src_made": true,
+ "warnings": [],
+ "previous": {
+  "dir": "/STATE/26.11.3/run-5/files",
+  "version": "26.11.3",
+  "ref": "v26.11.3",
+  "extra": "/STATE/26.11.3/run-5/extra"
+ },
+ "kind": "release",
+ "no_relmsg": true,
+ "argv": [
+  "start",
+  "26.11.4",
+  "--commit",
+  "f1ffd8a80",
+  "--skip-platform",
+  "ios"
+ ],
+ "run_id": "26.11.4-run16",
+ "run": "/STATE/26.11.4/run-16",
+ "created": "2026-11-15T13:23:47Z",
+ "previous_by_platform": {
+  "android": {
+   "dir": "/STATE/26.11.3/run-5/files",
+   "version": "26.11.3",
+   "ref": "v26.11.3",
+   "extra": "/STATE/26.11.3/run-5/extra"
+  },
+  "linux": {
+   "dir": "/STATE/26.11.3/run-5/files",
+   "version": "26.11.3",
+   "ref": "v26.11.3",
+   "extra": "/STATE/26.11.3/run-5/extra"
+  },
+  "windows": {
+   "dir": "/STATE/26.11.3/run-5/files",
+   "version": "26.11.3",
+   "ref": "v26.11.3",
+   "extra": "/STATE/26.11.3/run-5/extra"
+  }
+ },
+ "net": {
+  "node": "https://node.btlabs.uk",
+  "epicbox": "epicbox.btlabs.uk"
+ },
+ "pins": {
+  "lepic": "9491cc4398ac8ce7387cdaaaee40e7663e28b06a",
+  "lepic-flutter": "70e63bc902954735657e22c9fc559f9ff2c5b275"
+ }
+}

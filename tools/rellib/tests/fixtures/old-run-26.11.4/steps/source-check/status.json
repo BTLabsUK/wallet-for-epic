@@ -1,0 +1,32 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:24:06Z",
+ "ended": "2026-11-15T13:24:09Z",
+ "note": "reused from tools/check.sh --full 2026-11-15T13:19:00Z (rel-desktop-new-66676d) (f1ffd8a8022c): nothing it depends on changed",
+ "hint": null,
+ "rc": 0,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "reused_from": {
+  "kind": "green",
+  "label": "tools/check.sh --full 2026-11-15T13:19:00Z (rel-desktop-new-66676d)",
+  "commit": "f1ffd8a8022c1978abce9607057dba48efee6cc7"
+ },
+ "duration_s": 3.3,
+ "attempt_seconds": [
+  3.3
+ ],
+ "warned": null,
+ "input_hash": "cd68159d75b9bede",
+ "inputs_digest": null,
+ "reuse_key": "e562b24def37a936748b6189"
+}
