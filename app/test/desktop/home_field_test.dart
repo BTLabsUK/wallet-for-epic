@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
+const _e1Addr = 'epic1qw508d6qejxtdg4y5r3zarvary0c5xw7kxw5r4tm8q9';
 const _e1Link = 'epic:epic1qw508d6qejxtdg4y5r3zarvary0c5xw7kxw5r4tm8q9?server=https://pay.example.net';
 const _classicRequest = 'epic:esMASi45ub7Qe4ZE36UT5G6cU4ud8Fhhe4deS4F3cw9KTAb8dLcu@epicbox.example.org?amount=3&message=coffee';
 
@@ -259,6 +260,17 @@ void main() {
         final a = nav.arg as SendArgs;
         expect(a.recipient, _e1Link);
         expect(a.amount, isNotNull);
+        await _end(tester);
+      });
+    }
+
+    for (final typed in ['10 $_e1Addr', '$_e1Addr 10', _e1Addr]) {
+      testWidgets('"$typed": a bare epic1 address is refused as Send refuses it, Enter does nothing', (tester) async {
+        final container = await _open(tester, epic1: true);
+        await _type(tester, typed);
+        expect(_line(tester), contains(_l.epic1AddressAlone));
+        await _enter(tester);
+        expect(container.read(deskNavProvider).route, DeskRoute.overview);
         await _end(tester);
       });
     }

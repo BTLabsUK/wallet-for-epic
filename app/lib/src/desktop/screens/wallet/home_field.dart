@@ -275,6 +275,10 @@ class _HomeFieldState extends ConsumerState<HomeField> {
         if (r.query.isEmpty) return HomeIntent(line: l.scanPhraseFoundPasted, icon: EIcons.alert, problem: l.scanPhraseFoundPasted);
         return HomeIntent(line: l.deskHomeNoMatch(r.query), icon: EIcons.search, problem: l.deskHomeNoMatch(r.query));
       case HomeKind.code:
+        // Send refuses a bare epic1 address in both modes: Home says so instead of opening it.
+        if (epic1AddressOnly(r.code ?? '')) {
+          return HomeIntent(line: l.epic1AddressAlone, icon: EIcons.alert, problem: l.epic1AddressAlone);
+        }
         // Send's epic1 page takes no classic request: Home stops as it does for a classic address.
         if (r.classicRequest && ref.read(deskPaymentModeProvider) == PaymentMode.epic1) {
           return HomeIntent(line: l.deskE1ModeClassicAddress, icon: EIcons.alert, problem: l.deskE1ModeClassicAddress);
@@ -319,10 +323,13 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     final epic1Mode = ref.read(deskPaymentModeProvider) == PaymentMode.epic1;
     final epic1Code = r.kind == HomeKind.address && epic1Shaped(r.address ?? '');
     if (epic1Code && !request) {
-      // An epic1 code is paid on Send's epic1 page, which takes the code and the amount; classic
-      // mode says what Send says.
-      if (!epic1Mode) {
-        problem ??= epic1AddressOnly(r.address!) ? l.epic1AddressAlone : l.deskE1ModeEpic1Link;
+      // An epic1 link is paid on Send's epic1 page, which takes the link and the amount. A bare
+      // epic1 address is refused there in both modes; classic mode also refuses the link.
+      if (epic1AddressOnly(r.address!)) {
+        problem ??= l.epic1AddressAlone;
+        detail = problem;
+      } else if (!epic1Mode) {
+        problem ??= l.deskE1ModeEpic1Link;
         detail = problem;
       }
     } else if (r.kind == HomeKind.address && !request) {

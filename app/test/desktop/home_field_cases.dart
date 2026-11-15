@@ -167,9 +167,12 @@ const homeCases = <HomeCase>[
   HomeCase('E01', 'epic1', '10000 $hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
   HomeCase('E02', 'epic1', '$hfEpic1Link 10000', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
   HomeCase('E03', 'epic1', 'send 5 to $hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 5 · classic mode: nothing opens', to: hfEpic1Link, amount: '5', recipient: RecipientInputKind.text),
+  // A bare epic1 address (with or without an amount) is refused in both modes, as Send refuses it
+  HomeCase('E04', 'epic1', '10000 $hfEpic1', HomeKind.address, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', to: hfEpic1, amount: '10000', recipient: RecipientInputKind.text, enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),
+  HomeCase('E05', 'epic1', '$hfEpic1 10', HomeKind.address, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', to: hfEpic1, amount: '10', recipient: RecipientInputKind.text, enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),
   // Codes
   HomeCase('C01', 'code', hfRequest, HomeKind.code, 'Send · filled from the payment request (To, Amount 3, Message "coffee")'),
-  HomeCase('C02', 'code', hfEpic1, HomeKind.code, 'Send · the epic1 code goes through Send\'s paste'),
+  HomeCase('C02', 'code', hfEpic1, HomeKind.code, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),
   HomeCase('C03', 'code', hfEpic1Link, HomeKind.code, 'Send · the epic1 link goes through Send\'s paste'),
   HomeCase('C05', 'code', hfRequest, HomeKind.code, 'epic1 mode: nothing opens · "Classic address. Turn off epic1 payments to pay it."', enters: false, epic1: true, line: 'Classic address. Turn off epic1 payments to pay it.'),
   HomeCase('C04', 'code', hfPhrase, HomeKind.none, 'Nothing opens · the phrase is not echoed', enters: false),
