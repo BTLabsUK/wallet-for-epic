@@ -268,9 +268,14 @@ class Uia:
 
     def _fresh(self, node):
         """The same control on a new read (after the keyboard went, the layout moved)."""
-        for n in self.tree():
+        tree = self.tree()
+        for n in tree:
             if n.role == node.role and n.name == node.name and n.id == node.id:
                 return n
+        if node.id:  # its name can change with it (a field's hint goes once it holds an address)
+            same = [n for n in tree if n.role == node.role and n.id == node.id]
+            if len(same) == 1:
+                return same[0]
         return node
 
     def press(self, node):
