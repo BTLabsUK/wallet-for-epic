@@ -65,9 +65,17 @@ Future<void> _internet(WidgetTester tester, ProviderContainer container) async {
 // The Epicbox code shows from the start (item 17); the others open on demand.
 const _images = ['rx-qr-image-http', 'rx-qr-image-tor'];
 
+/// [testWidgets] that takes the page down itself: the relay-software provider is autoDispose,
+/// and unmounting schedules its disposal on a zero timer, which must run before the test ends.
+void _testWidgets(String name, WidgetTesterCallback body, {bool? skip}) => testWidgets(name, (tester) async {
+  await body(tester);
+  await tester.pumpWidget(const SizedBox());
+  await tester.pump(Duration.zero);
+}, skip: skip);
+
 void main() {
   for (final width in [1200.0, 1340.0, 1440.0, 1600.0]) {
-    testWidgets('only the Epicbox QR code on open in any state at $width px, nothing overflows', (tester) async {
+    _testWidgets('only the Epicbox QR code on open in any state at $width px, nothing overflows', (tester) async {
       for (final a in _args) {
         await _pump(tester, a, width: width);
         for (final k in _images) {
@@ -78,7 +86,7 @@ void main() {
     });
   }
 
-  testWidgets('the Epicbox code shows on open: no blur, no Show QR or Hide QR', (tester) async {
+  _testWidgets('the Epicbox code shows on open: no blur, no Show QR or Hide QR', (tester) async {
     await _pump(tester, const ReceiveArgs());
     expect(find.byKey(const ValueKey('rx-qr-image-epicbox')), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-qr-epicbox')), findsNothing);
@@ -87,7 +95,7 @@ void main() {
     expect(find.text('QR code: Epicbox address'), findsOneWidget);
   });
 
-  testWidgets('Ask for amount makes the Epicbox code a link with the amount; closing it brings the address back', (tester) async {
+  _testWidgets('Ask for amount makes the Epicbox code a link with the amount; closing it brings the address back', (tester) async {
     final copied = <String>[];
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
       if (call.method == 'Clipboard.setData') copied.add((call.arguments as Map)['text'] as String);
@@ -121,7 +129,7 @@ void main() {
     expect(tester.widgetList<EQrReveal>(find.byType(EQrReveal)).first.address, address);
   });
 
-  testWidgets('the HTTP reveal opens and closes in the same number of frames', (tester) async {
+  _testWidgets('the HTTP reveal opens and closes in the same number of frames', (tester) async {
     await _internet(tester, await _pump(tester, const ReceiveArgs(http: RxHttp.on)));
     final panel = find.byKey(const ValueKey('rx-panel-http'));
     Future<int> frames() async {
@@ -149,14 +157,14 @@ void main() {
     expect(open, inInclusiveRange(13, 17));
   });
 
-  testWidgets('with reduced motion the reveal swaps in one frame', (tester) async {
+  _testWidgets('with reduced motion the reveal swaps in one frame', (tester) async {
     await _internet(tester, await _pump(tester, const ReceiveArgs(http: RxHttp.on), reduce: true));
     await tester.tap(find.byKey(const ValueKey('rx-qr-http')));
     await tester.pump();
     expect(find.byKey(const ValueKey('rx-qr-image-http')), findsOneWidget);
   });
 
-  testWidgets('the HTTP panel stays with Link · HTTP off, one line with its switch; on, grown with the address switches instead', (tester) async {
+  _testWidgets('the HTTP panel stays with Link · HTTP off, one line with its switch; on, grown with the address switches instead', (tester) async {
     final container = await _pump(tester, const ReceiveArgs());
     final panel = find.byKey(const ValueKey('rx-panel-http'));
     final own = find.byKey(const ValueKey('rx-switch-http'));
@@ -175,7 +183,7 @@ void main() {
     expect(find.byKey(const ValueKey('rx-qr-http')), findsNothing, reason: 'no QR code for 127.0.0.1');
   });
 
-  testWidgets('two columns from 1340 px start level; one column below', (tester) async {
+  _testWidgets('two columns from 1340 px start level; one column below', (tester) async {
     await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1440);
     final hero = tester.getRect(find.byKey(const ValueKey('rx-panel-epicbox')));
     final head = tester.getRect(find.text(_l.deskRecvOtherWays));
@@ -186,7 +194,7 @@ void main() {
     expect(tester.getRect(find.text(_l.deskRecvOtherWays)).top, greaterThan(hero2.bottom));
   });
 
-  testWidgets("a header icon scrolls to its method's panel", (tester) async {
+  _testWidgets("a header icon scrolls to its method's panel", (tester) async {
     // With Tor on, Link is the one panel beside Epicbox: a short window puts it below the fold.
     await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1200, height: 600);
     final panel = find.byKey(const ValueKey('rx-panel-tor'));
@@ -199,14 +207,14 @@ void main() {
     expect(view.contains(tester.getRect(panel).topLeft), isTrue);
   }, skip: !torBuilt);
 
-  testWidgets('the header says each method in words for screen readers', (tester) async {
+  _testWidgets('the header says each method in words for screen readers', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, const ReceiveArgs(http: RxHttp.on));
     expect(find.bySemanticsLabel(RegExp(r'^Epicbox connected, Link · HTTP receiving')), findsOneWidget);
     handle.dispose();
   });
 
-  testWidgets('Tor not connected: the banner is the one message (D-04)', (tester) async {
+  _testWidgets('Tor not connected: the banner is the one message (D-04)', (tester) async {
     await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.failed));
     expect(find.byKey(const ValueKey('rx-tor-notice')), findsOneWidget);
     // The banner offers Retry; the Tor line keeps only its state, with no second Retry.
@@ -219,7 +227,7 @@ void main() {
     expect(chip.tone, BadgeTone.neutral);
   }, skip: !torBuilt);
 
-  testWidgets('no banned words on the page', (tester) async {
+  _testWidgets('no banned words on the page', (tester) async {
     for (final a in _args) {
       await _pump(tester, a);
       for (final t in tester.widgetList<Text>(find.byType(Text))) {

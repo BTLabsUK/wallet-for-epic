@@ -492,12 +492,14 @@ class TxStateWord extends StatelessWidget {
   Widget build(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
     final dir = Directionality.of(context);
+    // Measured in the style the Text draws with: [style] over the inherited one.
+    final drawn = DefaultTextStyle.of(context).style.merge(style);
     return LayoutBuilder(
       builder: (context, box) {
         var longest = 0.0;
         for (final w in word.split(RegExp(r'\s+'))) {
           if (w.isEmpty) continue;
-          final p = TextPainter(text: TextSpan(text: w, style: style), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+          final p = TextPainter(text: TextSpan(text: w, style: drawn), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
           if (p.width > longest) longest = p.width;
           p.dispose();
         }
