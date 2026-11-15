@@ -543,7 +543,7 @@ abstract interface class DeskWalletApi {
   /// core without it. The types are the core's (`models.dart`), shared with the phone.
   PairingApi get pairing;
 
-  /// epic1 payments of the open wallet (`epic1.dart`), shared with the phone: the switch, links,
+  /// epic1 payments of the open wallet (`epic1.dart`), shared with the phone: links,
   /// in-person codes. Null while locked or on a core without them.
   Epic1Wallet? get epic1;
 

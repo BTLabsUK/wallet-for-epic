@@ -163,7 +163,7 @@ String contactSendAddress(Contact contact, bool Function(MethodKind) offered) {
     final address = contact.addressOf(kind);
     if (address != null && offered(MethodKind.ofRecipient(kind)!)) return address;
   }
-  // Only an epic1 link: Send names it and says how to turn epic1 payments on.
+  // Only an epic1 link: Send pays it by the epic1 flow, or says epic1 is off.
   return contact.address.isEmpty ? contact.epic1 ?? '' : contact.address;
 }
 

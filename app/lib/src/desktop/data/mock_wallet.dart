@@ -441,7 +441,6 @@ class MockDeskWallet implements DeskWalletApi {
     notRemembered = false;
     if (ok) {
       _fails = 0;
-      epic1Fake.reopen();
       openedRemembered = false;
       notRemembered = remember && storeRefuses;
       remember && !storeRefuses ? _remembered.add(_selected) : _remembered.remove(_selected);
@@ -454,7 +453,6 @@ class MockDeskWallet implements DeskWalletApi {
     if (!_remembered.contains(_selected)) return false;
     await _wait(2);
     await _copyStore();
-    epic1Fake.reopen();
     openedRemembered = true;
     return true;
   }
@@ -1482,8 +1480,8 @@ class MockDeskWallet implements DeskWalletApi {
     return spendBack ? CancelResult.spentBack : CancelResult.stoppedWaiting;
   }
 
-  /// The epic1 payments of the selected wallet: the switch's stored value applies at unlock.
-  final FakeEpic1 epic1Fake = FakeEpic1(on: _previewEpic1);
+  /// The epic1 payments of the selected wallet.
+  final FakeEpic1 epic1Fake = FakeEpic1();
 
   @override
   Epic1Wallet? get epic1 => epic1Fake;
@@ -1838,6 +1836,6 @@ class _MockDeviceHost implements DeviceHost {
   set heldOutputs(Set<String> commitments) {}
 }
 
-/// `?epic1` on the web prototype's URL: the wallet opens in epic1 mode and Anna's payment went
-/// sealed, for reviews of the epic1 screens. Tests and release builds never see it.
+/// `?epic1` on the web prototype's URL: Anna's payment went sealed, for reviews of the sealed
+/// mark. Tests and release builds never see it.
 bool get _previewEpic1 => kIsWeb && Uri.base.queryParameters.containsKey('epic1');

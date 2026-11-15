@@ -447,7 +447,7 @@ class Tx {
   final Epic1Via? epic1Via;
 
   /// Sealed so that only the two wallets in it could read its slates (the core's
-  /// `TxEntry.sealed`): the "Sealed with epic1" mark in epic1 mode.
+  /// `TxEntry.sealed`): the "Sealed with epic1" mark.
   final bool sealed;
 
   /// Sent or received as a slate file: [TxMethod.file] and no epic1 exchange.
@@ -749,7 +749,7 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
-  /// An epic1 link, `epic:epic1…?epicbox=…`, paid in epic1 mode only.
+  /// An epic1 link, `epic:epic1…?epicbox=…`, paid while epic1 is on.
   final String? epic1;
 
   /// The address classic Send uses when nothing else says: Epicbox, else Tor, else HTTP.
@@ -771,7 +771,7 @@ class Contact {
       if (addressOf(k) != null) k,
   ];
 
-  /// [kinds] without the epic1 link: the addresses a method pays (Send outside epic1 mode).
+  /// [kinds] without the epic1 link: the addresses the classic Send form pays.
   List<RecipientKind> get methodKinds => [
     for (final k in kinds)
       if (k != RecipientKind.epic1) k,

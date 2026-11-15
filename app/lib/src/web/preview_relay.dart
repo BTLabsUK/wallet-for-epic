@@ -26,8 +26,7 @@ bool get previewRelayDownAtOnce => Uri.base.queryParameters.containsKey('relaydo
 /// `?relaymove` on the page's URL: a contact has moved relay and a BT Labs service asks to.
 bool get previewRelayMove => Uri.base.queryParameters.containsKey('relaymove');
 
-/// `?epic1` on the page's URL: the wallet opens in epic1 mode and its payments with Anna went
-/// sealed through her pairing.
+/// `?epic1` on the page's URL: the wallet's payments with Anna went sealed through her pairing.
 bool get previewEpic1 => Uri.base.queryParameters.containsKey('epic1');
 
 /// How long after Home opens the fake relay goes quiet, and how long it must have

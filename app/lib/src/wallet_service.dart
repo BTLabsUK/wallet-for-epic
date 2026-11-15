@@ -1243,7 +1243,6 @@ class FakeWalletService implements WalletService {
     _restored(mnemonic, restoreFromHeight);
     phraseOf[config.dataDir] = mnemonic ?? phrase;
     openWallets.add(config.dataDir);
-    epic1Stored.remove(config.dataDir);
     _bindEpic1(config);
     session.openedConfig = config;
     return session..owner = this;
@@ -1261,20 +1260,15 @@ class FakeWalletService implements WalletService {
       ..restoreFrom = from ?? BigInt.zero;
   }
 
-  /// The epic1 setting each wallet stores, by data directory, kept across lock and unlock as the core does.
-  final Map<String, bool> epic1Stored = {};
   String? _epic1Dir;
 
-  /// Gives the session the epic1 state of this wallet: the first open keeps the fake the test set up and
-  /// records its setting; later opens start from what the wallet stored, in use as at an unlock.
+  /// Gives the session the epic1 state of this wallet: the first open keeps the fake the test set up;
+  /// another wallet starts with its own.
   void _bindEpic1(WalletConfig config) {
     final dir = config.dataDir;
     // A fake the session took from another wallet is not this wallet's.
-    final stored = epic1Stored[dir] ?? (_epic1Dir != null && _epic1Dir != dir ? false : null);
-    if (stored != null) session.epic1Fake = FakeEpic1(on: stored);
+    if (_epic1Dir != null && _epic1Dir != dir) session.epic1Fake = FakeEpic1();
     _epic1Dir = dir;
-    epic1Stored[dir] = session.epic1Fake.storedOn;
-    session.epic1Fake.onStored = (on) => epic1Stored[dir] = on;
   }
 
   /// The recovery phrase of each wallet [create] made, by data directory; [phrase] otherwise.
@@ -1437,7 +1431,6 @@ class FakeWalletService implements WalletService {
     _restored(mnemonic, restoreFromHeight);
     createdPin = pin;
     pinFailureCount = 0;
-    epic1Stored.remove(config.dataDir);
     _bindEpic1(config);
     session.owner = this;
     session.openedConfig = config;
@@ -1543,7 +1536,7 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable, Epi
   @override
   final MemoryBoosts boosts = MemoryBoosts();
 
-  /// epic1 calls (`epic1.dart`); classic mode unless a test puts one made with `on: true`.
+  /// epic1 calls (`epic1.dart`); a test may put its own.
   FakeEpic1 epic1Fake = FakeEpic1();
 
   @override

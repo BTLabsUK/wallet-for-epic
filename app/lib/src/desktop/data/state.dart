@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../../cancel_final.dart' show CancelResult;
-import '../../epic1.dart' show PaymentMode;
 import 'api.dart';
 import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
@@ -701,36 +700,6 @@ final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.
 final deskEpic1OnProvider = Provider<bool>((ref) {
   final on = ref.watch(deskProvider.select((s) => (s.account, s.session, s.settings.payments.epic1))).$3;
   return on && ref.read(deskApiProvider).epic1 != null;
-});
-
-/// The open wallet's payment UI: epic1 only when its session runs epic1 payments. Read again at
-/// each unlock, as the switch applies then.
-final deskPaymentModeProvider = Provider<PaymentMode>((ref) {
-  ref.watch(deskProvider.select((s) => (s.account, s.session)));
-  return ref.read(deskApiProvider).epic1?.inUse == true ? PaymentMode.epic1 : PaymentMode.classic;
-});
-
-/// The epic1 switch as stored during this unlock, or null while it has not moved. The switch
-/// sets it, so a turn-off reaches Receive at once.
-final deskEpic1StoredProvider = NotifierProvider<DeskEpic1StoredNotifier, bool?>(DeskEpic1StoredNotifier.new);
-
-class DeskEpic1StoredNotifier extends Notifier<bool?> {
-  @override
-  bool? build() {
-    ref.watch(deskProvider.select((s) => (s.account, s.session)));
-    return null;
-  }
-
-  void set(bool on) => state = on;
-}
-
-/// What Receive offers: epic1 only while this unlock is in epic1 mode and the switch is still
-/// on. Turned off, Receive shows the Epicbox address at once (the wallet takes classic payments
-/// in either mode); turned on, it waits for the next unlock.
-final deskReceiveModeProvider = Provider<PaymentMode>((ref) {
-  if (ref.watch(deskPaymentModeProvider) != PaymentMode.epic1) return PaymentMode.classic;
-  final stored = ref.watch(deskEpic1StoredProvider) ?? ref.read(deskApiProvider).epic1?.storedOn ?? true;
-  return stored ? PaymentMode.epic1 : PaymentMode.classic;
 });
 
 /// The confirmations the open wallet's balance counts a coin spendable with (LEPIC's), or the

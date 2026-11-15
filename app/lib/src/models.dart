@@ -76,8 +76,8 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
-  /// An epic1 link, `epic:epic1…?epicbox=…` (`tepic1` on the test network), paid in epic1 mode
-  /// only. Never a bare epic1 address: that alone cannot be paid.
+  /// An epic1 link, `epic:epic1…?epicbox=…` (`tepic1` on the test network), paid while
+  /// epic1 is on. Never a bare epic1 address: that alone cannot be paid.
   final String? epic1;
 
   // No pairing here: the address book is shared by every wallet on the device, a pairing is
@@ -106,7 +106,7 @@ class Contact {
   }
 
   /// The address classic Send uses when nothing else says: Epicbox, else Tor, else HTTP; empty
-  /// when the contact has none of them (the epic1 link is epic1 mode's).
+  /// when the contact has none of them (the epic1 link is paid by the epic1 flow).
   String get address => epicbox ?? tor ?? http ?? '';
 
   /// Every address, in [contactKinds] order, the epic1 link last.
@@ -126,7 +126,7 @@ class Contact {
       if (addressOf(k) != null) k,
   ];
 
-  /// [kinds] without the epic1 link: the addresses a method pays (Send outside epic1 mode).
+  /// [kinds] without the epic1 link: the addresses the classic Send form pays.
   List<RecipientKind> get methodKinds => [
     for (final k in kinds)
       if (k != RecipientKind.epic1) k,
@@ -3416,9 +3416,8 @@ class PairingRecord {
   /// reads them through the trust policy only.
   final int peerFeatures;
 
-  /// New payments to this contact go as epic1 slates: the epic1 switch is in use, the contact
-  /// said it takes them, and the pairing is not private. False: in epic1 mode the contact is
-  /// "Classic only".
+  /// New payments to this contact go as epic1 slates, as the core reports it. The app
+  /// does not act on it: `native_direct` is retired (2026-11-15).
   final bool nativeSlates;
 
   /// The profile word of the contact's card (tag `0x80`, 0 when absent): what the contact says

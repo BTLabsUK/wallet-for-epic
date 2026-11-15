@@ -130,7 +130,7 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
     }
   }
 
-  /// Every send asks the PIN right before money moves, as Send in classic mode does.
+  /// Every send asks the PIN right before money moves, as the classic Send does.
   Future<bool> _pinGate(BigInt amount) async {
     final l = context.l10n;
     final session = ref.read(sessionProvider);

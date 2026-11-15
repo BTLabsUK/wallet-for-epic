@@ -164,7 +164,7 @@ class KitRow extends StatelessWidget {
   /// reader and a test find.
   final Widget? titleWidget;
 
-  /// The title draws "epic1" as its brand mark (the epic1 payments switch).
+  /// The title draws "epic1" as its brand mark (the epic1 switch).
   final bool titleMarks;
 
   /// Whether the row can be used. Null decides from the row: a row that is a control (it has a

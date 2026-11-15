@@ -27,11 +27,6 @@ bool contactRefusesPayments(WidgetRef ref, Contact c) => ref
     .watch(paymentRefusalsProvider)
     .refusesPayments(pairingId: ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(c.id))?.id : null, address: c.epicbox);
 
-/// [c] has a pairing that takes epic1 payments. [watch] false outside build.
-bool contactPairsNatively(WidgetRef ref, Contact c, {bool watch = true}) => watch
-    ? ref.watch(deskPairsProvider) && (ref.watch(deskContactPairingProvider(c.id))?.nativeSlates ?? false)
-    : ref.read(deskPairsProvider) && (ref.read(deskContactPairingProvider(c.id))?.nativeSlates ?? false);
-
 /// The epic1 link that pays [c]: the contact has one, epic1 is on, and there is no other way
 /// (no classic address, no pairing). Any other contact is paid through its address or pairing.
 String? contactEpic1Link(WidgetRef ref, Contact c, {bool watch = true}) {

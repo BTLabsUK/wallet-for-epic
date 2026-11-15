@@ -2848,7 +2848,7 @@ class SendSummaryPanel extends StatelessWidget {
     this.reviewId = TrustIds.sendReview,
   });
 
-  /// The Review button's key and test id (epic1 mode's Send names its own).
+  /// The Review button's key and test id (the epic1 Send names its own).
   final Key? reviewKey;
   final String reviewId;
 
@@ -2859,7 +2859,7 @@ class SendSummaryPanel extends StatelessWidget {
   /// Whom it goes to, when a contact or a pairing names it: under the amount.
   final String? to;
 
-  /// Balance after, the lock rows and the split line; epic1 mode's Send leaves them out.
+  /// Balance after, the lock rows and the split line; the epic1 Send leaves them out.
   final bool lockRows;
 
   /// The Review button sits in the panel; false when the narrow page pins it to the bottom.
@@ -2892,7 +2892,7 @@ class SendSummaryPanel extends StatelessWidget {
   final bool reviewing;
   final VoidCallback? onReview;
 
-  /// "Review", or "Send" in epic1 mode; never what holds it.
+  /// "Review", or "Send" for an epic1 link; never what holds it.
   final String reviewLabel;
 
   /// The short reason the button is off ("Waiting for Tor"), on hover; the line under it says it.

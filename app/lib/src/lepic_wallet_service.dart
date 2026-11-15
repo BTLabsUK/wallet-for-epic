@@ -3950,15 +3950,6 @@ class _LepicEpic1 implements Epic1Wallet {
   lepic.EpicWallet get _w => _s._wallet;
 
   @override
-  bool get storedOn => !_w.isDisposed && _w.nativeDirect();
-
-  @override
-  bool get inUse => !_w.isDisposed && _w.nativeDirectInUse();
-
-  @override
-  Future<void> setStoredOn(bool on) => _guard(() async => _w.setNativeDirect(enabled: on));
-
-  @override
   Future<String> address() => _guard(_w.epic1Address);
 
   @override

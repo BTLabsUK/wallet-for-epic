@@ -239,36 +239,6 @@ final epic1OnProvider = Provider<bool>(
   (ref) => ref.watch(epic1Provider) != null && (ref.watch(appSettingsProvider).value?.payments.epic1 ?? true),
 );
 
-/// Which transaction UI the open wallet shows: epic1 when its switch was on at unlock. Turning
-/// the switch changes this only at the next unlock (a new session).
-final paymentModeProvider = Provider<PaymentMode>(
-  (ref) => ref.watch(sessionProvider)?.paymentMode ?? PaymentMode.classic,
-);
-
-/// The epic1 switch as stored during this unlock, or null while it has not moved. The switch
-/// sets it, so a turn-off reaches Receive at once.
-final epic1StoredProvider = NotifierProvider<Epic1StoredNotifier, bool?>(Epic1StoredNotifier.new);
-
-class Epic1StoredNotifier extends Notifier<bool?> {
-  @override
-  bool? build() {
-    ref.watch(sessionProvider);
-    return null;
-  }
-
-  void set(bool on) => state = on;
-}
-
-/// What Receive offers: epic1 only while this unlock is in epic1 mode and the switch is still
-/// on. Turned off, Receive shows the Epicbox address at once: the wallet takes classic payments
-/// in either mode, and an epic1 link is never handed out after the user said no. Turning it on
-/// still waits for the next unlock, as the rest of the epic1 UI does.
-final receiveModeProvider = Provider<PaymentMode>((ref) {
-  if (ref.watch(paymentModeProvider) != PaymentMode.epic1) return PaymentMode.classic;
-  final stored = ref.watch(epic1StoredProvider) ?? ref.watch(epic1Provider)?.storedOn ?? true;
-  return stored ? PaymentMode.epic1 : PaymentMode.classic;
-});
-
 class SessionNotifier extends Notifier<WalletSession?> {
   @override
   WalletSession? build() => null;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// epic1 payments (`/tmp/epic-build/epictx/ui-spec.md`): the per-wallet switch, epic1 links,
+/// epic1 payments (`/tmp/epic-build/epictx/ui-spec.md`): epic1 links,
 /// in-person codes and `.epictx` files, as the app sees them.
 ///
 /// A session with them implements [Epic1Capable]; [Epic1Of.epic1] reads its [Epic1Wallet], null for one
@@ -17,9 +17,6 @@ import 'package:crypto/crypto.dart';
 import 'models.dart';
 import 'recipient.dart' show epic1AddressOnly, epic1Shaped;
 import 'wallet_service.dart' show WalletSession, fakeTx;
-
-/// Which payment UI a wallet shows: today's ([classic]) or epic1 only ([epic1]).
-enum PaymentMode { classic, epic1 }
 
 /// The kind of an epic1 link this wallet issues.
 enum Epic1LinkKind {
@@ -291,18 +288,6 @@ class InPersonQrProgress {
 /// The epic1 calls of an open wallet (spec section 5). Errors are [WalletError]s with the
 /// kinds of spec section 6 (`WalletErrorKind.epic1CannotPay` …).
 abstract interface class Epic1Wallet {
-  // The switch.
-
-  /// The stored setting: on makes the next unlock open in epic1 mode.
-  bool get storedOn;
-
-  /// The setting this session opened with: the mode the UI shows now.
-  bool get inUse;
-
-  /// Stores the setting; it applies at the next unlock ("Applies at next unlock" while
-  /// [storedOn] differs from [inUse]).
-  Future<void> setStoredOn(bool on);
-
   // Links.
 
   Future<String> address();
@@ -400,13 +385,10 @@ extension Epic1Of on WalletSession {
     if (this case final Epic1Capable c) return c.epic1Wallet;
     return null;
   }
-
-  /// The mode the payment UI shows for this session.
-  PaymentMode get paymentMode => (epic1?.inUse ?? false) ? PaymentMode.epic1 : PaymentMode.classic;
 }
 
 /// Whether [text] looks like an epic1 link (`epic:epic1…` or a bare `epic1…` address; `tepic1`
-/// on the test network), for the mode lines ("epic1 link. Turn on epic1 payments to pay it.").
+/// on the test network), for routing what is typed, pasted or scanned.
 /// LEPIC's [Epic1Wallet.readLink] is the real check.
 bool looksLikeEpic1Link(String text) => epic1Shaped(text);
 
@@ -423,11 +405,6 @@ bool looksLikeEpictx(String text) => text.trimLeft().startsWith('BEGINEPICTX.');
 /// [Epic1Wallet] in memory, for widget tests and the desktop mock. Nothing touches the
 /// network; posts succeed unless a test sets [failPosts] or [failNext].
 class FakeEpic1 implements Epic1Wallet {
-  FakeEpic1({bool on = false}) : _stored = on, _inUse = on;
-
-  bool _stored;
-  bool _inUse;
-
   /// The next call throws this, once.
   WalletError? failNext;
 
@@ -459,12 +436,6 @@ class FakeEpic1 implements Epic1Wallet {
   final List<String> calls = [];
   int _next = 1;
 
-  /// Told each stored change, so a fake service keeps the setting per wallet across unlocks.
-  void Function(bool on)? onStored;
-
-  /// Simulates the next unlock: the stored setting becomes the one in use.
-  void reopen() => _inUse = _stored;
-
   void _call(String name) {
     calls.add(name);
     final f = failNext;
@@ -475,19 +446,6 @@ class FakeEpic1 implements Epic1Wallet {
   }
 
   String _slate() => '00000000-0000-4000-8000-${(_next++).toString().padLeft(12, '0')}';
-
-  @override
-  bool get storedOn => _stored;
-
-  @override
-  bool get inUse => _inUse;
-
-  @override
-  Future<void> setStoredOn(bool on) async {
-    _call('setStoredOn');
-    _stored = on;
-    onStored?.call(on);
-  }
 
   @override
   Future<String> address() async {
