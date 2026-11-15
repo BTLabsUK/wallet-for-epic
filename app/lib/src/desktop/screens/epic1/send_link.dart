@@ -14,7 +14,7 @@ import '../../../contact_epic1.dart';
 import '../../../epic1.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
 import '../../../providers.dart' show defaultMinimumConfirmations;
-import '../../../recipient.dart' show epic1AddressOnly;
+import '../../../recipient.dart' show epic1AddressOnly, epic1Unwrap;
 import '../../../scan/scan_router.dart';
 import '../../../trust_ids.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -136,7 +136,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   /// A pasted or opened [text]: an epic1 link, an epic1 file's text, an in-person code, or
   /// a classic code this mode cannot pay.
   Future<void> _open(String text) async {
-    final t = text.trim();
+    final t = epic1Unwrap(text.trim());
     if (t.isEmpty) return;
     setState(() {
       _error = null;

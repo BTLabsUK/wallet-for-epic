@@ -25,7 +25,9 @@ class Recipient {
 /// in lower case, the one form the app shows. An epic1 link or bare epic1 address
 /// ([epic1Shaped]) is [RecipientKind.epic1], as typed. Does not validate; see [checkRecipient].
 Recipient parseRecipient(String text) {
-  final clean = text.replaceAll(RegExp(r'\s'), '');
+  var clean = text.replaceAll(RegExp(r'\s'), '');
+  // A chat or web page may put `https://` before an epic1 link: read the link itself.
+  clean = epic1Unwrap(clean);
   final lower = clean.toLowerCase();
   // Before the URL check: `http://<onion>` goes over Tor, not HTTP.
   if (onionAddressFormat(clean)) {
@@ -50,17 +52,35 @@ Recipient parseRecipient(String text) {
 /// Whether [text] has the shape of an epic1 link (`epic:epic1…`, `epic://epic1…`) or a bare
 /// epic1 address (`epic1…`); `tepic1` on the test network. LEPIC's `readLink` is the real check.
 bool epic1Shaped(String text) {
-  final t = text.trim().toLowerCase();
+  final t = epic1Unwrap(text.trim()).toLowerCase();
   return _epic1Link.hasMatch(t) || _epic1Bare.hasMatch(t);
 }
 
 final RegExp _epic1Link = RegExp(r'^epic:(//)?t?epic1');
 final RegExp _epic1Bare = RegExp(r'^t?epic1[0-9a-z]{20,}');
 
+final RegExp _httpPrefix = RegExp(r'^https?://', caseSensitive: false);
+final RegExp _epic1BareOnly = RegExp(r'^t?epic1[0-9a-z]+/?$');
+
+/// Removes a leading `http://` or `https://` (any case) that a chat or web page put before an
+/// epic1 link, only when an `epic:` link follows or the rest is a bare epic1 address (letters
+/// and digits, at most one trailing `/`). A host such as `https://epic1.example.com`, with a
+/// dot, a port or a path, stays an HTTP address. Anything else comes back as it is.
+String epic1Unwrap(String text) {
+  final m = _httpPrefix.firstMatch(text);
+  if (m == null) return text;
+  final rest = text.substring(m.end);
+  final low = rest.toLowerCase();
+  if (_epic1Link.hasMatch(low) || (_epic1BareOnly.hasMatch(low) && _epic1Bare.hasMatch(low))) {
+    return rest;
+  }
+  return text;
+}
+
 /// Whether [text] names an epic1 address with no way to reach it: the bare address, or an
 /// `epic:` link with no query (no server). LEPIC pays only a link that names a server.
 bool epic1AddressOnly(String text) {
-  final t = text.trim().toLowerCase();
+  final t = epic1Unwrap(text.trim()).toLowerCase();
   return _epic1Bare.hasMatch(t) || (_epic1Link.hasMatch(t) && !t.contains('?'));
 }
 

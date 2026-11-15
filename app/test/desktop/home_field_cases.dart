@@ -167,6 +167,9 @@ const homeCases = <HomeCase>[
   HomeCase('E01', 'epic1', '10000 $hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
   HomeCase('E02', 'epic1', '$hfEpic1Link 10000', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
   HomeCase('E03', 'epic1', 'send 5 to $hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 5 · classic mode: nothing opens', to: hfEpic1Link, amount: '5', recipient: RecipientInputKind.text),
+  // A chat or web page put https:// before the link: the link itself is read
+  HomeCase('E06', 'epic1', '10000 https://$hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
+  HomeCase('E07', 'epic1', 'send 5 to HTTPS://$hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 5 · classic mode: nothing opens', to: hfEpic1Link, amount: '5', recipient: RecipientInputKind.text),
   // A bare epic1 address (with or without an amount) is refused in both modes, as Send refuses it
   HomeCase('E04', 'epic1', '10000 $hfEpic1', HomeKind.address, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', to: hfEpic1, amount: '10000', recipient: RecipientInputKind.text, enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),
   HomeCase('E05', 'epic1', '$hfEpic1 10', HomeKind.address, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', to: hfEpic1, amount: '10', recipient: RecipientInputKind.text, enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),

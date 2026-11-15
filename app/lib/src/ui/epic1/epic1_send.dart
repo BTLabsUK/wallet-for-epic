@@ -18,7 +18,7 @@ import '../../l10n.dart';
 import '../../models.dart';
 import '../../pairing_providers.dart' show contactPairingProvider;
 import '../../providers.dart';
-import '../../recipient.dart' show epic1AddressOnly;
+import '../../recipient.dart' show epic1AddressOnly, epic1Unwrap;
 import '../app_dialog.dart';
 import '../common.dart';
 import '../contacts_screen.dart';
@@ -198,7 +198,7 @@ class _Epic1SendStartState extends ConsumerState<Epic1SendStart> {
 /// Pays the epic1 [link]: true when it was sent and Done pressed.
 Future<bool> openEpic1LinkSend(BuildContext context, String link) async {
   final done = await Navigator.of(context).push<bool>(
-    MaterialPageRoute<bool>(builder: (_) => Epic1LinkSendScreen(link: link)),
+    MaterialPageRoute<bool>(builder: (_) => Epic1LinkSendScreen(link: epic1Unwrap(link.trim()))),
   );
   return done == true;
 }

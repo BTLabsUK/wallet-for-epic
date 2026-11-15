@@ -5,7 +5,7 @@
 /// the recipient reader are handed in, so the tests run without a wallet.
 library;
 
-import '../../../recipient.dart' show epic1Shaped;
+import '../../../recipient.dart' show epic1Shaped, epic1Unwrap;
 import '../../../scan/scan_router.dart';
 import '../../../send_route.dart' show RecipientInput, RecipientInputKind;
 import '../../data/models.dart' show Contact;
@@ -345,7 +345,7 @@ HomeRead readHomeField(
   final stripped = body.length != all.length;
 
   // A code: the whole text (after a verb), by the scan router.
-  final codeText = body.isEmpty ? text : text.substring(body.first.start);
+  final codeText = epic1Unwrap(body.isEmpty ? text : text.substring(body.first.start));
   final scanned = classify(codeText);
   switch (scanned) {
     case PaymentRequest():
@@ -392,7 +392,7 @@ HomeRead readHomeField(
           if (!fuzzy && cut.amount != null) return HomeRead._(HomeKind.amount, verb: v, amount: cut.amount, message: msg);
           continue;
         }
-        final q = text.substring(name.first.start, name.last.end);
+        final q = epic1Unwrap(text.substring(name.first.start, name.last.end));
         if (!fuzzy) {
           if (name.length == 1) {
             final known = _byAddress(people, q);
