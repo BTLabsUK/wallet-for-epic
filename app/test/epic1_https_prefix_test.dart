@@ -3,6 +3,7 @@
 // dropped; a host that starts with "epic1" stays an HTTP wallet address.
 
 import 'package:epic_wallet/src/recipient.dart';
+import 'package:epic_wallet/src/send_route.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _bare = 'epic1qw508d6qejxtdg4y5r3zarvary0c5xw7kxw5r4tm8q9';
@@ -57,5 +58,13 @@ void main() {
     final r = parseRecipient('https://epic1.example.com:3415/');
     expect(r.kind, RecipientKind.http);
     expect(r.address, 'https://epic1.example.com:3415/');
+  });
+
+  test("Send's reader drops the prefix of a link and keeps a host", () {
+    RecipientInput read(String t) => readRecipient(t, defaultRelay: 'epicbox.example.org', listenPort: 3415);
+    // A link is no address for Send's reader, prefixed or not: the same verdict.
+    expect(read('https://$_link').kind, read(_link).kind);
+    expect(read('https://$_link').kind, isNot(RecipientInputKind.http));
+    expect(read('https://epic1.example.com').address, startsWith('https://epic1.example.com'));
   });
 }

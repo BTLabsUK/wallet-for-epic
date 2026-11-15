@@ -21,7 +21,7 @@ library;
 import 'advanced.dart' show NetworkMode;
 import 'net/local_address.dart' show isLocalIpBytes;
 import 'network_gate.dart' show NetGate, plainHttpOffNow;
-import 'recipient.dart' show Recipient, RecipientKind, plainHttpToOtherDevice;
+import 'recipient.dart' show Recipient, RecipientKind, epic1Unwrap, plainHttpToOtherDevice;
 import 'wallet_service.dart' show onionAddressFormat, onionHost;
 
 /// Longest clean address Send takes (an Epicbox address is about 70 characters, a wallet URL
@@ -383,6 +383,8 @@ RecipientInput readRecipient(String raw, {required String defaultRelay, required
     t = unquoted;
   }
   if (t.isEmpty) return RecipientInput._(RecipientInputKind.text, address: raw.trim(), problem: RecipientProblem.notAddress);
+  // `https://` put before an epic1 link by a chat or web page: read the link itself.
+  t = epic1Unwrap(t);
 
   // An onion, in any of its forms (before URLs: http://<onion> goes over Tor).
   if (onionAddressFormat(t)) {
