@@ -51,6 +51,9 @@ def place(src, dst):
 
 # The checkout tools/rel runs from: its step scripts and G4 drivers ({rel} in pipeline.toml).
 RUNNER = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Runs a hand-off step on the Apple builder over ssh ([host.apple] ssh + auto); its time limit.
+APPLE_REMOTE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "steps", "apple-remote.sh")
+APPLE_REMOTE_MINUTES = 150
 
 
 def relmsg_state(st):
@@ -909,6 +912,9 @@ class Engine:
                 subprocess.run(["rsync", "-a", dest + "/results/", results + "/"], stdout=f, stderr=subprocess.STDOUT)
         if self.dry:
             return {"status": "done", "note": f"dry run: job at {job}", "dry": True}
+        remote = self.remote_handoff(step, log, job, results)
+        if remote:
+            return remote
         missing = [r for r in step.results if not os.path.isfile(os.path.join(results, r))]
         if missing:
             where = f"{staging}/{self.info['run_id']}/{step.id}" if staging else hdir
@@ -920,6 +926,39 @@ class Engine:
             if p.returncode != 0:
                 return {"status": "failed", "note": "hand-off SHA256SUMS does not match: " + p.stdout.strip()[-200:]}
         return {"status": "done", "note": f"results in {results}"}
+
+    def remote_handoff(self, step, log, job, results):
+        """[host.apple] ssh + auto = ["apple-mac"]: the Mac runs this step by itself over ssh
+        (steps/apple-remote.sh: job copied, LEPIC pins pushed, the command run under the Mac's build
+        lock, results copied back with their SHA256SUMS). Synchronous: the step's lane waits.
+        -> None when the step is not one of them (the manual route goes on), else a failed result or
+        None again once the results are in results/ (the checks after it are the same)."""
+        apple = self.hosts["host"].get("apple", {})
+        if not apple.get("ssh") or step.base not in (apple.get("auto") or []) or self.info.get("handoff_from"):
+            return None
+        if not self.info.get("src") or not os.path.isfile(os.path.join(job, "wfe.bundle")):
+            return {"status": "failed", "note": "apple-remote: the job has no wfe.bundle (no source checkout in this run)"}
+        minutes = int(apple.get("timeout_min") or APPLE_REMOTE_MINUTES)
+        env = dict(os.environ, APPLE_REMOTE_CMD=step.run,
+                   APPLE_REMOTE_ENV="\n".join(f"{k}={v}" for k, v in sorted((apple.get("env") or {}).items())))
+        argv = ["bash", APPLE_REMOTE, apple["ssh"], apple.get("workdir") or "~/rel-jobs", self.info["run_id"],
+                step.id, job, results, self.info["commit"], self.info["src"], str(minutes), *step.results]
+        with open(log, "ab") as f:
+            f.write(f"# {now_iso()} {os.path.basename(APPLE_REMOTE)} on {apple['ssh']} (limit {minutes} min)\n".encode())
+            f.flush()
+            try:
+                p = subprocess.run(argv, env=self.spawn_env(env), stdout=f, stderr=subprocess.STDOUT,
+                                   stdin=subprocess.DEVNULL, timeout=(minutes + 5) * 60)
+                rc = p.returncode
+            except subprocess.TimeoutExpired:
+                rc = None
+        if rc == 0:
+            return None
+        with open(log, "r", encoding="utf-8", errors="replace") as f:
+            tail = [l.strip() for l in f.read().splitlines()[-12:] if l.strip()]
+        why = next((l for l in reversed(tail) if l.startswith("apple-remote:")), tail[-1] if tail else "")
+        return {"status": "failed", "rc": rc,
+                "note": ("timed out" if rc is None else f"exit {rc}") + f": {why}"[:300]}
 
     # ---- the loop ----
 
