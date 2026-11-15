@@ -370,5 +370,42 @@ class TrustShTest(Files):
         self.assertIn("settings_kept", r.stdout.strip().split(","))
 
 
+
+class SetTextTest(unittest.TestCase):
+    """set_text types again when the field does not hold the text, and never sets AXValue."""
+
+    FIELD = {"role": "AXTextField", "path": [0, 3], "frame": [10, 20, 100, 20]}
+
+    def tree(self, value):
+        return {"ok": True, "nodes": [dict(self.FIELD, value=value)]}
+
+    def run_set(self, reads):
+        answers = []
+        for value in reads:
+            answers += [{"ok": True}, {"ok": True}, {"ok": True}, self.tree(value)]
+        mac = FakeMac(answers)
+        s = ax.MacSurface(mac, "/h", "/s", 5, log=lambda line: None)
+        node = ax.parse([dict(self.FIELD, value="")])[0]
+        sleep, ax.time.sleep = ax.time.sleep, lambda t: None
+        try:
+            s.set_text(node, "abcde")
+        finally:
+            ax.time.sleep = sleep
+        return [json.loads(inp)["op"] for cmd, inp in mac.cmds if inp]
+
+    def test_a_field_that_takes_the_text_is_typed_once(self):
+        self.assertEqual(self.run_set(["abcde"]), ["press", "keys", "type", "tree"])
+
+    def test_a_field_that_reads_short_is_typed_again_without_setting_its_value(self):
+        ops = self.run_set(["", "abcde"])
+        self.assertEqual(ops.count("type"), 2)
+        self.assertNotIn("setvalue", ops)
+
+    def test_typing_stops_after_three_tries_and_leaves_the_check_to_the_caller(self):
+        ops = self.run_set(["", "", ""])
+        self.assertEqual(ops.count("type"), 3)
+        self.assertNotIn("setvalue", ops)
+
+
 if __name__ == "__main__":
     unittest.main()

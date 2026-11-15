@@ -14,7 +14,8 @@ role and label (Labels.for_build(which, ids=False)).
 Pressing: AXPress on the node, found again by its path and checked to be the same node (role, title,
 value, description); a node that moved is looked for again by role and name. Typing: the field is
 pressed (Flutter focuses it), its text selected (Cmd+A) and deleted, the text posted to the app as
-key events; when the field does not read the text back, its AXValue is set instead (never for a password).
+key events; a field that does not read the text back is typed into again (setting AXValue shows the
+text to AX but does not reach the app's text controller, so it is never used).
 Keys and scrolling: key events posted to the app's process. No screenshots: the helper has no Screen
 Recording permission and the lane does not ask for one; the proof keeps the AX tree instead (Driver.shot
 writes the tree when screenshot() is False).
@@ -337,33 +338,36 @@ class MacSurface:
         self.pressed["ax"] = self.pressed.get("ax", 0) + 1
 
     def set_text(self, node, text, secret=False):
-        """Focus the field (a press), select all and delete, post the text as key events; when the field
-        does not read it back, set its AXValue (never a password field's). The text travels on ssh's stdin
-        only and is never logged."""
+        """Focus the field (a press), select all and delete, post the text as key events, read it back;
+        typed again (three times at most, with a longer wait for the focus) while the field does not hold
+        it. The caller checks the field once more. AXValue is never set: Flutter shows it to AX without
+        taking it into the field's text (26.11.3's restore grid counted 23 of 24 words). The text travels
+        on ssh's stdin only and is never logged."""
         self.guard()
         secret = secret or "password" in node.states
-        try:
-            node = self._at("press", node)
-        except HarnessFault:
-            node = self._at("focus", node)
-        time.sleep(0.3)
-        self.call("keys", keys=["select_all", "delete"], gap_ms=120)
-        r = self.call("type", timeout=60 + len(text), text=text)
-        if not r.get("ok"):
-            raise HarnessFault("ui", "typing into a field failed: %s" % (r.get("error") or "")[:120])
-        if "password" in node.states:
-            return
-        time.sleep(0.3)
-        for n in self.tree():
-            if n.ref["path"] == node.ref["path"] and n.role == "text_field":
-                if (n.value or "") == text:
-                    return
-                self.log("the field reads %d characters after typing, not %d: setting its value"
-                         % (len(n.value or ""), len(text)))
-                self._at("setvalue", n, text=text)
+        for attempt in range(3):
+            try:
+                node = self._at("press", node)
+            except HarnessFault:
+                node = self._at("focus", node)
+            time.sleep(0.3 + 0.7 * attempt)
+            self.call("keys", keys=["select_all", "delete"], gap_ms=120)
+            r = self.call("type", timeout=60 + len(text), text=text)
+            if not r.get("ok"):
+                raise HarnessFault("ui", "typing into a field failed: %s" % (r.get("error") or "")[:120])
+            if "password" in node.states:
                 return
-        if not secret:
-            self.log("the field moved after typing; the driver reads it again")
+            time.sleep(0.3 + 0.7 * attempt)
+            now = next((n for n in self.tree() if n.ref["path"] == node.ref["path"] and n.role == "text_field"), None)
+            if now is None:
+                if not secret:
+                    self.log("the field moved after typing; the driver reads it again")
+                return
+            if (now.value or "") == text:
+                return
+            self.log("the field reads %d characters after typing, not %d (try %d): typing it again"
+                     % (len(now.value or ""), len(text), attempt + 1))
+            node = now
 
     def key(self, name):
         if name not in KEYS:
