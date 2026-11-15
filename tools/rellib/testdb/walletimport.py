@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 """`testdb wallets import`: reads the harness's own test wallets from their files (read-only) and emits
 wallet.put / wallet.address / wallet.snapshot. Test wallets only. Event ids come from the file's mtime,
-so importing twice changes nothing. Nothing secret is printed."""
+so importing twice changes nothing. Nothing secret is printed.
+
+A one-time import of wallets the old release test lanes left on disk (`rel-lane-seeds`, removed from the
+release on 2026-11-15; the lanes are in the archive branch `archive/scripted-drivers-2026-11-15`). The
+files are history now: no release step reads or writes them."""
 import json
 import os
 import re
@@ -51,14 +55,14 @@ def run(db):
         notes = _read(os.path.join(d, "NOTES.md")) or ""
         _put(db, report, name, role, [os.path.join(d, x) for x in ("phrase", "pin", "wallet-pass", "NOTES.md")],
              platform="android" if name == "trust-android" else None, phrase=phrase, password=pw,
-             origin=folder, note=("app PIN %s; " % pin if pin else "") + ("mainnet; restored into the app by the trust-android lane"))
+             origin=folder, note=("app PIN %s; " % pin if pin else "") + ("mainnet; restored into the app by the former trust-android release lane"))
         m = ADDR.search(notes)
         if m:
             _address(db, name, role, "epicbox", m.group(0), _ts(os.path.join(d, "NOTES.md")))
         else:
             missing.append("%s: no address on file" % name)
 
-    # lane seeds: <platform>-<variant>/phrase and meta.json (last balance, fundings, birth)
+    # old lane seeds (history): <platform>-<variant>/phrase and meta.json (last balance, fundings, birth)
     seeds = os.path.join(cfg, "rel-lane-seeds")
     for lane in sorted(os.listdir(seeds)) if os.path.isdir(seeds) else []:
         d = os.path.join(seeds, lane)
@@ -84,7 +88,7 @@ def run(db):
     missing.append("lane wallets: no addresses on file (meta.json holds balances and fundings only)")
 
     # funder P: password in ~/.epic/qa-funder/.password, phrase in RECOVERY-PHRASE.txt (the init output),
-    # address REL_P_ADDR in drivers/core/checks.py. ~/.config/btlabs/p-pass exists but is empty.
+    # address REL_P_ADDR, which lived in the archived drivers/core/checks.py (so it is no longer found here).
     qa = os.path.join(HOME, ".epic", "qa-funder")
     pw = _read(os.path.join(qa, ".password"))
     text = _read(os.path.join(qa, "RECOVERY-PHRASE.txt")) or ""
@@ -96,12 +100,7 @@ def run(db):
         files = [os.path.join(qa, ".password"), os.path.join(qa, "RECOVERY-PHRASE.txt")]
         _put(db, report, "funder-p", "funder", files, platform="linux", phrase=phrase, password=pw,
              origin="~/.epic/qa-funder", note="QA funder P (mainnet, epic-wallet CLI on the build machine)")
-        checks = _read(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "drivers", "core", "checks.py")) or ""
-        m = ADDR.search(checks)
-        if m:
-            _address(db, "funder-p", "funder", "epicbox", m.group(0), _ts(os.path.join(qa, ".password")))
-        else:
-            missing.append("funder-p: REL_P_ADDR not found in drivers/core/checks.py")
+        missing.append("funder-p: no address on file (REL_P_ADDR lived in the archived drivers/core/checks.py)")
         if not _read(os.path.join(cfg, "p-pass")):
             missing.append("~/.config/btlabs/p-pass is empty (the password came from ~/.epic/qa-funder/.password)")
     else:

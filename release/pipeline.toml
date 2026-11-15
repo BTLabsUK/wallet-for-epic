@@ -91,7 +91,7 @@
 # {play_promote} (release.toml stores.play_promote, e.g. "beta", or "")
 # {previous_dir} {previous_version}
 # {previous_ref} {target} {scratch} {notes_file} {manifests}
-# {rel} (the checkout tools/rel runs from: its step scripts and drivers)
+# {rel} (the checkout tools/rel runs from: its step scripts)
 # {host.<role>.<key>} {path.<key>} (both from release-hosts.toml).
 
 [defaults]

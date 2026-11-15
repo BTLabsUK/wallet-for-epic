@@ -2,7 +2,7 @@
 # Test files over the budget in tools/tlib/budget.py (docs/TESTING.md, "Budgets").
 # <test> <wall ceiling in s> <slow|keep> <reason>
 # slow: left out of tools/t affected unless the file itself changed; tools/t full runs it, so the
-# nightly and the candidate do. keep: stays in the selection, with this ceiling.
+# release candidate's full run does. keep: stays in the selection, with this ceiling.
 # A new line is an exception: the lead who merges reads its reason. Seeded from full run 3c02b28b49.
 # Desktop sweep and smoke ceilings: twice the file alone (tools/t file --no-cache), for a run of 6.
 test/desktop/controls_sweep_settings_2_test.dart 180 slow a fresh app per control press

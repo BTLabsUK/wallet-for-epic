@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """Backfill: events from a tools/rel run folder (run.json, events.jsonl, steps/*/status.json,
-attempt-N.log, out/proof.json). Read-only on the run folder. Event ids are derived from the run, step
+attempt-N.log, and for runs before 2026-11-15 out/proof.json, which the removed UI lanes wrote). Read-only on the run folder. Event ids are derived from the run, step
 and attempt, so importing the same folder twice changes nothing."""
 import json
 import os
