@@ -5588,5 +5588,21 @@
   "deskConJoinDesc": "Geben Sie das Passwort einer anderen Wallet ein, die das Adressbuch nutzt.",
   "deskConJoinWallet": "Wallet",
   "deskConJoinPassword": "Passwort",
-  "deskConJoinDone": "Adressbuch geöffnet"
+  "deskConJoinDone": "Adressbuch geöffnet",
+  "deskHomeSendTo": "An {name} {amount} senden",
+  "deskHomeSendAmount": "{amount} senden",
+  "deskHomeSendOnly": "Senden",
+  "deskHomeRequestFrom": "{amount} von {name} anfordern",
+  "deskHomeRequestAmount": "{amount} anfordern",
+  "deskHomeRequestName": "Von {name} anfordern",
+  "deskHomeRequestOnly": "Anfordern",
+  "deskHomeMaxAmount": "{amount} (max.)",
+  "deskHomeMaxWord": "max.",
+  "deskHomeOpenCode": "Diesen Code in Senden öffnen",
+  "deskHomeNoMatch": "Kein Kontakt und keine Adresse passt zu ''{text}''",
+  "deskHomeOver": "Mehr als verfügbar ({spendable})",
+  "deskHomeFee": "Gebühr {fee} · Guthaben danach {after}",
+  "deskHomeMessage": "Nachricht: {text}",
+  "deskHomeRequestsOff": "Anfragen sind aus.",
+  "deskHomeNotPayer": "{name} hat kein gekoppeltes Wallet, das gefragt werden kann. Die Anfrage öffnet ohne Zahler."
 }

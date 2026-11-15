@@ -62,5 +62,21 @@
   "deskOvFieldHint": "Wpisz nazwę, kwotę, adres lub kod płatności",
   "deskOvLast30": "Ostatnie 30 dni",
   "deskOvIn": "wpłynęło",
-  "deskOvOut": "wypłynęło"
+  "deskOvOut": "wypłynęło",
+  "deskHomeSendTo": "Wyślij {amount} do: {name}",
+  "deskHomeSendAmount": "Wyślij {amount}",
+  "deskHomeSendOnly": "Wyślij",
+  "deskHomeRequestFrom": "Poproś o {amount}: {name}",
+  "deskHomeRequestAmount": "Poproś o {amount}",
+  "deskHomeRequestName": "Poproś: {name}",
+  "deskHomeRequestOnly": "Poproś",
+  "deskHomeMaxAmount": "{amount} (maks.)",
+  "deskHomeMaxWord": "maks.",
+  "deskHomeOpenCode": "Otwórz ten kod w Wyślij",
+  "deskHomeNoMatch": "Żaden kontakt ani adres nie pasuje do ''{text}''",
+  "deskHomeOver": "Więcej niż dostępne ({spendable})",
+  "deskHomeFee": "Opłata {fee} · Saldo po: {after}",
+  "deskHomeMessage": "Wiadomość: {text}",
+  "deskHomeRequestsOff": "Prośby są wyłączone.",
+  "deskHomeNotPayer": "{name} nie ma sparowanego portfela, który można poprosić. Prośba otworzy się bez płatnika."
 }

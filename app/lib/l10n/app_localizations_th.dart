@@ -21042,4 +21042,74 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConJoinDone => 'เปิดสมุดที่อยู่แล้ว';
+
+  @override
+  String deskHomeSendTo(String amount, String name) {
+    return 'ส่ง $amount ให้ $name';
+  }
+
+  @override
+  String deskHomeSendAmount(String amount) {
+    return 'ส่ง $amount';
+  }
+
+  @override
+  String get deskHomeSendOnly => 'ส่ง';
+
+  @override
+  String deskHomeRequestFrom(String amount, String name) {
+    return 'ขอ $amount จาก $name';
+  }
+
+  @override
+  String deskHomeRequestAmount(String amount) {
+    return 'ขอ $amount';
+  }
+
+  @override
+  String deskHomeRequestName(String name) {
+    return 'ขอจาก $name';
+  }
+
+  @override
+  String get deskHomeRequestOnly => 'ขอ';
+
+  @override
+  String deskHomeMaxAmount(String amount) {
+    return '$amount (สูงสุด)';
+  }
+
+  @override
+  String get deskHomeMaxWord => 'สูงสุด';
+
+  @override
+  String get deskHomeOpenCode => 'เปิดรหัสนี้ในหน้าส่ง';
+
+  @override
+  String deskHomeNoMatch(String text) {
+    return 'ไม่มีผู้ติดต่อหรือที่อยู่ที่ตรงกับ \'\'$text\'\'';
+  }
+
+  @override
+  String deskHomeOver(String spendable) {
+    return 'มากกว่ายอดที่ใช้ได้ ($spendable)';
+  }
+
+  @override
+  String deskHomeFee(String fee, String after) {
+    return 'ค่าธรรมเนียม $fee · ยอดคงเหลือหลังส่ง $after';
+  }
+
+  @override
+  String deskHomeMessage(String text) {
+    return 'ข้อความ: $text';
+  }
+
+  @override
+  String get deskHomeRequestsOff => 'คำขอปิดอยู่';
+
+  @override
+  String deskHomeNotPayer(String name) {
+    return '$name ไม่มีกระเป๋าที่จับคู่ไว้ให้ขอ คำขอจะเปิดโดยไม่มีผู้จ่าย';
+  }
 }

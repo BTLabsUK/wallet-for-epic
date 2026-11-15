@@ -336,5 +336,147 @@
   "deskOvOut": "out",
   "@deskOvOut": {
     "description": "Home chart: after the amount that went out (with fees) during the 30 days, as in '−40.01 out'. One short word."
+  },
+  "deskHomeSendTo": "Send {amount} to {name}",
+  "@deskHomeSendTo": {
+    "description": "Preview line under Home's field: what Enter opens. The amount reads like '5 EPIC'.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "5 EPIC"
+      },
+      "name": {
+        "type": "String",
+        "example": "BT Labs"
+      }
+    }
+  },
+  "deskHomeSendAmount": "Send {amount}",
+  "@deskHomeSendAmount": {
+    "description": "Preview line under Home's field: Send opens with this amount, the recipient still to pick.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "5 EPIC"
+      }
+    }
+  },
+  "deskHomeSendOnly": "Send",
+  "@deskHomeSendOnly": {
+    "description": "Preview line under Home's field when only the word Send is typed."
+  },
+  "deskHomeRequestFrom": "Request {amount} from {name}",
+  "@deskHomeRequestFrom": {
+    "description": "Preview line under Home's field: Request opens with this amount for this contact.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "5 EPIC"
+      },
+      "name": {
+        "type": "String",
+        "example": "BT Labs"
+      }
+    }
+  },
+  "deskHomeRequestAmount": "Request {amount}",
+  "@deskHomeRequestAmount": {
+    "description": "Preview line under Home's field: Request opens with this amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "5 EPIC"
+      }
+    }
+  },
+  "deskHomeRequestName": "Request from {name}",
+  "@deskHomeRequestName": {
+    "description": "Preview line under Home's field: Request opens for this contact, no amount yet.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "BT Labs"
+      }
+    }
+  },
+  "deskHomeRequestOnly": "Request",
+  "@deskHomeRequestOnly": {
+    "description": "Preview line under Home's field when only the word Request is typed."
+  },
+  "deskHomeMaxAmount": "{amount} (max)",
+  "@deskHomeMaxAmount": {
+    "description": "An amount that is everything spendable, minus the fee, in Home's preview line.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "99.9925 EPIC"
+      }
+    }
+  },
+  "deskHomeMaxWord": "max",
+  "@deskHomeMaxWord": {
+    "description": "Home's preview line: the amount is everything spendable, still being worked out."
+  },
+  "deskHomeOpenCode": "Open this code in Send",
+  "@deskHomeOpenCode": {
+    "description": "Preview line under Home's field for a pasted payment code, link or slate."
+  },
+  "deskHomeNoMatch": "No contact or address matches ''{text}''",
+  "@deskHomeNoMatch": {
+    "description": "Line under Home's field when the typing names nothing. The typed text is in quotes.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "xyz"
+      }
+    }
+  },
+  "deskHomeOver": "More than spendable ({spendable})",
+  "@deskHomeOver": {
+    "description": "Line under Home's field: the amount is over what can be spent. Enter does nothing.",
+    "placeholders": {
+      "spendable": {
+        "type": "String",
+        "example": "100 EPIC"
+      }
+    }
+  },
+  "deskHomeFee": "Fee {fee} · Balance after {after}",
+  "@deskHomeFee": {
+    "description": "Line under Home's field: the network fee of the send and the balance left after it.",
+    "placeholders": {
+      "fee": {
+        "type": "String",
+        "example": "0.0075 EPIC"
+      },
+      "after": {
+        "type": "String",
+        "example": "94.9925 EPIC"
+      }
+    }
+  },
+  "deskHomeMessage": "Message: {text}",
+  "@deskHomeMessage": {
+    "description": "Line under Home's field: the text after 'for' goes into the message.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "concert tickets"
+      }
+    }
+  },
+  "deskHomeRequestsOff": "Requests are off.",
+  "@deskHomeRequestsOff": {
+    "description": "Line under Home's field: a request was typed while requests are switched off."
+  },
+  "deskHomeNotPayer": "{name} has no paired wallet to ask. Request opens without a payer.",
+  "@deskHomeNotPayer": {
+    "description": "Line under Home's field: the contact cannot be sent a request.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
   }
 }

@@ -67,6 +67,16 @@ List<PairingRecord> deskRequestPayers(Iterable<PairingRecord> all) => [
   return (title: l.deskInvIssuerFailed, body: null);
 }
 
+/// A request opened with its fields filled in (Home's field): [to] is a pairing id or a
+/// [Contact], none for a request to pick the payer later.
+class RequestArgs {
+  const RequestArgs({this.to, this.amount, this.message});
+
+  final Object? to;
+  final String? amount;
+  final String? message;
+}
+
 class IssueInvoiceScreen extends ConsumerStatefulWidget {
   const IssueInvoiceScreen({super.key, this.arg});
 
@@ -106,6 +116,12 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
   }
 
   void _apply(Object? a) {
+    if (a is RequestArgs) {
+      _apply(a.to);
+      if (a.amount != null) _amount.text = a.amount!;
+      if (a.message != null) _message.text = a.message!;
+      return;
+    }
     if (a is String) {
       _to = a;
     } else if (a is Contact) {

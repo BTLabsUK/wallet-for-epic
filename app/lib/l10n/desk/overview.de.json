@@ -62,5 +62,21 @@
   "deskOvFieldHint": "Name, Betrag, Adresse oder Zahlungscode eingeben",
   "deskOvLast30": "Letzte 30 Tage",
   "deskOvIn": "ein",
-  "deskOvOut": "aus"
+  "deskOvOut": "aus",
+  "deskHomeSendTo": "An {name} {amount} senden",
+  "deskHomeSendAmount": "{amount} senden",
+  "deskHomeSendOnly": "Senden",
+  "deskHomeRequestFrom": "{amount} von {name} anfordern",
+  "deskHomeRequestAmount": "{amount} anfordern",
+  "deskHomeRequestName": "Von {name} anfordern",
+  "deskHomeRequestOnly": "Anfordern",
+  "deskHomeMaxAmount": "{amount} (max.)",
+  "deskHomeMaxWord": "max.",
+  "deskHomeOpenCode": "Diesen Code in Senden öffnen",
+  "deskHomeNoMatch": "Kein Kontakt und keine Adresse passt zu ''{text}''",
+  "deskHomeOver": "Mehr als verfügbar ({spendable})",
+  "deskHomeFee": "Gebühr {fee} · Guthaben danach {after}",
+  "deskHomeMessage": "Nachricht: {text}",
+  "deskHomeRequestsOff": "Anfragen sind aus.",
+  "deskHomeNotPayer": "{name} hat kein gekoppeltes Wallet, das gefragt werden kann. Die Anfrage öffnet ohne Zahler."
 }

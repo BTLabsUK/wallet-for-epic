@@ -22080,4 +22080,74 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskConJoinDone => 'Książka adresowa otwarta';
+
+  @override
+  String deskHomeSendTo(String amount, String name) {
+    return 'Wyślij $amount do: $name';
+  }
+
+  @override
+  String deskHomeSendAmount(String amount) {
+    return 'Wyślij $amount';
+  }
+
+  @override
+  String get deskHomeSendOnly => 'Wyślij';
+
+  @override
+  String deskHomeRequestFrom(String amount, String name) {
+    return 'Poproś o $amount: $name';
+  }
+
+  @override
+  String deskHomeRequestAmount(String amount) {
+    return 'Poproś o $amount';
+  }
+
+  @override
+  String deskHomeRequestName(String name) {
+    return 'Poproś: $name';
+  }
+
+  @override
+  String get deskHomeRequestOnly => 'Poproś';
+
+  @override
+  String deskHomeMaxAmount(String amount) {
+    return '$amount (maks.)';
+  }
+
+  @override
+  String get deskHomeMaxWord => 'maks.';
+
+  @override
+  String get deskHomeOpenCode => 'Otwórz ten kod w Wyślij';
+
+  @override
+  String deskHomeNoMatch(String text) {
+    return 'Żaden kontakt ani adres nie pasuje do \'\'$text\'\'';
+  }
+
+  @override
+  String deskHomeOver(String spendable) {
+    return 'Więcej niż dostępne ($spendable)';
+  }
+
+  @override
+  String deskHomeFee(String fee, String after) {
+    return 'Opłata $fee · Saldo po: $after';
+  }
+
+  @override
+  String deskHomeMessage(String text) {
+    return 'Wiadomość: $text';
+  }
+
+  @override
+  String get deskHomeRequestsOff => 'Prośby są wyłączone.';
+
+  @override
+  String deskHomeNotPayer(String name) {
+    return '$name nie ma sparowanego portfela, który można poprosić. Prośba otworzy się bez płatnika.';
+  }
 }

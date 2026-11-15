@@ -20271,4 +20271,74 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConJoinDone => '通讯录已打开';
+
+  @override
+  String deskHomeSendTo(String amount, String name) {
+    return '向 $name 发送 $amount';
+  }
+
+  @override
+  String deskHomeSendAmount(String amount) {
+    return '发送 $amount';
+  }
+
+  @override
+  String get deskHomeSendOnly => '发送';
+
+  @override
+  String deskHomeRequestFrom(String amount, String name) {
+    return '向 $name 请求 $amount';
+  }
+
+  @override
+  String deskHomeRequestAmount(String amount) {
+    return '请求 $amount';
+  }
+
+  @override
+  String deskHomeRequestName(String name) {
+    return '向 $name 请求';
+  }
+
+  @override
+  String get deskHomeRequestOnly => '请求';
+
+  @override
+  String deskHomeMaxAmount(String amount) {
+    return '$amount（最大）';
+  }
+
+  @override
+  String get deskHomeMaxWord => '最大';
+
+  @override
+  String get deskHomeOpenCode => '在发送中打开此代码';
+
+  @override
+  String deskHomeNoMatch(String text) {
+    return '没有联系人或地址匹配 \'\'$text\'\'';
+  }
+
+  @override
+  String deskHomeOver(String spendable) {
+    return '超过可用金额（$spendable）';
+  }
+
+  @override
+  String deskHomeFee(String fee, String after) {
+    return '手续费 $fee · 之后余额 $after';
+  }
+
+  @override
+  String deskHomeMessage(String text) {
+    return '留言：$text';
+  }
+
+  @override
+  String get deskHomeRequestsOff => '请求已关闭。';
+
+  @override
+  String deskHomeNotPayer(String name) {
+    return '$name 没有可请求的已配对钱包。请求将不带付款人打开。';
+  }
 }

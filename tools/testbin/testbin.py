@@ -3,7 +3,7 @@
 """Shared test binaries of Epic Wallet: one Linux debug bundle and one debug APK per app commit,
 built once into a store on this host and reused by every agent and worktree.
 
-  testbin.sh get [linux|apk|macos|ios-sim] [--commit X] [--variant tor|notor|devnet] [--no-build]
+  testbin.sh get [linux|apk|macos|ios-sim] [--commit X] [--variant tor|notor|devnet|mock] [--no-build]
         print the path of the binary for commit X (default: HEAD of the worktree you are in).
         A hit prints at once. A miss builds it once into the store, under the store's build
         lock (a second caller waits for the first and then reuses its build), and prints it.
@@ -90,7 +90,7 @@ MAC_REPO = os.environ.get("TESTBIN_MAC_REPO", "wallet-for-epic")  # relative to 
 MAC_LOCK = "~/.wfe-mac-build.lock"
 LEPIC_SRC = Path(os.environ.get("TESTBIN_LEPIC_SRC", HOME / "lepic"))
 LEPIC_FLUTTER_SRC = Path(os.environ.get("TESTBIN_LEPIC_FLUTTER_SRC", HOME / "lepic-flutter"))
-VARIANTS = ("tor", "notor", "devnet")  # devnet: tor plus the test networks (WFE_DEV_NETWORKS)
+VARIANTS = ("tor", "notor", "devnet", "mock")  # devnet: tor plus the test networks (WFE_DEV_NETWORKS); mock: the desktop on its canned mock wallet (WFE_DESK_MOCK), no real wallet, Linux only
 # systemd's PATH lacks ~/.local/bin, where build-slot lives
 if str(HOME / ".local" / "bin") not in os.environ.get("PATH", "").split(":"):
     os.environ["PATH"] = f"{HOME / '.local' / 'bin'}:{os.environ.get('PATH', '/usr/bin:/bin')}"
@@ -345,7 +345,8 @@ def build(sha, lepic, binding, variant, wants):
     (entry / variant).mkdir(parents=True, exist_ok=True)
     notor = variant == "notor"
     define = {"notor": " --dart-define=WFE_TOR=false",
-              "devnet": " --dart-define=WFE_DEV_NETWORKS=true"}.get(variant, "")
+              "devnet": " --dart-define=WFE_DEV_NETWORKS=true",
+              "mock": " --dart-define=WFE_DESK_MOCK=true"}.get(variant, "")
     lepic_what = "all" if len(wants) == 2 else ("linux" if wants == ["linux"] else "android")
     steps = [". tools/env.sh", "tools/lepic.sh sync",
              f"{'WFE_TOR=0 ' if notor else ''}LEPIC_SHARED=1 tools/lepic.sh build {lepic_what}",

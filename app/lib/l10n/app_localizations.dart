@@ -33606,6 +33606,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Address book open'**
   String get deskConJoinDone;
+
+  /// Preview line under Home's field: what Enter opens. The amount reads like '5 EPIC'.
+  ///
+  /// In en, this message translates to:
+  /// **'Send {amount} to {name}'**
+  String deskHomeSendTo(String amount, String name);
+
+  /// Preview line under Home's field: Send opens with this amount, the recipient still to pick.
+  ///
+  /// In en, this message translates to:
+  /// **'Send {amount}'**
+  String deskHomeSendAmount(String amount);
+
+  /// Preview line under Home's field when only the word Send is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskHomeSendOnly;
+
+  /// Preview line under Home's field: Request opens with this amount for this contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Request {amount} from {name}'**
+  String deskHomeRequestFrom(String amount, String name);
+
+  /// Preview line under Home's field: Request opens with this amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Request {amount}'**
+  String deskHomeRequestAmount(String amount);
+
+  /// Preview line under Home's field: Request opens for this contact, no amount yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Request from {name}'**
+  String deskHomeRequestName(String name);
+
+  /// Preview line under Home's field when only the word Request is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get deskHomeRequestOnly;
+
+  /// An amount that is everything spendable, minus the fee, in Home's preview line.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} (max)'**
+  String deskHomeMaxAmount(String amount);
+
+  /// Home's preview line: the amount is everything spendable, still being worked out.
+  ///
+  /// In en, this message translates to:
+  /// **'max'**
+  String get deskHomeMaxWord;
+
+  /// Preview line under Home's field for a pasted payment code, link or slate.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this code in Send'**
+  String get deskHomeOpenCode;
+
+  /// Line under Home's field when the typing names nothing. The typed text is in quotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No contact or address matches \'\'{text}\'\''**
+  String deskHomeNoMatch(String text);
+
+  /// Line under Home's field: the amount is over what can be spent. Enter does nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'More than spendable ({spendable})'**
+  String deskHomeOver(String spendable);
+
+  /// Line under Home's field: the network fee of the send and the balance left after it.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee {fee} · Balance after {after}'**
+  String deskHomeFee(String fee, String after);
+
+  /// Line under Home's field: the text after 'for' goes into the message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message: {text}'**
+  String deskHomeMessage(String text);
+
+  /// Line under Home's field: a request was typed while requests are switched off.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests are off.'**
+  String get deskHomeRequestsOff;
+
+  /// Line under Home's field: the contact cannot be sent a request.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has no paired wallet to ask. Request opens without a payer.'**
+  String deskHomeNotPayer(String name);
 }
 
 class _AppLocalizationsDelegate

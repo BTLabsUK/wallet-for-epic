@@ -62,5 +62,21 @@
   "deskOvFieldHint": "พิมพ์ชื่อ จำนวน ที่อยู่ หรือรหัสการชำระเงิน",
   "deskOvLast30": "30 วันล่าสุด",
   "deskOvIn": "เข้า",
-  "deskOvOut": "ออก"
+  "deskOvOut": "ออก",
+  "deskHomeSendTo": "ส่ง {amount} ให้ {name}",
+  "deskHomeSendAmount": "ส่ง {amount}",
+  "deskHomeSendOnly": "ส่ง",
+  "deskHomeRequestFrom": "ขอ {amount} จาก {name}",
+  "deskHomeRequestAmount": "ขอ {amount}",
+  "deskHomeRequestName": "ขอจาก {name}",
+  "deskHomeRequestOnly": "ขอ",
+  "deskHomeMaxAmount": "{amount} (สูงสุด)",
+  "deskHomeMaxWord": "สูงสุด",
+  "deskHomeOpenCode": "เปิดรหัสนี้ในหน้าส่ง",
+  "deskHomeNoMatch": "ไม่มีผู้ติดต่อหรือที่อยู่ที่ตรงกับ ''{text}''",
+  "deskHomeOver": "มากกว่ายอดที่ใช้ได้ ({spendable})",
+  "deskHomeFee": "ค่าธรรมเนียม {fee} · ยอดคงเหลือหลังส่ง {after}",
+  "deskHomeMessage": "ข้อความ: {text}",
+  "deskHomeRequestsOff": "คำขอปิดอยู่",
+  "deskHomeNotPayer": "{name} ไม่มีกระเป๋าที่จับคู่ไว้ให้ขอ คำขอจะเปิดโดยไม่มีผู้จ่าย"
 }

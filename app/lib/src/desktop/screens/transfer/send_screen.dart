@@ -101,7 +101,11 @@ class SendArgs {
     this.code,
     this.codeOrigin = CodeOrigin.link,
     this.pairingTo,
+    this.all = false,
   });
+
+  /// Send everything spendable (minus the fee), as Send's own Max does; [amount] is ignored.
+  final bool all;
 
   /// A paired contact with no address, by its pairing id: paid through its mailbox. A
   /// [contact] with no address and a pairing that pays this way opens the same.
@@ -283,7 +287,7 @@ class SendScreen extends ConsumerWidget {
       if (!contact) return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null, amount: a is SendArgs ? a.amount : null);
       final picked = a is Contact ? a : (a as SendArgs).contact;
       if (picked != null) {
-        if (contactEpic1Link(ref, picked) case final link?) return Epic1SendPage(key: ValueKey(link), code: link);
+        if (contactEpic1Link(ref, picked) case final link?) return Epic1SendPage(key: ValueKey(link), code: link, amount: a is SendArgs ? a.amount : null);
       }
     }
     return _ClassicSend(arg: arg);
@@ -483,6 +487,11 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     if (args.amount != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_loadFee());
+      });
+    }
+    if (args.all) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_sendAll());
       });
     }
     if (args.code case final code?) {

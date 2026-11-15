@@ -22075,4 +22075,74 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConJoinDone => 'Адресная книга открыта';
+
+  @override
+  String deskHomeSendTo(String amount, String name) {
+    return 'Отправить $amount: $name';
+  }
+
+  @override
+  String deskHomeSendAmount(String amount) {
+    return 'Отправить $amount';
+  }
+
+  @override
+  String get deskHomeSendOnly => 'Отправить';
+
+  @override
+  String deskHomeRequestFrom(String amount, String name) {
+    return 'Запросить $amount у $name';
+  }
+
+  @override
+  String deskHomeRequestAmount(String amount) {
+    return 'Запросить $amount';
+  }
+
+  @override
+  String deskHomeRequestName(String name) {
+    return 'Запросить у $name';
+  }
+
+  @override
+  String get deskHomeRequestOnly => 'Запросить';
+
+  @override
+  String deskHomeMaxAmount(String amount) {
+    return '$amount (макс.)';
+  }
+
+  @override
+  String get deskHomeMaxWord => 'макс.';
+
+  @override
+  String get deskHomeOpenCode => 'Открыть этот код в «Отправить»';
+
+  @override
+  String deskHomeNoMatch(String text) {
+    return 'Ни один контакт или адрес не подходит к \'\'$text\'\'';
+  }
+
+  @override
+  String deskHomeOver(String spendable) {
+    return 'Больше доступного ($spendable)';
+  }
+
+  @override
+  String deskHomeFee(String fee, String after) {
+    return 'Комиссия $fee · Баланс после: $after';
+  }
+
+  @override
+  String deskHomeMessage(String text) {
+    return 'Сообщение: $text';
+  }
+
+  @override
+  String get deskHomeRequestsOff => 'Запросы выключены.';
+
+  @override
+  String deskHomeNotPayer(String name) {
+    return 'У $name нет сопряжённого кошелька для запроса. Запрос откроется без плательщика.';
+  }
 }

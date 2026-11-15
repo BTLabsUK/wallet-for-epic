@@ -21470,4 +21470,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskConJoinDone => 'Address book open';
+
+  @override
+  String deskHomeSendTo(String amount, String name) {
+    return 'Send $amount to $name';
+  }
+
+  @override
+  String deskHomeSendAmount(String amount) {
+    return 'Send $amount';
+  }
+
+  @override
+  String get deskHomeSendOnly => 'Send';
+
+  @override
+  String deskHomeRequestFrom(String amount, String name) {
+    return 'Request $amount from $name';
+  }
+
+  @override
+  String deskHomeRequestAmount(String amount) {
+    return 'Request $amount';
+  }
+
+  @override
+  String deskHomeRequestName(String name) {
+    return 'Request from $name';
+  }
+
+  @override
+  String get deskHomeRequestOnly => 'Request';
+
+  @override
+  String deskHomeMaxAmount(String amount) {
+    return '$amount (max)';
+  }
+
+  @override
+  String get deskHomeMaxWord => 'max';
+
+  @override
+  String get deskHomeOpenCode => 'Open this code in Send';
+
+  @override
+  String deskHomeNoMatch(String text) {
+    return 'No contact or address matches \'\'$text\'\'';
+  }
+
+  @override
+  String deskHomeOver(String spendable) {
+    return 'More than spendable ($spendable)';
+  }
+
+  @override
+  String deskHomeFee(String fee, String after) {
+    return 'Fee $fee · Balance after $after';
+  }
+
+  @override
+  String deskHomeMessage(String text) {
+    return 'Message: $text';
+  }
+
+  @override
+  String get deskHomeRequestsOff => 'Requests are off.';
+
+  @override
+  String deskHomeNotPayer(String name) {
+    return '$name has no paired wallet to ask. Request opens without a payer.';
+  }
 }

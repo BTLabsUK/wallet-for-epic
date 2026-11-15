@@ -2,18 +2,28 @@
 // Home's field: what Enter opens, and the contacts a typed name brings up under it.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/invoices/issue_invoice_screen.dart' show RequestArgs;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show SendArgs;
 import 'package:epic_wallet/src/desktop/screens/wallet/home_field.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<ProviderContainer> _open(WidgetTester tester) async {
+final _l = englishStrings;
+
+Future<ProviderContainer> _open(WidgetTester tester, {bool epic1 = false}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))], retry: (_, _) => null);
+  final wallet = MockDeskWallet(delay: Duration.zero);
+  if (epic1) {
+    await wallet.epic1Fake.setStoredOn(true);
+    wallet.epic1Fake.reopen();
+  }
+  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)], retry: (_, _) => null);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
   container.read(deskNavProvider.notifier).reset(DeskRoute.overview);
@@ -29,35 +39,162 @@ Future<void> _end(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 10));
 }
 
+Finder get _input => find.descendant(of: find.byKey(const ValueKey('home-field')), matching: find.byType(EditableText));
+
+Future<void> _type(WidgetTester tester, String text) async {
+  await tester.showKeyboard(_input);
+  tester.testTextInput.enterText(text);
+  await tester.pump();
+  // The fee is asked once typing pauses.
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 400)));
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.pump();
+}
+
+Future<void> _enter(WidgetTester tester) async {
+  await tester.testTextInput.receiveAction(TextInputAction.done);
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+String _line(WidgetTester tester) => tester.widgetList<Text>(find.descendant(of: find.byKey(const ValueKey('home-field-preview')), matching: find.byType(Text))).map((t) => t.data ?? '').join(' | ');
+
 void main() {
-  test('an amount opens Send with it; anything else lands in To', () {
-    expect(homeFieldSend('  '), isNull);
-    expect(homeFieldSend('12.5')!.amount, '12.5');
-    expect(homeFieldSend('12.')!.amount, '12.', reason: 'an amount still being typed, as the matches count it');
-    expect(homeFieldSend('anna')!.recipient, 'anna');
+  group('classic', () {
+    testWidgets('"4 anna" says what Enter does and opens Send to Anna with 4', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, '4 anna');
+      expect(_line(tester), contains('Send'));
+      expect(_line(tester), contains('Anna Kowalska'));
+      await _enter(tester);
+      final at = container.read(deskNavProvider);
+      expect(at.route, DeskRoute.send);
+      final a = at.arg as SendArgs;
+      expect(a.contact?.name, 'Anna Kowalska');
+      expect(a.amount, '4');
+      await _end(tester);
+    });
+
+    testWidgets('the words around a name and "for" a message', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, 'send 5.5 epic to anna for lunch');
+      await _enter(tester);
+      final a = container.read(deskNavProvider).arg as SendArgs;
+      expect(a.contact?.name, 'Anna Kowalska');
+      expect(a.amount, '5.5');
+      expect(a.message, 'lunch');
+      await _end(tester);
+    });
+
+    testWidgets('an address opens Send with it; a half address says what is missing and Enter does nothing', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, '3 esMASi45ub7Qe4ZE36UT5G6cU4ud8Fhhe4deS4F3cw9KTAb8dLcu@epicbox.example.org');
+      expect(find.byKey(const ValueKey('home-field-detail')), findsOneWidget);
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.send);
+      expect((container.read(deskNavProvider).arg as SendArgs).recipient, startsWith('esMASi'));
+      container.read(deskNavProvider.notifier).reset(DeskRoute.overview);
+      await tester.pump(const Duration(milliseconds: 300));
+      await _type(tester, 'esMASi45ub7Qe4ZE');
+      expect(_line(tester), isNot(contains('Send |')));
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      await _end(tester);
+    });
+
+    testWidgets('nothing matches: the line says so, Enter does nothing, To is untouched', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, 'xyzzy');
+      expect(find.text(_l.deskHomeNoMatch('xyzzy')), findsWidgets);
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      await _end(tester);
+    });
+
+    testWidgets('more than spendable: the line says so and Enter does nothing', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, '9999999 anna');
+      expect(find.textContaining('More than spendable'), findsWidgets);
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      await _end(tester);
+    });
+
+    testWidgets('an amount within the balance shows the fee and the balance after', (tester) async {
+      await _open(tester);
+      await _type(tester, '5 anna');
+      expect(find.byKey(const ValueKey('home-field-note')), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(const ValueKey('home-field-note'))).data, contains('Fee'));
+      await _end(tester);
+    });
+
+    testWidgets('"anna max" opens Send to Anna with the max flag', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, 'anna max');
+      await _enter(tester);
+      final a = container.read(deskNavProvider).arg as SendArgs;
+      expect(a.contact?.name, 'Anna Kowalska');
+      expect(a.all, isTrue);
+      await _end(tester);
+    });
+
+    testWidgets('"request 5 from anna" opens Request with 5', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, 'request 5 from anna');
+      await _enter(tester);
+      final at = container.read(deskNavProvider);
+      expect(at.route, DeskRoute.invoiceIssue);
+      expect((at.arg as RequestArgs).amount, '5');
+      await _end(tester);
+    });
+
+    testWidgets('a bare amount opens Send with it', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, '12,5');
+      await _enter(tester);
+      expect((container.read(deskNavProvider).arg as SendArgs).amount, '12.5');
+      await _end(tester);
+    });
+
+    testWidgets('Tab writes the name, ↑ ↓ choose, Esc clears', (tester) async {
+      await _open(tester);
+      await _type(tester, '4 ann');
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(tester.widget<EditableText>(_input).controller.text, '4 Anna Kowalska');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(tester.widget<EditableText>(_input).controller.text, isEmpty);
+      await _type(tester, 'm');
+      final first = _line(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(_line(tester), isNot(first));
+      await _end(tester);
+    });
   });
 
-  test('matches: by name in any case, favourites first, four at most, none for an amount', () {
-    Contact c(String id, String name, {bool fav = false}) => Contact(id: id, name: name, address: '', favourite: fav);
-    final all = [c('1', 'Anna Kowalska'), c('2', 'Hannah', fav: true), c('3', 'Tom'), c('4', 'Joanna'), c('5', 'Annette'), c('6', 'Danny')];
-    expect(homeFieldMatches(all, 'ANN').map((x) => x.name), ['Hannah', 'Anna Kowalska', 'Annette', 'Danny']);
-    expect(homeFieldMatches(all, '12'), isEmpty);
-    expect(homeFieldMatches(all, ''), isEmpty);
-  });
+  group('epic1', () {
+    testWidgets('"4 anna" in epic1 mode still opens Send with the amount', (tester) async {
+      final container = await _open(tester, epic1: true);
+      await _type(tester, '4 anna');
+      await _enter(tester);
+      final a = container.read(deskNavProvider).arg as SendArgs;
+      expect(container.read(deskNavProvider).route, DeskRoute.send);
+      expect(a.contact?.name, 'Anna Kowalska');
+      expect(a.amount, '4');
+      await _end(tester);
+    });
 
-  testWidgets('typing a name shows the contact under the field; a click opens Send to it', (tester) async {
-    final container = await _open(tester);
-    final field = find.descendant(of: find.byKey(const ValueKey('home-field')), matching: find.byType(EditableText));
-    final first = container.read(deskProvider).contacts!.first;
-    await tester.enterText(field, first.name.substring(0, 3));
-    await tester.pump();
-    expect(find.byKey(const ValueKey('home-field-matches')), findsOneWidget);
-    await tester.tap(find.byKey(ValueKey('home-field-match-${first.id}')));
-    await tester.pump(const Duration(milliseconds: 300));
-    final at = container.read(deskNavProvider);
-    expect(at.route, DeskRoute.send);
-    expect((at.arg as SendArgs).contact?.id, first.id);
-    await _end(tester);
+    testWidgets('"anna max" in epic1 mode hands over the figure, not the flag', (tester) async {
+      final container = await _open(tester, epic1: true);
+      await _type(tester, 'anna max');
+      await _enter(tester);
+      final a = container.read(deskNavProvider).arg as SendArgs;
+      expect(a.all, isFalse);
+      expect(a.amount, isNotNull);
+      await _end(tester);
+    });
   });
 
   testWidgets('the field keeps the focus while typing brings matches up and takes them away', (tester) async {

@@ -5588,5 +5588,21 @@
   "deskConJoinDesc": "Введите пароль другого кошелька, который использует адресную книгу.",
   "deskConJoinWallet": "Кошелёк",
   "deskConJoinPassword": "Пароль",
-  "deskConJoinDone": "Адресная книга открыта"
+  "deskConJoinDone": "Адресная книга открыта",
+  "deskHomeSendTo": "Отправить {amount}: {name}",
+  "deskHomeSendAmount": "Отправить {amount}",
+  "deskHomeSendOnly": "Отправить",
+  "deskHomeRequestFrom": "Запросить {amount} у {name}",
+  "deskHomeRequestAmount": "Запросить {amount}",
+  "deskHomeRequestName": "Запросить у {name}",
+  "deskHomeRequestOnly": "Запросить",
+  "deskHomeMaxAmount": "{amount} (макс.)",
+  "deskHomeMaxWord": "макс.",
+  "deskHomeOpenCode": "Открыть этот код в «Отправить»",
+  "deskHomeNoMatch": "Ни один контакт или адрес не подходит к ''{text}''",
+  "deskHomeOver": "Больше доступного ({spendable})",
+  "deskHomeFee": "Комиссия {fee} · Баланс после: {after}",
+  "deskHomeMessage": "Сообщение: {text}",
+  "deskHomeRequestsOff": "Запросы выключены.",
+  "deskHomeNotPayer": "У {name} нет сопряжённого кошелька для запроса. Запрос откроется без плательщика."
 }

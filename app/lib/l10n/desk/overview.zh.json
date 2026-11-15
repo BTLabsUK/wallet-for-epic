@@ -62,5 +62,21 @@
   "deskOvFieldHint": "输入名称、金额、地址或付款码",
   "deskOvLast30": "最近 30 天",
   "deskOvIn": "收入",
-  "deskOvOut": "支出"
+  "deskOvOut": "支出",
+  "deskHomeSendTo": "向 {name} 发送 {amount}",
+  "deskHomeSendAmount": "发送 {amount}",
+  "deskHomeSendOnly": "发送",
+  "deskHomeRequestFrom": "向 {name} 请求 {amount}",
+  "deskHomeRequestAmount": "请求 {amount}",
+  "deskHomeRequestName": "向 {name} 请求",
+  "deskHomeRequestOnly": "请求",
+  "deskHomeMaxAmount": "{amount}（最大）",
+  "deskHomeMaxWord": "最大",
+  "deskHomeOpenCode": "在发送中打开此代码",
+  "deskHomeNoMatch": "没有联系人或地址匹配 ''{text}''",
+  "deskHomeOver": "超过可用金额（{spendable}）",
+  "deskHomeFee": "手续费 {fee} · 之后余额 {after}",
+  "deskHomeMessage": "留言：{text}",
+  "deskHomeRequestsOff": "请求已关闭。",
+  "deskHomeNotPayer": "{name} 没有可请求的已配对钱包。请求将不带付款人打开。"
 }

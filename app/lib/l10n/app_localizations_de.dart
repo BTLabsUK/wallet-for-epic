@@ -21703,4 +21703,74 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskConJoinDone => 'Adressbuch geöffnet';
+
+  @override
+  String deskHomeSendTo(String amount, String name) {
+    return 'An $name $amount senden';
+  }
+
+  @override
+  String deskHomeSendAmount(String amount) {
+    return '$amount senden';
+  }
+
+  @override
+  String get deskHomeSendOnly => 'Senden';
+
+  @override
+  String deskHomeRequestFrom(String amount, String name) {
+    return '$amount von $name anfordern';
+  }
+
+  @override
+  String deskHomeRequestAmount(String amount) {
+    return '$amount anfordern';
+  }
+
+  @override
+  String deskHomeRequestName(String name) {
+    return 'Von $name anfordern';
+  }
+
+  @override
+  String get deskHomeRequestOnly => 'Anfordern';
+
+  @override
+  String deskHomeMaxAmount(String amount) {
+    return '$amount (max.)';
+  }
+
+  @override
+  String get deskHomeMaxWord => 'max.';
+
+  @override
+  String get deskHomeOpenCode => 'Diesen Code in Senden öffnen';
+
+  @override
+  String deskHomeNoMatch(String text) {
+    return 'Kein Kontakt und keine Adresse passt zu \'\'$text\'\'';
+  }
+
+  @override
+  String deskHomeOver(String spendable) {
+    return 'Mehr als verfügbar ($spendable)';
+  }
+
+  @override
+  String deskHomeFee(String fee, String after) {
+    return 'Gebühr $fee · Guthaben danach $after';
+  }
+
+  @override
+  String deskHomeMessage(String text) {
+    return 'Nachricht: $text';
+  }
+
+  @override
+  String get deskHomeRequestsOff => 'Anfragen sind aus.';
+
+  @override
+  String deskHomeNotPayer(String name) {
+    return '$name hat kein gekoppeltes Wallet, das gefragt werden kann. Die Anfrage öffnet ohne Zahler.';
+  }
 }
