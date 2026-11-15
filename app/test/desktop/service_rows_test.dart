@@ -3,6 +3,7 @@
 // every state, so the rail never changes height; the Node row's twelve states; no address,
 // URL or port on a row.
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/desktop/app/desk_failover.dart' show nodeBlipWindow, nodeBlipWindowProvider;
 import 'package:epic_wallet/src/desktop/app/service_rows.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -65,11 +66,15 @@ final _fixtures = <String, ServiceStatus?>{
 };
 
 void main() {
-  Future<ProviderContainer> show(WidgetTester tester, ServiceStatus? status, {bool refresh = true, double textScale = 1}) async {
+  // [blip] keeps the node's blip window (nodeBlipWindow); the others see a node down at once.
+  Future<ProviderContainer> show(WidgetTester tester, ServiceStatus? status, {bool refresh = true, double textScale = 1, bool blip = false}) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_Wallet(status))]);
+    final container = ProviderContainer(overrides: [
+      deskApiProvider.overrideWithValue(_Wallet(status)),
+      if (!blip) nodeBlipWindowProvider.overrideWithValue(Duration.zero),
+    ]);
     addTearDown(container.dispose);
     if (refresh) await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     await tester.runAsync(() => advancedOn(container));
@@ -142,16 +147,16 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1));
     });
 
-    testWidgets('a node down for under 30 s is not yet Not answering; after 30 s it is, since HH:MM', (tester) async {
+    testWidgets('a node down for under the blip window is not yet Not answering; after it, it is, since HH:MM', (tester) async {
       var now = DateTime(2026, 10, 22, 14, 2, 0);
       serviceClock = () => now;
       addTearDown(() => serviceClock = DateTime.now);
-      await show(tester, _status(node: ServiceHealth.down));
+      await show(tester, _status(node: ServiceHealth.down), blip: true);
       ServiceItem node() => tester.widget<ServiceRow>(find.byType(ServiceRow).first).item;
       expect(node().word, isNot('Not answering'), reason: 'a blip never flashes red');
       expect(node().marker, isNull);
-      now = now.add(const Duration(seconds: 31));
-      await tester.pump(const Duration(seconds: 31));
+      now = now.add(nodeBlipWindow + const Duration(seconds: 1));
+      await tester.pump(nodeBlipWindow + const Duration(seconds: 1));
       expect(node().word, _l.deskNodeNotAnswering);
       expect(node().marker, _l.deskNodeMarkerNoAnswer);
       expect(node().lines.first, 'node.lab.invalid · since 14:02');

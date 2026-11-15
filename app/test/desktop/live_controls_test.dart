@@ -72,7 +72,8 @@ void main() {
     await _settle(tester);
     expect(api.syncs, 1);
     expect(refresh, findsNothing, reason: 'a spinner while it runs');
-    expect(find.byType(ESpinner), findsWidgets);
+    // The "Updating" tag is the one indicator while it runs.
+    expect(find.text(_l.deskOvUpdating), findsWidgets);
 
     api.error = const DeskError('The node did not answer');
     api.gate!.complete();

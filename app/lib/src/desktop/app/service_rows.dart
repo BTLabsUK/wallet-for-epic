@@ -229,18 +229,14 @@ class ServiceRows extends ConsumerStatefulWidget {
   ConsumerState<ServiceRows> createState() => _ServiceRowsState();
 }
 
-/// How long the wallet's node must stay down before the row says Not answering.
-const Duration serviceDownAfter = Duration(seconds: 30);
-
 /// The OS text scale a glyph row follows before it would outgrow its height.
 const double serviceMaxTextScale = 1.2;
 
-/// The clock the Not answering wait reads (tests set it).
+/// The clock the "since" time of a node that does not answer reads (tests set it).
 DateTime Function() serviceClock = DateTime.now;
 
 class _ServiceRowsState extends ConsumerState<ServiceRows> {
   Timer? _refresh;
-  Timer? _downTimer;
   String? _url;
 
   /// When the wallet's node stopped answering; null while it answers.
@@ -258,7 +254,6 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   @override
   void dispose() {
     _refresh?.cancel();
-    _downTimer?.cancel();
     super.dispose();
   }
 
@@ -266,23 +261,14 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   bool _localNode(SettingsPrefs prefs, ServiceStatus? status) =>
       status != null && tor_view.isLocalNodeUrl((prefs.typedNode ?? status.node).url);
 
-  /// The wallet's view of its node, once it has been down for [serviceDownAfter]: before that the
-  /// row keeps what the node's own info says (a blip never flashes red).
-  ServiceHealth? _settledHealth(ServiceHealth h) {
-    if (h != ServiceHealth.down) {
+  /// Notes when the node began to read down (the row's "since"); [deskNodeHealthProvider] holds the
+  /// blip back, so the row says Not answering only once the node has been down for its window.
+  void _trackDown(ServiceHealth raw) {
+    if (raw == ServiceHealth.down) {
+      _downSince ??= serviceClock();
+    } else {
       _downSince = null;
-      _downTimer?.cancel();
-      _downTimer = null;
-      return h;
     }
-    final since = _downSince ??= serviceClock();
-    final left = serviceDownAfter - serviceClock().difference(since);
-    if (left <= Duration.zero) return h;
-    _downTimer ??= Timer(left, () {
-      _downTimer = null;
-      if (mounted) setState(() {});
-    });
-    return null;
   }
 
   @override
@@ -309,7 +295,8 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     } else {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;
-      final health = _settledHealth(ref.watch(deskNodeHealthProvider) ?? status.nodeHealth);
+      _trackDown(status.nodeHealth);
+      final health = ref.watch(deskNodeHealthProvider) ?? status.nodeHealth;
       final torState = netTorState(settings, status);
       final info = ref.watch(deskNodeInfoProvider(url)).value;
       final v = remoteNodeView(
