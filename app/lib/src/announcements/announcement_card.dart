@@ -10,13 +10,12 @@ import 'dart:typed_data' show Uint8List;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show Clipboard, ClipboardData, MethodChannel, MissingPluginException;
+import 'package:flutter/services.dart' show MethodChannel, MissingPluginException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'announcement_desk_io.dart' if (dart.library.js_interop) 'announcement_desk_web.dart';
 import 'announcements_service.dart' show announcementsProvider;
 import '../btlabs_public.dart' show Announcement, AnnouncementLink;
-import '../desktop/data/files.dart' show openInBrowser;
-import '../desktop/widgets/kit.dart' show ETone, showEToast;
 import '../l10n.dart';
 import '../network_gate.dart' show NetDial, NetGate;
 import '../scan/incoming_link.dart' show incomingLinkProvider;
@@ -46,7 +45,7 @@ final announcementOpenUrlProvider = Provider<Future<bool> Function(String url)>(
 
 const MethodChannel _browserChannel = MethodChannel('epic_wallet/browser');
 
-/// Opens the https address [url] in the system browser. Desktop: [openInBrowser]. Phone: the
+/// Opens the https address [url] in the system browser. Desktop: [announcementOpenInBrowser]. Phone: the
 /// `epic_wallet/browser` channel (method `open`, one string), which the native side answers
 /// with a plain ACTION_VIEW / openURL; without that handler it returns false and nothing
 /// opens. Both refuse what the network mode refuses (Node only, Kill switch: [NetGate]).
@@ -62,7 +61,7 @@ Future<bool> openAnnouncementUrl(String url) async {
       return false;
     }
   }
-  return openInBrowser(url);
+  return announcementOpenInBrowser(url);
 }
 
 /// The host shown after the link label: the host of an https URL, [announcementEpicHost] for
@@ -150,9 +149,7 @@ class _AnnouncementCardState extends ConsumerState<AnnouncementCard> {
   void _cannotOpen(String note, String url) {
     final l = context.l10n;
     if (widget.dense) {
-      showEToast(context, note, text: url, tone: ETone.warn, action: (label: l.commonCopy, run: () {
-        Clipboard.setData(ClipboardData(text: url));
-      }));
+      showAnnouncementDeskToast(context, note, url: url, copyLabel: l.commonCopy);
     } else {
       ref.read(noticeProvider.notifier).show(
         note,

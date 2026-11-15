@@ -81,6 +81,9 @@ void main() {
       'lib/src/ui/theme/fonts.dart',
       // The failover reads the local node's state types; the node itself runs on the desktop.
       'lib/src/builtin_node.dart',
+      // Announcements: Platform only after kIsWeb (the timers switch, the phone's browser).
+      'lib/src/announcements/announcements_service.dart',
+      'lib/src/announcements/announcement_card.dart',
     };
     final withIo = {
       for (final MapEntry(key: file, value: uris) in _webGraph().entries)
