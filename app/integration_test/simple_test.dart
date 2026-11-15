@@ -13,7 +13,9 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings_file/settings_providers.dart' show openAppSettings;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
-import 'package:epic_wallet/src/ui/shell_header.dart' show balanceFigureKey;
+import 'package:epic_wallet/src/ui/kit/kit_keypad.dart';
+import 'package:epic_wallet/src/ui/pin.dart' show PinPad;
+import 'package:epic_wallet/src/ui/home_tab.dart' show homeFigureKey;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,28 +60,13 @@ Future<void> _pumpUntil(
   }
 }
 
-/// Scrolls the current screen's list until [finder] is built, then into view.
-Future<void> _reveal(WidgetTester tester, Finder finder) async {
-  if (finder.evaluate().isEmpty) {
-    await tester.scrollUntilVisible(
-      finder,
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byType(ListView).last,
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
+/// Taps each digit of [pin] on the PIN keypad.
+Future<void> _typePin(WidgetTester tester, String pin) async {
+  final pad = find.descendant(of: find.byType(PinPad), matching: find.byType(KitKeypad));
+  for (final d in pin.split('')) {
+    await tester.tap(find.descendant(of: pad, matching: find.text(d)));
+    await tester.pump();
   }
-  await tester.ensureVisible(finder);
-}
-
-Future<void> _enter(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextField, label);
-  await _reveal(tester, field);
-  await tester.enterText(field, text);
-  await tester.pump();
 }
 
 void main() {
@@ -192,16 +179,19 @@ void main() {
     await _pumpUntil(tester, create);
     await tester.tap(create);
     await tester.pump();
-    await _pumpUntil(tester, find.widgetWithText(TextField, 'PIN'));
-    await _enter(tester, 'PIN', '123456');
-    await _pumpUntil(tester, find.widgetWithText(TextField, 'Repeat PIN'));
-    await _enter(tester, 'Repeat PIN', '123456');
+    // The PIN is picked on the keypad, then typed again to confirm it.
+    await _pumpUntil(tester, find.text('Choose a 6-digit PIN'));
+    await _typePin(tester, '123456');
+    await _pumpUntil(tester, find.text('Enter the PIN again'));
+    await _typePin(tester, '123456');
 
-    await _pumpUntil(tester, find.byKey(balanceFigureKey));
-    // Home's own notice: the PIN screen keeps a dock of its own, showing the same notice,
-    // until its route's transition ends.
+    await _pumpUntil(tester, find.byKey(homeFigureKey));
+    // Home's own backup card.
     expect(
-      find.descendant(of: find.byType(HomeScreen), matching: find.text('Phrase not backed up')),
+      find.descendant(
+        of: find.byType(HomeScreen),
+        matching: find.textContaining('Your recovery phrase is not backed up'),
+      ),
       findsOneWidget,
     );
 
