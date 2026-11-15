@@ -43,7 +43,7 @@ except ImportError:  # run as a script
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from core.faults import HarnessFault
 
-PLATFORMS = ("android", "linux", "windows")
+PLATFORMS = ("android", "linux", "windows", "macos")
 VARIANTS = ("tor", "notor")
 LANES = tuple("%s-%s" % (p, v) for p in PLATFORMS for v in VARIANTS) + ("linux-tx-a", "linux-tx-b")  # the TX lane's two wallets (linux/tx_lane.py)
 # sha256 of the BIP39 English list as one word per line with a final newline (bitcoin/bips bip-0039/english.txt)

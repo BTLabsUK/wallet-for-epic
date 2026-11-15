@@ -136,6 +136,7 @@ def build_graph(pipeline, scope, ctx, stage="release"):
             c["tor"] = "0" if var == "notor" else "1"
             c["github"] = "1" if scope["publish"].get("github") else "0"
             c["play_promote"] = str(scope.get("stores", {}).get("play_promote") or "")
+            c["update_funds"] = "1" if scope.get("proof", {}).get("update_funds") else "0"
             c["stage"] = f"{ctx['run']}/steps/{sid}/out"
             c.setdefault("build_id", ctx.get("short", ""))
             where = f"step {sid}"

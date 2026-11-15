@@ -243,7 +243,8 @@ DEFAULT_SCOPE = {
     "publish": {"target": "live", "manifests": True, "notes": "", "github": True, "gate_note": ""},
     "apple": {"signed": True},
     "skip": {},
-    "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "waive": {}},
+    # update_funds: the night update lanes (update-<platform>) also run the send and receive legs with P
+    "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "update_funds": False, "waive": {}},
 }
 
 
@@ -490,6 +491,8 @@ def scope_toml(scope):
     lines.append("\n[proof]")
     for k in ("previous_dir", "previous_version", "previous_ref"):
         lines.append(f"{k} = {val(scope['proof'][k])}")
+    if scope["proof"].get("update_funds"):
+        lines.append("update_funds = true")
     lines.append("\n[proof.waive]")
     for k, v in scope["proof"]["waive"].items():
         lines.append(f"{k} = {val(v)}")

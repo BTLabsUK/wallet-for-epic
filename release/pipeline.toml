@@ -18,6 +18,8 @@
 # night    blocks   flow-android             needs testbuild-android@variant
 # night    blocks   flow-linux               needs testbuild-linux@variant
 # night    blocks   flow-windows             needs testbuild-windows@variant
+# night    blocks   testbuild-macos          needs source, source-check
+# night    blocks   flow-macos               needs testbuild-macos@variant
 # night    informs  create-android           needs flow-android@variant
 # night    informs  create-linux             needs flow-linux@variant
 # night    informs  dry-walk                 needs source, source-check
@@ -25,6 +27,8 @@
 # night    informs  lane-pairing-linux       needs testbuild-linux@variant
 # night    informs  lane-linking-linux       needs testbuild-linux@variant
 # night    informs  create-windows           needs flow-windows@variant
+# night    informs  create-macos             needs flow-macos@variant
+# night    informs  update-macos             needs testbuild-macos@variant
 # night    informs  trust-pair-linux         needs -
 # night    informs  trust-pair-linux-notor   needs -
 # night    informs  trust-pair-android       needs -
@@ -267,7 +271,9 @@ linux = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rel
 windows = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-windows.sh"
 # ios: an iPhone Simulator on a Mac over ssh (trust-ios.sh; REL_IOS_SSH, default bob-mac), notor only.
 ios = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-ios.sh"
-# macos: no driver yet; it is not proven until one exists.
+# macos: the desktop app on a Mac over ssh (trust-macos.sh; REL_MAC_SSH or [host.apple] ssh), its own HOME and
+# keychain in a lane folder there, read and pressed through the Accessibility helper.
+macos = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-macos.sh"
 
 # ---- hosted builds ---------------------------------------------------------------------------
 # `tools/rel start --builds hosted`: build-android, build-linux and build-windows (the steps with a
@@ -436,6 +442,32 @@ run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/relli
 timeout = "50m"
 env = { REL_TRUST_MODE = "flow", REL_PREVIOUS_DIR = "{run}/steps/testbuild-windows-{variant}/out", REL_PREVIOUS_EXTRA = "{run}/steps/testbuild-windows-{variant}/out", REL_PREVIOUS_VERSION = "{version}", REL_PREVIOUS_REF = "", REL_CANDIDATE_DIR = "{run}/steps/testbuild-windows-{variant}/out", REL_CANDIDATE_EXTRA = "{run}/steps/testbuild-windows-{variant}/out" }
 
+# The macOS test build: testbin's ad hoc signed arm64 app, built on the Mac (tools/testbin.sh get
+# macos; one Mac build at a time under its lock) and kept in /tmp/epic-build/testbins/.
+[step.testbuild-macos]
+title = "macOS test build ({variant})"
+when = "night"
+platform = "macos"
+for_each = "proof_variant"
+host = "build"
+lane = "trust-macos-{variant}"
+needs = ["source", "source-check"]
+run = "cp \"$(TESTBIN_LOCAL=1 {rel}/tools/testbin.sh get macos --commit {commit} --variant {variant})\" {stage}/"
+timeout = "90m"
+
+[step.flow-macos]
+title = "Flows on the test build, macOS ({variant})"
+when = "night"
+platform = "macos"
+for_each = "proof_variant"
+host = "build"
+lane = "trust-macos-{variant}"
+needs = ["testbuild-macos@variant"]
+remote = true
+run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-macos.sh"
+timeout = "50m"
+env = { REL_TRUST_MODE = "flow", REL_PREVIOUS_DIR = "{run}/steps/testbuild-macos-{variant}/out", REL_PREVIOUS_VERSION = "{version}", REL_PREVIOUS_REF = "", REL_CANDIDATE_DIR = "{run}/steps/testbuild-macos-{variant}/out" }
+
 # A new user's first start (REL_TRUST_MODE=create, drivers/core/lane.py): the test build installed
 # with no app data, a wallet created through its screens and its home reached (check create_ok). No
 # funds; the phrase is checked and dropped. On the lane's own emulator, sandbox or rig, after that
@@ -548,6 +580,40 @@ remote = true
 run = "{rel}/tools/rellib/drivers/trust-windows.sh"
 timeout = "30m"
 env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{run}/steps/testbuild-windows-{variant}/out", REL_CANDIDATE_EXTRA = "{run}/steps/testbuild-windows-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+[step.create-macos]
+title = "New wallet on the candidate, macOS ({variant})"
+when = "night"
+platform = "macos"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-macos-{variant}"
+needs = ["flow-macos@variant"]
+warn_only = true
+remote = true
+run = "{rel}/tools/rellib/drivers/trust-macos.sh"
+timeout = "30m"
+env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{run}/steps/testbuild-macos-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+# The macOS update on the test build: the run's previous release (the published one, or --previous)
+# updated to the macOS test build, without funds (--set proof.update_funds=true: with the send and
+# receive legs). The release's own macOS lane (trust-macos) needs the notarised dmg; this one shows an
+# update break the night it lands.
+[step.update-macos]
+title = "Update from the previous release to the test build, macOS ({variant})"
+when = "night"
+platform = "macos"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-macos-{variant}"
+needs = ["testbuild-macos@variant"]
+warn_only = true
+remote = true
+run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-macos.sh"
+timeout = "50m"
+env = { REL_TRUST_MODE = "update", REL_OUT = "{stage}", REL_FUNDS = "{update_funds}", REL_CANDIDATE_DIR = "{run}/steps/testbuild-macos-{variant}/out", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
 # The last two published releases, one updating to the other (tools/nightly/trust_pair.py): a driver
 # that drifted from the published builds shows here, before a candidate needs it. Warnings only: the
@@ -905,9 +971,12 @@ title = "G4 update trust macOS ({variant})"
 platform = "macos"
 for_each = "proof_variant"
 host = "build"
-lane = "trust-macos"
+lane = "trust-macos-{variant}"
 needs = ["build-android", "build-play", "sign-android", "build-linux", "apple-mac-check@variant", "apple-adhoc-mac@variant"]
 proof = true
+# The app runs on the Mac; this machine only drives it over ssh, as trust-windows.
+remote = true
+timeout = "50m"
 
 [step.trust-ios]
 title = "G4 update trust iOS"
