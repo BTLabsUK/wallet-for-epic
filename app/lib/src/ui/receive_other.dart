@@ -17,6 +17,7 @@ import '../tor_phone.dart';
 import '../tor_routes.dart' show TorState;
 import '../trust_ids.dart';
 import 'common.dart';
+import 'epic1/epic1_receive.dart' show Epic1ReceivePage;
 import 'file_open_screen.dart';
 import 'handshake.dart';
 import 'kit/kit_button.dart';
@@ -31,19 +32,26 @@ import 'network_mode_text.dart';
 import 'receive_screen.dart';
 import 'request_qr_screen.dart' show openQrRequest;
 import 'settings_screen.dart';
+import 'theme/epic1_mark.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'kit/kit_qr_glyph.dart';
 
+/// Key of the sheet's epic1 link row.
+const Key epic1LinkWayKey = ValueKey('receive-other-epic1');
+
 /// Which of the other ways are offered, from the settings and the device.
 class OtherWays {
-  const OtherWays({required this.inPerson, required this.file, required this.tor});
+  const OtherWays({required this.inPerson, required this.file, required this.tor, this.epic1 = false});
 
   final bool inPerson;
   final bool file;
   final bool tor;
 
-  bool get any => inPerson || file || tor;
+  /// The epic1 link, offered while epic1 is on.
+  final bool epic1;
+
+  bool get any => inPerson || file || tor || epic1;
 }
 
 /// Opens the sheet of [ways].
@@ -90,6 +98,18 @@ class _OtherWaysSheet extends ConsumerWidget {
             KitGroup(
               onSheet: true,
               children: [
+                if (ways.epic1)
+                  KitRow(
+                    key: epic1LinkWayKey,
+                    size: KitRowSize.sheet,
+                    minHeight: 72,
+                    leading: KitIconWell.child(Epic1Glyph(size: 20, color: t.accentText)),
+                    title: l.deskE1LinkTitle,
+                    subtitle: l.deskE1LinkSub,
+                    chevron: true,
+                    semanticsId: TrustIds.receiveOtherEpic1,
+                    onTap: () => _open(context, const Epic1ReceivePage()),
+                  ),
                 if (ways.inPerson)
                   KitRow(
                     size: KitRowSize.sheet,

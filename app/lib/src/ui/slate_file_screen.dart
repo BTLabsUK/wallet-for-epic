@@ -34,9 +34,10 @@ import 'kit/kit_row.dart';
 import 'kit/kit_sheet.dart' show KitSheet;
 import 'kit/kit_step_strip.dart';
 import 'kit/kit_tokens.dart';
-import '../epic1.dart' show PaymentMode, looksLikeEpictx;
+import '../epic1.dart' show looksLikeEpictx;
 import 'epic1/epic1_common.dart' show epic1ModeSettingsKey, openEpic1Settings;
 import 'in_person/in_person_entry.dart' show openInPersonText;
+import 'in_person/in_person_logic.dart' show readInPersonText;
 import 'finished_not_posted.dart' show FinishedNotPosted, isPostElsewhere;
 import 'invoice_request_screen.dart' show requestFilesOn;
 import 'invoice_review_screen.dart' show RequestFileReviewScreen, requestFileRefusal;
@@ -208,22 +209,28 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
   }
 
-  /// The payment mode's say on the file (epic1 spec, Files): a file of the other mode is not
-  /// read, its line shown instead.
+  /// The stop for an epic1 file or in-person code while epic1 is off: not read, the line shown
+  /// instead.
   String Function(AppLocalizations l)? _modeLine;
 
-  /// True when the file is not read here: a file of the other mode, or an in-person code
-  /// taken by its own flow. An epic1 file is opened with [Epic1Wallet.openEpictx] first.
+  /// True when the file is not read here: an epic1 file while epic1 is off, or an in-person
+  /// code taken by its own flow. An epic1 file is opened with [Epic1Wallet.openEpictx] first;
+  /// a classic file goes on as it is.
   Future<bool> _epic1Gate() async {
+    final epic1Wallet = ref.read(epic1Provider);
     final epictx = looksLikeEpictx(_file.json) || _file.name.toLowerCase().endsWith('.epictx');
-    final epic1 = ref.read(paymentModeProvider) == PaymentMode.epic1;
-    if (epictx != epic1) {
-      // Still in initState: the first build shows it.
-      _modeLine = epic1 ? (l) => l.deskE1ModeClassicFile : (l) => l.deskE1ModeEpic1File;
-      _reading = false;
-      return true;
+    if (!ref.read(epic1OnProvider)) {
+      if (epictx || epic1Wallet != null && readInPersonText(epic1Wallet, _file.json) != null) {
+        // Still in initState: the first build shows it.
+        _modeLine = (l) => l.netBlockMethodOff(l.deskE1SetSwitch);
+        _reading = false;
+        return true;
+      }
+      return false;
     }
-    if (!epic1) return false;
+    final inPerson = epic1Wallet != null && readInPersonText(epic1Wallet, _file.json) != null;
+    // A classic file stays over its scanner; the rest leave it.
+    if (!epictx && !inPerson) return false;
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return true;
     final navigator = Navigator.of(context);
@@ -232,8 +239,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       if (mounted) navigator.pop(true);
       return true;
     }
-    final epic1Wallet = ref.read(epic1Provider);
-    if (epic1Wallet == null || !mounted) return false;
+    if (!epictx || epic1Wallet == null || !mounted) return false;
     try {
       final opened = await epic1Wallet.openEpictx(_file.json);
       // Not from a paired contact: the slate inside goes on as a plain file.
@@ -615,7 +621,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     Widget? foot;
     final receivingNow = info?.stage == SlateStage.send;
     if (_modeLine case final line?) {
-      // A file of the other payment mode: why it is not read, with Settings.
+      // An epic1 file while epic1 is off: why it is not read, with Settings.
       body = [
         _Headline(icon: Icons.info_outline, text: line(l)),
         const SizedBox(height: 24),

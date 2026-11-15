@@ -1,173 +1,64 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Transactions in epic1 (spec P1): the Experimental switch, the epic1 section
-/// (Epicbox server, Printed links) and the Printed links page.
+/// Settings › Payments for epic1: the epic1 method row, the Printed links row and the Printed
+/// links page.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../advanced.dart' show NetworkModeRestricted;
 import '../../epic1.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
-import '../../network.dart' show EpicboxRelay;
 import '../../providers.dart';
-import '../../settings.dart' show networkModeProvider;
+import '../../settings.dart' show AppSettings, appSettingsProvider;
 import '../../trust_ids.dart';
 import '../app_dialog.dart';
 import '../common.dart';
-import '../network_mode_text.dart' show statusOffByModeWord;
-import '../server_picker.dart' show showEpicboxPicker;
 import '../kit/kit_ground.dart' show KitGround;
-import '../kit/kit_group.dart';
 import '../kit/kit_row.dart';
-import '../kit/kit_tokens.dart';
-import '../status.dart';
+import '../theme/epic1_mark.dart' show Epic1Glyph;
 import '../theme/tokens.dart';
 import 'epic1_common.dart';
 
 /// Keys for tests and the screenshot tour.
 const Key epic1SwitchKey = ValueKey('epic1-switch');
-const Key epic1TurnOnKey = ValueKey('epic1-turn-on');
-const Key epic1AppliesKey = ValueKey('epic1-applies-next');
-const Key epic1LockNowKey = ValueKey('epic1-lock-now');
-const Key epic1EpicboxKey = ValueKey('epic1-epicbox');
 const Key epic1PrintedKey = ValueKey('epic1-printed');
 
 /// How many printed links a wallet holds.
 const int epic1PrintedMax = 32;
 
-/// The Experimental section: the "epic1 payments" switch and, while what is stored differs
-/// from what this unlock uses, "Applies at next unlock" with Lock now. Nothing on a core
-/// without epic1.
-List<Widget> epic1ExperimentalRows(AppLocalizations l) => [
-  KitGroupLabel(l.deskE1PhExperimental),
-  const Epic1SwitchRow(),
-];
-
-/// The epic1 section and Receiving, which replace the methods in epic1 mode.
-List<Widget> epic1ModeRows(AppLocalizations l, {required Widget confirmations}) => [
-  KitGroupLabel(l.deskE1PhSection),
-  const KitGroup(dividerInset: Kit.dividerInsetPlain, children: [Epic1EpicboxRow(), Epic1PrintedRow()]),
-  KitGroupLabel(l.deskE1PhReceiving),
-  confirmations,
-];
-
-class Epic1SwitchRow extends ConsumerStatefulWidget {
-  const Epic1SwitchRow({super.key});
-
-  @override
-  ConsumerState<Epic1SwitchRow> createState() => _Epic1SwitchRowState();
-}
-
-class _Epic1SwitchRowState extends ConsumerState<Epic1SwitchRow> {
-  /// What was stored on this page; the wallet's stored value is not watched.
-  bool? _stored;
-  bool _busy = false;
-
-  Future<void> _set(Epic1Wallet epic1, bool on) async {
-    final l = context.l10n;
-    if (_busy) return;
-    if (on &&
-        !await askEpic1(
-          context,
-          title: l.deskE1PhConfirmTitle,
-          body: l.deskE1PhConfirmBody,
-          yes: l.deskE1PhTurnOn,
-          icon: Icons.science_outlined,
-          yesKey: epic1TurnOnKey,
-        )) {
-      return;
-    }
-    setState(() => _busy = true);
-    try {
-      final stored = ref.read(epic1StoredProvider.notifier);
-      await epic1.setStoredOn(on);
-      stored.set(on);
-      if (mounted) setState(() => _stored = on);
-    } catch (e) {
-      if (mounted) ref.read(noticeProvider.notifier).show(describeError(l, e), level: NoticeLevel.error);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final epic1 = ref.watch(epic1Provider);
-    if (epic1 == null) return const SizedBox.shrink();
-    final stored = _stored ?? epic1.storedOn;
-    final pending = stored != epic1.inUse;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        KitGroup(
-          dividerInset: Kit.dividerInsetPlain,
-          children: [
-            KitRow.toggle(
-              key: epic1SwitchKey,
-              title: l.deskE1PhSwitch,
-              titleMarks: true,
-              subtitle: l.phoneSettingsEpic1Line,
-              subtitleLines: 3,
-              value: stored,
-              onChanged: _busy ? null : (on) => _set(epic1, on),
-              semanticsId: TrustIds.paymentsExperimental,
-            ),
-          ],
-        ),
-        if (pending)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 8, 8, 8),
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              children: [
-                Text(l.deskE1PhAppliesNext, key: epic1AppliesKey, style: TextStyle(color: t.dim)),
-                TextButton(
-                  key: epic1LockNowKey,
-                  onPressed: () => lockWallet(context, ref),
-                  child: Text(l.deskE1PhLockNow),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-/// The wallet's Epicbox server with its state, as Network shows it; opens the picker.
-class Epic1EpicboxRow extends ConsumerWidget {
-  const Epic1EpicboxRow({super.key});
+/// The epic1 row among the payment methods: its switch writes [PaymentPrefs.epic1] and applies
+/// at once. It is no route of a classic payment, so it never counts for the last method that
+/// stays on. Nothing on a core without epic1.
+class Epic1MethodRow extends ConsumerWidget {
+  const Epic1MethodRow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final t = context.tokens;
-    final config = ref.watch(walletConfigProvider);
-    final mode = ref.watch(networkModeProvider);
-    final face = mode.restricted
-        ? (level: SignalLevel.none, color: t.dim, word: statusOffByModeWord(l, mode))
-        : epicboxNetFace(context, watchWalletStatus(ref).epicbox);
-    final host = config == null ? null : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label;
-    return KitRow(
-      key: epic1EpicboxKey,
-      title: l.serverEpicboxTitle,
-      subtitleWidget: host == null
-          ? null
-          : Text(host, maxLines: 1, overflow: TextOverflow.ellipsis, style: KitType.rowSub.copyWith(fontFamily: t.monoFamily, color: t.dim)),
-      value: face.word,
-      valueColor: face.color,
-      chevron: true,
-      size: KitRowSize.settings,
-      onTap: () => showEpicboxPicker(context),
+    if (ref.watch(epic1Provider) == null) return const SizedBox.shrink();
+    final payments = (ref.watch(appSettingsProvider).value ?? const AppSettings()).payments;
+    return KitRow.toggle(
+      key: epic1SwitchKey,
+      leading: KitIconWell.child(Epic1Glyph(size: 20, color: context.tokens.accentText)),
+      title: l.deskE1SetSwitch,
+      titleMarks: true,
+      size: KitRowSize.list,
+      subtitle: l.deskE1SetInfo,
+      subtitleLines: 3,
+      value: payments.epic1,
+      onChanged: (on) => ref.read(appSettingsProvider.notifier).setPayments(payments.copyWith(epic1: on)),
+      semanticsId: TrustIds.paymentsEpic1,
     );
   }
 }
+
+/// The rows of the epic1 method, for the methods group: the switch, then Printed links while
+/// epic1 is on.
+List<Widget> epic1MethodRows(WidgetRef ref) => [
+  if (ref.watch(epic1Provider) != null) const Epic1MethodRow(),
+  if (ref.watch(epic1OnProvider)) const Epic1PrintedRow(),
+];
 
 /// The printed links of this wallet; the links are read once per build of the page.
 final epic1PrintedProvider = FutureProvider.autoDispose<List<Epic1LinkSlot>>((ref) async {
@@ -187,10 +78,11 @@ class Epic1PrintedRow extends ConsumerWidget {
     final count = ref.watch(epic1PrintedProvider).value?.length;
     return KitRow(
       key: epic1PrintedKey,
+      leading: KitIconWell(Icons.qr_code_2, color: context.tokens.accentText, iconSize: 20),
       title: l.deskE1PhPrinted,
       value: count == null ? null : l.deskE1PhPrintedCount(count, epic1PrintedMax),
       chevron: true,
-      size: KitRowSize.settings,
+      size: KitRowSize.list,
       onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PrintedCodesScreen())),
     );
   }

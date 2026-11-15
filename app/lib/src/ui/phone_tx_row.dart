@@ -25,7 +25,6 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'address_view.dart' show ShortAddressText;
 import 'common.dart';
-import 'epic1/epic1_sealed.dart' show phoneShowsSealed;
 import 'kit/kit_avatar.dart';
 import 'kit/kit_icons.dart';
 import 'kit/kit_tokens.dart';
@@ -167,7 +166,7 @@ class PhoneTxRow extends ConsumerWidget {
         counterparty != null && name == null && title == shortAddress(counterparty, ownServer: own);
     final aside = txTitleAside(tx, contactName: name, ownServer: own);
     final time = dated ? phoneRowDay(l, localTime(tx.timeUnix), now) : localClock(l, localTime(tx.timeUnix));
-    final sealed = phoneShowsSealed(ref, tx);
+    final sealed = tx.sealed;
     final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
     final status = open
         ? paymentRowWord(

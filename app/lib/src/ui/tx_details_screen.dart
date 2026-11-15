@@ -22,7 +22,7 @@ import '../cancel_final.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
-import 'epic1/epic1_sealed.dart' show Epic1SealedBadge, phoneShowsSealed;
+import 'epic1/epic1_sealed.dart' show Epic1SealedBadge;
 import '../network.dart' show EpicboxRelay;
 import '../epicmail_mark.dart';
 import '../relay_software.dart' show addressRelayIsEpicmail, ownRelay;
@@ -999,7 +999,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             semanticsLabel: l.phonePayCompletedOn(done),
           ),
           if (_stepsOpen) KitSteps(steps: progress.steps, card: false, semanticsId: TrustIds.paySteps),
-          if (phoneShowsSealed(ref, tx))
+          if (tx.sealed)
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: Kit.rowSettings),
               child: Padding(
@@ -1052,7 +1052,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: Kit.gutter),
         child: _PlainCard(
           children: [
-            if (phoneShowsSealed(ref, tx))
+            if (tx.sealed)
               Wrap(
                 spacing: 8,
                 runSpacing: 6,

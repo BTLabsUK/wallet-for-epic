@@ -16,7 +16,6 @@ import '../app_log.dart';
 import '../announcements/announcements_service.dart' show announcementsOffered;
 import '../settings_file/host_settings.dart' show hostSettings;
 import '../dev_networks.dart';
-import '../epic1.dart' show PaymentMode;
 import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
@@ -906,13 +905,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   /// Payments: how payments are made. The methods Send and Receive offer, one switch each; with
   /// Advanced › Send options, the defaults a send uses (which outputs it spends and whether its
-  /// change is split); the experimental epic1 switch; the invoice settings.
+  /// change is split); the epic1 switch; the invoice settings.
   List<Widget> _transactions(AppLocalizations l) {
-    // epic1 (spec P1): its own sections in place of the methods, and the switch last.
-    final epic1Rows = ref.watch(epic1Provider) == null ? const <Widget>[] : epic1ExperimentalRows(l);
-    if (ref.watch(paymentModeProvider) == PaymentMode.epic1) {
-      return [...epic1ModeRows(l, confirmations: const ConfirmationsRow()), ...epic1Rows];
-    }
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final payments = s.payments;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
@@ -994,7 +988,15 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
     return [
       KitGroupLabel(l.phoneSettingsPayWays, key: const ValueKey('tx-methods'), top: 0),
-      KitGroup(children: [for (final m in methods) methodRow(m)]),
+      KitGroup(
+        children: [
+          for (final m in methods) ...[
+            methodRow(m),
+            // epic1 sits right after Epicbox: a method of its own that no route of a classic payment depends on.
+            if (m == MethodKind.epicbox) ...epic1MethodRows(ref),
+          ],
+        ],
+      ),
       // Tor for payments (item 2): its state, never a "turn Tor on" card.
       if (payments.linkTor && showTor) const _TorPayLine(),
       if (showDefaults) ...[
@@ -1022,7 +1024,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           ],
         ),
       ],
-      ...epic1Rows,
       if (invoices) ...[
         const SizedBox(height: 14),
         KitGroup(

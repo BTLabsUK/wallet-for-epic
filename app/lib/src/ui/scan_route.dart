@@ -21,10 +21,10 @@ import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
 import '../settings.dart';
 import '../slate_files.dart';
-import '../epic1.dart' show Epic1Wallet, PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
+import '../epic1.dart' show Epic1Wallet, looksLikeEpic1Link, looksLikeEpictx;
 import 'devices/device_parts.dart' show openLinkDevice;
 import 'common.dart' show popToShell;
-import 'epic1/epic1_common.dart' show showEpic1ModeSheet;
+import 'epic1/epic1_common.dart' show showEpic1OffSheet;
 import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 import 'in_person/in_person_entry.dart' show openInPersonText;
 import 'in_person/in_person_logic.dart' show InPersonBytes, readInPersonText;
@@ -67,7 +67,7 @@ Future<void> openScannedText(
   required CodeOrigin origin,
   Future<void> Function()? scanAgain,
 }) async {
-  // A code of the other payment mode says so, with Settings (epic1 spec P3).
+  // An epic1 thing is paid or opened, or says epic1 is off, with Settings.
   if (await openEpic1Text(context, ref, text)) return;
   if (!context.mounted) return;
   final invite = parseInvite(text);
@@ -90,19 +90,15 @@ Future<void> openScannedText(
         );
 }
 
-/// [text] by the payment mode in use: in epic1 mode an epic1 link is paid, an in-person code
-/// opened and a classic payment code refused; in classic mode an epic1 link or file is
-/// refused. True when [text] was taken here.
+/// An epic1 thing in [text]: with epic1 on an epic1 link is paid and an in-person code opened;
+/// with it off, an epic1 link, file or in-person code stops with the line that says epic1 is
+/// off. Classic text is left to the caller, whichever way epic1 is. True when [text] was taken
+/// here.
 Future<bool> openEpic1Text(BuildContext context, WidgetRef ref, String text) async {
-  final l = context.l10n;
-  final epic1 = ref.read(paymentModeProvider) == PaymentMode.epic1;
-  if (!epic1) {
-    if (looksLikeEpic1Link(text) || _isInPersonQr(ref.read(epic1Provider), text)) {
-      await showEpic1ModeSheet(context, l.deskE1ModeEpic1Link);
-      return true;
-    }
-    if (!looksLikeEpictx(text)) return false;
-    await showEpic1ModeSheet(context, l.deskE1ModeEpic1File);
+  if (ref.read(epic1Provider) == null) return false;
+  if (!ref.read(epic1OnProvider)) {
+    if (!looksLikeEpic1Link(text) && !looksLikeEpictx(text) && !_isInPersonQr(ref.read(epic1Provider), text)) return false;
+    await showEpic1OffSheet(context);
     return true;
   }
   if (looksLikeEpic1Link(text)) {
@@ -110,16 +106,9 @@ Future<bool> openEpic1Text(BuildContext context, WidgetRef ref, String text) asy
     if (await openEpic1LinkSend(context, text.trim())) container.invalidate(homeProvider);
     return true;
   }
-  if (await openInPersonText(context, text)) return true;
-  if (!context.mounted) return true;
-  final code = classifyFor(ref.read(walletServiceProvider), parseInvite(text)?.invite ?? text);
-  final classic = switch (code) {
-    PaymentRequest() || ScannedAddress() || PaymentLink() || SlateText() || SlateFrames() || WrongNetwork() => true,
-    _ => false,
-  };
-  if (!classic) return false;
-  await showEpic1ModeSheet(context, code is SlateText ? l.deskE1ModeClassicFile : l.deskE1ModeClassicCode);
-  return true;
+  // A classic animated code shares the in-person QR type: the reader hands it back (false) and
+  // the classic route reads it.
+  return openInPersonText(context, text);
 }
 
 /// Whether [text] is a whole in-person QR code. Its parts share the animated payment QR's

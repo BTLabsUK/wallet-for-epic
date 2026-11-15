@@ -38,7 +38,7 @@ import 'kit/kit_tokens.dart' show Kit, KitType;
 import 'motion_switches.dart';
 import 'notices.dart';
 import 'badge.dart';
-import 'epic1/epic1_sealed.dart' show Epic1SealedBadge, phoneShowsSealed;
+import 'epic1/epic1_sealed.dart' show Epic1SealedBadge;
 import 'finished_not_posted.dart' show isPostElsewhere;
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
@@ -1063,7 +1063,7 @@ class TxStatusLine extends ConsumerWidget {
             style: base,
           ),
         ),
-        if (phoneShowsSealed(ref, tx)) ...[
+        if (tx.sealed) ...[
           const SizedBox(width: 6),
           const Epic1SealedBadge(compact: true),
         ],
@@ -1989,7 +1989,7 @@ class TxTile extends ConsumerWidget {
               ),
               hidden: display.hidden,
               label: tx.label,
-              sealed: phoneShowsSealed(ref, tx),
+              sealed: tx.sealed,
             ),
             onTap: open,
             // A long press labels the payment in place; the pen left the row. Screen

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Receive in epic1 mode (Receive-5): the epic1 link as a QR with the epic1 mark, Copy link and
-/// Share, "Ask for an amount" (a sheet) and "Other ways to receive" (in person).
+/// Receive by epic1 link (Receive-5): a page of "Other ways to receive" with the epic1 link as a
+/// QR with the epic1 mark, Copy link and Share, "Ask for an amount" (a sheet) and in person.
 library;
 
 import 'package:flutter/material.dart';
@@ -24,6 +24,7 @@ import '../receive_screen.dart' show ReceiveQr, shareAddress;
 import '../kit/kit_button.dart';
 import '../kit/kit_chip.dart';
 import '../kit/kit_group.dart';
+import '../kit/kit_headers.dart';
 import '../kit/kit_icons.dart';
 import '../kit/kit_row.dart';
 import '../kit/kit_sheet.dart';
@@ -33,7 +34,6 @@ import '../status.dart' show EpicboxState;
 import '../theme/logo_qr.dart';
 import '../theme/tokens.dart';
 import '../theme/epic1_mark.dart';
-import '../tour/tour_target.dart';
 import 'epic1_common.dart';
 import '../kit/kit_qr_glyph.dart';
 
@@ -49,6 +49,29 @@ const Key epic1MakeLinkKey = ValueKey('epic1-make-link');
 const Key epic1RelaySettingsKey = ValueKey('epic1-relay-settings');
 const Key epic1RequestInPersonKey = ValueKey('epic1-request-in-person');
 const Key epic1ListeningKey = ValueKey('epic1-listening');
+
+/// The page the "epic1 link" row of Other ways to receive opens: the sheet's other pages' back
+/// header over the link view. No link is made until this page is open.
+class Epic1ReceivePage extends StatelessWidget {
+  const Epic1ReceivePage({super.key});
+
+  @override
+  Widget build(BuildContext context) => SlotScaffold(
+    body: SafeArea(
+      child: Column(
+        children: [
+          KitFlowHeader(
+            title: context.l10n.deskE1LinkTitle,
+            back: true,
+            onLeading: () => Navigator.of(context).maybePop(),
+            leadingId: TrustIds.receiveWayBack,
+          ),
+          const Expanded(child: Epic1ReceiveView()),
+        ],
+      ),
+    ),
+  );
+}
 
 class Epic1ReceiveView extends ConsumerStatefulWidget {
   const Epic1ReceiveView({super.key});
@@ -163,7 +186,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  PhoneTourTarget(id: 'tour-receive-address', child: card),
+                  card,
                   const SizedBox(height: 22),
                   KitGroup(
                     margin: EdgeInsets.zero,
@@ -180,8 +203,7 @@ class _Epic1ReceiveViewState extends ConsumerState<Epic1ReceiveView> {
                       KitRow(
                         key: epic1RequestInPersonKey,
                         leading: KitIconWell.child(KitQrGlyph(color: context.tokens.accentText)),
-                        title: l.phoneRecvOther,
-                        subtitle: l.deskE1PhInPerson,
+                        title: l.deskIpRequestTitle,
                         chevron: true,
                         onTap: () => openRequestInPerson(context),
                       ),

@@ -42,9 +42,11 @@ import '../name_service/pins.dart' show NameServiceTrust;
 import '../scan/incoming_link.dart' show linkClockProvider;
 import '../trust/trust_providers.dart' show mailboxDefaultFor;
 import 'link_send.dart';
-import '../epic1.dart' show PaymentMode, looksLikeEpic1Link;
-import 'epic1/epic1_common.dart' show classicOnlyPairing, openEpic1Settings;
+import '../epic1.dart' show looksLikeEpic1Link;
+import 'epic1/epic1_common.dart' show openEpic1Settings;
 import 'epic1/epic1_send.dart';
+import 'in_person/in_person_entry.dart' show openPayInPerson;
+import 'theme/epic1_mark.dart';
 import '../pairing_providers.dart'
     show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
 import '../errors.dart';
@@ -711,10 +713,10 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing recipient has no address to check: its card says whether it can be paid.
     if (_pairingTo != null) return _noPaymentsProblem(pairingId: _pairingTo);
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
-    // An epic1 link in classic mode: the switch is in Settings (button under the field). An
-    // epic1 address alone is paid in neither mode.
+    // An epic1 address alone names no server and cannot be paid. A link opens the epic1 flow
+    // while epic1 is on; off, the switch is in Settings (button under the field).
     if (epic1AddressOnly(text)) return l.epic1AddressAlone;
-    if (looksLikeEpic1Link(text)) return l.deskE1ModeEpic1Link;
+    if (looksLikeEpic1Link(text)) return ref.read(epic1OnProvider) ? null : _epic1OffLine;
     final read = _readOf(text);
     switch (read.kind) {
       case RecipientInputKind.empty:
@@ -799,7 +801,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final invite = parseInvite(text);
     if (invite != null) text = invite.invite;
     if (looksLikeEpic1Link(text)) {
-      _pastedWithError(text, epic1AddressOnly(text) ? l.epic1AddressAlone : l.deskE1ModeEpic1Link);
+      unawaited(_openEpic1(text, typedOver: typedOver));
       return;
     }
     final code = classifyFor(ref.read(walletServiceProvider), text);
@@ -1052,17 +1054,41 @@ class _SendViewState extends ConsumerState<SendView> {
     return bestAddressIndex(contact.addresses, read: _readOf, held: (to) => _heldNow(to, watch: watch));
   }
 
-  /// A classic address, request or file text, refused in epic1 mode's field.
-  bool _classicCode(String text) {
-    final code = classifyFor(ref.read(walletServiceProvider), parseInvite(text)?.invite ?? text);
-    return code is PaymentRequest || code is ScannedAddress || code is PaymentLink || code is SlateText || _readOf(text).isAddress;
+  /// "epic1 is off in the payment settings.", the line under To for an epic1 link while the
+  /// switch is off.
+  String get _epic1OffLine => context.l10n.netBlockMethodOff(context.l10n.deskE1SetSwitch);
+
+  /// To holds an epic1 link that names a server and epic1 is on: Continue pays it through the
+  /// epic1 flow.
+  bool get _epic1LinkInTo {
+    final text = _recipient.text;
+    return _pairingTo == null && looksLikeEpic1Link(text) && !epic1AddressOnly(text) && ref.read(epic1OnProvider);
   }
 
-  /// A contact picked in epic1 mode: its pairing that takes epic1 payments (the picker offers
-  /// no other).
-  void _useEpic1Contact(Contact contact) {
-    final pairing = ref.read(contactPairingProvider(contact.id));
-    if (!classicOnlyPairing(pairing)) _setPairing(pairing!.id);
+  /// An epic1 link typed, pasted or scanned into Send: epic1 on, the epic1 pay flow opens (the
+  /// field goes back to what it held and is cleared after a payment); an address alone or
+  /// epic1 off, the text stays in To with its line.
+  Future<void> _openEpic1(String text, {String? typedOver}) async {
+    if (typedOver != null) {
+      _recipient.text = typedOver;
+      _lastTo = typedOver;
+    }
+    if (epic1AddressOnly(text)) {
+      _pastedWithError(text, context.l10n.epic1AddressAlone);
+      return;
+    }
+    if (!ref.read(epic1OnProvider)) {
+      _pastedWithError(text, _epic1OffLine);
+      return;
+    }
+    final done = await openEpic1LinkSend(context, text);
+    if (done && mounted) {
+      setState(() {
+        _recipient.clear();
+        _lastTo = '';
+        _recipientError = null;
+      });
+    }
   }
 
   /// [contact] as the recipient: its chip in To and its first address that can be paid now,
@@ -1184,6 +1210,10 @@ class _SendViewState extends ConsumerState<SendView> {
   /// On to the amount; [focus] puts the cursor there (not for a code, whose amount is read
   /// first, with the keyboard down). A hold of the mode keeps the step.
   void _toAmount({bool focus = true}) {
+    if (_epic1LinkInTo) {
+      unawaited(_openEpic1(_recipient.text.trim()));
+      return;
+    }
     if (_contact == null && _pairingTo == null) setState(_settleRecipient);
     final problem = _recipientProblem(_recipient.text, required: true);
     final read = _read;
@@ -2584,28 +2614,6 @@ class _SendViewState extends ConsumerState<SendView> {
       return _page(_emptyState(context));
     }
 
-    // epic1 mode: one field for an epic1 link or a contact; a contact paid goes on as a pairing.
-    if (_stage == SendStage.recipient && _pairingTo == null && ref.watch(paymentModeProvider) == PaymentMode.epic1) {
-      return _page(
-        SafeArea(
-          top: false,
-          child: ScreenBody(
-          children: [
-            PhoneTourTarget(
-              id: 'tour-send-recipient',
-              child: Epic1SendStart(
-                header: _header(context, context.l10n.homeSendButton, onClose: _done),
-                classicCode: _classicCode,
-                onContact: _useEpic1Contact,
-                onDone: () {},
-              ),
-            ),
-          ],
-        ),
-        ),
-      );
-    }
-
     final (children, bottom) = switch (_stage) {
       SendStage.recipient => (_recipientStep(context), _recipientAction()),
       SendStage.amount => (_amountStep(context), _amountAction()),
@@ -3069,7 +3077,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       if (_recipientError != null)
         Padding(padding: const EdgeInsets.only(top: 8), child: LiveFieldError(_recipientError!)),
-      if (_recipientError != null && _recipientError == l.deskE1ModeEpic1Link)
+      if (_recipientError != null && _recipientError == _epic1OffLine)
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: TextButton(key: epic1FieldSettingsKey, onPressed: () => openEpic1Settings(context), child: Text(l.deskE1PhSettings)),
@@ -3196,7 +3204,7 @@ class _SendViewState extends ConsumerState<SendView> {
             ],
           ),
         ],
-        if (_qrOffered || _fileOffered) ...[
+        if (_qrOffered || _fileOffered || ref.watch(epic1OnProvider)) ...[
           const SizedBox(height: 12),
           KitGroup(
             margin: EdgeInsets.zero,
@@ -3324,6 +3332,20 @@ class _SendViewState extends ConsumerState<SendView> {
                     },
                     semanticsId: TrustIds.sendNoaddressPerson,
                   ),
+                if (ref.read(epic1OnProvider))
+                  KitRow(
+                    key: epic1PayInPersonKey,
+                    leading: KitIconWell.child(Epic1Glyph(size: 22, color: t.accent), size: 40),
+                    minHeight: 72,
+                    title: l.deskE1PhPayInPerson,
+                    subtitle: l.phoneSendInPersonSub,
+                    chevron: true,
+                    onTap: () {
+                      Navigator.of(sheet).pop();
+                      openPayInPerson(context);
+                    },
+                    semanticsId: TrustIds.sendNoaddressEpic1Person,
+                  ),
                 if (_fileOffered)
                   KitRow(
                     leading: KitIconWell(KitIcons.fileDown, color: t.accent, size: 40, iconSize: 20),
@@ -3366,7 +3388,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// as the Paste button does; typing only clears what the last reading said.
   void _recipientChanged(String text) {
     final jump = text.length - _lastTo.length >= 8;
-    if (jump && looksLikeCode(text)) {
+    if (jump && (looksLikeCode(text) || looksLikeEpic1Link(text))) {
       final before = _lastTo;
       _lastTo = text;
       _openText(text.trim(), CodeOrigin.paste, typedOver: before);
@@ -3650,7 +3672,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// messages; keys that changed meanwhile hold Continue until the words are checked.
   bool get _hasRecipient => _pairingTo != null
       ? _toPairing()?.paysByMailbox ?? false
-      : _read.isAddress;
+      : _read.isAddress || _epic1LinkInTo;
 
   Widget _recipientAction() => BusyButton(
     kit: true,
