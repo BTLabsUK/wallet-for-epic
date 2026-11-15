@@ -870,9 +870,9 @@
   "@txDetailsCancelTitle": {
     "description": "Title of the dialog that confirms cancelling a pending payment."
   },
-  "txDetailsCancelReceiveBody": "Nothing has arrived yet. If this payment still arrives later, it shows as received.",
+  "txDetailsCancelReceiveBody": "Nothing has arrived yet. The sender is told. If they still send it, it arrives and shows as received.",
   "@txDetailsCancelReceiveBody": {
-    "description": "Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives."
+    "description": "Cancel dialog text for a pending receive. The wallet tells the sender through the relay when it can. The wallet keeps looking for a cancelled payment with no end date, so one the sender still finishes and posts arrives."
   },
   "txDetailsCancelSendBody": "Nothing has been paid yet: cancelling is free and certain.",
   "@txDetailsCancelSendBody": {
@@ -22136,6 +22136,10 @@
   "txDetailsStoppedWaiting": "Stopped waiting. The coins are spendable again. The payment may still finish; if it does, it shows as paid.",
   "@txDetailsStoppedWaiting": {
     "description": "Phone notice after Stop waiting (a cancel or a Release coins without moving the coins back): the coins are spendable again; the payment may still finish and then shows as paid."
+  },
+  "errorCancelledOnRelay": "The other side cancelled this payment, so it is cancelled here too.",
+  "@errorCancelledOnRelay": {
+    "description": "Plain reason when a send or an answer is refused because the other wallet cancelled the payment first. The wallet has already cancelled it locally."
   },
   "errorPaymentCancelledCoinsMoved": "This payment was cancelled, and its coins were already moved. It can no longer go through.",
   "@errorPaymentCancelledCoinsMoved": {

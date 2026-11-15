@@ -191,7 +191,7 @@ void main() {
       // The phone's words: never spendable, so nothing "leaves your balance" (LNX2-1).
       expect(find.textContaining('leaves your balance'), findsNothing);
       expect(find.textContaining('Nothing has arrived yet'), findsOneWidget);
-      expect(find.textContaining('If this payment still arrives later'), findsOneWidget);
+      expect(find.textContaining('If they still send it'), findsOneWidget);
       expect(find.textContaining('shows as received'), findsOneWidget);
       expect(find.textContaining('week'), findsNothing);
       expect(find.textContaining('locked amount'), findsNothing);

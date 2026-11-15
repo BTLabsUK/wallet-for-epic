@@ -770,7 +770,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nothing has arrived yet. If this payment still arrives later, it shows as received.';
+      'Nothing has arrived yet. The sender is told. If they still send it, it arrives and shows as received.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -16405,6 +16405,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get txDetailsStoppedWaiting =>
       'Stopped waiting. The coins are spendable again. The payment may still finish; if it does, it shows as paid.';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'The other side cancelled this payment, so it is cancelled here too.';
 
   @override
   String get errorPaymentCancelledCoinsMoved =>

@@ -806,7 +806,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Nic jeszcze nie dotarło. Jeśli ta płatność dotrze później, pokaże się jako odebrana.';
+      'Nic jeszcze nie dotarło. Nadawca zostanie powiadomiony. Jeśli mimo to ją wyśle, płatność dotrze i pokaże się jako odebrana.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -16985,6 +16985,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get txDetailsStoppedWaiting =>
       'Czekanie zakończone. Monety znów można wydać. Płatność wciąż może przejść; jeśli tak, pokaże się jako zapłacona.';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'Druga strona anulowała tę płatność, więc jest anulowana także tutaj.';
 
   @override
   String get errorPaymentCancelledCoinsMoved =>

@@ -35,6 +35,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 
 import '../app_log.dart';
 import '../amount.dart';
+import '../cancel_final.dart' show relayCancelFirst;
 import '../contacts.dart';
 import '../name_service/link_open.dart' show LinkOpened;
 import '../name_service/pins.dart' show NameServiceTrust;
@@ -2115,6 +2116,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
     });
     try {
+      await relayCancelFirst(session, stuck);
       await session.cancelTransaction(txId: stuck.id!);
       // The linked devices free its coins at once, not at the next tick.
       unawaited(container.read(deviceServiceProvider)?.announceNow());

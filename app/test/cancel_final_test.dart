@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/sender_cancel.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton;
@@ -40,7 +41,15 @@ const _other = 'cc00000000000000000000000000000000000000000000000000000000000000
 
 /// An outgoing payment: an invoice this wallet paid ([TxFlow.invoice]), a send still waiting
 /// for its answer, or with [finalized] one both wallets signed that the node did not take.
-TxEntry _send({TxFlow flow = TxFlow.payment, bool finalized = false, bool cancelled = false, bool releasable = false, CancelReason? reason}) => fakeTx(
+TxEntry _send({
+  TxFlow flow = TxFlow.payment,
+  bool finalized = false,
+  bool cancelled = false,
+  bool releasable = false,
+  bool relay = false,
+  bool posted = false,
+  CancelReason? reason,
+}) => fakeTx(
   id: 9,
   slateId: 'pay-1',
   kind: cancelled ? TxKind.sentCancelled : TxKind.sent,
@@ -56,8 +65,9 @@ TxEntry _send({TxFlow flow = TxFlow.payment, bool finalized = false, bool cancel
   counterparty: 'esService@epicbox.epiccash.com',
   transport: 'epicbox',
   cancellable: !cancelled,
-  repostable: finalized && !cancelled,
+  repostable: finalized && !cancelled && !posted,
   releasable: releasable,
+  relayCancellable: relay,
   finalizedAtUnix: finalized ? _at(_now.subtract(const Duration(days: 1))) : null,
   cancelReason: reason,
   flow: flow,
@@ -96,6 +106,119 @@ FakeWalletSession _session(TxEntry tx) => FakeWalletSession(summary: _summary, t
   ];
 
 void main() {
+  group('the relay is told of a cancel (Epicbox 3.1.0)', () {
+    TxEntry received({bool relay = true}) => fakeTx(
+      id: 4,
+      slateId: 'in-1',
+      kind: TxKind.received,
+      status: TxStatus.awaitingConfirmation,
+      amountCredited: _epic(1),
+      cancellable: true,
+      relayCancellable: relay,
+    );
+
+    test('a send not yet finalized: relay first, then the local cancel, no spend back', () async {
+      final tx = _send(relay: true);
+      final s = _session(tx);
+      expect(await CancelFinal().cancel(s, tx), CancelResult.cancelled);
+      expect(s.cancelOrder, ['relay 9', 'local 9']);
+      expect(s.spentToSelf, isEmpty);
+    });
+
+    test('the receiver of a send: relay first, then the local cancel, no spend back', () async {
+      final tx = received();
+      final s = _session(tx);
+      expect(cancelSpendsBack(tx), isFalse);
+      expect(await CancelFinal().cancel(s, tx), CancelResult.cancelled);
+      expect(s.cancelOrder, ['relay 4', 'local 4']);
+      expect(s.spentToSelf, isEmpty);
+    });
+
+    test('an invoice paid, Cancel for sure: relay, local, then the spend back', () async {
+      final tx = _send(flow: TxFlow.invoice, relay: true);
+      final s = _session(tx);
+      expect(await CancelFinal().cancel(s, tx), CancelResult.spentBack);
+      expect(s.cancelOrder, ['relay 9', 'local 9']);
+      expect(s.spentToSelf.single, [_coinA, _coinB]);
+    });
+
+    test('an invoice paid, Stop waiting: relay and local, nothing spent', () async {
+      final tx = _send(flow: TxFlow.invoice, relay: true);
+      final s = _session(tx);
+      expect(await CancelFinal().cancel(s, tx, spendBack: false), CancelResult.stoppedWaiting);
+      expect(s.cancelOrder, ['relay 9', 'local 9']);
+      expect(s.spentToSelf, isEmpty);
+    });
+
+    test('a send the network refused, released: relay when the relay holds it, then the spend back', () async {
+      final tx = _send(finalized: true, releasable: true, relay: true);
+      final s = _session(tx);
+      expect(await CancelFinal().release(s, tx), CancelResult.spentBack);
+      expect(s.cancelOrder, ['relay 9', 'release ${tx.key}']);
+      expect(s.spentToSelf.single, [_coinA, _coinB]);
+    });
+
+    test('a send the network refused, normally not on the relay: no relay call', () async {
+      final tx = _send(finalized: true, releasable: true);
+      final s = _session(tx);
+      expect(await CancelFinal().release(s, tx), CancelResult.spentBack);
+      expect(s.cancelOrder, ['release ${tx.key}']);
+      expect(s.relayCancelledTxIds, isEmpty);
+    });
+
+    test('a cancel the relay does not hold goes to no relay', () async {
+      for (final tx in [_send(), _send(flow: TxFlow.invoice), received(relay: false)]) {
+        final s = _session(tx);
+        await CancelFinal().cancel(s, tx);
+        expect(s.relayCancelledTxIds, isEmpty, reason: tx.kind.name);
+        expect(s.cancelOrder, ['local ${tx.id}']);
+      }
+    });
+
+    test('an error from the relay is passed over: the local cancel and the spend back still run', () async {
+      for (final error in [
+        const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'down'),
+        const WalletError(kind: WalletErrorKind.unsupported, message: 'no relay'),
+      ]) {
+        final tx = _send(flow: TxFlow.invoice, relay: true);
+        final s = _session(tx)..relayCancelError = error;
+        expect(await CancelFinal().cancel(s, tx), CancelResult.spentBack);
+        expect(s.cancelOrder, ['relay 9', 'local 9']);
+        expect(s.spentToSelf.single, [_coinA, _coinB]);
+      }
+    });
+
+    test('a refused local cancel after the relay was told still fails the cancel', () async {
+      final tx = _send(relay: true);
+      final s = _session(tx)..cancelError = const WalletError(kind: WalletErrorKind.invalidArgument, message: 'in pool');
+      await expectLater(CancelFinal().cancel(s, tx), throwsA(isA<WalletError>()));
+      expect(s.cancelOrder, ['relay 9', 'local 9']);
+    });
+
+    test('a send in the pool or on chain has no cancel and no spend back', () {
+      final posted = _send(finalized: true, posted: true);
+      expect(posted.repostable, isFalse);
+      expect(cancelSpendsBack(posted), isFalse, reason: 'it lands without this wallet');
+    });
+
+    test('a cancel from the other side is already cancelled here: the sweep does nothing', () async {
+      // LEPIC cancelled it as it applied the sender's cancel: kind receivedCancelled, with the report.
+      final tx = fakeTx(
+        id: 4,
+        slateId: 'in-1',
+        kind: TxKind.receivedCancelled,
+        status: TxStatus.cancelled,
+        amountCredited: _epic(1),
+        senderReportedCancelledAtUnix: _at(_now),
+      );
+      expect(senderCancelled(tx), isTrue);
+      expect(senderCancelPending(tx), isFalse);
+      final s = _session(tx);
+      await SenderCancelRelease().run(s, [tx]);
+      expect(s.cancelOrder, isEmpty);
+    });
+  });
+
   group('which cancel spends back', () {
     test('an invoice paid and a send both signed: the other side may finish them', () {
       expect(cancelSpendsBack(_send(flow: TxFlow.invoice)), isTrue);

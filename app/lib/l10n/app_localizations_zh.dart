@@ -728,7 +728,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelTitle => '取消这笔付款？';
 
   @override
-  String get txDetailsCancelReceiveBody => '尚未收到任何款项。如果这笔付款之后到达，会显示为已收到。';
+  String get txDetailsCancelReceiveBody =>
+      '尚未收到任何款项。发送方会收到通知。如果对方仍然发出，这笔付款会到账，并显示为已收到。';
 
   @override
   String get txDetailsCancelSendBody => '尚未支付任何款项：取消免费且一定成功。';
@@ -15488,6 +15489,9 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get txDetailsStoppedWaiting =>
       '已不再等待。这些币可以再次使用。这笔付款仍可能完成；如果完成，会显示为已付。';
+
+  @override
+  String get errorCancelledOnRelay => '对方已取消这笔付款，所以这里也已取消。';
 
   @override
   String get errorPaymentCancelledCoinsMoved => '这笔付款已取消，它的币已被移走。它无法再完成。';

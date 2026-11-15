@@ -246,7 +246,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(_l.txDetailsCancelTitle), findsOneWidget);
       expect(find.text(_l.txDetailsCancelReceiveBody), findsOneWidget);
-      expect(find.textContaining('If this payment still arrives later'), findsOneWidget);
+      expect(find.textContaining('If they still send it'), findsOneWidget);
       expect(find.textContaining('shows as received'), findsOneWidget);
       expect(find.textContaining('week'), findsNothing);
       await tester.tap(find.text(_l.txDetailsCancelKeep));

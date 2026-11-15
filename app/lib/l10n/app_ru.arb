@@ -185,7 +185,7 @@
   "txDetailsFundsReleased": "Средства разблокированы",
   "txDetailsCancelPayment": "Отменить платёж",
   "txDetailsCancelTitle": "Отменить этот платёж?",
-  "txDetailsCancelReceiveBody": "Пока ничего не пришло. Если этот платёж придёт позже, он будет показан как полученный.",
+  "txDetailsCancelReceiveBody": "Пока ничего не пришло. Отправитель получит уведомление. Если он всё же отправит платёж, тот поступит и будет показан как полученный.",
   "txDetailsCancelSendBody": "Пока ничего не оплачено: отмена бесплатна и надёжна.",
   "txDetailsCancelKeep": "Оставить",
   "txDetailsPaymentCancelled": "Платёж отменён",
@@ -5643,5 +5643,6 @@
   "pairRefusesInvoices": "Кошелёк этого контакта не оплачивает счета.",
   "pairRefusesInvoicesTitle": "Кошелёк контакта {name} не оплачивает счета.",
   "pairRefusesInvoicesBody": "Ничего не отправлено. Попросите вместо этого заплатить на ваш адрес.",
-  "deskInvIssuerFailed": "Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз."
+  "deskInvIssuerFailed": "Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.",
+  "errorCancelledOnRelay": "Вторая сторона отменила этот платёж, поэтому он отменён и здесь."
 }

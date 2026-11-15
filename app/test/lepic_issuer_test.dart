@@ -40,6 +40,15 @@ class _IssuerWallet with NoBoosts implements lepic.EpicWallet {
 
   lepic.WalletErrorKind? issueError;
   lepic.WalletErrorKind? cancelError;
+
+  /// What the relay holds: [lepic.TransactionDetails.relayCancellable] of every stored row.
+  bool relayHolds = false;
+
+  /// Set: the relay cancel fails with this kind, after it is recorded.
+  lepic.WalletErrorKind? relayCancelError;
+
+  /// The cancels in the order they reached LEPIC: `relay <id>`, `local <id>`.
+  final List<String> cancelOrder = [];
   int bounced = 0;
   int _next = 40;
 
@@ -100,6 +109,7 @@ class _IssuerWallet with NoBoosts implements lepic.EpicWallet {
     lepic.TxFlow flow = lepic.TxFlow.payment,
     List<lepic.SlateMessage> messages = const [],
   }) => stored[txId] = lepic.TransactionDetails(
+    relayCancellable: relayHolds,
     txId: txId,
     direction: lepic.TxDirection.incoming,
     status: status,
@@ -172,8 +182,16 @@ class _IssuerWallet with NoBoosts implements lepic.EpicWallet {
   }
 
   @override
+  Future<lepic.RelayCancelOutcome> relayCancelTransaction({required int txId}) async {
+    cancelOrder.add('relay $txId');
+    if (relayCancelError != null) throw _lepicError(relayCancelError!);
+    return lepic.RelayCancelOutcome.cancelled;
+  }
+
+  @override
   Future<void> cancelTransaction({required int txId}) async {
     cancelled.add(txId);
+    cancelOrder.add('local $txId');
     if (cancelError != null) throw _lepicError(cancelError!);
     setStatus(txId, lepic.TxStatus.cancelled);
   }
@@ -648,6 +666,28 @@ void main() {
         (await session.issuedInvoices()).single.state,
         IssuedInvoiceState.withdrawn,
       );
+    });
+
+    test('tells the relay first, then cancels here', () async {
+      wallet.relayHolds = true;
+      final a = await ask(five);
+      await session.withdrawInvoice(slateId: a.slateId);
+      expect(wallet.cancelOrder, ['relay ${a.txId}', 'local ${a.txId}']);
+    });
+
+    test('a relay that cannot be asked does not stop the withdrawal', () async {
+      wallet.relayHolds = true;
+      wallet.relayCancelError = lepic.WalletErrorKind.transportFailed;
+      final a = await ask(five);
+      final withdrawn = await session.withdrawInvoice(slateId: a.slateId);
+      expect(withdrawn.state, IssuedInvoiceState.withdrawn);
+      expect(wallet.cancelOrder, ['relay ${a.txId}', 'local ${a.txId}']);
+    });
+
+    test('a request the relay does not hold is cancelled here only', () async {
+      final a = await ask(five);
+      await session.withdrawInvoice(slateId: a.slateId);
+      expect(wallet.cancelOrder, ['local ${a.txId}']);
     });
 
     test('refuses one that is no longer waiting, or unknown', () async {

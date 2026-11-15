@@ -756,7 +756,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'ยังไม่มีอะไรมาถึง หากรายการนี้มาถึงในภายหลัง จะแสดงว่าได้รับแล้ว';
+      'ยังไม่มีอะไรมาถึง ผู้ส่งจะได้รับแจ้ง หากผู้ส่งยังส่งรายการนี้ รายการจะเข้ามาและแสดงว่าได้รับแล้ว';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -16040,6 +16040,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get txDetailsStoppedWaiting =>
       'หยุดรอแล้ว เหรียญกลับมาใช้ได้อีก รายการนี้ยังอาจสำเร็จได้ หากสำเร็จจะแสดงว่าจ่ายแล้ว';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'อีกฝ่ายยกเลิกรายการนี้แล้ว จึงถูกยกเลิกที่นี่ด้วย';
 
   @override
   String get errorPaymentCancelledCoinsMoved =>

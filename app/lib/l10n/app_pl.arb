@@ -185,7 +185,7 @@
   "txDetailsFundsReleased": "Środki zwolnione",
   "txDetailsCancelPayment": "Anuluj płatność",
   "txDetailsCancelTitle": "Anulować tę płatność?",
-  "txDetailsCancelReceiveBody": "Nic jeszcze nie dotarło. Jeśli ta płatność dotrze później, pokaże się jako odebrana.",
+  "txDetailsCancelReceiveBody": "Nic jeszcze nie dotarło. Nadawca zostanie powiadomiony. Jeśli mimo to ją wyśle, płatność dotrze i pokaże się jako odebrana.",
   "txDetailsCancelSendBody": "Nic jeszcze nie zapłacono: anulowanie jest bez opłaty i pewne.",
   "txDetailsCancelKeep": "Zachowaj",
   "txDetailsPaymentCancelled": "Płatność anulowana",
@@ -5643,5 +5643,6 @@
   "pairRefusesInvoices": "Portfel tego kontaktu nie opłaca faktur.",
   "pairRefusesInvoicesTitle": "Portfel kontaktu {name} nie opłaca faktur.",
   "pairRefusesInvoicesBody": "Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres.",
-  "deskInvIssuerFailed": "Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie."
+  "deskInvIssuerFailed": "Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.",
+  "errorCancelledOnRelay": "Druga strona anulowała tę płatność, więc jest anulowana także tutaj."
 }

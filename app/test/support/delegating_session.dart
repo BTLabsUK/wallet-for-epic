@@ -110,6 +110,10 @@ class DelegatingWalletSession implements WalletSession, ListingKeys, EpicboxPush
       _inner.cancelTransaction(txId: txId);
 
   @override
+  Future<RelayCancel> relayCancelTransaction({required int txId}) =>
+      _inner.relayCancelTransaction(txId: txId);
+
+  @override
   Future<void> forgetPeers({required Duration olderThan}) =>
       _inner.forgetPeers(olderThan: olderThan);
 

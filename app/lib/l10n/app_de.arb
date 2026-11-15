@@ -185,7 +185,7 @@
   "txDetailsFundsReleased": "Betrag freigegeben",
   "txDetailsCancelPayment": "Zahlung stornieren",
   "txDetailsCancelTitle": "Diese Zahlung stornieren?",
-  "txDetailsCancelReceiveBody": "Noch ist nichts angekommen. Kommt diese Zahlung später doch an, erscheint sie als empfangen.",
+  "txDetailsCancelReceiveBody": "Noch ist nichts angekommen. Der Absender wird informiert. Sendet er sie trotzdem, trifft sie ein und erscheint als empfangen.",
   "txDetailsCancelSendBody": "Noch wurde nichts bezahlt: Stornieren ist kostenlos und sicher.",
   "txDetailsCancelKeep": "Behalten",
   "txDetailsPaymentCancelled": "Zahlung storniert",
@@ -5643,5 +5643,6 @@
   "pairRefusesInvoices": "Die Wallet dieses Kontakts bezahlt keine Rechnungen.",
   "pairRefusesInvoicesTitle": "Die Wallet von {name} bezahlt keine Rechnungen.",
   "pairRefusesInvoicesBody": "Es wurde nichts gesendet. Bitten Sie stattdessen um eine Zahlung an Ihre Adresse.",
-  "deskInvIssuerFailed": "Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut."
+  "deskInvIssuerFailed": "Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut.",
+  "errorCancelledOnRelay": "Die Gegenseite hat diese Zahlung storniert, daher ist sie auch hier storniert."
 }

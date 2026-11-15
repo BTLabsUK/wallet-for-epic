@@ -232,6 +232,9 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.inputsSpentElsewhere => WalletErrorKind.inputsSpentElsewhere,
     lepic.WalletErrorKind.inputsSpentByOwnTransaction => WalletErrorKind.inputsSpentByOwnPayment,
     lepic.WalletErrorKind.peerInputsSpent => WalletErrorKind.peerInputsSpent,
+    // The relay refused a send or an answer: the other party cancelled it there, and LEPIC
+    // cancelled it here too.
+    lepic.WalletErrorKind.cancelledOnRelay => WalletErrorKind.cancelledOnRelay,
     // A Kill switch session (WalletConfig.offline) refused its node or relay.
     lepic.WalletErrorKind.offline => WalletErrorKind.networkOff,
     lepic.WalletErrorKind.notUrCode => WalletErrorKind.notQrSlate,
@@ -888,6 +891,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, bool pos
         d.status == lepic.TxStatus.sent &&
         resendTransports.contains(d.transport),
     releasable: d.releasable,
+    relayCancellable: d.relayCancellable,
     cancelReason: d.status == lepic.TxStatus.expired
         ? CancelReason.expiry
         : null,
@@ -2129,6 +2133,17 @@ class LepicWalletSession
   @override
   Future<void> cancelTransaction({required int txId}) =>
       _guard(() => _wallet.cancelTransaction(txId: txId));
+
+  @override
+  Future<RelayCancel> relayCancelTransaction({required int txId}) => _guard(() async {
+    final outcome = await _wallet.relayCancelTransaction(txId: txId);
+    return switch (outcome) {
+      lepic.RelayCancelOutcome.cancelled => RelayCancel.cancelled,
+      lepic.RelayCancelOutcome.notFoundOrNotParticipant => RelayCancel.notFound,
+      lepic.RelayCancelOutcome.noRelayId => RelayCancel.noRelayId,
+      lepic.RelayCancelOutcome.unsupported => RelayCancel.unsupported,
+    };
+  });
 
   /// What LEPIC learned about the key at [address] ([lepicPeerCompat]); null for a key nothing
   /// is known about. Throws [WalletErrorKind.invalidArgument] for an address LEPIC refuses.
@@ -3714,6 +3729,20 @@ class LepicWalletSession
         return requests.where((i) => i.slateId == slateId).firstOrNull;
       });
 
+  /// Tells the relay that the invoice this wallet issued as [txId] is withdrawn, when the relay
+  /// holds it ([lepic.TransactionDetails.relayCancellable]). A relay that cannot be asked is
+  /// logged and ignored: the withdrawal goes on.
+  Future<void> _relayCancelIssued(int txId) async {
+    try {
+      final d = (await _wallet.transactions()).where((t) => t.txId == txId).firstOrNull;
+      if (d == null || !d.relayCancellable) return;
+      final outcome = await _wallet.relayCancelTransaction(txId: txId);
+      logInfo('invoices', 'relay told of the withdrawal: ${outcome.name}');
+    } on Object catch (e) {
+      logWarn('invoices', 'relay not told of the withdrawal: ${e is lepic.WalletError ? e.kind.name : e.runtimeType}');
+    }
+  }
+
   @override
   Future<IssuedInvoice> withdrawInvoice({required String slateId}) =>
       _epicboxGuard('withdraw invoice', () async {
@@ -3726,7 +3755,9 @@ class LepicWalletSession
               message: 'only a waiting invoice can be withdrawn',
             );
           }
-          // LEPIC sends a LEPIC payer the `withdrawn` notice.
+          // The relay first, so a payer's answer it still holds is refused; then LEPIC sends a
+          // LEPIC payer the `withdrawn` notice.
+          await _relayCancelIssued(issued.txId!);
           await _wallet.cancelTransaction(txId: issued.txId!);
           await _settleIssued(
             slateId,

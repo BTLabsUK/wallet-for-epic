@@ -33,6 +33,22 @@ enum CancelReason {
   failed,
 }
 
+/// What the Epicbox relay answered to a cancel told to it (`relayCancelTransaction`). The
+/// payment stays as it was here until the app cancels it locally as well.
+enum RelayCancel {
+  /// The relay took the cancel and tells the other party.
+  cancelled,
+
+  /// The relay does not know the payment, or this address is not one of its parties.
+  notFound,
+
+  /// The payment never had a relay id: nothing to tell.
+  noRelayId,
+
+  /// This relay cannot cancel payments.
+  unsupported,
+}
+
 /// Which Epic chain the wallet talks to. Selects consensus parameters and default ports.
 enum Chain { mainnet, floonet, usernet }
 
@@ -1576,6 +1592,11 @@ class TxEntry {
   /// of blocks after it was finalized: `release_stuck_send(key)` unlocks its funds.
   final bool releasable;
 
+  /// True when the Epicbox relay still holds this payment under an id, so a cancel can be
+  /// told to the relay and through it to the other party (`relayCancelTransaction`): it has a
+  /// relay id and is not finalized or posted.
+  final bool relayCancellable;
+
   /// When this wallet finalized the send (unix seconds), if it did.
   final int? finalizedAtUnix;
 
@@ -1672,6 +1693,7 @@ class TxEntry {
     this.posting = false,
     this.statusDetail,
     required this.releasable,
+    this.relayCancellable = false,
     this.finalizedAtUnix,
     this.cancelReason,
     this.flow = TxFlow.payment,
@@ -1726,6 +1748,7 @@ class TxEntry {
     posting: posting,
     statusDetail: statusDetail,
     releasable: releasable,
+    relayCancellable: relayCancellable,
     finalizedAtUnix: finalizedAtUnix,
     cancelReason: cancelReason,
     flow: flow,
@@ -1780,6 +1803,7 @@ class TxEntry {
     posting: posting,
     statusDetail: statusDetail,
     releasable: releasable,
+    relayCancellable: relayCancellable,
     finalizedAtUnix: finalizedAtUnix,
     cancelReason: cancelReason,
     flow: flow,
@@ -1834,6 +1858,7 @@ class TxEntry {
     posting: posting,
     statusDetail: statusDetail,
     releasable: releasable,
+    relayCancellable: relayCancellable,
     finalizedAtUnix: finalizedAtUnix,
     cancelReason: cancelReason,
     flow: flow,
@@ -1902,6 +1927,7 @@ class TxEntry {
       posting.hashCode ^
       statusDetail.hashCode ^
       releasable.hashCode ^
+      relayCancellable.hashCode ^
       finalizedAtUnix.hashCode ^
       cancelReason.hashCode ^
       flow.hashCode ^
@@ -1959,6 +1985,7 @@ class TxEntry {
           posting == other.posting &&
           statusDetail == other.statusDetail &&
           releasable == other.releasable &&
+          relayCancellable == other.relayCancellable &&
           finalizedAtUnix == other.finalizedAtUnix &&
           cancelReason == other.cancelReason &&
           flow == other.flow &&
@@ -2369,6 +2396,10 @@ enum WalletErrorKind {
   /// Posting failed because the other party's coins in it are already spent: on the receiving
   /// side, a payment its payer cancelled and spent back. It is ended.
   peerInputsSpent,
+
+  /// A send or an answer the relay refused because the other party cancelled the payment
+  /// there. LEPIC cancelled it here as well: nothing is left to do with it.
+  cancelledOnRelay,
 
   /// The core in this build cannot do it: an older LEPIC, or a call this kind of wallet does
   /// not take (a PIN wallet's password). Nothing was changed.

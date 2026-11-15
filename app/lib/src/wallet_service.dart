@@ -279,6 +279,13 @@ abstract interface class WalletSession {
 
   Future<void> cancelTransaction({required int txId});
 
+  /// Tells the Epicbox relay to cancel the payment [txId], once [TxEntry.relayCancellable]
+  /// says it can: the relay refuses further slates of it and the other party's wallet cancels
+  /// it too. Nothing changes here: call [cancelTransaction] after any outcome. Throws when the
+  /// relay could not be asked (`transportFailed`), `unsupported` without a relay, and
+  /// `invalidArgument` for an unknown payment.
+  Future<RelayCancel> relayCancelTransaction({required int txId});
+
   /// Drops what the wallet learned about Epicbox keys it has not heard from for [olderThan]
   /// (the rows behind [WalletService.peerCompat]). Called on every open.
   Future<void> forgetPeers({required Duration olderThan});
@@ -1581,6 +1588,18 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable, Epi
   String phrase = FakeWalletService._defaultPhrase;
   final List<int> cancelledTxIds = [];
 
+  /// Every [relayCancelTransaction] call's id.
+  final List<int> relayCancelledTxIds = [];
+
+  /// What [relayCancelTransaction] answers.
+  RelayCancel relayCancelOutcome = RelayCancel.cancelled;
+
+  /// Thrown by [relayCancelTransaction] after it records the id, while set.
+  WalletError? relayCancelError;
+
+  /// Every cancel call in order: `relay <id>`, `local <id>` and `release <key>`, so a test sees which came first.
+  final List<String> cancelOrder = [];
+
   /// Every [forgetPeers] call's age limit.
   final List<Duration> forgetPeersCalls = [];
 
@@ -1708,8 +1727,17 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable, Epi
       _owner.confirmedPinChanges.add(sealedPassword);
 
   @override
+  Future<RelayCancel> relayCancelTransaction({required int txId}) async {
+    relayCancelledTxIds.add(txId);
+    cancelOrder.add('relay $txId');
+    if (relayCancelError case final error?) throw error;
+    return relayCancelOutcome;
+  }
+
+  @override
   Future<void> cancelTransaction({required int txId}) async {
     cancelledTxIds.add(txId);
+    cancelOrder.add('local $txId');
     if (cancelError case final error?) throw error;
     // A receive its sender cancelled ends here as in LEPIC, keeping the sender's report.
     final r = transactionsValue.indexWhere((t) => t.id == txId && senderCancelPending(t));
@@ -1878,6 +1906,7 @@ class FakeWalletSession implements WalletSession, ListingKeys, Epic1Capable, Epi
       );
     }
     releasedKeys.add(key);
+    cancelOrder.add('release $key');
   }
 
   @override
@@ -3875,6 +3904,7 @@ TxEntry fakeTx({
   bool undelivered = false,
   String? statusDetail,
   bool releasable = false,
+  bool relayCancellable = false,
   int? finalizedAtUnix,
   CancelReason? cancelReason,
   TxFlow flow = TxFlow.payment,
@@ -3932,6 +3962,7 @@ TxEntry fakeTx({
     undelivered: undelivered,
     statusDetail: statusDetail,
     releasable: releasable,
+    relayCancellable: relayCancellable,
     finalizedAtUnix: finalizedAtUnix,
     cancelReason: cancelReason,
     flow: flow,
@@ -3995,6 +4026,7 @@ TxEntry copyTx(
   undelivered: undelivered ?? tx.undelivered,
   statusDetail: tx.statusDetail,
   releasable: tx.releasable,
+  relayCancellable: tx.relayCancellable,
   finalizedAtUnix: tx.finalizedAtUnix,
   cancelReason: tx.cancelReason,
   flow: tx.flow,

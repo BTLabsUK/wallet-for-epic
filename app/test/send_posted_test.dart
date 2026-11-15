@@ -116,6 +116,7 @@ void main() {
 
   group('LEPIC', () {
     lepic.TransactionDetails details({int? reportedAtMs}) => lepic.TransactionDetails(
+      relayCancellable: false,
       txId: 9,
       direction: lepic.TxDirection.incoming,
       status: lepic.TxStatus.received,

@@ -185,7 +185,7 @@
   "txDetailsFundsReleased": "资金已释放",
   "txDetailsCancelPayment": "取消付款",
   "txDetailsCancelTitle": "取消这笔付款？",
-  "txDetailsCancelReceiveBody": "尚未收到任何款项。如果这笔付款之后到达，会显示为已收到。",
+  "txDetailsCancelReceiveBody": "尚未收到任何款项。发送方会收到通知。如果对方仍然发出，这笔付款会到账，并显示为已收到。",
   "txDetailsCancelSendBody": "尚未支付任何款项：取消免费且一定成功。",
   "txDetailsCancelKeep": "保留",
   "txDetailsPaymentCancelled": "付款已取消",
@@ -5643,5 +5643,6 @@
   "pairRefusesInvoices": "此联系人的钱包不支付账单。",
   "pairRefusesInvoicesTitle": "{name} 的钱包不支付账单。",
   "pairRefusesInvoicesBody": "未发送任何内容。请让对方改为直接付款到你的地址。",
-  "deskInvIssuerFailed": "账单未发送。没有任何更改；请重试。"
+  "deskInvIssuerFailed": "账单未发送。没有任何更改；请重试。",
+  "errorCancelledOnRelay": "对方已取消这笔付款，所以这里也已取消。"
 }

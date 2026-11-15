@@ -802,7 +802,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Пока ничего не пришло. Если этот платёж придёт позже, он будет показан как полученный.';
+      'Пока ничего не пришло. Отправитель получит уведомление. Если он всё же отправит платёж, тот поступит и будет показан как полученный.';
 
   @override
   String get txDetailsCancelSendBody =>
@@ -16971,6 +16971,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get txDetailsStoppedWaiting =>
       'Ожидание прекращено. Монеты снова можно тратить. Платёж ещё может пройти; если пройдёт, он будет показан как оплаченный.';
+
+  @override
+  String get errorCancelledOnRelay =>
+      'Вторая сторона отменила этот платёж, поэтому он отменён и здесь.';
 
   @override
   String get errorPaymentCancelledCoinsMoved =>

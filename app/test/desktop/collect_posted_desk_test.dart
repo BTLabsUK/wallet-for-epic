@@ -68,6 +68,7 @@ class _Wallet with NoBoosts implements lepic.EpicWallet {
   @override
   Future<List<lepic.TransactionDetails>> transactions() async => [
     lepic.TransactionDetails(
+      relayCancellable: false,
       txId: 7,
       direction: lepic.TxDirection.outgoing,
       status: status,

@@ -50,6 +50,7 @@ class _SendingWallet extends _NoNativeWallet {
   Future<String?> contactOfTransaction({required int txId}) async => null;
 
   lepic.TransactionDetails get _stored => lepic.TransactionDetails(
+    relayCancellable: false,
     txId: 5,
     direction: lepic.TxDirection.outgoing,
     status: lepic.TxStatus.sent,
@@ -379,6 +380,7 @@ void main() {
       bool undelivered = true,
       lepic.TxStatus status = lepic.TxStatus.sent,
     }) => lepic.TransactionDetails(
+      relayCancellable: false,
       txId: 7,
       direction: lepic.TxDirection.outgoing,
       status: status,
@@ -806,6 +808,7 @@ void main() {
       List<String> outputCommits = const [],
       bool coinbase = false,
     }) => lepic.TransactionDetails(
+      relayCancellable: false,
       txId: 7,
       direction: direction,
       status: status,

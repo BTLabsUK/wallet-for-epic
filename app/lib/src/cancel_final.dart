@@ -75,9 +75,28 @@ Future<BigInt?> spendBackFeeOf(WalletSession session, TxEntry tx) async {
 /// Whether cancelling [tx] also spends its coins back to this wallet: an outgoing payment the
 /// other side may complete without this wallet. An invoice this wallet paid, or a send both
 /// wallets signed that is not confirmed.
+///
+/// A send is covered only while it is finalized and the network refused it ([TxEntry.repostable],
+/// which includes [TxEntry.releasable]): there a copy can still reach the network without this
+/// wallet doing more. One the node already holds in its pool or a block, or whose post is under
+/// way, is not: it lands whatever this wallet does, so it is offered no cancel at all.
 bool cancelSpendsBack(TxEntry tx) =>
-    tx.kind == TxKind.sent &&
-    (tx.flow == TxFlow.invoice || tx.status == TxStatus.awaitingConfirmation);
+    tx.kind == TxKind.sent && (tx.flow == TxFlow.invoice || tx.repostable);
+
+/// Tells the relay that [tx] is cancelled, when [TxEntry.relayCancellable] says it can: the relay
+/// refuses its further slates and the other party's wallet cancels it too. Always before the
+/// local cancel, which the caller does next whatever this answers. A relay that cannot be
+/// reached is logged and ignored: the user's cancel goes on.
+Future<void> relayCancelFirst(WalletSession session, TxEntry tx) async {
+  final id = tx.id;
+  if (id == null || !tx.relayCancellable) return;
+  try {
+    final outcome = await session.relayCancelTransaction(txId: id);
+    logInfo('cancel', 'relay told of the cancel: ${outcome.name}');
+  } on Object catch (e) {
+    logWarn('cancel', 'relay not told of the cancel: ${e is WalletError ? e.kind.name : e.runtimeType}');
+  }
+}
 
 /// A cancelled payment of the kind [cancelSpendsBack] covers: an invoice this wallet paid, or
 /// a send it finalized. Whether its cancel is final is [cancelFinal].
@@ -135,6 +154,7 @@ class CancelFinal {
     if (id == null) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'no local id');
     }
+    await relayCancelFirst(session, tx);
     if (!cancelSpendsBack(tx)) {
       await session.cancelTransaction(txId: id);
       return CancelResult.cancelled;
@@ -160,6 +180,7 @@ class CancelFinal {
   /// does: the network refused the send, but a copy of it could still reach it. With [spendBack]
   /// false it only releases ([CancelResult.stoppedWaiting]).
   Future<CancelResult> release(WalletSession session, TxEntry tx, {bool spendBack = true}) async {
+    await relayCancelFirst(session, tx);
     if (!spendBack) {
       await session.releaseStuckSend(key: tx.key);
       return CancelResult.stoppedWaiting;

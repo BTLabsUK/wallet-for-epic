@@ -183,6 +183,7 @@ class _InvoiceWallet with NoBoosts implements lepic.EpicWallet {
     waiting.remove(invoice);
     stored.add(
       lepic.TransactionDetails(
+        relayCancellable: false,
         txId: 9,
         direction: lepic.TxDirection.outgoing,
         status: lepic.TxStatus.received,

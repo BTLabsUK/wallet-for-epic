@@ -81,7 +81,7 @@ import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import '../../settings_file/settings_providers.dart' show DevSettingsMissing, installedSettingsFile, openAppSettings, writeHostSettings;
 import '../../seed_contacts.dart';
 import '../../sender_cancel.dart' show SenderCancelRelease;
-import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSettled, cancelSpendsBack, cancelledMayComplete;
+import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSettled, cancelSpendsBack, cancelledMayComplete, relayCancelFirst;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, isSealedText, replyFileName, sealedFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
@@ -5536,10 +5536,14 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> cancelRequestPayment(String slateId) async {
     final entries = _entries ?? await _open.transactions(refresh: false);
-    final txId = entries.where((e) => e.slateId == slateId && e.isRequest).firstOrNull?.id;
-    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'); // l10n-ok
+    final entry = entries.where((e) => e.slateId == slateId && e.isRequest).firstOrNull;
+    final txId = entry?.id;
+    if (entry == null || txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'); // l10n-ok
     try {
-      await _running(() => _open.cancelTransaction(txId: txId));
+      await _running(() async {
+        await relayCancelFirst(_open, entry);
+        await _open.cancelTransaction(txId: txId);
+      });
     } on core.WalletError catch (e) {
       throw _cancelError(e);
     }

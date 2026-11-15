@@ -1231,10 +1231,10 @@ abstract class AppLocalizations {
   /// **'Cancel this payment?'**
   String get txDetailsCancelTitle;
 
-  /// Cancel dialog text for a pending receive. The wallet keeps looking for a cancelled payment with no end date, so one the sender posts later still arrives.
+  /// Cancel dialog text for a pending receive. The wallet tells the sender through the relay when it can. The wallet keeps looking for a cancelled payment with no end date, so one the sender still finishes and posts arrives.
   ///
   /// In en, this message translates to:
-  /// **'Nothing has arrived yet. If this payment still arrives later, it shows as received.'**
+  /// **'Nothing has arrived yet. The sender is told. If they still send it, it arrives and shows as received.'**
   String get txDetailsCancelReceiveBody;
 
   /// Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain: nothing can be posted without this wallet's final signature. No fee.
@@ -25338,6 +25338,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopped waiting. The coins are spendable again. The payment may still finish; if it does, it shows as paid.'**
   String get txDetailsStoppedWaiting;
+
+  /// Plain reason when a send or an answer is refused because the other wallet cancelled the payment first. The wallet has already cancelled it locally.
+  ///
+  /// In en, this message translates to:
+  /// **'The other side cancelled this payment, so it is cancelled here too.'**
+  String get errorCancelledOnRelay;
 
   /// Plain reason when the network refuses a late post of a cancelled payment whose coins were spent back (the receiving side's view, and the cancelled payment's own late post). Replaces the node's internal error.
   ///

@@ -83,6 +83,7 @@ String describeError(AppLocalizations l, Object error) {
       // error", LEPIC tells which coins were gone (a spend back refused is CancelResult.alreadyPaid).
       WalletErrorKind.inputsSpentByOwnPayment ||
       WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
+      WalletErrorKind.cancelledOnRelay => l.errorCancelledOnRelay,
       WalletErrorKind.epic1CannotPay => l.deskE1ErrCannotPay,
       WalletErrorKind.epic1NoMoreRelays => l.deskE1ErrNoMoreRelays,
       WalletErrorKind.printedLinksFull => l.deskE1ErrPrintedFull,
