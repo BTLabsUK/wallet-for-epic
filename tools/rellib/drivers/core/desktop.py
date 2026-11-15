@@ -103,6 +103,7 @@ THEME = {
     "Dark": T("g4.appearance.theme.dark"),
     "Light": T("g4.appearance.theme.light"),
 }
+THEME_SELECT = T("g4.appearance.theme")   # the theme as one dropdown (the 26.11 desktop design); before, three buttons
 LABEL_FIELD = T("g4.wallet.label")
 LABEL_SAVE = T("g4.wallet.label.save")
 CONF_FEWER = T("g4.confirmations.fewer")
@@ -904,6 +905,33 @@ class Desktop:
         update must keep."""
         d = self.d
         theme = THEME[want.get("theme", "Light")]
+        if self._theme_select():
+            self.choose_in_select(THEME_SELECT, theme, "theme")
+        else:
+            self._theme_buttons(theme)
+        self.find_setting(LABEL_FIELD, ("wallet",), "the wallet label")  # Save label shows once it is edited
+        d.fill(LABEL_FIELD, want["label"], step="label")
+        d.press(LABEL_SAVE, step="label-save", timeout=20)
+        self.find_setting(CONF_FEWER, ("payments", "advanced"), "the confirmations stepper")
+        self.set_confirmations(int(want.get("confirmations", 1)))
+        if want.get("technical_details"):
+            self.find_setting(TECHNICAL, ("advanced",), "Technical details")
+            d.toggle(TECHNICAL, True, step="technical-details")
+        d.shot("%s-settings" % self.which)
+        self.leave_settings()
+
+    def _theme_select(self):
+        """Settings › Appearance open; whether its theme is the one dropdown (else three buttons)."""
+        d = self.d
+        self.settings()
+        if not d.seen(THEME_SELECT):
+            self.section("appearance")
+        return bool(d.wait(Expect("the theme choice", lambda dd, tree: dd.find_in(THEME_SELECT, tree)
+                                  or any(dd.find_in(t, tree) for t in THEME.values())), 5, dismiss=False)
+                    and d.seen(THEME_SELECT))
+
+    def _theme_buttons(self, theme):
+        d = self.d
         self.find_setting(theme, ("appearance",), "the theme choice")
         group = [t for t in THEME.values()]
 
@@ -923,16 +951,25 @@ class Desktop:
         # done: shown chosen; a platform that shows no chosen state: once pressed (settings_kept checks it)
         d.achieve(Goal("theme", lambda tree: any("selected" in n.states or "checked" in n.states for n in d.find_in(theme, tree))
                        or (pressed and chosen(d, tree)), press_theme), timeout=5)
-        self.find_setting(LABEL_FIELD, ("wallet",), "the wallet label")  # Save label shows once it is edited
-        d.fill(LABEL_FIELD, want["label"], step="label")
-        d.press(LABEL_SAVE, step="label-save", timeout=20)
-        self.find_setting(CONF_FEWER, ("payments", "advanced"), "the confirmations stepper")
-        self.set_confirmations(int(want.get("confirmations", 1)))
-        if want.get("technical_details"):
-            self.find_setting(TECHNICAL, ("advanced",), "Technical details")
-            d.toggle(TECHNICAL, True, step="technical-details")
-        d.shot("%s-settings" % self.which)
-        self.leave_settings()
+
+    def _select_shows(self, select, option, tree):
+        """The closed dropdown `select` shows `option` as its value (its text's last line)."""
+        want = tg.texts_of([option], self.d.labels)
+        return any(tg._norm(text.split("\n")[-1]) in want
+                   for n in self.d.find_in(select, tree) for text in (n.name or "", n.value or ""))
+
+    def choose_in_select(self, select, option, what):
+        """A dropdown (ESelect) on the open Settings page set to `option`: a goal, SKIP when it shows
+        it already. Opens the list, presses the option, then the field must show it."""
+        d = self.d
+
+        def choose():
+            if not d.find_in(option, d.tree()):
+                d.press(select, step="open-%s" % select.id, timeout=20,
+                        then=Expect("the %s list open" % what, lambda dd, tree: dd.find_in(option, tree)))
+            d.press(option, step=what, timeout=20,
+                    then=Expect("%s chosen" % option, lambda dd, tree: self._select_shows(select, option, tree)))
+        d.achieve(Goal(what, lambda tree: self._select_shows(select, option, tree), choose), timeout=5)
 
     def set_confirmations(self, want):
         """− or + on the stepper (its page open) until it shows `want`; the count it shows at the end
