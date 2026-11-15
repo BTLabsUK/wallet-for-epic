@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The test drivers' stable names for the controls they press (`Semantics.identifier`, the
-/// resource-id on Android). The ids are generated from `tools/rellib/drivers/trust_ids.json`
-/// into `trust_ids.g.dart`: a new or renamed id is `tools/ui-targets add` or `rename`, and
-/// `tools/ui-targets check` ends any UI change. An id never changes with the wording or the
-/// language.
+/// Stable names for the controls that agents driving the app press (`Semantics.identifier`, the
+/// resource-id on Android). The registry is `app/test/fixtures/trust_ids.json`; `trust_ids.g.dart`
+/// is edited by hand together with it, and test/trust_ids_test.dart holds the two equal. An id
+/// never changes with the wording or the language.
 library;
 
 import 'package:flutter/rendering.dart';
@@ -20,7 +19,7 @@ bool trustIdsOn = true;
 
 /// Whether an id also goes in its node's label, as `⟦id⟧`. Flutter's Linux embedder hands AT-SPI only
 /// the label and the value, so `identifier` never reaches a Linux lane; its sandbox sets
-/// WFE_TRUST_IDS=1 and tools/rellib/drivers/linux/atspi.py takes the mark back out. Off everywhere else.
+/// WFE_TRUST_IDS=1 and the driver takes the mark back out. Off everywhere else.
 @visibleForTesting
 bool trustIdsInLabels = trustIdsEnv;
 
