@@ -67,7 +67,7 @@ rsync -a --delete -e "${SSH[*]}" "$job/" "$host:$rdir/job/" || fail "copying the
 
 push_pin() {  # <local repo> <bare repo on the Mac> <rev file>
   local repo="$1" bare="$2" revfile="$3" rev
-  rev="$(git -C "$src" show "$commit:$revfile" 2>/dev/null | awk 'NF && $1 !~ /^#/ { print $1; exit }')"
+  rev="$(git -C "$src" show "$commit:$revfile" 2>/dev/null | awk 'NF && $1 !~ /^#/ { print $1; exit }' || true)"
   [[ -n "$rev" ]] || { say "$revfile: no pin at $commit"; return 0; }
   if "${SSH[@]}" "$host" "git --git-dir=\$HOME/src/$bare cat-file -e $rev^{commit}" >/dev/null 2>&1; then
     say "$bare already has ${rev:0:12}"
