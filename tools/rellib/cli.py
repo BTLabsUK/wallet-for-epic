@@ -196,7 +196,10 @@ class App:
                     "ref": scope["proof"]["previous_ref"] or f"v{name}"}
         elif pubs:
             p = pubs[-1]
-            prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", "")}
+            # extra/ holds the emulator APKs trust-android installs first. Preflight sets the same
+            # (resolve_previous), but skips it when every platform is waived (a --test run without P).
+            prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", ""),
+                    "extra": os.path.join(p["run"], "extra")}
         else:
             # Releases published by hand (26.10.23, 26.10.24-r2) are the previous release too (G1 finds
             # them again from the state root, builtins.previous_candidates).
