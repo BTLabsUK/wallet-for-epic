@@ -945,6 +945,9 @@ void main() {
       await _enter(tester, 'To', _plainHttp);
       // Turn Tor off: Continue goes on to the consent for plain http.
       await _tap(tester, find.byKey(sendTurnOffTorKey));
+      // The listener moves off Tor: the core ends the old one, as LEPIC's does.
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.stopped, message: ''));
+      await _settle(tester);
       expect(find.byKey(sendTurnOffTorKey), findsNothing);
       expect(continueOnPressed(tester), isNotNull);
     }, skip: !torBuilt);
@@ -1133,6 +1136,9 @@ void main() {
       expect(find.text(_l.receiveDirectMeanwhile), findsOneWidget);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       await _tap(tester, find.byKey(receiveTurnOnTorKey));
+      // Epicbox moves onto Tor: the core ends the old listener, as LEPIC's does.
+      h.session.listenerEvents.add(const ListenerEvent(kind: ListenerEventKind.stopped, message: ''));
+      await _settle(tester);
       expect(h.container.read(phoneTorProvider).receiving, isTrue);
       expect(find.byKey(receiveTorAddressKey), findsOneWidget);
       expect(find.text('Tor\u00A0· Starting'), findsOneWidget);

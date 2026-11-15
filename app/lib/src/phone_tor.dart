@@ -453,8 +453,10 @@ class PhoneTor extends Notifier<PhoneTorState> {
       if (state.changing) scheduleMicrotask(_settleCheck);
     });
     // Link · Tor (item 2): tor for payments alone starts and stops with the switch.
-    ref.listen(appSettingsProvider.select((s) => s.value?.payments.linkTor ?? false), (_, on) {
-      if (_current(generation)) unawaited(_change(_payChanged));
+    ref.listen(appSettingsProvider.select((s) => s.value?.payments.linkTor), (before, on) {
+      if (!_current(generation) || (before ?? false) == (on ?? false)) return;
+      // The settings loading is no change by the user: nothing is held for it.
+      unawaited(before == null ? _payChanged() : _change(_payChanged));
     });
     if (session == null) return PhoneTorState.unread;
     unawaited(_open(session, generation));
