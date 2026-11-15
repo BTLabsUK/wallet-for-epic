@@ -765,7 +765,7 @@ void main() {
       expect(service.deletedWallets, isEmpty);
 
       await _tapText(tester, 'Forgot PIN?');
-      await _tapText(tester, 'I have my recovery phrase');
+      await _tapText(tester, _l.pinResetConfirm);
       await _tap(tester, delete);
       expect(service.deletedWallets, [_mainnetDir]);
       expect(device.store.values['wallet.mainnet.pinSealed'], isNull);

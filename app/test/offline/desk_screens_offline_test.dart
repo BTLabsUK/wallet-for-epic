@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
+import 'package:epic_wallet/src/desktop/app/desk_failover.dart' show nodeBlipWindowProvider;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
@@ -122,7 +123,11 @@ void main() {
     addTearDown(() => hostSettings = before);
     // The wallet's view of a session with no servers: neither answers.
     final api = _DownWallet(_Down.everything);
-    final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)], retry: (_, _) => null);
+    // A node that reads down is down at once: the blip window is not what this test is about.
+    final container = ProviderContainer(
+      overrides: [deskApiProvider.overrideWithValue(api), nodeBlipWindowProvider.overrideWithValue(Duration.zero)],
+      retry: (_, _) => null,
+    );
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     container.read(deskNavProvider.notifier).reset(DeskRoute.overview);
     await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
