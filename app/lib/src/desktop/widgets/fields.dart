@@ -944,6 +944,9 @@ class ECheckbox extends StatelessWidget {
     return TrustId(semanticsId, child: Semantics(
       checked: value,
       label: label,
+      // The press of a screen reader (macOS AX press, UIA invoke): the row's own gesture is
+      // excluded with the rest of its tree, so the action is stated here.
+      onTap: () => onChanged(!value),
       excludeSemantics: true,
       child: EPressable(
         // The whole row takes the click, the gap between the box and the label too.

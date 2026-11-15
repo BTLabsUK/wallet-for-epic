@@ -140,22 +140,33 @@ class _BackButton extends StatelessWidget {
 
   @override
   // Not a Tab stop: Alt+Left and the mouse Back button do the same.
-  Widget build(BuildContext context) => ExcludeFocusTraversal(
-    child: ETip(
-      context.l10n.deskKitBackAlt,
-      child: IconButton(
-        onPressed: onBack,
-        icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),
-        style: IconButton.styleFrom(
-          fixedSize: Size.square(Ctl.sm),
-          minimumSize: Size.square(Ctl.sm),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm)),
+  Widget build(BuildContext context) {
+    final label = context.l10n.deskKitBackAlt;
+    // One node, the button itself, carries the name: the tip's own node would sit around an
+    // unnamed button (UIA: an empty Button inside a Custom named "Back (Alt+Left)").
+    return ExcludeFocusTraversal(
+      child: Semantics(
+        button: true,
+        label: label,
+        onTap: onBack,
+        excludeSemantics: true,
+        child: ETip(
+          label,
+          excludeFromSemantics: true,
+          child: IconButton(
+            onPressed: onBack,
+            icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),
+            style: IconButton.styleFrom(
+              fixedSize: Size.square(Ctl.sm),
+              minimumSize: Size.square(Ctl.sm),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm)),
+            ),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
-
 
 /// The full-window backdrop of the screens that open the app: a pool of accent light at the
 /// top and a measurement grid fading out.

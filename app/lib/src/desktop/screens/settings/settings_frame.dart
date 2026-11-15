@@ -66,6 +66,9 @@ class SettingsColumn extends ConsumerWidget {
     final matches = ref.watch(settingsSearchRoutesProvider);
     return Semantics(
       container: true,
+      // Each child (the search, the sections, the way back) keeps its own node: without this the
+      // column merged them into one unnamed text field.
+      explicitChildNodes: true,
       label: l.deskSetFrameSections,
       child: Container(
         width: Ctl.settingsNav,

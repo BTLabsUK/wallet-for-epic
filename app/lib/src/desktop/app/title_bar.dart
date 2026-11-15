@@ -457,39 +457,102 @@ MenuStyle _menuStyle({double? minWidth}) => MenuStyle(
 /// One menu row: icon (or a leading widget), label, and the shortcut on the right.
 Widget _menuItem(
   BuildContext context, {
-    Key? key,
-    IconData? icon,
-    Widget? leading,
-    required String label,
-    String? keys,
-    Widget? trailing,
-    VoidCallback? onPressed,
-  }) {
+  Key? key,
+  IconData? icon,
+  Widget? leading,
+  required String label,
+  String? keys,
+  Widget? trailing,
+  VoidCallback? onPressed,
+}) => _MenuRow(key: key, icon: icon, leading: leading, label: label, keys: keys, trailing: trailing, onPressed: onPressed);
+
+/// A [MenuItemButton] that screen readers see as a button. On desktop Flutter leaves the button
+/// flag off a menu item (only the web build sets it), so Windows UIA read a row as plain text
+/// with no invoke action. One node carries the name, the button flag, the tap and the focus; the
+/// tap closes the menu as a click does.
+class _MenuRow extends StatefulWidget {
+  const _MenuRow({super.key, this.icon, this.leading, required this.label, this.keys, this.trailing, this.onPressed});
+
+  final IconData? icon;
+  final Widget? leading;
+  final String label;
+  final String? keys;
+  final Widget? trailing;
+  final VoidCallback? onPressed;
+
+  @override
+  State<_MenuRow> createState() => _MenuRowState();
+}
+
+class _MenuRowState extends State<_MenuRow> {
+  final _focus = FocusNode(debugLabel: 'bar-menu-row');
+  bool _focused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_onFocus);
+  }
+
+  void _onFocus() {
+    if (_focused != _focus.hasFocus) setState(() => _focused = _focus.hasFocus);
+  }
+
+  @override
+  void dispose() {
+    _focus
+      ..removeListener(_onFocus)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _activate(BuildContext context) {
+    MenuController.maybeOf(context)?.close();
+    widget.onPressed?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    return MenuItemButton(
-      key: key,
-      onPressed: onPressed,
-      style: ButtonStyle(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        minimumSize: WidgetStatePropertyAll(Size(0, 36.u)),
-        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x2p5)),
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
-        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        backgroundColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.hover : null,
+    final onPressed = widget.onPressed;
+    final keys = widget.keys;
+    final icon = widget.icon;
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      focusable: onPressed != null,
+      focused: _focused,
+      label: widget.label,
+      hint: keys,
+      onTap: onPressed == null ? null : () => _activate(context),
+      onFocus: onPressed == null ? null : _focus.requestFocus,
+      excludeSemantics: true,
+      child: MenuItemButton(
+        focusNode: _focus,
+        onPressed: onPressed,
+        style: ButtonStyle(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          minimumSize: WidgetStatePropertyAll(Size(0, 36.u)),
+          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x2p5)),
+          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.hover : null,
+          ),
         ),
-      ),
-      leadingIcon: leading ?? (icon == null ? null : Icon(icon, size: 19.u, color: c.dim)),
-      trailingIcon: keys != null
-          ? Padding(padding: EdgeInsetsDirectional.only(start: Sp.x6), child: Text(keys, style: ts.caption.copyWith(fontSize: Fs.xs, color: c.faint)))
-          : trailing,
-      child: Padding(
-        padding: EdgeInsetsDirectional.only(start: Sp.x1),
-        child: Text(label, style: ts.body.copyWith(color: onPressed == null ? c.faint : c.text)),
+        leadingIcon: widget.leading ?? (icon == null ? null : Icon(icon, size: 19.u, color: c.dim)),
+        trailingIcon: keys != null
+            ? Padding(padding: EdgeInsetsDirectional.only(start: Sp.x6), child: Text(keys, style: ts.caption.copyWith(fontSize: Fs.xs, color: c.faint)))
+            : widget.trailing,
+        child: Padding(
+          padding: EdgeInsetsDirectional.only(start: Sp.x1),
+          child: Text(widget.label, style: ts.body.copyWith(color: onPressed == null ? c.faint : c.text)),
+        ),
       ),
     );
   }
+}
 
 Widget _menuDivider(DeskColors c) => Padding(
   padding: EdgeInsets.symmetric(vertical: Sp.x1p5, horizontal: Sp.x1),
