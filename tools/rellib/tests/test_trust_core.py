@@ -93,6 +93,21 @@ class CoreTest(unittest.TestCase):
         self.driver(f2, dict(ARB, deskOnbUnlockButton="Open wallet")).press(UNLOCK, step="unlock", then=shows(HOME), timeout=1)
         self.assertEqual(f2.pressed, ["Open wallet"])
 
+    def test_registry_follows_the_file(self):
+        # A continue may rebuild a module's targets before targets.py itself reloads: the cache must
+        # not hand back the registry from before a fix to trust_ids.json.
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "trust_ids.json")
+            entry = {"id": "g4.tab.home", "family": ["android"], "role": "tab", "names": ["Home"]}
+            with open(path, "w") as f:
+                json.dump({"controls": [entry]}, f)
+            with unittest.mock.patch.object(tg, "REGISTRY", path), unittest.mock.patch.object(tg, "_REG", {}):
+                self.assertEqual(tg.T_phone("g4.tab.home").names, ("Home",))
+                with open(path, "w") as f:
+                    json.dump({"controls": [dict(entry, names=["Home", "Wallet"])]}, f)
+                os.utime(path, ns=(1, 1))
+                self.assertEqual(tg.T_phone("g4.tab.home").names, ("Home", "Wallet"))
+
     def test_label_only_matches_listed_once(self):
         f = Fake({"lock": [n(0, "button", "Unlock")], "home": [n(0, "text", "Available to spend")]},
                  "lock", {("lock", "Unlock"): "home"})
