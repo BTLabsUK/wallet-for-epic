@@ -709,7 +709,8 @@ reuse = ["app", "!app/test", "!app/integration_test", "!app/tool", "app/tool/bui
          "tools/fetch-tor.sh", "tools/tor-bundle.json"]
 
 # Apple (tools/apple-release.md): the Mac builds, signs with Developer ID, notarises and staples
-# (Xcode's automatic signing). Hand-off steps write a job for the Mac and wait for its results;
+# (Xcode's automatic signing). Hand-off steps write a job for the Mac and wait for its results,
+# or, for the steps in [host.apple] auto, run it there over ssh (steps/apple-remote.sh);
 # Linux then checks the Mac's report before anything can ship. tools/apple-sign.sh (signing on
 # Linux) is the backup route only, not in this graph.
 [step.apple-mac]
@@ -720,7 +721,7 @@ when = ["apple.signed"]
 for_each = "variant"
 host = "apple"
 needs = ["source", "source-check"]
-run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/{variant}/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
+run = "rm -rf src out results && mkdir results && git clone -q job/wfe.bundle src && cd src && git checkout -q --detach {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} APPLE_OUT=$PWD/../out tools/build-apple.sh mac-release && cd ../out/mac-release && cp bt-wallet-{version}{notor}-macos.dmg bt-wallet-{version}{notor}-macos.dmg.sha256 bt-wallet-{version}{notor}-macos.REPORT.txt ../../results/ && cd ../../results && shasum -a 256 bt-wallet-* > SHA256SUMS  # in the folder holding job/: a fresh clone beside job/ (release-check refuses untracked files); the three files and SHA256SUMS end up in results/ beside job/. With [host.apple] ssh and auto, tools/rel runs this on the Mac itself (steps/apple-remote.sh)"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-macos.dmg.sha256", "bt-wallet-{version}{notor}-macos.REPORT.txt"]
 timeout = "48h"
 
