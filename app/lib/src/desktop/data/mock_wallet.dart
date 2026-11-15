@@ -1352,6 +1352,39 @@ class MockDeskWallet implements DeskWalletApi {
     _incoming.add(IncomingPayment(txId: tx.id, slateId: tx.slateId, amount: tx.amount));
   }
 
+  /// The Demo panel's "Next step": the newest send still under way moves one step on, as the
+  /// recipient's answer, the network and its blocks move a real one. False with none under way.
+  bool advanceSend() {
+    final i = _txs.indexWhere((t) => !t.incoming && !t.coinbase && t.flow != TxFlow.invoice && (t.state == TxState.waitingRecipient || t.state == TxState.posted || t.state == TxState.confirming));
+    if (i < 0) return false;
+    final t = _txs[i];
+    final next = switch (t.state) {
+      TxState.waitingRecipient => TxState.posted,
+      TxState.posted => TxState.confirming,
+      _ => TxState.confirmed,
+    };
+    _txs[i] = Tx(
+      id: t.id,
+      slateId: t.slateId,
+      direction: t.direction,
+      state: next,
+      method: t.method,
+      amount: t.amount,
+      fee: t.fee,
+      created: t.created,
+      confirmations: switch (next) {
+        TxState.confirming => 1,
+        TxState.confirmed => _minConf,
+        _ => 0,
+      },
+      counterparty: t.counterparty,
+      contactName: t.contactName,
+      message: t.message,
+    );
+    _changes.add(null);
+    return true;
+  }
+
   /// The prototype shows its other side's moves on the page itself.
   @override
   Stream<InvoiceNotice> invoiceNotices() => const Stream.empty();

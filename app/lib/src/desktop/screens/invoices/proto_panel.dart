@@ -114,6 +114,9 @@ class _ProtoPanelState extends ConsumerState<_ProtoPanel> {
             _group('Incoming payments', [
               ('A payment arrives', 'A payment arrived.', (p) => unawaited((ref.read(deskApiProvider) as MockDeskWallet).simulateIncoming())),
             ]),
+            _group('Outgoing payments', [
+              ('Next step', 'The newest send moved one step.', (p) => (ref.read(deskApiProvider) as MockDeskWallet).advanceSend()),
+            ]),
             _group('Chain and clock', [
               ('Mine 1 block', 'One block mined.', (p) => p.blocks(1)),
               ('Mine 3 blocks', 'Three blocks mined.', (p) => p.blocks(3)),
