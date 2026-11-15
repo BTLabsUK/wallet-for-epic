@@ -31,6 +31,12 @@ TOR_ONLY = T("g4.welcome.toronly")
 DEEP_END = tg.Target("g4.level.stop.3", role="checkbox", keys=("lvPickStopThree",), names=("Deep end",),
                      match="line", screen="level", family=("android",))
 LEVEL_PICK = DEEP_END
+# 26.11.3 and older start a phone at level 1, where Home's icons open no server list and Settings hides
+# Network: Settings › Advanced › Wallet view › Deep end › Save. Only those builds have the row.
+LEVEL_ROW = tg.Target("g4.advanced.level", role="row", keys=("levelRowTitle",), names=("Wallet view",),
+                      screen="advanced", family=("android",))
+LEVEL_SAVE = tg.Target("g4.common.save", keys=("commonSave",), names=("Save",), match="exact", screen="common",
+                       family=("android",))
 TOUR_SKIP = T("g4.tour.skip")
 BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow")
 
@@ -751,7 +757,7 @@ class Phone:
         over Tor is a SKIP. A slow start gets `budget` and one more try (Normal, then Tor only again);
         still not up is InfraFault tor. -> "skipped" | "done"."""
         d = self.d
-        self._view_deep_end() 
+        self._view_deep_end()   # the Network section shows from level 2 on a build with levels
         self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only network mode")
         chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
         self._look_up(EPICBOX_ROW, 3)
@@ -793,8 +799,38 @@ class Phone:
         self.home()
         return s
 
+    def _level_three(self, tree):
+        three = tg._norm(self._text("levelThreeTitle", "Let me explore everything"))
+        return any(three in tg._norm(n.name) for n in self.d.find_in(LEVEL_ROW, tree))
+
     def _view_deep_end(self):
-        """The phone has no wallet views any more: every switch is on its own page, so nothing to set."""
+        """A build with wallet levels (26.11.3 and older) opens a new install at level 1, where Home's
+        icons open no server list and Settings hides Network: Settings › Advanced › Wallet view › Deep end
+        › Save. The candidate has no views on the phone: no Wallet view row, nothing to set. Looked up
+        once per build."""
+        d = self.d
+        if getattr(self, "_views_of", None) is d.labels:
+            return
+        if not d.has_control(LEVEL_ROW) or not self.section("advanced") or not self._look(LEVEL_ROW, 1):
+            self._views_of = d.labels
+            self.log("no Wallet view row: a build without wallet views on the phone")
+            self.home()
+            return
+        d.reached("find-%s" % LEVEL_ROW.id)
+        if not self._level_three(d.tree()):
+            d.press(LEVEL_ROW, step="wallet-view", then=shows(DEEP_END), timeout=20)
+            n = self._pressable(DEEP_END, d.tree())
+            if "checked" not in n.states and "selected" not in n.states:
+                d._act(d.s.press, n)
+                d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
+                                                                      for x in dd.find_in(DEEP_END, tree))), 10)
+            if d.seen(LEVEL_SAVE):
+                d.press(LEVEL_SAVE, step="wallet-view-save", timeout=30,
+                        then=Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)))
+            d.must(Expect("Wallet view: level 3", lambda dd, tree: self._level_three(tree)), 20, step="wallet-view")
+            self.log("Settings › Advanced › Wallet view: Deep end")
+        self._views_of = d.labels
+        self.home()
 
     def _host_rows(self, tree, entry):
         return [n for n in self.d.find_in(SERVER_ROW, tree) if "press" in n.actions
