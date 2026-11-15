@@ -309,7 +309,13 @@ class Uia:
         self.dev.run("shell", "input keyevent 67")
         v = node.value or ""
         if v:  # a field that ignores ctrl+a: delete from the end
-            self.dev.run("shell", "input keyevent 123 " + " ".join(["67"] * (len(v) + 2)))
+            self._end(len(v))
+            self.dev.run("shell", "input keyevent " + " ".join(["67"] * (len(v) + 2)))
+
+    def _end(self, n):
+        """The cursor to the end of a field holding [n] characters. A tap puts it where it lands (a long
+        address scrolls sideways), and a Flutter field ignores MOVE_END; arrow right steps along."""
+        self.dev.run("shell", "input keyevent " + " ".join(["22"] * (n + 2)))
 
     def set_text(self, node, text, secret=False):
         """Focus the field, clear it, type [text]. `input text` drops characters on a busy emulator:
@@ -324,12 +330,22 @@ class Uia:
         typer(text, self.chunk)
         if "password" in node.states:
             return
-        for chunk in (1,):
-            got = self._fresh(node).value
+        # A field the app rebuilds while it is typed in (Send's To once the address is valid) drops the
+        # keyboard, and what follows goes nowhere: focus it again and type the rest after what it holds.
+        for _ in range(3):
+            n = self._fresh(node)
+            got = n.value
             if got is None or got == text:
                 return
-            self._clear(self._fresh(node))
-            typer(text, chunk)
+            b = n.ref["bounds"]
+            self._tap((b[0] + b[2]) // 2, (b[1] + b[3]) // 2)
+            time.sleep(0.3)
+            if got and text.startswith(got):
+                self._end(len(got))
+                typer(text[len(got):], self.chunk)
+            else:
+                self._clear(n)
+                typer(text, 1)
 
     def type_digits(self, digits):
         """A PIN pad's digits as key events (no field to set): KEYCODE_0..9."""
