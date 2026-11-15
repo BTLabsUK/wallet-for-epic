@@ -5,14 +5,14 @@ import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../epic1.dart' show PaymentMode, looksLikeEpictx;
+import '../../../epic1.dart' show looksLikeEpictx;
 import '../../../slate_files.dart' show maxSlateFileBytes;
 import '../../data/files.dart';
 import '../../data/invoice_state.dart' show RequestFile;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../epic1/epic1_files.dart' show openDeskEpictx, showEpic1ModeDialog;
+import '../epic1/epic1_files.dart' show openDeskEpictx;
 import '../invoices/review_screen.dart' show RequestFileReview;
 import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'file_panels.dart';
@@ -101,16 +101,15 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     final files = ref.read(deskFilesProvider);
     final path = files == null ? 'invoice_0042.slate' : await files.pickSlate(title: context.l10n.deskImpPickTitle);
     if (path == null || !mounted) return;
-    if (files != null && await _otherMode(path)) return;
+    if (files != null && await _epictxFile(path)) return;
     final api = ref.read(deskApiProvider);
     if (await _isRequest(() => api.readRequestFile(path))) return;
     await _receive(() => api.receiveFile(path), mock: files == null);
   }
 
-  /// A file the payment mode in use does not open: in epic1 mode a `.epictx` goes on to its
-  /// flow and a classic file gets the mode line; in classic mode a `.epictx` gets the mode line.
-  /// True when the file was handled here.
-  Future<bool> _otherMode(String path) async {
+  /// An epic1 file (`.epictx`) goes on to its flow while epic1 is on, else to the off stop; a
+  /// classic file is read here as always. True when the file was handled here.
+  Future<bool> _epictxFile(String path) async {
     final String text;
     try {
       final file = File(path);
@@ -120,17 +119,8 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
       return false;
     }
     if (!mounted) return false;
-    final epictx = path.toLowerCase().endsWith('.epictx') || looksLikeEpictx(text);
-    final epic1Mode = ref.read(deskPaymentModeProvider) == PaymentMode.epic1;
-    if (epic1Mode && epictx) {
-      await openDeskEpictx(context, ref, text);
-    } else if (epic1Mode) {
-      await showEpic1ModeDialog(context, ref, context.l10n.deskE1ModeClassicFile);
-    } else if (epictx) {
-      await showEpic1ModeDialog(context, ref, context.l10n.deskE1ModeEpic1File);
-    } else {
-      return false;
-    }
+    if (!(path.toLowerCase().endsWith('.epictx') || looksLikeEpictx(text))) return false;
+    await openDeskEpictx(context, ref, text);
     return true;
   }
 

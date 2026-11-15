@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Reads an in-person code's camera parts for the desktop scan dialog, as the phone's scanner
 /// does: text that is not `ur:` is the answer itself, `ur:` parts add up until the code is whole.
-/// A classic payment's animated code shares the type and tells itself apart only once whole.
+/// A classic payment's animated code shares the type and tells itself apart only once whole;
+/// it ends the scan as [DeskClassicScanned].
 library;
 
 import 'dart:async';
@@ -10,6 +11,14 @@ import '../../../epic1.dart';
 import '../../../wallet_service.dart' show QrSlateProgress;
 import '../../../ui/in_person/in_person_scan.dart' show InPersonScanned;
 import '../scan/desk_scan.dart';
+
+/// A whole classic payment code the in-person reader ended on: its transaction text, for the
+/// screen that reads it.
+class DeskClassicScanned extends InPersonScanned {
+  const DeskClassicScanned(this.json) : super(classic: true);
+
+  final String json;
+}
 
 class DeskInPersonReader implements DeskPartReader<InPersonScanned> {
   /// [first] is a part read already (a pasted or scanned `ur:` part the screen got first).
@@ -50,7 +59,7 @@ class DeskInPersonReader implements DeskPartReader<InPersonScanned> {
   Future<DeskPartStep<InPersonScanned>> _classic(Future<QrSlateProgress> Function(List<String>) decode, List<String> parts) async {
     try {
       final read = await decode(parts);
-      if (read.complete && read.json != null) return const DeskPartDone(InPersonScanned(classic: true));
+      if (read.complete && read.json != null) return DeskPartDone(DeskClassicScanned(read.json!));
     } on Object {
       // Not a payment either.
     }

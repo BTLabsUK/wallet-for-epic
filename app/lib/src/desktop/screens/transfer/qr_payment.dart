@@ -10,11 +10,12 @@
 library;
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../epic1.dart' show Epic1Wallet, PaymentMode;
+import '../../../epic1.dart' show Epic1Wallet;
 import '../../../sealed_text.dart' show isSealedText;
 import '../../../qr_slate.dart' show QrFrames, looksLikeQrSlate, partCountOf, partNumberOf, qrCountdownSeconds, qrFrameMs, qrLowSeconds, qrShowSeconds;
 import '../../../wallet_service.dart' show WalletError, WalletErrorKind;
@@ -22,6 +23,8 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../epic1/epic1_files.dart' show showEpic1OffStop;
+import '../in_person/in_person_entry.dart' show openDeskInPersonBytes;
 import '../scan/desk_scan.dart';
 
 /// What a QR Payment code holds, which picks its words.
@@ -46,12 +49,15 @@ enum DeskQrKind {
 /// reader does: each text trimmed and upper-cased, repeats skipped, and all distinct parts
 /// decoded together each time.
 class DeskSlateQrReader implements DeskPartReader<String> {
-  /// With [epic1] (classic mode), a whole epic1 in-person code, which shares the code type,
-  /// is refused with the mode line instead of [notSlate].
+  /// With [epic1], a whole epic1 in-person code, which shares the code type, ends the scan:
+  /// [inPerson] holds its bytes and the caller opens it (or stops, with epic1 off).
   DeskSlateQrReader(this._api, {required this.notSlate, this.epic1});
 
   final DeskWalletApi _api;
   final Epic1Wallet? epic1;
+
+  /// The bytes of the whole epic1 in-person code the scan ended on, else null.
+  Uint8List? inPerson;
 
   /// What the dialog says of a code that is no payment code.
   final String Function(AppLocalizations l) notSlate;
@@ -80,8 +86,11 @@ class DeskSlateQrReader implements DeskPartReader<String> {
       if (p.complete && json != null) return DeskPartDone(json);
       return DeskPartWaiting(received, count);
     } on WalletError catch (e) {
-      if (e.kind != WalletErrorKind.mixedQrCodes && e.kind != WalletErrorKind.qrCodeTooLarge && _inPerson([..._parts, text])) {
-        return DeskPartRefused((l) => l.deskE1ModeEpic1Code);
+      if (e.kind != WalletErrorKind.mixedQrCodes && e.kind != WalletErrorKind.qrCodeTooLarge) {
+        if (_inPerson([..._parts, text]) case final bytes?) {
+          inPerson = bytes;
+          return const DeskPartDone('');
+        }
       }
       switch (e.kind) {
         case WalletErrorKind.mixedQrCodes:
@@ -100,15 +109,15 @@ class DeskSlateQrReader implements DeskPartReader<String> {
     }
   }
 
-  /// Whether [parts] make a whole epic1 in-person code.
-  bool _inPerson(List<String> parts) {
+  /// The bytes of the epic1 in-person code [parts] make, when they make a whole one.
+  Uint8List? _inPerson(List<String> parts) {
     final epic1 = this.epic1;
-    if (epic1 == null) return false;
+    if (epic1 == null) return null;
     try {
       final p = epic1.qrRead(parts);
-      return p.complete && p.bytes != null;
+      return p.complete ? p.bytes : null;
     } on Object {
-      return false;
+      return null;
     }
   }
 }
@@ -125,17 +134,27 @@ Future<DeskScanResult<String>?> deskScanSlate(
     String? first,
   }) async {
     final api = ref.read(deskApiProvider);
-    final classic = ref.read(deskPaymentModeProvider) != PaymentMode.epic1;
-    final reader = DeskSlateQrReader(api, notSlate: notSlate, epic1: classic ? api.epic1 : null);
+    final reader = DeskSlateQrReader(api, notSlate: notSlate, epic1: api.epic1);
+    Future<DeskScanResult<String>?> done(DeskScanResult<String>? r) async {
+      final bytes = reader.inPerson;
+      if (bytes == null || r is! DeskScanned<String> || !context.mounted) return r;
+      // An epic1 in-person code in a classic scan: its own flow, or the off stop.
+      if (ref.read(deskEpic1OnProvider)) {
+        await openDeskInPersonBytes(context, bytes);
+      } else {
+        await showEpic1OffStop(context, ref);
+      }
+      return null;
+    }
     if (first != null) {
       try {
-        if (await reader.read(first) case DeskPartDone<String>(:final value)) return DeskScanned(value);
+        if (await reader.read(first) case DeskPartDone<String>(:final value)) return await done(DeskScanned(value));
       } on Object {
         // The dialog reads it again from the camera.
       }
       if (!context.mounted) return null;
     }
-    return deskScanParts<String>(context, title: title, hint: hint, reader: reader);
+    return done(await deskScanParts<String>(context, title: title, hint: hint, reader: reader));
   }
 
 /// Scan QR beside a flow's Choose file or Paste: the shared Scan, labelled.

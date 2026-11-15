@@ -26,7 +26,7 @@ import '../../data/files.dart';
 import '../../data/invoice_state.dart' show RequestFile;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../epic1/epic1_files.dart' show jumpToEpic1Switch;
+import '../epic1/epic1_files.dart' show jumpToEpic1Switch, openDeskEpictx;
 import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
 import 'import_tx_screen.dart' show ImportArgs;
 import 'qr_payment.dart';
@@ -157,9 +157,14 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
       if (f.bytes == null && !kIsWeb && await file.length() > maxSlateFileBytes) return say(_bare(l.slateFileTooLarge), _Tone.risk);
       final bytes = f.bytes ?? (kIsWeb ? null : await file.readAsBytes());
       if (bytes == null) return say(l.deskErrFileNotReadable, _Tone.risk);
-      // An epic1 file opens in epic1 mode only: the line says so, with the switch.
-      if (f.name.toLowerCase().endsWith('.epictx') || looksLikeEpictx(utf8.decode(bytes, allowMalformed: true))) {
-        return say(l.deskE1ModeEpic1File, _Tone.wait, action: l.deskRecvSettings, onAction: () => jumpToEpic1Switch(ref));
+      // An epic1 file opens while epic1 is on; off, the line says so, with the switch.
+      final body = utf8.decode(bytes, allowMalformed: true);
+      if (f.name.toLowerCase().endsWith('.epictx') || looksLikeEpictx(body)) {
+        if (!ref.read(deskEpic1OnProvider)) {
+          return say(l.netBlockMethodOff(l.deskE1SetSwitch), _Tone.wait, action: l.deskRecvSettings, onAction: () => jumpToEpic1Switch(ref));
+        }
+        if (!mounted) return say(l.deskErrFileNotReadable, _Tone.risk);
+        return await openDeskEpictx(context, ref, body) ? say(l.deskTfReview, _Tone.ok) : say(l.deskErrNotTxFile2, _Tone.risk);
       }
       text = decodeSlateFile(bytes);
     } on FormatException {

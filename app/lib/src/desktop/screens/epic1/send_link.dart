@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Send in epic1 mode (spec D3): one field, "epic1 link or contact". A link is read, an
+/// Send for an epic1 link (spec D3): one field, "epic1 link or contact". A link is read, an
 /// unknown server asked about, reviewed with its server, paid, then waits for the recipient
-/// with "Try next server" and "Cancel and unlock". A contact goes to the paired send.
+/// with "Try next server" and "Cancel and unlock". A contact goes to the paired send, and a
+/// classic address or transaction goes back to the classic form or Import.
 library;
 
 import 'dart:async';
@@ -26,6 +27,7 @@ import '../scan/desk_scan_text.dart';
 import '../in_person/in_person_entry.dart' show openDeskInPersonText, openDeskPayInPerson;
 import '../transfer/contact_picker.dart' show contactEpic1Link, showContactPicker;
 import '../../../models.dart' show Epic1Via;
+import '../transfer/import_tx_screen.dart' show ImportArgs;
 import '../transfer/send_screen.dart' show SendArgs, SendSummaryPanel;
 import 'epic1_files.dart';
 
@@ -49,8 +51,6 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   final _amount = TextEditingController();
   String _last = '';
   String Function(AppLocalizations l)? _error;
-  // The error is a mode line: "Settings" opens the switch.
-  bool _errorSettings = false;
   String? _amountError;
   bool _reading = false;
   String? _link;
@@ -88,9 +88,8 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
 
   Epic1Wallet? get _e1 => ref.read(deskApiProvider).epic1;
 
-  void _fail(String Function(AppLocalizations l) error, {bool settings = false}) => setState(() {
+  void _fail(String Function(AppLocalizations l) error) => setState(() {
     _error = error;
-    _errorSettings = settings;
     _reading = false;
     _link = null;
     _info = null;
@@ -125,7 +124,6 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     }
     setState(() {
       _error = null;
-      _errorSettings = false;
       if (_link != null && text.trim() != _link) {
         _link = null;
         _info = null;
@@ -134,13 +132,12 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   }
 
   /// A pasted or opened [text]: an epic1 link, an epic1 file's text, an in-person code, or
-  /// a classic code this mode cannot pay.
+  /// a classic code, which goes back to its own screen.
   Future<void> _open(String text) async {
     final t = epic1Unwrap(text.trim());
     if (t.isEmpty) return;
     setState(() {
       _error = null;
-      _errorSettings = false;
     });
     if (looksLikeEpictx(t)) {
       setState(() => _to.clear());
@@ -161,11 +158,13 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       return;
     }
     if (!mounted) return;
+    final nav = ref.read(deskNavProvider.notifier);
     switch (deskClassify(ref.read(deskApiProvider), t)) {
-      case ScannedAddress() || PaymentRequest() || WrongNetwork():
-        _fail((l) => l.deskE1ModeClassicAddress, settings: true);
+      // A classic address, request or transaction goes back to its own screen.
+      case ScannedAddress() || PaymentRequest() || WrongNetwork() || PaymentLink() || PairingLink():
+        nav.go(DeskRoute.send, SendArgs(code: t));
       case SlateText() || SlateFrames():
-        _fail((l) => l.deskE1ModeClassicFile, settings: true);
+        nav.go(DeskRoute.importTx, ImportArgs(text: t));
       default:
         // No code: a name, so the contacts are searched for it, as the field's line says
         // ("epic1 link or contact").
@@ -403,7 +402,6 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     _amount.clear();
     _last = '';
     _error = null;
-    _errorSettings = false;
     _amountError = null;
     _link = null;
     _info = null;
@@ -484,19 +482,6 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
           ),
         ),
         if (empty && !_reading) const DeskNoCameraLine(),
-        if (_errorSettings) ...[
-          SizedBox(height: Sp.x2),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: EButton.ghost(
-              key: const ValueKey('e1-send-settings'),
-              label: l.deskRecvSettings,
-              icon: EIcons.settings,
-              size: EBtnSize.inline,
-              onPressed: () => jumpToEpic1Switch(ref),
-            ),
-          ),
-        ],
         if (info?.message case final m? when m.isNotEmpty) ...[
           SizedBox(height: Sp.x3),
           Text('"$m"', key: const ValueKey('e1-link-message'), style: context.ts.body.copyWith(fontStyle: FontStyle.italic)),

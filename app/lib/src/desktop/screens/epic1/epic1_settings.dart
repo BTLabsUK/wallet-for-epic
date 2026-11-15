@@ -1,135 +1,64 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Transactions for epic1 payments (spec D1): the "Experimental" group with the
-/// switch, shown in both modes, and in epic1 mode the "epic1" group with the Epicbox server and
-/// the printed codes.
+/// Settings › Payments for epic1: the epic1 row among the payment methods and the printed
+/// codes under it.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../epic1.dart';
-import '../../app/shell.dart' show lockWallet;
+import '../../../ui/theme/epic1_mark.dart' show Epic1Glyph;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../settings/setting_ids.dart';
 import '../wallet/tx_display.dart' show shortDay;
 
-/// The confirm before epic1 payments are turned on. True: turn on.
-Future<bool> askTurnOnEpic1(BuildContext context) async {
-  final l = context.l10n;
-  final sure = await showEDialog<bool>(
-    context,
-    builder: (ctx) => EDialog(
-      key: const ValueKey('e1-turn-on-dialog'),
-      title: l.deskE1TurnOnTitle,
-      description: l.deskE1TurnOnBody,
-      icon: EIcons.sealed,
-      actions: [
-        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(ctx, false)),
-        EButton.primary(key: const ValueKey('e1-turn-on'), label: l.deskE1TurnOn, autofocus: true, onPressed: () => Navigator.pop(ctx, true)),
-      ],
-    ),
-  );
-  return sure == true;
-}
+/// The "epic1" row of Settings › Payments › Payment methods, right after Epicbox: the epic1
+/// glyph, the name, its hint and the switch ([PaymentPrefs.epic1]). It is built like the
+/// method rows and applies at once. Nothing shows when the wallet has no epic1 payments.
+class Epic1MethodRow extends ConsumerWidget {
+  const Epic1MethodRow({super.key, required this.on, required this.onChanged});
 
-/// The last group of Settings › Transactions: the epic1 payments switch. The stored value
-/// applies at the next unlock; until then the row says so and offers Lock now. Nothing shows
-/// when the wallet has no epic1 payments.
-class Epic1ExperimentalGroup extends ConsumerStatefulWidget {
-  const Epic1ExperimentalGroup({super.key});
+  final bool on;
+  final ValueChanged<bool> onChanged;
 
   @override
-  ConsumerState<Epic1ExperimentalGroup> createState() => _Epic1ExperimentalGroupState();
-}
-
-class _Epic1ExperimentalGroupState extends ConsumerState<Epic1ExperimentalGroup> {
-  bool _busy = false;
-
-  Future<void> _set(Epic1Wallet e1, bool on) async {
-    if (on && !await askTurnOnEpic1(context)) return;
-    if (!mounted) return;
-    setState(() => _busy = true);
-    try {
-      final stored = ref.read(deskEpic1StoredProvider.notifier);
-      await e1.setStoredOn(on);
-      stored.set(on);
-    } on Object catch (e) {
-      if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final c = context.dc;
-    final e1 = ref.watch(deskApiProvider).epic1;
-    if (e1 == null) return const SizedBox.shrink();
-    // The mode in use changes at unlock; the row rebuilds with it.
-    ref.watch(deskPaymentModeProvider);
-    final pending = e1.storedOn != e1.inUse;
-    return ESetGroup(
-      key: const ValueKey('e1-experimental'),
-      title: l.advExperimental,
-      rows: [
-        ESetRow(
-          key: const ValueKey('e1-row'),
-          anchor: SetId.epic1Payments,
-          title: l.deskE1SetSwitch,
-          hint: l.deskE1SetInfo,
-          hintTitle: l.deskE1SetSwitch,
-          control: SizedBox(
-            width: 40.u,
-            height: 24.u,
-            child: _busy
-                ? Center(child: ESpinner(size: 18.u))
-                : ESwitch(
-                    key: const ValueKey('e1-switch'),
-                    value: e1.storedOn,
-                    semanticLabel: l.deskE1SetSwitch,
-                    onChanged: (v) => _set(e1, v),
-                  ),
-          ),
-          below: !pending
-              ? null
-              : Row(
-                  key: const ValueKey('e1-applies'),
-                  children: [
-                    Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim),
-                    SizedBox(width: Sp.x2),
-                    Expanded(child: Text(l.deskE1AppliesNext, style: context.ts.small.copyWith(color: c.dim))),
-                    SizedBox(width: Sp.x3),
-                    EButton(
-                      key: const ValueKey('e1-lock-now'),
-                      label: l.deskE1LockNow,
-                      icon: EIcons.lock,
-                      size: EBtnSize.inline,
-                      onPressed: () => lockWallet(ref),
-                    ),
-                  ],
-                ),
+    if (ref.watch(deskApiProvider).epic1 == null) return const SizedBox.shrink();
+    return ESetRow(
+      key: const ValueKey('st-method-epic1'),
+      anchor: SetId.epic1Payments,
+      leadingWidget: Epic1Glyph(size: 18.u, columns: 5, color: c.dim),
+      title: l.deskE1SetSwitch,
+      hint: l.deskE1SetInfo,
+      hintTitle: l.deskE1SetSwitch,
+      control: SizedBox(
+        width: 40.u,
+        height: 24.u,
+        child: ESwitch(
+          key: const ValueKey('st-offer-epic1'),
+          value: on,
+          semanticLabel: l.deskE1SetSwitch,
+          onChanged: onChanged,
         ),
-      ],
+      ),
     );
   }
 }
 
-/// The "epic1" group (epic1 mode): the Epicbox server ([server]: today's picker with its state
-/// line, the server named in this wallet's links) and the printed codes.
-class Epic1SettingsGroup extends ConsumerStatefulWidget {
-  const Epic1SettingsGroup({super.key, required this.server, required this.serverHint});
-
-  final Widget server;
-  final String serverHint;
+/// The printed codes row, directly under the epic1 row while epic1 is on: opens the list of
+/// printed link codes with Retire.
+class Epic1PrintedRow extends ConsumerStatefulWidget {
+  const Epic1PrintedRow({super.key});
 
   @override
-  ConsumerState<Epic1SettingsGroup> createState() => _Epic1SettingsGroupState();
+  ConsumerState<Epic1PrintedRow> createState() => _Epic1PrintedRowState();
 }
 
-class _Epic1SettingsGroupState extends ConsumerState<Epic1SettingsGroup> {
+class _Epic1PrintedRowState extends ConsumerState<Epic1PrintedRow> {
   Future<List<Epic1LinkSlot>>? _printed;
 
   Future<List<Epic1LinkSlot>> _load(Epic1Wallet e1) async => [
@@ -146,39 +75,26 @@ class _Epic1SettingsGroupState extends ConsumerState<Epic1SettingsGroup> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final e1 = ref.watch(deskApiProvider).epic1;
-    if (e1 == null) return const SizedBox.shrink();
+    if (e1 == null || !ref.watch(deskEpic1OnProvider)) return const SizedBox.shrink();
     _printed ??= _load(e1);
-    return ESetGroup(
-      key: const ValueKey('e1-group'),
-      title: l.deskE1SetGroup,
-      rows: [
-        ESetRow(
-          anchor: SetId.epicboxServer,
-          title: l.deskSetRecvEpicboxServer,
-          hint: widget.serverHint,
-          hintTitle: l.deskSetRecvEpicboxServer,
-          below: widget.server,
+    return FutureBuilder<List<Epic1LinkSlot>>(
+      future: _printed,
+      builder: (context, snap) => ESetRow(
+        key: const ValueKey('e1-printed'),
+        title: l.deskE1PrintedCodes,
+        hint: l.deskE1PrintedHint,
+        hintTitle: l.deskE1PrintedCodes,
+        wrap: true,
+        control: EButton(
+          key: const ValueKey('e1-printed-open'),
+          label: snap.hasData ? l.deskE1PrintedCount(snap.data!.length) : l.deskE1PrintedCodes,
+          icon: EIcons.chevronRight,
+          kind: EBtnKind.ghost,
+          size: EBtnSize.sm,
+          busy: !snap.hasData && !snap.hasError,
+          onPressed: () => _open(e1),
         ),
-        FutureBuilder<List<Epic1LinkSlot>>(
-          future: _printed,
-          builder: (context, snap) => ESetRow(
-            key: const ValueKey('e1-printed'),
-            title: l.deskE1PrintedCodes,
-            hint: l.deskE1PrintedHint,
-            hintTitle: l.deskE1PrintedCodes,
-            wrap: true,
-            control: EButton(
-              key: const ValueKey('e1-printed-open'),
-              label: snap.hasData ? l.deskE1PrintedCount(snap.data!.length) : l.deskE1PrintedCodes,
-              icon: EIcons.chevronRight,
-              kind: EBtnKind.ghost,
-              size: EBtnSize.sm,
-              busy: !snap.hasData && !snap.hasError,
-              onPressed: () => _open(e1),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

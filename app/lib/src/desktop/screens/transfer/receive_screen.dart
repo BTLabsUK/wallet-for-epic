@@ -24,7 +24,6 @@ import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 import 'tx_files_card.dart' show TxFilesCard;
-import '../../../epic1.dart' show PaymentMode;
 import '../../data/server_lists.dart' show relayLabel;
 import '../epic1/link_card.dart';
 import '../../../ui/network_mode_text.dart' show networkModeName, statusOffByModeWord;
@@ -330,34 +329,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     if (status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
-    // epic1 mode: the link card and In person; no Epicbox address, Link or file rows.
-    if (ref.watch(deskReceiveModeProvider) == PaymentMode.epic1) {
-      final box = status?.epicbox;
-      return EPage(
-        title: l.deskRecvTitle,
-        width: EPageWidth.full,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 1600.u),
-          child: LayoutBuilder(
-            builder: (context, size) {
-              final card = TourTarget(id: 'e1-receive-link', child: Epic1LinkCard(relay: box == null ? null : relayLabel(box), showQr: _args?.qr == RxQr.epicbox));
-              const others = Epic1OtherWays();
-              if (size.maxWidth >= Lay.wide) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 7, child: card),
-                    SizedBox(width: Sp.x6),
-                    const Expanded(flex: 5, child: others),
-                  ],
-                );
-              }
-              return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [card, SizedBox(height: Sp.x8), others]);
-            },
-          ),
-        ),
-      );
-    }
     // The Epicbox switch off (Settings › Transactions): no address to hand out; a notice says
     // where it is turned on and that senders' payments wait at the relay meanwhile.
     final epicbox = TourTarget(
@@ -371,7 +342,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final p = st.settings.payments;
     final torPanel = DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
     final httpPanel = (!st.settings.tor || status?.httpListener == ServiceHealth.ok);
+    final box = status?.epicbox;
+    final e1On = ref.watch(deskEpic1OnProvider);
     final others = [
+      // epic1, first of the other ways: closed until Make link; the classic panels stay as they are.
+      if (e1On)
+        TourTarget(
+          id: 'e1-receive-link',
+          child: Epic1ReceivePanel(relay: box == null ? null : relayLabel(box), open: _args?.qr == RxQr.epicbox, showQr: _args?.qr == RxQr.epicbox),
+        ),
       if (torPanel) _torPanel(st, status),
       if (httpPanel) _httpPanel(st, status),
     ];

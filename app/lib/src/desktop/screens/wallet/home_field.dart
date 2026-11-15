@@ -12,7 +12,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../amount.dart' as shared show formatEpic;
-import '../../../epic1.dart' show PaymentMode;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../recipient.dart' show epic1AddressOnly, epic1Shaped;
@@ -29,7 +28,7 @@ import '../../widgets/kit.dart';
 import '../invoices/issue_invoice_screen.dart' show RequestArgs, deskRequestPayers;
 import '../scan/desk_scan.dart' show DeskScanButton;
 import '../scan/desk_scan_route.dart';
-import '../transfer/contact_picker.dart' show contactEpic1Link, contactPairsNatively;
+import '../transfer/contact_picker.dart' show contactEpic1Link;
 import '../transfer/send_screen.dart' show SendArgs;
 import 'home_field_parse.dart';
 
@@ -275,13 +274,9 @@ class _HomeFieldState extends ConsumerState<HomeField> {
         if (r.query.isEmpty) return HomeIntent(line: l.scanPhraseFoundPasted, icon: EIcons.alert, problem: l.scanPhraseFoundPasted);
         return HomeIntent(line: l.deskHomeNoMatch(r.query), icon: EIcons.search, problem: l.deskHomeNoMatch(r.query));
       case HomeKind.code:
-        // Send refuses a bare epic1 address in both modes: Home says so instead of opening it.
+        // Send refuses a bare epic1 address: Home says so instead of opening it.
         if (epic1AddressOnly(r.code ?? '')) {
           return HomeIntent(line: l.epic1AddressAlone, icon: EIcons.alert, problem: l.epic1AddressAlone);
-        }
-        // Send's epic1 page takes no classic request: Home stops as it does for a classic address.
-        if (r.classicRequest && ref.read(deskPaymentModeProvider) == PaymentMode.epic1) {
-          return HomeIntent(line: l.deskE1ModeClassicAddress, icon: EIcons.alert, problem: l.deskE1ModeClassicAddress);
         }
         return HomeIntent(
           line: l.deskHomeOpenCode,
@@ -320,17 +315,17 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     } else if (r.kind == HomeKind.address) {
       rr = r.recipient;
     }
-    final epic1Mode = ref.read(deskPaymentModeProvider) == PaymentMode.epic1;
+    final epic1On = ref.read(deskEpic1OnProvider);
     final epic1Code = r.kind == HomeKind.address && epic1Shaped(r.address ?? '');
     if (epic1Code && !request) {
       // An epic1 link is paid on Send's epic1 page, which takes the link and the amount. A bare
-      // epic1 address is refused there in both modes; classic mode also refuses the link.
+      // epic1 address is refused there. With epic1 off, Enter goes to Send, which stops with
+      // the off line and the Settings action; the line says so here.
       if (epic1AddressOnly(r.address!)) {
         problem ??= l.epic1AddressAlone;
         detail = problem;
-      } else if (!epic1Mode) {
-        problem ??= l.deskE1ModeEpic1Link;
-        detail = problem;
+      } else if (!epic1On) {
+        detail = l.netBlockMethodOff(l.deskE1SetSwitch);
       }
     } else if (r.kind == HomeKind.address && !request) {
       final x = r.recipient!;
@@ -347,27 +342,17 @@ class _HomeFieldState extends ConsumerState<HomeField> {
       if (detail.isEmpty) detail = null;
     }
 
-    // What Send would stop on: a contact that takes no payments, and in epic1 mode anything that
-    // is not an epic1 link, a paired contact or a contact with an epic1 link.
+    // What Send would stop on: a contact that takes no payments.
     if (!request) {
-      final epic1 = ref.read(deskPaymentModeProvider) == PaymentMode.epic1;
       final c = who?.contact;
       if (c != null) {
         final pairing = ref.read(deskPairsProvider) ? ref.read(deskContactPairingProvider(c.id)) : null;
         final refusals = ref.read(paymentRefusalsProvider);
         if (refusals.refusesPayments(pairingId: pairing?.id, address: c.epicbox)) {
           problem ??= l.contactNoPaymentsNamed(refusals.refusedName(pairingId: pairing?.id, address: c.epicbox) ?? c.name);
-        } else if (epic1) {
-          if (contactEpic1Link(ref, c, watch: false) != null) {
-            detail = l.deskE1LinkTitle;
-          } else if (!contactPairsNatively(ref, c, watch: false)) {
-            problem ??= l.deskE1ClassicTip;
-          }
+        } else if (contactEpic1Link(ref, c, watch: false) != null) {
+          detail = l.deskE1LinkTitle;
         }
-      } else if (epic1 && who != null) {
-        problem ??= l.deskE1ModeClassicAddress;
-      } else if (epic1 && r.kind == HomeKind.address && !epic1Shaped(r.address ?? '')) {
-        problem ??= l.deskE1ModeClassicAddress;
       }
     }
 
@@ -419,21 +404,22 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     final l = context.l10n;
     final a = _amountOf(r);
     var nano = a.nano;
-    if (a.max && (nano == null || r.verb == HomeVerb.send)) {
-      // Everything spendable: epic1's page has no Max, so it gets the figure; the classic form
-      // works it out as its own button does.
-      if (ref.read(deskPaymentModeProvider) == PaymentMode.epic1 && (nano == null)) {
-        try {
-          nano = (await ref.read(deskApiProvider).estimateMax()).amount;
-        } on Object {
-          nano = null;
-        }
-        if (!mounted) return;
+    // A payment through an epic1 link: its page has no Max, so it gets the figure; the classic
+    // form works it out as its own button does.
+    final viaEpic1 = r.verb == HomeVerb.send &&
+        ref.read(deskEpic1OnProvider) &&
+        ((r.kind == HomeKind.address && epic1Shaped(r.address ?? '')) || (r.kind == HomeKind.person && who?.contact != null && contactEpic1Link(ref, who!.contact!, watch: false) != null));
+    if (a.max && nano == null && viaEpic1) {
+      try {
+        nano = (await ref.read(deskApiProvider).estimateMax()).amount;
+      } on Object {
+        nano = null;
       }
+      if (!mounted) return;
     }
     String? amount;
     if (nano != null && nano > 0) amount = localDecimal(l, shared.formatEpic(BigInt.from(nano)));
-    final all = a.max && ref.read(deskPaymentModeProvider) != PaymentMode.epic1;
+    final all = a.max && !viaEpic1;
     final message = r.message;
     if (r.verb == HomeVerb.request) {
       _nav(DeskRoute.invoiceIssue, RequestArgs(to: payer, amount: amount, message: message));

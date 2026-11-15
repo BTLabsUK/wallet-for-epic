@@ -34,7 +34,7 @@ import '../pairing/name_service_dialogs.dart' show DeskNameServiceBlock;
 import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../pairing/pair_screens.dart';
 import '../pairing/relay_move_dialog.dart' show deskAcceptRelayMove, deskRefuseRelayMove;
-import '../transfer/contact_picker.dart' show contactClassicOnly;
+import '../transfer/contact_picker.dart' show contactEpic1Link;
 import 'contact_label_menu.dart';
 import 'contacts_join_dialog.dart';
 import 'contact_trust_line.dart';
@@ -659,6 +659,8 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final x = widget.contact;
+    // The epic1 link shows only while epic1 is on.
+    final e1On = ref.watch(deskEpic1OnProvider);
     return TrustId(TrustIds.pairContactRow, child: Semantics(
       button: true,
       selected: widget.selected,
@@ -681,8 +683,8 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                   child: EAddressLines(
                     full: true,
                     name: x.name,
-                    address: x.address.isEmpty ? (x.epic1 ?? '') : x.address,
-                    addresses: x.addresses,
+                    address: x.address.isEmpty ? (e1On ? (x.epic1 ?? '') : '') : x.address,
+                    addresses: e1On ? x.addresses : [?x.epicbox, ?x.http, ?x.tor],
                     note: x.note,
                     nameTrailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -729,7 +731,7 @@ class _ContactDetail extends ConsumerWidget {
     final l = context.l10n;
     final x = contact;
     // The build without Tor sends to no onion: a contact with only one keeps it, unpayable.
-    final torOnly = !DeskFeatures.tor && x.addresses.isNotEmpty && x.kinds.every((k) => k == RecipientKind.tor);
+    final torOnly = !DeskFeatures.tor && x.methodKinds.isNotEmpty && x.methodKinds.every((k) => k == RecipientKind.tor);
     final nav = ref.read(deskNavProvider.notifier);
     final pairs = ref.watch(deskPairsProvider);
     // Pair, the Pairing block and their pages: only where the Pair page is shown.
@@ -742,8 +744,11 @@ class _ContactDetail extends ConsumerWidget {
     final last = mine.isEmpty ? x.lastUsed : mine.first.created;
     final pairing = pairs ? ref.watch(deskContactPairingProvider(x.id)) : null;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: x.epicbox);
-    // epic1 mode: a contact whose pairing takes no epic1 payments is paid in classic mode only.
-    final classicOnly = contactClassicOnly(ref, x);
+    // The kinds shown: the epic1 link only while epic1 is on. With it off a contact with only
+    // a link has no way to pay.
+    final e1On = ref.watch(deskEpic1OnProvider);
+    final shownKinds = e1On ? x.kinds : x.methodKinds;
+    final payLink = contactEpic1Link(ref, x);
     // The service's entry, when the user took a name from it: shown beside the header badges.
     final service = pairing == null ? null : ref.watch(deskNameServices.nameServiceOfPairing(pairing.id));
     // The addresses card: last for a contact that takes no payments, else above Pairing.
@@ -755,7 +760,7 @@ class _ContactDetail extends ConsumerWidget {
           gap: false,
           rows: [
             // A contact with only a pairing: payments go through it.
-            if (x.addresses.isEmpty && pairing != null)
+            if (shownKinds.isEmpty && pairing != null)
               Padding(
                 key: const ValueKey('contact-via-pairing'),
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
@@ -769,13 +774,13 @@ class _ContactDetail extends ConsumerWidget {
               ),
             // None at all (a pairing-only contact while Pairing is off): said, not an empty
             // group, so the greyed Send has its reason (LNX3-3).
-            if (x.addresses.isEmpty && pairing == null)
+            if (shownKinds.isEmpty && pairing == null)
               Padding(
                 key: const ValueKey('contact-no-address'),
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
                 child: Text(l.contactNoAddresses, style: ts.bodyDim),
               ),
-            for (final k in x.kinds)
+            for (final k in shownKinds)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
                 // The kind beside the address, or above it in a narrow pane.
@@ -814,7 +819,6 @@ class _ContactDetail extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Semantics(header: true, child: Text(x.name, style: ts.h2)),
-                  if (classicOnly) Text(l.deskE1ClassicOnly, key: const ValueKey('e1-contact-classic-only'), style: ts.small.copyWith(color: c.dim)),
                   SizedBox(height: Sp.x1),
                   Wrap(
                     spacing: Sp.x2,
@@ -900,26 +904,14 @@ class _ContactDetail extends ConsumerWidget {
             children: [
               // A contact with no address is paid through its pairing, while it can take one.
               // The primary of a row of peers: soft gold, not a filled block (Pairing UX plan 4.2).
-              if (!noPayments && classicOnly)
-                ETip(
-                  l.deskE1ClassicTip,
-                  child: EButton(
-                    key: const ValueKey('contact-send'),
-                    kind: EBtnKind.primarySoft,
-                    label: l.deskConSend,
-                    icon: EIcons.send,
-                    size: EBtnSize.sm,
-                    onPressed: null,
-                  ),
-                )
-              else if (!noPayments)
+              if (!noPayments)
               EButton(
                 key: const ValueKey('contact-send'),
                 kind: EBtnKind.primarySoft,
                 label: l.deskConSend,
                 icon: EIcons.send,
                 size: EBtnSize.sm,
-                onPressed: (x.addresses.isEmpty || torOnly) && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
+                onPressed: (x.methodKinds.isEmpty || torOnly) && payLink == null && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
               ),
               // Not paired, or the pairing ended: Pair (again). Waiting opens the Pair page.
               if (pairPage && (pairing == null || pairing.ended))
