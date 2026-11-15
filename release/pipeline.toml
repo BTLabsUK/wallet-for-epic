@@ -494,7 +494,7 @@ kind = "publish"
 host = "web"
 needs = ["publish-downloads"]
 skippable = true
-run = "{rel}/tools/rellib/steps/publish-page.sh {version} {files} {path.page_repo} {path.main_checkout}"
+run = "{rel}/tools/rellib/steps/publish-page.sh {version} {files} {path.page_repo} {path.main_checkout} {host.web.ssh} {host.web.downloads_dir}"
 # publish.github on: the page links the GitHub Release (build.py add --github).
 env = { REL_GITHUB = "{github}" }
 scratch = "scratch_page"
@@ -542,6 +542,20 @@ kind = "builtin"
 host = "local"
 publish = true
 needs = ["publish-manifests", "publish-downloads", "publish-page"]
+
+# The rollback ladder: the live release and the previous one each get pre-signed manifest pairs in
+# their version folder on the server (tools/rellib/presign.py), the previous release's pair also on
+# its GitHub release, so `tools/rel rollback` later is one switch and signs nothing. Never holds the
+# release: without it a rollback says so and `tools/rel resign` makes the pairs.
+[step.presign]
+title = "Pre-sign the rollback pairs"
+kind = "publish"
+host = "signer"
+warn_only = true
+skippable = true
+needs = ["verify-live", "prune-downloads"]
+run = "{rel}/tools/rellib/steps/presign.py {version} {stage}"
+scratch = "scratch_noop"
 
 [step.prune-downloads]
 title = "Prune older downloads"
@@ -624,4 +638,4 @@ host = "local"
 publish = true
 skippable = true
 # After every step that still reads the release worktree (screens-publish runs its tools).
-needs = ["verify-live", "prune-downloads", "store-play", "store-play-promote", "screens-publish", "announce", "key-copies"]
+needs = ["verify-live", "presign", "prune-downloads", "store-play", "store-play-promote", "screens-publish", "announce", "key-copies"]

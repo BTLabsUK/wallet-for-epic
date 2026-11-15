@@ -29,6 +29,9 @@
 #                     publish.github sets it; default 0). Through tools/release-files.py
 #                     github-update-json, gh logged in as btlabs-uk in GH_CONFIG_DIR
 #                     (default ~/.config/gh-btlabs). A GitHub failure is a warning only.
+#   UPDATE_SKIP_SERVER 1: leave the download server alone (a rollback has switched it already; the
+#                     mirrors and the read-back still run)
+#   UPDATE_SITE_RAW   where the Pages repository's files are read back (default raw.githubusercontent.com)
 #   GITHUB_RELEASE_REPO its repository (default BTLabsUK/wallet-for-epic)
 #   GITHUB_UPDATE_URL  where GitHub serves it (default .../releases/latest/download/update-v2.json)
 # The GitHub copy is the Pages repository's main, cleaned the same way every time (commit
@@ -91,11 +94,25 @@ return b"\n".join(keep).rstrip(b"\n") + b"\n"'
 "$push_tool" "${site_repo##*/}" "$work/pub.git"
 
 # 3. The download server: the old format beside the download page, the new one at its API file.
+if [[ "${UPDATE_SKIP_SERVER:-0}" != 1 ]]; then
 scp -q "$file" "$host:update.json.new"
 scp -q "$file2" "$host:update-v2.json.new"
 # shellcheck disable=SC2029  # $dest and $dest2 are meant to expand here
 ssh "$host" "sudo install -m 0644 -o root -g root update.json.new '$dest' && rm -f update.json.new \
   && sudo install -m 0644 -o root -g root -D update-v2.json.new '$dest2' && rm -f update-v2.json.new"
+# 3b. With version folders on the server (tools/rel migrate-layout), the release keeps its own pair.
+root_dir="$(dirname "$dest")"
+if ssh "$host" "sudo test -d '$root_dir/versions'"; then
+  scp -q "$file" "$host:rel-keep-update.json"
+  scp -q "$file2" "$host:rel-keep-update-v2.json"
+  # shellcheck disable=SC2029
+  ssh "$host" "mkdir -p rel-keep && mv rel-keep-update.json rel-keep/update.json && mv rel-keep-update-v2.json rel-keep/update-v2.json \
+    && sudo -n env R='$root_dir' API='$dest2' python3 - keep-manifests '$version' \"\$HOME/rel-keep\" \
+    && rm -rf rel-keep" < "$root/tools/rellib/steps/relsrv.py"
+fi
+else
+  echo "download server left as it is (UPDATE_SKIP_SERVER=1)"
+fi
 
 # 4. GitHub, last and only when switched on: update-v2.json onto the latest GitHub Release (a
 # mirror: when it fails, the apps use the other sources).
@@ -115,11 +132,12 @@ check() { # <url> <sha256>
 # raw.githubusercontent.com caches main for a few minutes: when main still reads the old file,
 # the pushed commit's own URL shows whether the push landed.
 site_commit="$(git -C "$work/pub.git" rev-parse main)"
+raw="${UPDATE_SITE_RAW:-https://raw.githubusercontent.com/$site_repo}"
 check_site() { # <file name> <sha256>
   local out
-  if out="$(check "https://raw.githubusercontent.com/$site_repo/main/$1" "$2")"; then echo "$out"; return; fi
+  if out="$(check "$raw/main/$1" "$2")"; then echo "$out"; return; fi
   echo "$out"
-  check "https://raw.githubusercontent.com/$site_repo/$site_commit/$1" "$2" || exit 1
+  check "$raw/$site_commit/$1" "$2" || exit 1
 }
 echo "update.json $version ($sum):"
 check "$url" "$sum"

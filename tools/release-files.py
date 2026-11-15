@@ -6,6 +6,7 @@ changes only what differs; --dry-run changes nothing.
 
   tools/release-files.py publish <version> <folder> [--dry-run] [--github-repo O/R] [--notes FILE]
   tools/release-files.py github-update-json <update-v2.json> [--github-repo O/R] [--dry-run]
+  tools/release-files.py github-put-file <tag> <file> --version V --listing-dir D [--signer | --sign-key K]
   tools/release-files.py verify <SHA256SUMS> [<SHA256SUMS.sig>] [--keyring K]
   tools/release-files.py pubkey [--keyring K]
 
@@ -570,6 +571,188 @@ def cmd_github_update_json(a) -> int:
     return 0
 
 
+def manifest_serial(data: bytes):
+    try:
+        return int(json.loads(base64.b64decode(json.loads(data)["payload"]))["serial"])
+    except (ValueError, KeyError, TypeError):
+        return None
+
+
+def find_release(gh: GitHub, tag: str) -> dict:
+    """The release of tag, drafts included (GET /releases/tags/<tag> never returns a draft)."""
+    for page in range(1, 6):
+        rels = gh.call("GET", f"/releases?per_page=50&page={page}")
+        for r in rels:
+            if r.get("tag_name") == tag:
+                return r
+        if len(rels) < 50:
+            break
+    raise Fail(f"{gh.repo} has no release {tag}")
+
+
+def put_update_json(gh: GitHub, rel: dict, data: bytes, floor: int | None) -> str:
+    """update-v2.json of `rel` becomes `data` unless the asset there already has a serial above
+    `floor` (None: replace unless the same bytes). Returns what happened, one line."""
+    name = "update-v2.json"
+    want = hashlib.sha256(data).hexdigest()
+    old = next((x for x in rel.get("assets", []) if x["name"] == name), None)
+    if old is not None:
+        old_bytes = gh.asset_bytes(old)
+        if hashlib.sha256(old_bytes).hexdigest() == want:
+            return f"{name} on {rel['tag_name']}: already the spare (serial {manifest_serial(data)})"
+        have = manifest_serial(old_bytes)
+        if floor is not None and have is not None and have > floor:
+            return f"{name} on {rel['tag_name']}: serial {have} is above live {floor}, left as is"
+        gh.call("DELETE", f"/releases/assets/{old['id']}", write=True)
+    if gh.dry:
+        gh.call("POST", "<uploads>", write=True)
+        return f"{name} on {rel['tag_name']}: would upload serial {manifest_serial(data)}"
+    upload_url = rel["upload_url"].split("{", 1)[0]
+    got = gh.call("POST", f"{upload_url}?{urllib.parse.urlencode({'name': name})}", write=True,
+                  data=data, timeout=300, headers={"Content-Type": "application/json"})
+    if not isinstance(got, dict) or got.get("size") != len(data) or asset_sha256(gh, got) != want:
+        raise Fail(f"{name}: GitHub stored other bytes than the file")
+    return f"{name} on {rel['tag_name']}: uploaded serial {manifest_serial(data)}"
+
+
+def cmd_github_put(a) -> int:
+    """A pre-signed update-v2.json onto the release of a tag (the previous release, at publish)."""
+    data = Path(a.file).read_bytes()
+    gh = GitHub(a.github_repo, a.dry_run)
+    say(put_update_json(gh, find_release(gh, a.tag), data, None))
+    return 0
+
+
+def replace_asset(gh: GitHub, rel: dict, name: str, label: str | None, data) -> str:
+    """The asset `name` of `rel` becomes `data` (bytes, or a Path read from disk): the old one is
+    deleted, then the new one uploaded; the stored size and SHA-256 are checked. One line back."""
+    raw = data if isinstance(data, bytes) else None
+    size = len(raw) if raw is not None else data.stat().st_size
+    want = hashlib.sha256(raw).hexdigest() if raw is not None else sha256_file(data)
+    old = next((x for x in rel.get("assets", []) if x["name"] == name), None)
+    if old is not None and asset_sha256(gh, old) == want:
+        return f"{name}: already these bytes"
+    if old is not None:
+        gh.call("DELETE", f"/releases/assets/{old['id']}", write=True)
+    if gh.dry:
+        gh.call("POST", "<uploads>", write=True)
+        return f"{name}: would upload {size} bytes"
+    upload_url = rel["upload_url"].split("{", 1)[0]
+    q = urllib.parse.urlencode({"name": name, **({"label": label} if label else {})})
+    headers = {"Content-Type": "application/octet-stream", "Content-Length": str(size)}
+    if raw is not None:
+        got = gh.call("POST", f"{upload_url}?{q}", write=True, data=raw, timeout=3600, headers=headers)
+    else:
+        with data.open("rb") as f:
+            got = gh.call("POST", f"{upload_url}?{q}", write=True, data=f, timeout=3600, headers=headers)
+    if not isinstance(got, dict) or got.get("size") != size or asset_sha256(gh, got) != want:
+        raise Fail(f"{name}: GitHub stored other bytes than the file")
+    return f"{name}: uploaded {size} bytes, sha256 {want[:12]}"
+
+
+def cmd_github_put_file(a) -> int:
+    """One file of a published release onto its GitHub Release (tools/rel publish-one): the asset
+    under its stable name, then the release's SHA256SUMS (both names, this file's hash, the new
+    provenance.json's hash) signed again, SHA256SUMS.sig, provenance.json. Everything else of the
+    release stays."""
+    file = Path(a.file)
+    name, version = file.name, a.version
+    stable = stable_name(name, version)
+    digest = sha256_file(file)
+    keys = load_keyring(Path(a.keyring))
+    if a.signer:
+        signer = signer_client()
+        held = [k["keyid"] for k in signer.Client().info().get("keys", []) if k.get("held")]
+        if len(held) != 1:
+            raise Fail(f"the signer holds {len(held)} keys, not one")
+        keyid, key = held[0], None
+    else:
+        key = load_private_key(Path(a.sign_key))
+        keyid = keyid_of(raw_public(key))
+    if keyid not in keys:
+        raise Fail(f"signing key {keyid} is not in the keyring {a.keyring}")
+    label = keys[keyid].get("label", keyid)
+    gh = GitHub(a.github_repo, a.dry_run)
+    rel = find_release(gh, a.tag)
+    sums_asset = next((x for x in rel.get("assets", []) if x["name"] == "SHA256SUMS"), None)
+    if sums_asset is None:
+        raise Fail(f"{a.tag} has no SHA256SUMS asset: publish the release's files first")
+    lines = {}
+    for l in gh.asset_bytes(sums_asset).decode("utf-8").splitlines():
+        h, _, n = l.partition("  ")
+        if n:
+            lines[n] = h
+    lines[name] = lines[stable] = digest
+    listing = Path(a.listing_dir)
+    prov = listing / "provenance.json"
+    if prov.is_file():
+        lines["provenance.json"] = sha256_file(prov)
+    sums_text = "".join(f"{lines[n]}  {n}\n" for n in sorted(lines))
+    trusted = f"Epic Cash {version} SHA256SUMS, BT Labs key {label}"
+    sig_text = (signer_minisign(signer, version, sums_text, trusted, a.dry_run) if a.signer
+                else minisign_sign(key, keyid, sums_text.encode(), trusted))
+    if not (a.signer and a.dry_run):
+        minisign_verify(sig_text, sums_text.encode(), keys)
+    say(f"{a.tag}: {name} -> asset {stable}")
+    say("  " + replace_asset(gh, rel, stable, name, file))
+    if prov.is_file():
+        say("  " + replace_asset(gh, rel, "provenance.json", None, prov))
+    say("  " + replace_asset(gh, rel, "SHA256SUMS", None, sums_text.encode()))
+    say("  " + replace_asset(gh, rel, "SHA256SUMS.sig", None, sig_text.encode()))
+    if gh.dry:
+        return 0
+    rel = find_release(gh, a.tag)
+    by = {x["name"]: x for x in rel.get("assets", [])}
+    if asset_sha256(gh, by[stable]) != digest:
+        raise Fail(f"{stable} on {a.tag} does not read back")
+    got = gh.asset_bytes(by["SHA256SUMS"]).decode("utf-8")
+    minisign_verify(gh.asset_bytes(by["SHA256SUMS.sig"]).decode("utf-8"), got.encode(), keys)
+    if f"{digest}  {name}\n" not in got or f"{digest}  {stable}\n" not in got:
+        raise Fail(f"the SHA256SUMS on {a.tag} does not list {name}")
+    say(f"  read back: {stable} sha256 {digest[:12]}, SHA256SUMS lists both names, signature verifies")
+    return 0
+
+
+def cmd_github_switch(a) -> int:
+    """Rollback / roll-forward on GitHub: <tag> becomes the latest release (undrafted), the
+    --draft releases are hidden, and update-v2.json of <tag> is the --asset file unless its own
+    already has a serial above --floor. Reads the latest-download links back."""
+    gh = GitHub(a.github_repo, a.dry_run)
+    rel = find_release(gh, a.tag)
+    if a.asset:
+        say(put_update_json(gh, rel, Path(a.asset).read_bytes(), a.floor))
+        if not gh.dry:
+            rel = find_release(gh, a.tag)
+    gh.call("PATCH", f"/releases/{rel['id']}", write=True, json={"draft": False, "make_latest": "true"})
+    say(f"{a.tag}: published, latest")
+    for t in a.draft:
+        other = find_release(gh, t)
+        if not other.get("draft"):
+            gh.call("PATCH", f"/releases/{other['id']}", write=True, json={"draft": True})
+        say(f"{t}: hidden (draft)")
+    if gh.dry:
+        return 0
+    latest = gh.call("GET", "/releases/latest")
+    if latest.get("tag_name") != a.tag:
+        raise Fail(f"GitHub's latest release is {latest.get('tag_name')}, not {a.tag}")
+    say(f"latest = {a.tag}")
+    base = f"{gh.web}/{gh.repo}/releases/latest/download"
+    got = requests.get(f"{base}/update-v2.json", timeout=60)
+    shown = manifest_serial(got.content) if got.status_code == 200 else None
+    say(f"{base}/update-v2.json: HTTP {got.status_code}, serial {shown}")
+    if got.status_code != 200 or shown is None:
+        raise Fail("the latest-download update-v2.json does not read back")
+    names = a.check_file or [x["name"] for x in find_release(gh, a.tag).get("assets", [])
+                             if not x["name"].startswith(("SHA256SUMS", "update"))][:2]
+    for name in names:
+        r = requests.head(f"{base}/{name}", timeout=60, allow_redirects=False)
+        where = r.headers.get("Location", "")
+        say(f"{base}/{name}: HTTP {r.status_code} -> {where.rsplit('/', 2)[-2] if where else '-'}")
+        if f"/download/{a.tag}/" not in where:
+            raise Fail(f"{name} on the latest link redirects to {where or r.status_code}, not {a.tag}")
+    return 0
+
+
 def cmd_verify(a) -> int:
     keys = load_keyring(Path(a.keyring))
     sums = Path(a.sums)
@@ -608,6 +791,29 @@ def main(argv=None) -> int:
     u.add_argument("file")
     u.add_argument("--github-repo", default=DEFAULTS["github_repo"], help="owner/repo on GitHub")
     u.add_argument("--dry-run", action="store_true", help="change nothing, say what would change")
+    g = sub.add_parser("github-put", help="a pre-signed update-v2.json onto the release of a tag")
+    g.add_argument("tag")
+    g.add_argument("file")
+    g.add_argument("--github-repo", default=DEFAULTS["github_repo"], help="owner/repo on GitHub")
+    g.add_argument("--dry-run", action="store_true", help="change nothing, say what would change")
+    f = sub.add_parser("github-put-file", help="one file of a published release onto its GitHub Release")
+    f.add_argument("tag")
+    f.add_argument("file")
+    f.add_argument("--version", required=True)
+    f.add_argument("--listing-dir", required=True, help="folder with the release's new provenance.json")
+    f.add_argument("--sign-key", default=str(DEFAULTS["key"]))
+    f.add_argument("--signer", action="store_true", help="sign SHA256SUMS with the release signer")
+    f.add_argument("--keyring", default=str(DEFAULTS["keyring"]))
+    f.add_argument("--github-repo", default=DEFAULTS["github_repo"], help="owner/repo on GitHub")
+    f.add_argument("--dry-run", action="store_true", help="change nothing, say what would change")
+    w = sub.add_parser("github-switch", help="rollback / roll-forward: make a tag's release the latest")
+    w.add_argument("tag")
+    w.add_argument("--draft", action="append", default=[], help="tag of a release to hide (draft)")
+    w.add_argument("--asset", help="update-v2.json to put on the release unless its own is newer than --floor")
+    w.add_argument("--floor", type=int, help="the live serial")
+    w.add_argument("--check-file", action="append", default=[], help="file name whose latest-download link must redirect to the tag (default: two assets of the release)")
+    w.add_argument("--github-repo", default=DEFAULTS["github_repo"], help="owner/repo on GitHub")
+    w.add_argument("--dry-run", action="store_true", help="change nothing, say what would change")
     v = sub.add_parser("verify", help="check SHA256SUMS.sig against the keyring")
     v.add_argument("sums")
     v.add_argument("sig", nargs="?")
@@ -617,6 +823,7 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     try:
         return {"publish": cmd_publish, "github-update-json": cmd_github_update_json,
+                "github-put": cmd_github_put, "github-put-file": cmd_github_put_file, "github-switch": cmd_github_switch,
                 "verify": cmd_verify, "pubkey": cmd_pubkey}[a.cmd](a)
     except Fail as e:
         print(f"error: {e}", file=sys.stderr)

@@ -14,6 +14,10 @@
 # Without a signer the folder's listing is signed here with the update key's file
 # (release-hosts.toml host.signer signing_key, server_sums.py sign-key): SHA256SUMS.sig is
 # always served (docs/rebuild-and-compare.md); no key, no upload.
+# With version folders on the server (`current` beside downloads/, tools/rel migrate-layout), the
+# files go into versions/<version>/downloads (hard links of the live release's files, so only the
+# new bytes are sent), the release's own folder; `current` flips to it before the read-back and
+# the previous release's folder stays untouched (docs/RELEASING.md, "Rollback").
 # Usage: publish-downloads.sh <files dir> <ssh host> <server downloads dir>
 set -euo pipefail
 dir="${1:?usage: $0 <files dir> <ssh host> <server downloads dir>}"; dir="${dir%/}"
@@ -26,6 +30,15 @@ keyring="${REL_SIGNER_BTLABS_PUBLIC:-$HOME/code/btlabs-public}/keys/btlabs-keyri
 key="${REL_SIGNER_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}"; key="${key/#\~/$HOME}"
 if [[ ! -f "$sj" && ! -r "$key" ]]; then
   echo "no signer and no update key at $key: SHA256SUMS would go out unsigned" >&2; exit 1
+fi
+relsrv() { ssh "$host" "sudo -n env R='$root' API='${UPDATE_DEST_V2:-/srv/epiccash-api/v1/update.json}' python3 - $*" < "$here/relsrv.py"; }
+root="$(dirname "${dest%/}")"
+layout=0
+# shellcheck disable=SC2029
+if ssh "$host" "sudo test -L '$root/current'"; then
+  layout=1
+  relsrv begin "${REL_VERSION:?}"
+  dest="$root/versions/${REL_VERSION}/downloads"
 fi
 mapfile -t files < <(cut -d' ' -f3- "$dir/SHA256SUMS")
 (( ${#files[@]} > 0 )) || { echo "no files in $dir/SHA256SUMS" >&2; exit 1; }
@@ -85,6 +98,7 @@ else
 fi
 # shellcheck disable=SC2029
 ssh "$host" "cd ~/$stage && rm -f ${send[*]} && cd && rmdir ~/$stage"
+if (( layout )); then relsrv flip "$REL_VERSION"; fi
 old="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["old_update"]["downloads"])' \
   "$src/app/tool/config/old-update.toml")"
 new="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["updates"]["downloads"])' \

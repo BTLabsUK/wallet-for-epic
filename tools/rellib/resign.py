@@ -94,9 +94,13 @@ class Resign:
     """One re-sign. The I/O is in small methods (read_live, sign, publish) that --test and the
     tests replace; the checks around them are the same in every mode."""
 
-    def __init__(self, repo, state_root, pipeline, hosts, say=print, test=False, live_dir=None):
+    def __init__(self, repo, state_root, pipeline, hosts, say=print, test=False, live_dir=None, server=None):
         self.repo, self.state_root, self.pipeline, self.hosts, self.say = repo, state_root, pipeline, hosts, say
         self.test, self.live_dir = test, live_dir
+        # server: the version folders (tools/rellib/server.py). With them the live release is the one
+        # `current` names (after a rollback that is not the newest run), and publishing keeps the
+        # pair in its folder.
+        self.server = server
         self.days = pipeline.manifest_days()
         signer = hosts["host"].get("signer", {})
         self.bp = signer.get("btlabs_public", os.path.expanduser("~/code/btlabs-public"))
@@ -116,7 +120,9 @@ class Resign:
         """{name: bytes} of both live manifests."""
         out = {}
         for name, _ in NAMES:
-            if self.live_dir:
+            if self.server and self.server.test:
+                out[name] = self.server.fetch(name)
+            elif self.live_dir:
                 with open(os.path.join(self.live_dir, name), "rb") as f:
                     out[name] = f.read()
             else:
@@ -153,6 +159,9 @@ class Resign:
             raise ResignError(f"signer: {e}")
 
     def publish(self, files):
+        if self.server and self.server.test:
+            self.server.install_manifests(files)
+            return
         if self.live_dir:
             for name, path in files.items():
                 shutil.copyfile(path, os.path.join(self.live_dir, name))
@@ -184,7 +193,15 @@ class Resign:
     # ---- the checks ----
 
     def current_release(self):
-        """(version, {name: payload bytes}) of the newest release tools/rel published."""
+        """(version, {name: payload bytes}) of the live release: the one `current` names when the
+        server has version folders, else the newest release tools/rel published."""
+        if self.server:
+            st = self.server.state()
+            if st.get("live"):
+                import os as _os
+                v = st["live"]
+                return v, {name: payload_bytes(self.server.read_remote(_os.path.join(self.server.R, "versions", v, name)))
+                           for name, _ in NAMES}
         from .retention import published
         pubs = [p for p in published(self.state_root) if os.path.isdir(p["run"])]
         if not pubs:

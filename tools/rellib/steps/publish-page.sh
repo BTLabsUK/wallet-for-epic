@@ -14,9 +14,12 @@
 # REL_GITHUB=1 (release.toml publish.github) adds the GitHub Release as a Mirror link.
 # When publish-downloads served a signed SHA256SUMS (the run's signer), build.py sees a
 # SHA256SUMS.sig beside the files and the page shows the signature check.
-# Usage: publish-page.sh <version> <files dir> <page repo> <main checkout>
+# With version folders on the server (tools/rel migrate-layout), the deployed index.html is also
+# kept in the release's folder (relsrv.py keep-page) so a rollback puts this page back.
+# Usage: publish-page.sh <version> <files dir> <page repo> <main checkout> [<ssh host> <server downloads dir>]
 set -euo pipefail
-v="${1:?usage: $0 <version> <files dir> <page repo> <main checkout>}" dir="${2:?}" site="${3:?}" main="${4:?}"
+v="${1:?usage: $0 <version> <files dir> <page repo> <main checkout> [<ssh host> <server downloads dir>]}" dir="${2:?}" site="${3:?}" main="${4:?}"
+web="${5:-}" dl="${6:-}"
 src="${REL_SRC:?}"
 log="$site/site/epic-cash/changelog/index.html"
 grep -q "id=\"v$v\"" "$log" || { echo "the changelog has no entry id=\"v$v\" ($log): write it first" >&2; exit 1; }
@@ -42,6 +45,13 @@ if [[ -n "$(git status --porcelain site/epic-cash)" ]]; then
   git commit -q -m "Epic Cash $v release page"
 fi
 ./deploy-epic-cash.sh
+if [[ -n "$web" && -n "$dl" ]]; then
+  root="$(dirname "${dl%/}")"
+  # shellcheck disable=SC2029
+  if ssh "$web" "sudo test -L '$root/current'"; then
+    ssh "$web" "sudo -n env R='$root' python3 - keep-page '$v'" < "$src/tools/rellib/steps/relsrv.py"
+  fi
+fi
 stage="${REL_STAGE:-${REL_RUN:?}/publish-page-out}"
 mkdir -p "$stage" && cp -f "$src/tools/releases/releases.json" "$stage/releases.json"
 # The release source stays clean: a later run of the same commit (tools/rel --follow-up) uses it.

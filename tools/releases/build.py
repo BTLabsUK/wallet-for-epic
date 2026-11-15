@@ -9,6 +9,9 @@
         (a platform out of its scope) keeps the earlier record's files. --github adds
         the Mirror link (only once the GitHub Release exists and is public);
         a SHA256SUMS.sig in <dir> adds the signature check to Verify downloads.
+    tools/releases/build.py put <version> <file> [--github] [--date YYYY-MM-DD]
+        Record ONE file of the release <version> (tools/rel publish-one): its slot gets the file's
+        name, size and sha256; every other file of the record stays. A file of no slot is refused.
     tools/releases/build.py keep <version> < names
         Of the file names on stdin (the server's downloads/), print the ones the folder keeps
         once <version> is live: per slot, <version>'s files when it has any, else the newest
@@ -47,7 +50,7 @@ import shutil
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATA = os.path.join(HERE, 'releases.json')
+DATA = os.environ.get('WFE_RELEASES_DATA') or os.path.join(HERE, 'releases.json')
 ASSETS = os.path.join(HERE, 'assets')
 DEFAULT_OUT = os.environ.get('WFE_RELEASES_SITE') or os.path.expanduser('~/code/epic-gui-wallet-progress/site/epic-cash')
 
@@ -312,6 +315,42 @@ def merge(records, rec):
         if fs:
             out.append(dict(r, files=fs))
     return out
+
+
+def put_file(records, ver, name, size, sha, date=None, github=None):
+    """records with one file of <ver> replaced (the file of the same kind: the same name apart from
+    the version) or added. The version's date, github and sig flags stay as they are. A version with
+    no record yet gets one through merge(), as add does."""
+    def kind(n):
+        return n.replace('-' + ver, '', 1)
+    entry = {'name': name, 'size': size, 'sha256': sha}
+    for r in records:
+        if r['version'] == ver:
+            r['files'] = [f for f in r['files'] if kind(f['name']) != kind(name)] + [entry]
+            if github:
+                r['github'] = True
+            return merge(records, r)  # an older record's file of this slot goes, as with add
+    rec = {'version': ver, 'date': date or dt.date.today().isoformat(), 'files': [entry]}
+    if github:
+        rec['github'] = True
+    return merge(records, rec)
+
+
+def cmd_put(args):
+    """put <version> <file> [--github] [--date D]: one file of a release into the page data."""
+    ver, path = args[0], args[1]
+    name = os.path.basename(path)
+    assert version_of(name) == ver, f'{name} is not a file of {ver}'
+    assert slot(name), f'{name} fills no slot of the page'
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        for chunk in iter(lambda: f.read(1 << 20), b''):
+            h.update(chunk)
+    date = args[args.index('--date') + 1] if '--date' in args else None
+    data = load()
+    data['releases'] = put_file(data['releases'], ver, name, os.path.getsize(path), h.hexdigest(), date, '--github' in args)
+    save(data)
+    print(f'{ver}: {name} {h.hexdigest()}')
 
 
 # ---------------------------------------------------------------------------- the page
@@ -761,6 +800,8 @@ def main(argv):
     cmd, args = argv[0], argv[1:]
     if cmd == 'add':
         cmd_add(args)
+    elif cmd == 'put':
+        cmd_put(args)
     elif cmd == 'keep':
         print('\n'.join(sorted(keep(args[0], [n.strip() for n in sys.stdin if n.strip()]))))
     elif cmd == 'render':

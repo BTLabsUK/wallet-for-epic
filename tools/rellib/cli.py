@@ -901,32 +901,131 @@ class App:
         print(res.get("note", ""))
         return code
 
+    def server(self, a):
+        from .server import Server
+        return Server(self.repo, self.hosts, root=getattr(a, "test_root", None), say=self.echo)
+
+    def work_dir(self, kind):
+        return os.path.join(self.state_root, kind, time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()))
+
     def cmd_rollback(self, a):
-        from . import rollback
+        return self.flip(a, "rollback")
+
+    def cmd_rollforward(self, a):
+        return self.flip(a, "rollforward")
+
+    def flip(self, a, direction):
+        """The website serves the previous (rollback) or the newer (rollforward) release: one ssh
+        call, then GitHub, the Pages mirror and the read-back, each timed (instant.py)."""
+        from .instant import Flip, FlipError, PARTS
+        from .server import ServerError
+        parts = tuple(x for x in (a.parts.split(",") if a.parts else PARTS) if x)
+        bad = [x for x in parts if x not in PARTS]
+        if bad:
+            return self.out(EXIT_USAGE, f"--parts: {', '.join(bad)} is not one of {', '.join(PARTS)}")
+        f = Flip(self.repo, self.server(a), self.work_dir(direction), say=self.echo, github_repo=a.github_repo)
         try:
-            bad, good = rollback.choose(self.state_root, a.to)
-        except ValueError as e:
-            return self.out(EXIT_USAGE, str(e))
-        base_ctx = {"rel": RUNNER, "host": Lenient(self.hosts["host"], "host"), "path": Lenient(self.hosts["path"], "path")}
-        run = rollback.make_run(self.state_root, self.pipeline, self.hosts, self.repo, bad, good, a.test, base_ctx)
-        if a.dry_run:
-            run.info["dry"] = True
-            run.save_info()
-        eng = self.engine(run, dry=bool(a.dry_run))
-        if eng.relmsg:
-            eng.relmsg.start([s.id for s in run.steps], [])
-        self.echo(f"rollback {bad['version']} → {good['version']}: run {run.info['run_id']}")
-        return self.drive(run, eng, phase="build")
+            res = f.run(direction, to=a.to, dry=a.dry_run, parts=parts)
+        except (FlipError, ServerError) as e:
+            return self.out(EXIT_FAILED, f"{direction} refused: {e}")
+        if res.get("dry"):
+            return self.out(EXIT_OK if res["ok"] else EXIT_FAILED, f"dry run: {direction} {res['live']} -> {res['target']} would change the website, GitHub and the mirrors as above; nothing was changed", **res)
+        failed = res.get("failed", [])
+        word = "rolled back" if direction == "rollback" else "rolled forward"
+        if not res["ok"]:
+            return self.out(EXIT_FAILED, f"{word} {res['live']} -> {res['target']}: the website {'is switched' if 'site' in res['parts'] else 'was not touched'}, "
+                                         f"but {', '.join(failed)} failed (above); repeat the failed part with --parts {','.join(failed)}", **res)
+        note = f" (warning: {', '.join(failed)} failed)" if failed else ""
+        return self.out(EXIT_OK, f"{word} {res['live']} -> {res['target']} in {res['total']:.0f} s{note}", **res)
+
+    def cmd_presign(self, a):
+        from .presign import Presign
+        from .resign import ResignError
+        from .server import ServerError
+        p = Presign(self.repo, self.state_root, self.pipeline, self.hosts, self.server(a), say=self.echo, test=bool(a.test_root))
+        try:
+            res = p.refresh(self.work_dir("presign"), dry=a.dry_run, github=not a.no_github, other=a.other)
+        except (ResignError, ServerError) as e:
+            return self.out(EXIT_FAILED, f"presign refused: {e}")
+        return self.out(EXIT_OK, f"{'would pre-sign' if a.dry_run else 'pre-signed'}: {res}", **res)
+
+    def cmd_publish_one(self, a):
+        """One built file onto the live release, signed the way the release signs it (pubone.py)."""
+        from .pubone import BAR_SECONDS as BAR_SECONDS_ONE, PublishOne, PublishOneError
+        from .resign import ResignError
+        from .server import ServerError
+        po = PublishOne(self.repo, self.state_root, self.pipeline, self.hosts, self.server(a), say=self.echo, test=bool(a.test_root),
+                        apple_results=a.apple_results, github_repo=a.github_repo, data_path=a.data, no_github=a.no_github)
+        try:
+            res = po.run(a.platform, a.variant, os.path.abspath(a.file), version=a.version, dry=a.dry_run)
+        except (PublishOneError, ResignError, ServerError) as e:
+            return self.out(EXIT_FAILED, f"publish-one refused: {e}")
+        if res.get("dry"):
+            return self.out(EXIT_OK, "dry run: nothing was signed, uploaded or changed", **res)
+        warns = res.get("warnings", [])
+        if not res["ok"]:
+            return self.out(EXIT_FAILED, "published, but a read-back check failed (above)", **res)
+        late = f" (over the {BAR_SECONDS_ONE} s bar)" if res["total"] > BAR_SECONDS_ONE else ""
+        return self.out(EXIT_OK, f"published {res['name']} in {res['total']:.0f} s{late}" + (f"; {len(warns)} warning(s) above" if warns else ""), **res)
+
+    def cmd_migrate_layout(self, a):
+        from .server import ServerError
+        srv = self.server(a)
+        live = a.version
+        try:
+            if not live:
+                from .server import payload
+                live = payload(srv.fetch("update-v2.json"))["versionName"]
+            self.echo(f"live release: {live}")
+            if not srv.test:
+                deploy = os.path.join(os.path.expanduser(self.hosts["path"]["page_repo"]), "deploy-epic-cash.sh")
+                text = open(deploy, encoding="utf-8").read()
+                if "--exclude /versions" not in text:
+                    self.echo(f"{deploy}: needs '--exclude /versions --exclude /current' on its rsync --delete line"
+                              + (" (would be added)" if a.dry_run else " (adding; a copy stays as deploy-epic-cash.sh.pre-layout)"))
+                    if not a.dry_run:
+                        import shutil
+                        shutil.copyfile(deploy, deploy + ".pre-layout")
+                        new = text.replace("--exclude downloads ", "--exclude downloads --exclude /versions --exclude /current ", 1)
+                        if new == text:
+                            return self.out(EXIT_FAILED, f"{deploy}: its rsync line is not the one expected; add the two excludes by hand")
+                        open(deploy, "w", encoding="utf-8").write(new)
+            out = srv.relsrv("migrate", live, *(["--dry"] if a.dry_run else []))
+            for l in out.splitlines():
+                self.echo(l)
+            if not a.dry_run:
+                st = srv.state()
+                got = srv.fetch("download", "SHA256SUMS") == srv.read_remote(os.path.join(srv.R, "versions", live, "downloads", "SHA256SUMS"))
+                self.echo(f"served SHA256SUMS is versions/{live}'s: {'yes' if got else 'NO'}; live {st['live']}, downloads is a link: {st['downloads_is_link']}")
+                if not got:
+                    return self.out(EXIT_FAILED, "migrated, but the served downloads do not read back")
+        except ServerError as e:
+            return self.out(EXIT_FAILED, f"migrate-layout refused: {e}")
+        return self.out(EXIT_OK, "dry run: nothing changed" if a.dry_run else f"version folders in place: current -> versions/{live}")
 
     def cmd_resign(self, a):
         from .resign import Resign, ResignError
         if a.live_dir and not a.test:
             return self.out(EXIT_USAGE, "--live-dir is for --test only: a real re-sign reads and publishes the live files")
-        if a.test and not a.live_dir:
-            return self.out(EXIT_USAGE, "--test needs --live-dir (a folder with update.json and update-v2.json)")
-        r = Resign(self.repo, self.state_root, self.pipeline, self.hosts, say=self.echo, test=a.test, live_dir=a.live_dir)
+        srv = None
+        if a.test_root:
+            srv = self.server(a)
+        elif not a.test:
+            try:  # version folders on the server? (a server that is not reachable counts as none)
+                s0 = self.server(a)
+                if s0.state().get("live"):
+                    srv = s0
+            except Exception:
+                srv = None
+        if a.test and not a.live_dir and not srv:
+            return self.out(EXIT_USAGE, "--test needs --live-dir (a folder with update.json and update-v2.json) or --test-root")
+        r = Resign(self.repo, self.state_root, self.pipeline, self.hosts, say=self.echo, test=a.test, live_dir=a.live_dir, server=srv)
         try:
             res = r.run(dry=a.dry_run)
+            if srv and not a.dry_run:
+                from .presign import Presign
+                Presign(self.repo, self.state_root, self.pipeline, self.hosts, srv, say=self.echo, test=a.test).refresh(
+                    os.path.join(r.work, "presign"))
         except ResignError as e:
             return self.out(EXIT_FAILED, f"resign refused: {e}")
         verb = "would re-sign" if a.dry_run else "re-signed and published"
@@ -1203,14 +1302,39 @@ def parser():
     machine_args(sp)
     sp = sub.add_parser("verify", help="G3 checks on any folder of release files")
     sp.add_argument("folder")
-    sp = sub.add_parser("rollback", help="re-sign and publish the previous release with a higher serial")
-    sp.add_argument("--to", help="the kept release to go back to (default: the previous one)")
-    sp.add_argument("--test", action="store_true")
+    for name, what in (("rollback", "the website, GitHub and the mirrors serve the previous release again (one switch, nothing signed or uploaded)"),
+                       ("rollforward", "undo a rollback: serve the newer release again")):
+        sp = sub.add_parser(name, help=what)
+        sp.add_argument("--to", help="the version to switch to (default: the previous release; after a rollback, the newer one)")
+        sp.add_argument("--dry-run", action="store_true", help="read-only: what would switch and what GitHub would do")
+        sp.add_argument("--parts", help="only these parts: site,readback,github,mirrors (repeat a failed one; the site part first)")
+        sp.add_argument("--github-repo", help="owner/repo on GitHub (tests)")
+        sp.add_argument("--test-root", help="a folder standing in for the server (site/, api/): nothing leaves this machine")
+    sp = sub.add_parser("publish-one", help="publish ONE built file on the live release: signed, on the page, in the manifests, read back (the owner's word is the approval)")
+    sp.add_argument("platform", choices=["windows", "linux", "android", "macos", "ios"])
+    sp.add_argument("variant", choices=["tor", "notor"])
+    sp.add_argument("file", help="the built file (bt-wallet-<version>[-notor]-<platform>-...)")
+    sp.add_argument("--version", help="refuse unless the file is this version (default: the file's own)")
+    sp.add_argument("--dry-run", action="store_true", help="read-only: check the file and the live release, say what would change")
+    sp.add_argument("--apple-results", help="macOS: the folder with the dmg, its .sha256 and REPORT.txt from the Mac (default: the dmg's folder)")
+    sp.add_argument("--data", help="releases.json to change (default: the main checkout's)")
+    sp.add_argument("--no-github", action="store_true", help="leave the GitHub release alone")
+    sp.add_argument("--github-repo", help="owner/repo on GitHub (tests)")
+    sp.add_argument("--test-root", help="a folder standing in for the server (site/, api/): signs with the test key, nothing leaves this machine")
+    sp = sub.add_parser("presign", help="sign the rollback manifest pairs of the live and the other release now")
     sp.add_argument("--dry-run", action="store_true")
+    sp.add_argument("--other", help="the release to prepare next to the live one (default: the newer, else the previous)")
+    sp.add_argument("--no-github", action="store_true", help="leave the GitHub release's pre-signed update-v2.json alone")
+    sp.add_argument("--test-root", help="a folder standing in for the server; signs with the test key")
+    sp = sub.add_parser("migrate-layout", help="once: turn the server's flat downloads folder into version folders (needs the owner's yes)")
+    sp.add_argument("--version", help="the live release (default: read from the live manifest)")
+    sp.add_argument("--dry-run", action="store_true", help="read-only: say what would change")
+    sp.add_argument("--test-root", help="a folder standing in for the server")
     sp = sub.add_parser("resign", help="sign the live manifests again: new serial and expiry only (one approval)")
     sp.add_argument("--dry-run", action="store_true", help="check the live files and print the new dates; sign nothing")
     sp.add_argument("--test", action="store_true", help="the test key, and --live-dir instead of the server")
     sp.add_argument("--live-dir", help="--test: the folder standing in for the live manifests")
+    sp.add_argument("--test-root", help="--test: a folder standing in for the server with version folders (site/, api/)")
     sp = sub.add_parser("cleanup", help="keep the current and the previous release; remove the rest")
     sp.add_argument("--dry-run", action="store_true")
     sp = sub.add_parser("gate-watch", help="check the gate until it is decided; publish once approved (started by the gate)")

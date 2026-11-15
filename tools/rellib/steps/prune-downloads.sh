@@ -14,10 +14,19 @@
 # the folder came out otherwise and the run has a signer (<run>/signer.json), the new listing is
 # signed (one more approval); without a signer it is signed with the update key's file
 # (server_sums.py sign-key), as publish-downloads does.
+# With version folders on the server (tools/rel migrate-layout) it prunes versions/<version>/downloads
+# only (the unlinks leave the previous release's own files in its folder) and then removes every
+# version folder but the last two (relsrv.py trim 2): the previous release stays whole for a rollback.
 # Usage: prune-downloads.sh <version> <ssh host> <server downloads dir> <previous release dir> [<manifests dir>]
 set -euo pipefail
 v="${1:?usage: $0 <version> <ssh host> <downloads dir> <previous dir> [<manifests dir>]}" host="${2:?}" dest="${3:?}" prev="${4:-}" mdir="${5:-}"
 here="$(cd "$(dirname "$0")" && pwd)"
+root="$(dirname "${dest%/}")"
+relsrv() { ssh "$host" "sudo -n env R='$root' API='${UPDATE_DEST_V2:-/srv/epiccash-api/v1/update.json}' python3 - $*" < "$here/relsrv.py"; }
+layout=0
+# shellcheck disable=SC2029
+if ssh "$host" "sudo test -L '$root/current'"; then layout=1; dest="$root/versions/$v/downloads"; fi
+trap '(( layout )) && relsrv trim 2 || true' EXIT
 named=""
 if [[ -n "$mdir" && -f "$mdir/update.payload.json" ]]; then
   named="$(jq -r '.. | objects | .url? // empty | split("/") | last' "$mdir/update.payload.json" | sort -u)"

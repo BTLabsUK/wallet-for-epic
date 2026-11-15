@@ -67,7 +67,7 @@ class FakeGitHub:
                 code, out, ctype, hdrs = fake.route(self.command, self.path, body, self.headers)
                 self.reply(code, out, ctype, hdrs)
 
-            do_GET = do_POST = do_PATCH = do_DELETE = handle_any
+            do_GET = do_POST = do_PATCH = do_DELETE = do_HEAD = handle_any
 
         self.srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
         self.base = f"http://127.0.0.1:{self.srv.server_address[1]}"
@@ -113,6 +113,11 @@ class FakeGitHub:
         m = re.fullmatch(api + r"/git/ref/tags/(.+)", p)
         if method == "GET" and m:
             return (200 if urllib.parse.unquote(m[1]) in self.tags else 404), {}, "application/json", ()
+        if method == "GET" and p == api + "/releases":  # drafts included, newest first
+            per = int(q.get("per_page", 30))
+            page = int(q.get("page", 1))
+            rels = sorted(self.releases.values(), key=lambda r: -r["id"])[(page - 1) * per:page * per]
+            return 200, [self.rel_json(r) for r in rels], "application/json", ()
         if method == "GET" and p == api + "/releases/latest":
             r = self.releases.get(self.latest)
             return (200, self.rel_json(r), "application/json", ()) if r else (404, {}, "application/json", ())
@@ -155,12 +160,14 @@ class FakeGitHub:
             return 201, self.asset_json(a), "application/json", ()
         # The public web links redirect to the file, as github.com does.
         m = re.fullmatch(rf"/web/{REPO_NAME}/releases/(?:latest/download|download/([^/]+))/(.+)", p)
-        if method == "GET" and m:
+        if method in ("GET", "HEAD") and m:
             rel = self.releases.get(self.latest) if m[1] is None else by_tag.get(m[1])
             a = next((a for a in (rel or {}).get("assets", []) if a["name"] == m[2]), None)
             if a is None:
                 return 404, b"Not Found", "text/plain", ()
-            return 302, b"", "text/plain", (("Location", f"{self.base}/blob/{a['id']}"),)
+            # as github.com: the latest link hops to the tag's own download link, which hops to the file
+            where = f"{self.base}/web/{REPO_NAME}/releases/download/{rel['tag_name']}/{a['name']}" if m[1] is None else f"{self.base}/blob/{a['id']}"
+            return 302, b"", "text/plain", (("Location", where),)
         m = re.fullmatch(r"/blob/(\d+)", p)
         if method == "GET" and m:
             return 200, self.blobs[int(m[1])], "application/octet-stream", ()
