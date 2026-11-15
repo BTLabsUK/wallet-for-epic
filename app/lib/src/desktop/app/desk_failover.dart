@@ -95,10 +95,53 @@ ServiceHealth shownNodeHealth(ServiceHealth raw, FailoverSearch search) => switc
   _ => raw,
 };
 
-/// [shownNodeHealth] of the open wallet's node; null with no status yet.
+/// How long the node in use may fail before it is called down: a slow or lost answer inside
+/// this window is a network blip, shown as "checking" only (the owner 2026-11-01: no warning for
+/// a fluke). Past it the node is down: red, banners, failover.
+const Duration nodeBlipWindow = Duration(seconds: 25);
+
+/// [nodeBlipWindow]; a test gives it another length.
+final nodeBlipWindowProvider = Provider<Duration>((ref) => nodeBlipWindow);
+
+/// Whether the node read down for [nodeBlipWindow] without a break. It turns true at the end of
+/// the window and false the moment the node reads anything but down.
+final deskNodeDownSettledProvider = NotifierProvider<DeskNodeDownSettled, bool>(DeskNodeDownSettled.new);
+
+class DeskNodeDownSettled extends Notifier<bool> {
+  Timer? _timer;
+
+  @override
+  bool build() {
+    ref.onDispose(() => _timer?.cancel());
+    // Another wallet starts the count over.
+    ref.watch(deskProvider.select((s) => s.account?.id));
+    ref.listen(deskProvider.select((s) => s.status?.nodeHealth), (_, now) => state = _read(now));
+    return _read(ref.read(deskProvider).status?.nodeHealth);
+  }
+
+  /// Whether the node is settled down at [raw]; arms the window when it just went down.
+  bool _read(ServiceHealth? raw) {
+    if (raw != ServiceHealth.down) {
+      _timer?.cancel();
+      _timer = null;
+      return false;
+    }
+    final window = ref.read(nodeBlipWindowProvider);
+    if (window <= Duration.zero) return true;
+    _timer ??= Timer(window, () {
+      _timer = null;
+      if (ref.mounted) state = true;
+    });
+    return false;
+  }
+}
+
+/// [shownNodeHealth] of the open wallet's node, with a blip held back: a node read down shows
+/// as checking until it has been down for [nodeBlipWindow]. Null with no status yet.
 final deskNodeHealthProvider = Provider<ServiceHealth?>((ref) {
-  final raw = ref.watch(deskProvider.select((s) => s.status?.nodeHealth));
+  var raw = ref.watch(deskProvider.select((s) => s.status?.nodeHealth));
   if (raw == null) return null;
+  if (raw == ServiceHealth.down && !ref.watch(deskNodeDownSettledProvider)) raw = ServiceHealth.checking;
   return shownNodeHealth(raw, ref.watch(deskFailoverSearchProvider));
 });
 
@@ -155,13 +198,17 @@ class DeskFailoverWatch extends Notifier<void> {
       if (_current(gen)) run();
     });
     ref.listen(deskProvider.select((s) => (s.status?.nodeHealth, s.status?.node.url, s.status?.nodeHeight)), (_, _) => later(_feed));
+    ref.listen(deskNodeDownSettledProvider, (_, _) => later(_feed));
     // A refresh ended: unvalidated twice in a row, the next round treats the node as down.
     ref.listen(deskProvider.select((s) => s.status?.syncProgress != null), (was, now) {
       if (was != true || now) return;
       later(() {
         final status = ref.read(deskProvider).status;
         if (status == null || _behind) return;
-        _engine?.refreshEnded(validated: status.nodeHealth != ServiceHealth.down);
+        final down = status.nodeHealth == ServiceHealth.down;
+        // A failed refresh inside the blip window is not counted.
+        if (down && !ref.read(deskNodeDownSettledProvider)) return;
+        _engine?.refreshEnded(validated: !down);
       });
     });
     ref.listen(deskProvider.select((s) => torStateOf(s.settings, s.status)), (_, _) => later(() => _engine?.kick('tor')));
@@ -192,7 +239,8 @@ class DeskFailoverWatch extends Notifier<void> {
     }
     switch (status.nodeHealth) {
       case ServiceHealth.down:
-        engine.nodeFailed();
+        // A blip is waited out: failover starts when the node has been down for the window.
+        if (ref.read(deskNodeDownSettledProvider)) engine.nodeFailed();
       case ServiceHealth.ok || ServiceHealth.slow:
         if (_behind) {
           engine.nodeBehind();
