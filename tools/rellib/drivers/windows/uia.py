@@ -36,6 +36,8 @@ ROLE = {
 VK = {"escape": 0x1B, "back": 0x1B, "enter": 0x0D, "tab": 0x09, "page_down": 0x22, "page_up": 0x21, "space": 0x20,
       "end": 0x23, "ctrl_enter": 0x0D, "shift_tab": 0x09}
 EYE = re.compile(r"(?i)^(show|hide)\b[^(]*\(")
+WORD_FIELD = re.compile(r"^Word \d+\b")   # the phrase grid's fields, a spoken phrase word, an unknown word
+PHRASE_WORD = re.compile(r"^[a-z]{3,8}$")
 ERASE_SECRET = 64   # a password field's text is not readable: this many backspaces clear it
 
 
@@ -129,12 +131,35 @@ class WinSurface:
 
     def _trace(self, nodes):
         """REL_TRUST_TREES=<file>: every read of a Settings page (the screens with the settings search field,
-        never a secret screen) as one block of lines, to see how the engine exposes a page over time."""
+        never a secret screen) as one block of lines, to see how the engine exposes a page over time.
+        REL_TRUST_SCREENS=<dir>: each screen the lane meets once, as a file of its controls (role and name,
+        no values), to show a build's layout where the rig gives no pixels."""
+        self._screen(nodes)
         path = os.environ.get("REL_TRUST_TREES")
         if not path or not any(n.role == "text_field" and n.name.split("\n")[0] == tg.copy(None, "deskSetSearchHint") for n in nodes):
             return
         with open(path, "a") as f:
             f.write("---- %s\n%s\n" % (time.strftime("%H:%M:%S"), "\n".join(n.brief() for n in nodes)))
+
+    def _screen(self, nodes):
+        out = os.environ.get("REL_TRUST_SCREENS")
+        if not out or not nodes:
+            return
+        # never a secret screen: a password field, the phrase grid's word fields, or a shown phrase
+        # (a run of single lowercase words)
+        if any("password" in n.states or WORD_FIELD.match(n.name) for n in nodes):
+            return
+        if sum(1 for n in nodes if PHRASE_WORD.match(n.name)) >= 12:
+            return
+        sig = hash(tuple((n.role, re.sub(r"\d", "#", n.name)) for n in nodes))
+        seen = self.__dict__.setdefault("screens_seen", set())
+        if sig in seen or len(seen) >= 400:
+            return
+        seen.add(sig)
+        os.makedirs(out, exist_ok=True)
+        lines = ["%s %r" % (n.role, n.name[:160].replace("\n", " | ")) for n in nodes]
+        with open(os.path.join(out, "%03d-%s.txt" % (len(seen), time.strftime("%H%M%S"))), "w") as f:
+            f.write("read at %s (trust.log names the step)\n%s\n" % (time.strftime("%H:%M:%S"), "\n".join(lines)))
 
     @staticmethod
     def _list_items(nodes):
@@ -271,6 +296,13 @@ class WinSurface:
         shown = dataclasses.replace(node, value=None) if secret else node
         if self._in_view(node):
             self._click(shown)
+            if not self._focused(node):
+                # inside the window but clipped by its page's scroll view (a footer or the status bar
+                # over it): the click reached something else; the default action focuses and reveals it
+                r = self._call("ui_at", idx=node.ref["idx"], name=node.ref["name"], what="press")
+                if not r.get("ok"):
+                    raise HarnessFault("ui", "could not focus %s: %s" % (shown.brief(), (r.get("error") or "")[:120]))
+                self.log("focused %s by its default action: the click did not reach it" % shown.brief())
         else:
             r = self._call("ui_at", idx=node.ref["idx"], name=node.ref["name"], what="press")
             if not r.get("ok"):
@@ -286,6 +318,11 @@ class WinSurface:
             r = self._call("type", timeout=60 + len(text), text=text)
         if not r.get("ok"):
             raise HarnessFault("ui", "typing into %s failed: %s" % (shown.brief(), (r.get("error") or "")[:120]))
+
+    def _focused(self, node):
+        """True when the field holds the keyboard focus now (read again, after a short settle)."""
+        time.sleep(0.2)
+        return any(n and n.role == node.role and n.name == node.name and "focused" in n.states for n in self.tree())
 
     def _type_file(self, text):
         """The text typed from a file in the run's secret folder, removed on the rig right after: by the
