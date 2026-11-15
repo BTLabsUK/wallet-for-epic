@@ -8384,10 +8384,6 @@
   "@deskSendPassword": {
     "description": "Label of the password field in the review dialog."
   },
-  "deskSendPasswordHelp": "Every send asks the wallet’s password.",
-  "@deskSendPasswordHelp": {
-    "description": "Help text under the password field in the review dialog."
-  },
   "deskSendBusyFile": "Creating the file.",
   "@deskSendBusyFile": {
     "description": "Status in the review dialog while a file send creates the transaction file."
@@ -29139,5 +29135,13 @@
   "deskInvIssuerFailed": "The invoice was not sent. Nothing changed; try again.",
   "@deskInvIssuerFailed": {
     "description": "Error after Send invoice: the wallet refused it for a reason no other line names; nothing was sent."
+  },
+  "deskKitQrEnlarge": "Enlarge QR code",
+  "@deskKitQrEnlarge": {
+    "description": "Tooltip and screen-reader name of a QR code that opens larger on a click."
+  },
+  "deskKitQrCode": "QR code",
+  "@deskKitQrCode": {
+    "description": "Name of an enlarged QR code, shown under it when the caller gives no label."
   }
 }

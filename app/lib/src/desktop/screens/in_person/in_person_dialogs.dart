@@ -475,7 +475,7 @@ class _DeskInPersonQrState extends State<DeskInPersonQr> {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final size = 216.u;
+    final size = 296.u;
     if (widget.parts.isEmpty) return const SizedBox.shrink();
     if (_shown) {
       return Semantics(

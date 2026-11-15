@@ -6666,9 +6666,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendPassword => 'Hasło';
 
   @override
-  String get deskSendPasswordHelp => 'Każda wysyłka prosi o hasło portfela.';
-
-  @override
   String get deskSendBusyFile => 'Tworzenie pliku.';
 
   @override
@@ -22050,4 +22047,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskInvIssuerFailed =>
       'Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.';
+
+  @override
+  String get deskKitQrEnlarge => 'Powiększ kod QR';
+
+  @override
+  String get deskKitQrCode => 'Kod QR';
 }

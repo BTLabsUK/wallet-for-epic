@@ -2020,7 +2020,6 @@
   "deskSendDandelionOff": "Dandelion++ 已关闭",
   "deskSendFactMessage": "留言",
   "deskSendPassword": "密码",
-  "deskSendPasswordHelp": "每次发送都需要输入钱包密码。",
   "deskSendBusyFile": "正在创建文件。",
   "deskSendBusyTor": "正在经由 Tor 连接对方钱包…这可能需要一些时间。请保持应用打开。",
   "deskSendBusy": "正在发送。这可能需要几秒钟；请保持此窗口打开。",
@@ -5579,5 +5578,7 @@
   "pairRefusesInvoicesTitle": "{name} 的钱包不支付账单。",
   "pairRefusesInvoicesBody": "未发送任何内容。请让对方改为直接付款到你的地址。",
   "deskInvIssuerFailed": "账单未发送。没有任何更改；请重试。",
-  "errorCancelledOnRelay": "对方已取消这笔付款，所以这里也已取消。"
+  "errorCancelledOnRelay": "对方已取消这笔付款，所以这里也已取消。",
+  "deskKitQrEnlarge": "放大二维码",
+  "deskKitQrCode": "二维码"
 }

@@ -404,7 +404,7 @@ class _DeskSlateQrState extends ConsumerState<DeskSlateQr> with WidgetsBindingOb
     final l = context.l10n;
     final c = context.dc;
     final ts = context.ts;
-    final size = 264.u;
+    final size = 336.u;
     final parts = _parts;
     final covered = _phase == _Phase.hidden || _phase == _Phase.loading || _phase == _Phase.away;
     Widget box(Widget child) => Container(

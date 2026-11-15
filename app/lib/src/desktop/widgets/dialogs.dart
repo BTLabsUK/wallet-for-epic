@@ -61,6 +61,7 @@ class EDialog extends StatelessWidget {
     this.description,
     this.titleTrailing,
     this.icon,
+    this.iconWidget,
     this.tone = ETone.neutral,
     this.body,
     this.actions = const [],
@@ -79,6 +80,9 @@ class EDialog extends StatelessWidget {
   final Widget? titleTrailing;
   final String? description;
   final IconData? icon;
+
+  /// A widget in the mark's place (a server's tile), instead of the glyph.
+  final Widget? iconWidget;
   final ETone tone;
   final Widget? body;
 
@@ -152,7 +156,7 @@ class EDialog extends StatelessWidget {
                         padding: EdgeInsets.fromLTRB(padX, m.padTop, padX, 0),
                         child: Column(
                           children: [
-                            EModalMark(tone: tone, icon: icon ?? toneIcon(tone), short: short),
+                            EModalMark(tone: tone, icon: icon ?? toneIcon(tone), short: short, child: iconWidget),
                             // Room between the mark, the title and what follows, the same in every modal.
                             SizedBox(height: m.markGap),
                             Semantics(

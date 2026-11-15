@@ -2020,7 +2020,6 @@
   "deskSendDandelionOff": "ปิด Dandelion++",
   "deskSendFactMessage": "ข้อความ",
   "deskSendPassword": "รหัสผ่าน",
-  "deskSendPasswordHelp": "ทุกการส่งต้องใส่รหัสผ่านกระเป๋าเงิน",
   "deskSendBusyFile": "กำลังสร้างไฟล์",
   "deskSendBusyTor": "กำลังติดต่อกระเป๋าเงินของผู้รับผ่าน Tor… อาจใช้เวลาสักพัก เปิดแอปไว้",
   "deskSendBusy": "กำลังส่ง อาจใช้เวลาไม่กี่วินาที เปิดหน้าต่างนี้ไว้",
@@ -5579,5 +5578,7 @@
   "pairRefusesInvoicesTitle": "กระเป๋าเงินของ {name} ไม่ชำระใบแจ้งหนี้",
   "pairRefusesInvoicesBody": "ยังไม่ได้ส่งสิ่งใด ขอให้อีกฝ่ายชำระไปยังที่อยู่ของคุณแทน",
   "deskInvIssuerFailed": "ไม่ได้ส่งใบแจ้งหนี้ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง",
-  "errorCancelledOnRelay": "อีกฝ่ายยกเลิกรายการนี้แล้ว จึงถูกยกเลิกที่นี่ด้วย"
+  "errorCancelledOnRelay": "อีกฝ่ายยกเลิกรายการนี้แล้ว จึงถูกยกเลิกที่นี่ด้วย",
+  "deskKitQrEnlarge": "ขยายคิวอาร์โค้ด",
+  "deskKitQrCode": "คิวอาร์โค้ด"
 }

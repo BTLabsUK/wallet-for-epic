@@ -2020,7 +2020,6 @@
   "deskSendDandelionOff": "Dandelion++ wyłączony",
   "deskSendFactMessage": "Wiadomość",
   "deskSendPassword": "Hasło",
-  "deskSendPasswordHelp": "Każda wysyłka prosi o hasło portfela.",
   "deskSendBusyFile": "Tworzenie pliku.",
   "deskSendBusyTor": "Łączenie z portfelem odbiorcy przez Tor… To może potrwać. Nie zamykaj aplikacji.",
   "deskSendBusy": "Wysyłanie. Może to potrwać kilka sekund; nie zamykaj tego okna.",
@@ -5579,5 +5578,7 @@
   "pairRefusesInvoicesTitle": "Portfel kontaktu {name} nie opłaca faktur.",
   "pairRefusesInvoicesBody": "Nic nie zostało wysłane. Zamiast tego poproś o płatność na swój adres.",
   "deskInvIssuerFailed": "Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.",
-  "errorCancelledOnRelay": "Druga strona anulowała tę płatność, więc jest anulowana także tutaj."
+  "errorCancelledOnRelay": "Druga strona anulowała tę płatność, więc jest anulowana także tutaj.",
+  "deskKitQrEnlarge": "Powiększ kod QR",
+  "deskKitQrCode": "Kod QR"
 }

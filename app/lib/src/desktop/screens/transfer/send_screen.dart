@@ -3665,7 +3665,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               onSubmit: _ready ? _go : null,
               child: EField(
                 label: l.deskSendPassword,
-                help: l.deskSendPasswordHelp,
                 error: _wrong,
                 child: EPasswordInput(
                   semanticsId: TrustIds.sendPassword,

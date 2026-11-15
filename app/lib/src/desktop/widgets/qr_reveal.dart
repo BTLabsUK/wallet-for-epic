@@ -121,7 +121,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
         children: [
           Opacity(
             opacity: tag == null ? 1 : 0.35,
-            child: EQr(widget.address, size: size, epic1: widget.epic1),
+            child: EQr(widget.address, size: size, epic1: widget.epic1, enlarge: tag == null, label: widget.title, copyText: widget.address),
           ),
           if (tag != null) _Tag(tag),
         ],
@@ -195,7 +195,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
                             opacity: 0.16,
                             child: ImageFiltered(
                               imageFilter: ImageFilter.blur(sigmaX: 9, sigmaY: 9),
-                              child: EQr(widget.address, size: size, epic1: widget.epic1),
+                              child: EQr(widget.address, size: size, epic1: widget.epic1, enlarge: false),
                             ),
                           ),
                         )

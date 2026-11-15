@@ -24,6 +24,7 @@ import '../theme/tokens.dart';
 import 'keyboard.dart' show deskMenuClosed, deskMenuOpened;
 import 'buttons.dart';
 import 'selectable.dart';
+import 'qr_zoom.dart';
 import 'tip.dart';
 
 /// A contact's or wallet's initials in the corner-ticked tile ([GlyphTile]: the gold corner
@@ -219,15 +220,23 @@ String _decimalsPad(AppLocalizations l, String text, int decimals) {
 
 /// A [LogoQr] on white, with the accent glow: the BT Wallet mark in its centre, or the epic1
 /// mark when [epic1] (links, in-person codes, pairing and device invites).
+///
+/// A code of [data] opens enlarged ([showEQrZoom]) on a click, Enter or Space, unless [enlarge]
+/// is off (a hidden, dimmed, animated or decorative code). [label] names it under the large
+/// code and [copyText] is what its Copy puts on the clipboard (null: no Copy).
 class EQr extends StatelessWidget {
-  const EQr(this.data, {super.key, this._size, this.epic1 = false}) : image = null;
+  const EQr(this.data, {super.key, this._size, this.epic1 = false, this.enlarge = true, this.label, this.copyText}) : image = null;
 
-  /// One frame of an animated code, already encoded (`QrFrames`).
-  const EQr.frame(QrImage this.image, {super.key, this._size, this.epic1 = false}) : data = '';
+  /// One frame of an animated code, already encoded (`QrFrames`). Not enlargeable: the
+  /// animation's own dialog is already as large as the code reads.
+  const EQr.frame(QrImage this.image, {super.key, this._size, this.epic1 = false}) : data = '', enlarge = false, label = null, copyText = null;
 
   final String data;
   final QrImage? image;
   final double? _size;
+  final bool enlarge;
+  final String? label;
+  final String? copyText;
 
   /// The code is an epic1 one: the epic1 mark instead of the BT Wallet mark.
   final bool epic1;
@@ -236,7 +245,8 @@ class EQr extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Container(
+    final logo = epic1 ? QrLogo.epic1Block : QrLogo.bt;
+    final face = Container(
       width: size,
       height: size,
       padding: EdgeInsets.all(Sp.x3p5),
@@ -249,9 +259,34 @@ class EQr extends StatelessWidget {
         ],
       ),
       child: switch (image) {
-        final image? => LogoQrImage(image: image, size: size - 28.u, logo: epic1 ? QrLogo.epic1Block : QrLogo.bt),
-        null => LogoQr(data: data, size: size - 28.u, logo: epic1 ? QrLogo.epic1Block : QrLogo.bt),
+        final image? => LogoQrImage(image: image, size: size - 28.u, logo: logo),
+        null => LogoQr(data: data, size: size - 28.u, logo: logo),
       },
+    );
+    if (!enlarge || image != null || data.isEmpty) return face;
+    final hint = context.l10n.deskKitQrEnlarge;
+    void open() => showEQrZoom(context, data: data, logo: logo, label: label, copyText: copyText);
+    return ETip(
+      hint,
+      excludeFromSemantics: true,
+      onClick: false,
+      child: Semantics(
+        button: true,
+        label: hint,
+        excludeSemantics: true,
+        onTap: open,
+        child: FocusableActionDetector(
+          mouseCursor: SystemMouseCursors.click,
+          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => open())},
+          child: Builder(
+            builder: (context) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: open,
+              child: FocusRing(focused: Focus.of(context).hasFocus, child: face),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

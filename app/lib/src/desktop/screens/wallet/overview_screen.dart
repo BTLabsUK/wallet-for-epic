@@ -177,13 +177,15 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                 hidden: hidden,
                 // Not beside "Cannot reach the node": a refresh still waiting on a node that does
                 // not answer (packets dropped) only ends at its timeout.
-                updating: !offline && !nodeDown && (shotView.busy || loading || walletSync),
+                updating: _refreshing || (!offline && !nodeDown && (shotView.busy || loading || walletSync)),
                 offline: offline,
                 asOfBlock: shotView.asOfBlock,
                 sendBlocked: shotView.sendBlocked || nodeDown,
                 nodeAnswers: !(nodeDown || shotView.nodeTrouble),
+                // While it runs the "Updating" tag is the one indicator; the slot stays, empty,
+                // so nothing moves.
                 refresh: _refreshing
-                    ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
+                    ? SizedBox.square(dimension: Ctl.inline)
                     : EIconButton(
                         semanticsId: TrustIds.overviewRefresh,
                         icon: EIcons.refresh,

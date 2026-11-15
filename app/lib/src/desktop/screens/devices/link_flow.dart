@@ -333,7 +333,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(child: Semantics(label: l.linkPasteLabel, image: true, child: EQr(code, size: 200.u, epic1: true))),
+        Center(child: Semantics(label: l.linkPasteLabel, image: true, child: EQr(code, size: 312.u, epic1: true, label: l.linkPasteLabel, copyText: code))),
         SizedBox(height: Sp.x4),
         Container(
           padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),

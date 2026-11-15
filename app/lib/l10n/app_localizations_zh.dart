@@ -6051,9 +6051,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendPassword => '密码';
 
   @override
-  String get deskSendPasswordHelp => '每次发送都需要输入钱包密码。';
-
-  @override
   String get deskSendBusyFile => '正在创建文件。';
 
   @override
@@ -20242,4 +20239,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvIssuerFailed => '账单未发送。没有任何更改；请重试。';
+
+  @override
+  String get deskKitQrEnlarge => '放大二维码';
+
+  @override
+  String get deskKitQrCode => '二维码';
 }

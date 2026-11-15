@@ -10196,12 +10196,6 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get deskSendPassword;
 
-  /// Help text under the password field in the review dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Every send asks the wallet’s password.'**
-  String get deskSendPasswordHelp;
-
   /// Status in the review dialog while a file send creates the transaction file.
   ///
   /// In en, this message translates to:
@@ -33552,6 +33546,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The invoice was not sent. Nothing changed; try again.'**
   String get deskInvIssuerFailed;
+
+  /// Tooltip and screen-reader name of a QR code that opens larger on a click.
+  ///
+  /// In en, this message translates to:
+  /// **'Enlarge QR code'**
+  String get deskKitQrEnlarge;
+
+  /// Name of an enlarged QR code, shown under it when the caller gives no label.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code'**
+  String get deskKitQrCode;
 }
 
 class _AppLocalizationsDelegate

@@ -1841,7 +1841,6 @@
   "deskSendDandelionOff": "Dandelion++ aus",
   "deskSendFactMessage": "Nachricht",
   "deskSendPassword": "Passwort",
-  "deskSendPasswordHelp": "Jede Zahlung fragt das Wallet-Passwort ab.",
   "deskSendBusyFile": "Die Datei wird erstellt.",
   "deskSendBusyTor": "Die Wallet des Empfängers wird über Tor erreicht… Das kann dauern. Lassen Sie die App geöffnet.",
   "deskSendBusy": "Wird gesendet. Das kann einige Sekunden dauern; lassen Sie dieses Fenster geöffnet.",
@@ -5579,5 +5578,7 @@
   "pairRefusesInvoicesTitle": "Die Wallet von {name} bezahlt keine Rechnungen.",
   "pairRefusesInvoicesBody": "Es wurde nichts gesendet. Bitten Sie stattdessen um eine Zahlung an Ihre Adresse.",
   "deskInvIssuerFailed": "Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut.",
-  "errorCancelledOnRelay": "Die Gegenseite hat diese Zahlung storniert, daher ist sie auch hier storniert."
+  "errorCancelledOnRelay": "Die Gegenseite hat diese Zahlung storniert, daher ist sie auch hier storniert.",
+  "deskKitQrEnlarge": "QR-Code vergrößern",
+  "deskKitQrCode": "QR-Code"
 }

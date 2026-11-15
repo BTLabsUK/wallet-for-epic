@@ -676,6 +676,14 @@
   "@deskKitQrShow": {
     "description": "Button and tooltip: reveal the hidden QR code. Short. 'Show as a code', never 'Show QR'."
   },
+  "deskKitQrEnlarge": "Enlarge QR code",
+  "@deskKitQrEnlarge": {
+    "description": "Tooltip and screen-reader name of a QR code that opens larger on a click."
+  },
+  "deskKitQrCode": "QR code",
+  "@deskKitQrCode": {
+    "description": "Name of an enlarged QR code, shown under it when the caller gives no label."
+  },
   "deskKitQrHide": "Hide the code",
   "@deskKitQrHide": {
     "description": "Button and tooltip: cover the QR code again. Short."

@@ -104,6 +104,8 @@
   "deskKitQrOfTag": "Kod QR: {title}, {tag}",
   "deskKitQrShowOf": "Pokaż kod: {title}",
   "deskKitQrShow": "Pokaż jako kod",
+  "deskKitQrEnlarge": "Powiększ kod QR",
+  "deskKitQrCode": "Kod QR",
   "deskKitQrHide": "Ukryj kod",
   "deskKitQrHideCode": "Ukryj kod",
   "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora.",

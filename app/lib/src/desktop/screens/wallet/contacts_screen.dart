@@ -17,6 +17,7 @@ import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/shell.dart' show deskRouteShown;
+import '../../app/status_parts.dart' show DeskRelayTile;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
@@ -1587,6 +1588,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
             text: l.relayMoveBody(name, moveShown),
             tone: ETone.info,
             icon: EIcons.epicbox,
+            iconWidget: DeskRelayTile(relay: asked),
             actions: [
               EButton.primary(key: deskContactMoveAcceptKey, label: l.relayMoveAccept, size: EBtnSize.sm, onPressed: _busy ? null : () => _run(() => deskAcceptRelayMove(ref, p, asked))),
               EButton(key: deskContactMoveRefuseKey, label: l.relayMoveRefuse, size: EBtnSize.sm, onPressed: _busy ? null : () => _run(() => deskRefuseRelayMove(ref, p, asked))),

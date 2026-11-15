@@ -31,7 +31,7 @@ Future<void> showPhraseQrDialog(BuildContext context, String phrase, {void Funct
             ENotice(title: l.deskOnbCreateQrWarn, text: l.deskOnbCreateQrWarnText, tone: ETone.risk, icon: EIcons.alert),
             SizedBox(height: Sp.x5),
             Center(
-              child: Semantics(label: l.deskOnbCreateQrLabel, image: true, child: EQr(phrase, size: 216.u)),
+              child: Semantics(label: l.deskOnbCreateQrLabel, image: true, child: EQr(phrase, size: 216.u, label: l.deskOnbCreateQrLabel)),
             ),
           ],
         ),

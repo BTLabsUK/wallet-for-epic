@@ -6419,9 +6419,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendPassword => 'Password';
 
   @override
-  String get deskSendPasswordHelp => 'Every send asks the wallet’s password.';
-
-  @override
   String get deskSendBusyFile => 'Creating the file.';
 
   @override
@@ -21440,4 +21437,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskInvIssuerFailed =>
       'The invoice was not sent. Nothing changed; try again.';
+
+  @override
+  String get deskKitQrEnlarge => 'Enlarge QR code';
+
+  @override
+  String get deskKitQrCode => 'QR code';
 }

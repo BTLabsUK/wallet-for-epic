@@ -6265,9 +6265,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendPassword => 'รหัสผ่าน';
 
   @override
-  String get deskSendPasswordHelp => 'ทุกการส่งต้องใส่รหัสผ่านกระเป๋าเงิน';
-
-  @override
   String get deskSendBusyFile => 'กำลังสร้างไฟล์';
 
   @override
@@ -21013,4 +21010,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskInvIssuerFailed =>
       'ไม่ได้ส่งใบแจ้งหนี้ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง';
+
+  @override
+  String get deskKitQrEnlarge => 'ขยายคิวอาร์โค้ด';
+
+  @override
+  String get deskKitQrCode => 'คิวอาร์โค้ด';
 }

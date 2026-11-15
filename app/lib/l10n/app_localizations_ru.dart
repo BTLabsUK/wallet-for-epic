@@ -6639,10 +6639,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendPassword => 'Пароль';
 
   @override
-  String get deskSendPasswordHelp =>
-      'Каждая отправка запрашивает пароль кошелька.';
-
-  @override
   String get deskSendBusyFile => 'Создаём файл.';
 
   @override
@@ -22046,4 +22042,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskInvIssuerFailed =>
       'Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.';
+
+  @override
+  String get deskKitQrEnlarge => 'Увеличить QR-код';
+
+  @override
+  String get deskKitQrCode => 'QR-код';
 }

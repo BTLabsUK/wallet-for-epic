@@ -2020,7 +2020,6 @@
   "deskSendDandelionOff": "Dandelion++ выкл.",
   "deskSendFactMessage": "Сообщение",
   "deskSendPassword": "Пароль",
-  "deskSendPasswordHelp": "Каждая отправка запрашивает пароль кошелька.",
   "deskSendBusyFile": "Создаём файл.",
   "deskSendBusyTor": "Связываемся с кошельком получателя через Tor… Это может занять время. Не закрывайте приложение.",
   "deskSendBusy": "Отправка. Это может занять несколько секунд; не закрывайте окно.",
@@ -5579,5 +5578,7 @@
   "pairRefusesInvoicesTitle": "Кошелёк контакта {name} не оплачивает счета.",
   "pairRefusesInvoicesBody": "Ничего не отправлено. Попросите вместо этого заплатить на ваш адрес.",
   "deskInvIssuerFailed": "Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.",
-  "errorCancelledOnRelay": "Вторая сторона отменила этот платёж, поэтому он отменён и здесь."
+  "errorCancelledOnRelay": "Вторая сторона отменила этот платёж, поэтому он отменён и здесь.",
+  "deskKitQrEnlarge": "Увеличить QR-код",
+  "deskKitQrCode": "QR-код"
 }

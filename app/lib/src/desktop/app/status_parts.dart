@@ -7,6 +7,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../relay_moves.dart' show relayLabelOf;
+import '../data/server_look.dart';
 
 import '../../ui/server_tile.dart';
 import '../../ui/theme/protocol.dart' show CornerTicksPainter;
@@ -52,6 +56,23 @@ class DeskServerTile extends StatelessWidget {
       fontFamily: context.ts.mono().fontFamily,
       colors: deskTileColors(c),
     );
+  }
+}
+
+/// The tile of the relay written [relay] (`host` or `host:port`), with the icon the status site
+/// holds for it or for its operator: an offer, a move, a contact's server.
+class DeskRelayTile extends ConsumerWidget {
+  const DeskRelayTile({super.key, required this.relay, this.size});
+
+  final String relay;
+  final double? size;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final nodes = ref.watch(deskProvider.select((s) => s.nodes)) ?? const <NodeServer>[];
+    final boxes = ref.watch(deskProvider.select((s) => s.epicboxes)) ?? const <EpicboxServer>[];
+    final look = relayLookOf(relay, nodes, boxes);
+    return DeskServerTile(host: relayLabelOf(relay), operator: look.operator, icon: look.icon, size: size ?? 28.u);
   }
 }
 

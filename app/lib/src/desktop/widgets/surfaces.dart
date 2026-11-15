@@ -310,6 +310,7 @@ class ENotice extends StatelessWidget {
     this.text,
     this.tone = ETone.neutral,
     this.icon,
+    this.iconWidget,
     this.actions = const [],
     this.actionsBelow = false,
     this.textColor,
@@ -330,6 +331,9 @@ class ENotice extends StatelessWidget {
   final Color? textColor;
   final ETone tone;
   final IconData? icon;
+
+  /// A widget in the icon's place (a server's tile).
+  final Widget? iconWidget;
   final List<Widget> actions;
 
   /// Puts [actions] on their own row under the text whatever its length (several buttons).
@@ -355,7 +359,7 @@ class ENotice extends StatelessWidget {
         border: Border.all(color: calm ? c.lineStrong : fg.withValues(alpha: 0.4)),
       ),
       child: NoticeLayout(
-        icon: Icon(glyph, size: Ctl.icon, color: iconColor),
+        icon: iconWidget ?? Icon(glyph, size: Ctl.icon, color: iconColor),
         words: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
