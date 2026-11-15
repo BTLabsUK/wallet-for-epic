@@ -30,10 +30,31 @@ class _Wallet extends MockDeskWallet {
 
   final List<String> calls = [];
 
+  /// A computer with no wallet yet: the three the mock starts with are not listed.
+  bool noWalletsYet = false;
+
+  @override
+  Future<List<WalletEntry>> wallets() async {
+    final all = await super.wallets();
+    return noWalletsYet ? [for (final w in all) if (!_seeded.contains(w.id)) w] : all;
+  }
+
+  static const _seeded = {'legacy-mainnet', '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', '0a1b2c3d4e5f60718293a4b5c6d7e8f9'};
+
+  @override
+  Future<bool> unlock(String password, {bool remember = false}) async {
+    calls.add('unlock $password');
+    final ok = await super.unlock(password, remember: remember);
+    _open = ok;
+    return ok;
+  }
+
   /// As the real wallet (LepicDeskWallet): Setup runs before Unlock, and a locked wallet has no
   /// address to read. Reading it would make every first-run Save fail.
   @override
-  Future<String> epicboxAddress() async => throw DeskError.l10n((l) => l.deskErrWalletLocked);
+  Future<String> epicboxAddress() async => _open ? super.epicboxAddress() : throw DeskError.l10n((l) => l.deskErrWalletLocked);
+
+  bool _open = false;
 
   @override
   Future<List<NodeServer>> nodes() async => const [
@@ -169,6 +190,14 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
   }
 
+  /// After Home opened the live refresh owns timers: dispose the container with the tree.
+  Future<void> endHome(WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox());
+    container.dispose();
+    await tester.pump(const Duration(seconds: 2));
+    container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), deskNodeProvider.overrideWithValue(MockDeskNode())]);
+  }
+
   Finder field(int i) => find.byType(EditableText).at(i);
 
   /// Node step → pick nothing → Continue → Epicbox → Save.
@@ -188,7 +217,7 @@ void main() {
     await wait(tester, 800);
   }
 
-  testWidgets('create → node step → pick → Epicbox → Save → Unlock with the new wallet', (tester) async {
+  Future<void> createWithPassword(WidgetTester tester) async {
     await pumpApp(tester, DeskRoute.create);
     await tester.enterText(field(0), 'longpassword');
     await tester.enterText(field(1), 'longpassword');
@@ -201,18 +230,9 @@ void main() {
     await tester.pump();
     await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 800);
-    final arg = container.read(deskNavProvider).arg;
-    expect(arg, isA<SetupFirstRun>());
-    // The mock keeps a legacy wallet, so this one is a second wallet: the current node first.
-    expect((arg! as SetupFirstRun).added.name, 'Wallet');
-    await throughSetup(tester, node: 'https://current.example:3413');
-    expect(container.read(deskNavProvider).route, DeskRoute.unlock);
-    expect(container.read(deskNavProvider).arg, isA<UnlockAdded>());
-    expect(wallet.calls, isNot(contains('listening true')), reason: 'a locked wallet listens once Unlock opens it');
-    await end(tester);
-  });
+  }
 
-  testWidgets('restore → the same node step → Save → Unlock', (tester) async {
+  Future<void> restoreWithPassword(WidgetTester tester) async {
     await pumpApp(tester, DeskRoute.restore);
     await tester.enterText(field(0), [...List.filled(11, 'abandon'), 'about'].join(' '));
     await wait(tester, 500);
@@ -223,10 +243,45 @@ void main() {
     await tester.pump();
     await tester.tap(find.text(_l.deskOnbRestoreSide).last);
     await wait(tester, 5000);
+  }
+
+  testWidgets('create → node step → pick → Epicbox → Save → Unlock opens the new wallet with the typed password (bug 2)', (tester) async {
+    wallet.noWalletsYet = true;
+    await createWithPassword(tester);
+    final arg = container.read(deskNavProvider).arg;
+    expect(arg, isA<SetupFirstRun>());
+    expect((arg! as SetupFirstRun).added.name, 'Wallet');
+    await throughSetup(tester, node: 'https://fast.example:3413');
+    expect(wallet.calls, isNot(contains('listening true')), reason: 'a locked wallet listens once Unlock opens it');
+    await wait(tester, 4000);
+    expect(wallet.calls, contains('unlock longpassword'), reason: 'the password typed one step earlier is not asked again');
+    expect(container.read(deskNavProvider).route, DeskRoute.overview);
+    await endHome(tester);
+  });
+
+  testWidgets('restore → the same node step → Save → Home without asking the password again (bug 2)', (tester) async {
+    wallet.noWalletsYet = true;
+    await restoreWithPassword(tester);
     expect(container.read(deskNavProvider).arg, isA<SetupFirstRun>());
-    await throughSetup(tester, node: 'https://current.example:3413');
-    expect(container.read(deskNavProvider).route, DeskRoute.unlock);
-    await end(tester);
+    await throughSetup(tester, node: 'https://fast.example:3413');
+    await wait(tester, 4000);
+    expect(wallet.calls, contains('unlock longpassword'));
+    expect(container.read(deskNavProvider).route, DeskRoute.overview);
+    await endHome(tester);
+  });
+
+  testWidgets('a second wallet made or restored skips Setup: node and Epicbox are app-wide (bug 3)', (tester) async {
+    for (final restore in [false, true]) {
+      wallet.calls.clear();
+      await (restore ? restoreWithPassword(tester) : createWithPassword(tester));
+      await wait(tester, 4000);
+      expect(find.text(_l.deskSetupNodeTitle), findsNothing);
+      expect(wallet.calls, ['unlock longpassword'], reason: 'no node or Epicbox change, only the open');
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      final id = (await tester.runAsync(wallet.wallets))!.last.id;
+      expect(await tester.runAsync(() => wallet.setupPending(id)), isFalse, reason: 'no first-run mark: Unlock never sends it to Setup');
+      await endHome(tester);
+    }
   });
 
   testWidgets('the first wallet of a computer preselects only a healthy node, the fastest; Save keeps what was picked', (tester) async {
@@ -307,6 +362,7 @@ void main() {
   }
 
   testWidgets('create marks the wallet pending until Save', (tester) async {
+    wallet.noWalletsYet = true;
     await pumpApp(tester, DeskRoute.create);
     await tester.enterText(field(0), 'longpassword');
     await tester.enterText(field(1), 'longpassword');

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/models.dart' show WalletEntry;
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
@@ -29,12 +31,20 @@ Widget _screen(DeskRoute r, Object? a) => switch (r) {
   _ => throw ArgumentError(r),
 };
 
-/// Pumps [child] at desktop size; returns the provider container.
-Future<ProviderContainer> _pump(WidgetTester tester, Widget child) async {
+/// A computer with no wallet yet: the mock's seeded ones are hidden, so a created or restored
+/// wallet is the first one and goes through the first-run Setup.
+class _FirstRun extends MockDeskWallet {
+  static const _seeded = {'legacy-mainnet', '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', '0a1b2c3d4e5f60718293a4b5c6d7e8f9'};
+  @override
+  Future<List<WalletEntry>> wallets() async => [for (final w in await super.wallets()) if (!_seeded.contains(w.id)) w];
+}
+
+/// Pumps [child] at desktop size; returns the provider container. [firstRun]: no wallet yet.
+Future<ProviderContainer> _pump(WidgetTester tester, Widget child, {bool firstRun = false}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final container = ProviderContainer();
+  final container = ProviderContainer(overrides: [if (firstRun) deskApiProvider.overrideWithValue(_FirstRun())]);
   addTearDown(container.dispose);
   await tester.pumpWidget(
     UncontrolledProviderScope(
@@ -99,7 +109,7 @@ void flows() {
   });
 
   testWidgets('restore: the title is the next free Wallet N; the pen edits it in place and the restored wallet takes the name', (tester) async {
-    final container = await _pump(tester, const RestoreScreen());
+    final container = await _pump(tester, const RestoreScreen(), firstRun: true);
     final words = [...List.filled(11, 'abandon'), 'about'].join(' ');
     await tester.enterText(_field(0), words);
     await _wait(tester, 500);
@@ -219,7 +229,7 @@ void flows() {
   });
 
   testWidgets('create: the name is the title, no name step, no quiz; Continue on the phrase goes to the first-run setup with the new wallet', (tester) async {
-    final container = await _pump(tester, const CreateScreen());
+    final container = await _pump(tester, const CreateScreen(), firstRun: true);
     expect(find.text('Name'), findsNothing);
     expect(find.text('Wallet'), findsOneWidget, reason: 'the next free default name as the title');
     expect(find.byKey(const ValueKey('wallet-name-pen')), findsOneWidget);
@@ -251,7 +261,7 @@ void flows() {
   });
 
   testWidgets('create: a name typed into the title lands on the new wallet; Esc keeps the title, an empty field goes back to the default', (tester) async {
-    final container = await _pump(tester, const CreateScreen());
+    final container = await _pump(tester, const CreateScreen(), firstRun: true);
     final field = find.descendant(of: find.byKey(const ValueKey('wallet-name-field')), matching: find.byType(EditableText));
     await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
     await tester.pump();

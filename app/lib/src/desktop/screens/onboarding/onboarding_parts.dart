@@ -117,26 +117,45 @@ List<ESelectItem<String>> deskLanguageItems(AppLocalizations l) => [
 
 /// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.
 class UnlockAdded {
-  const UnlockAdded(this.name, {this.id, this.notice});
+  const UnlockAdded(this.name, {this.id, this.notice, this.password});
 
   final String name;
   final String? id;
+
+  /// The password just typed for the new wallet: Unlock opens the wallet with it, once, instead
+  /// of asking for it again. Null after a restart (Unlock asks) and in every other flow.
+  final PasswordHandoff? password;
 
   /// Unlock's notice: "Wallet restored." / "Wallet imported." (no name); null for the default,
   /// "New wallet added." in the window's language.
   final String? notice;
 }
 
+/// A password kept in memory from Create or Restore to the Unlock that follows Setup. [take]
+/// gives it once and forgets it. Never logged, never stored.
+class PasswordHandoff {
+  PasswordHandoff(this._value);
+
+  String? _value;
+
+  String? take() {
+    final v = _value;
+    _value = null;
+    return v;
+  }
+}
+
 /// The wallet a flow added: the entry the list has now and did not have in [before] (ids), as
 /// Unlock's argument. [fallback] names it when the list cannot say.
-Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback, {String? notice}) async {
+Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback, {String? notice, String? password}) async {
+  final handoff = password == null || password.isEmpty ? null : PasswordHandoff(password);
   try {
     final added = (await api.wallets()).where((w) => !before.contains(w.id)).lastOrNull;
-    if (added != null) return UnlockAdded(added.name, id: added.id, notice: notice);
+    if (added != null) return UnlockAdded(added.name, id: added.id, notice: notice, password: handoff);
   } on Object {
     // Unlock offers the wallet opened last.
   }
-  return UnlockAdded(fallback, notice: notice);
+  return UnlockAdded(fallback, notice: notice, password: handoff);
 }
 
 /// The name an unnamed wallet gets: "Wallet", or "Wallet 2", "Wallet 3"… (the lowest free

@@ -10,7 +10,7 @@ import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../widgets/kit.dart';
 import '../settings/settings_phrase.dart' show copyPhrase;
 import 'onboarding_parts.dart';
-import 'setup_screen.dart' show SetupFirstRun;
+import 'setup_screen.dart' show afterWalletAdded;
 
 enum CreateStep { account, creating, failed, phrase, locking }
 
@@ -120,11 +120,9 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       await ref.read(deskProvider.notifier).lock();
       if (!mounted) return;
     }
-    final added = await addedWallet(ref.read(deskApiProvider), _before, _name ?? defaultWalletName(ref));
+    final added = await addedWallet(ref.read(deskApiProvider), _before, _name ?? defaultWalletName(ref), password: _password.text);
     if (!mounted) return;
-    await markSetupPending(ref.read(deskApiProvider), added.id);
-    if (!mounted) return;
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: _before.isNotEmpty));
+    await afterWalletAdded(ref, added, second: _before.isNotEmpty);
   }
 
   @override

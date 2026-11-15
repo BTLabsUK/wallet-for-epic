@@ -62,6 +62,20 @@ class SetupFirstRun {
   final bool resumed;
 }
 
+/// The step after a wallet was made or restored. The first wallet of the computer goes to its
+/// first-run Setup (node, Epicbox) and then Unlock. Another wallet goes straight to Unlock: node
+/// and Epicbox are app-wide and already set, so Setup is not asked again. Unlock opens the wallet
+/// with the password typed a step earlier ([UnlockAdded.password]).
+Future<void> afterWalletAdded(WidgetRef ref, UnlockAdded added, {required bool second, bool restored = false}) async {
+  final nav = ref.read(deskNavProvider.notifier);
+  if (second) {
+    nav.reset(DeskRoute.unlock, added);
+    return;
+  }
+  await markSetupPending(ref.read(deskApiProvider), added.id, restored: restored);
+  nav.reset(DeskRoute.setup, SetupFirstRun(added));
+}
+
 /// Wallets whose first-run setup was skipped after Save failed: Unlock does not send them
 /// back to Setup in this session, even when the pending mark could not be cleared.
 final Set<String> setupSkippedThisSession = {};

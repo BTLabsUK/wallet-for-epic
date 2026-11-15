@@ -480,6 +480,41 @@ double get txAmountWidth => 150.u;
 /// Narrower than this, [TxRow] uses its compact form.
 double get txRowFullWidth => 560.u;
 
+/// The state word of a list row. It wraps between words (UD-005); a word wider than the cell
+/// (the detail pane is open and the list is narrow) scales the whole text down to fit, so a
+/// word is never broken in the middle.
+class TxStateWord extends StatelessWidget {
+  const TxStateWord(this.word, {super.key, required this.style});
+  final String word;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final dir = Directionality.of(context);
+    return LayoutBuilder(
+      builder: (context, box) {
+        var longest = 0.0;
+        for (final w in word.split(RegExp(r'\s+'))) {
+          if (w.isEmpty) continue;
+          final p = TextPainter(text: TextSpan(text: w, style: style), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+          if (p.width > longest) longest = p.width;
+          p.dispose();
+        }
+        final text = Text(word, maxLines: 2, overflow: TextOverflow.ellipsis, style: style);
+        // A little slack: a measured word and the laid out one differ by rounding.
+        final need = longest + 1;
+        if (!box.hasBoundedWidth || need <= box.maxWidth) return text;
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: SizedBox(width: need, child: text),
+        );
+      },
+    );
+  }
+}
+
 /// One transaction row. [compact] (Overview) puts the state under the name and the time
 /// under the amount; the full row (Activity) has state, time and amount columns.
 /// Whether the desktop shows [t] as sealed ([Tx.sealed]): only in epic1 mode.
@@ -692,12 +727,7 @@ class _TxRowState extends ConsumerState<TxRow> {
                   else
                     Flexible(
                       // A state is never cut short: it wraps to a second line (UD-005).
-                      child: Text(
-                        word,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: ts.small.copyWith(color: toneColor),
-                      ),
+                      child: TxStateWord(word, style: ts.small.copyWith(color: toneColor)),
                     ),
                   if (fromDevice) deskDeviceStatusInfo(l, t),
                 ],

@@ -20,7 +20,7 @@ import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
 import 'reset_password_screen.dart' show ResetPasswordArg;
 import 'same_wallet_dialog.dart';
-import 'setup_screen.dart' show SetupFirstRun;
+import 'setup_screen.dart' show afterWalletAdded;
 import 'unlock_screen.dart' show UnlockPick;
 
 enum RestoreStep { words, wordsFilled, account, restoring, failed }
@@ -180,11 +180,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> with PhrasePaste<
         await ref.read(deskProvider.notifier).lock();
         if (!mounted) return;
       }
-      final added = await addedWallet(api, before, _name ?? defaultWalletName(ref), notice: context.l10n.deskOnbRestoreDone);
+      final added = await addedWallet(api, before, _name ?? defaultWalletName(ref), notice: context.l10n.deskOnbRestoreDone, password: _password.text);
       if (!mounted) return;
-      await markSetupPending(api, added.id, restored: true);
-      if (!mounted) return;
-      ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: before.isNotEmpty));
+      await afterWalletAdded(ref, added, second: before.isNotEmpty, restored: true);
     } catch (e) {
       // The type, and for a refused DPAPI its code; never the password or the phrase.
       logWarn('desk', 'wallet not restored: ${e is SecretProtectError ? e : e.runtimeType}');

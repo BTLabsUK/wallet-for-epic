@@ -156,6 +156,13 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       _remember = remembered;
       if (pick.missing) _missing = true;
     });
+    // A wallet just made or restored opens with the password typed a step earlier.
+    final handed = widget.arg is UnlockAdded && pick.id == added ? (widget.arg as UnlockAdded).password?.take() : null;
+    if (handed != null && !pick.missing) {
+      _password.text = handed;
+      await _unlock();
+      return;
+    }
     if (tryRemembered && remembered && !pick.missing) await _unlock(remembered: true);
   }
 
