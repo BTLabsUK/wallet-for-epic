@@ -280,7 +280,7 @@ class SendScreen extends ConsumerWidget {
     final a = arg;
     final contact = a is Contact || (a is SendArgs && (a.contact != null || a.pairingTo != null));
     if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) {
-      if (!contact) return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null);
+      if (!contact) return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null, amount: a is SendArgs ? a.amount : null);
       final picked = a is Contact ? a : (a as SendArgs).contact;
       if (picked != null) {
         if (contactEpic1Link(ref, picked) case final link?) return Epic1SendPage(key: ValueKey(link), code: link);

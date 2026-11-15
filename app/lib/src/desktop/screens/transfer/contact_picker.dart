@@ -65,8 +65,8 @@ class PairingOnlyLine extends StatelessWidget {
 /// Opens the contact picker over the current page; resolves to the chosen contact or null.
 /// [description] says what the pick is for; Send's line by default.
 /// [send] makes it Send's: "Send to a contact", its button naming the chosen one.
-Future<Contact?> showContactPicker(BuildContext context, {String? description, bool send = false}) =>
-    showEDialog<Contact>(context, builder: (_) => ContactPickerDialog(description: description, send: send));
+Future<Contact?> showContactPicker(BuildContext context, {String? description, bool send = false, String query = ''}) =>
+    showEDialog<Contact>(context, builder: (_) => ContactPickerDialog(query: query, description: description, send: send));
 
 /// For the screenshot tour: Send's picker, result ignored.
 Future<void> showContactPickerDialog(BuildContext context) => showContactPicker(context, send: true);

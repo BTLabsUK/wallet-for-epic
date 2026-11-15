@@ -60,6 +60,25 @@ void main() {
     await _end(tester);
   });
 
+  testWidgets('the field keeps the focus while typing brings matches up and takes them away', (tester) async {
+    await _open(tester);
+    final field = find.descendant(of: find.byKey(const ValueKey('home-field')), matching: find.byType(EditableText));
+    bool focused() => tester.widget<EditableText>(field).focusNode.hasFocus;
+    await tester.showKeyboard(field);
+    await tester.pump();
+    expect(focused(), isTrue);
+    final state0 = tester.state(field);
+    // Typed key by key, as the keyboard does: no match, a match (Tom), none again, and spaces.
+    for (final typed in ['x', 'T', 'To', 'Tom', 'Tom ', 'Tom x', 'Tom', 'p', 'pay', 'pay ', 'pay bt labs 1', '']) {
+      tester.testTextInput.enterText(typed);
+      await tester.pump();
+      expect(focused(), isTrue, reason: 'focus lost after typing "$typed"');
+      expect(tester.testTextInput.hasAnyClients, isTrue, reason: 'keyboard input cut after typing "$typed"');
+      expect(tester.state(field), same(state0), reason: 'field rebuilt after typing "$typed"');
+    }
+    await _end(tester);
+  });
+
   testWidgets('Ctrl+K focuses the field once: opening Home again later does not', (tester) async {
     final container = await _open(tester);
     final nav = container.read(deskNavProvider.notifier);

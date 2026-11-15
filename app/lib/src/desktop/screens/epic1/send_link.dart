@@ -32,10 +32,13 @@ import 'epic1_files.dart';
 enum _Step { form, waiting }
 
 class Epic1SendPage extends ConsumerStatefulWidget {
-  const Epic1SendPage({super.key, this.code});
+  const Epic1SendPage({super.key, this.code, this.amount});
 
   /// A link or text Send opens with (a desktop link, [SendArgs.code]).
   final String? code;
+
+  /// The amount Send opens with (an amount typed on Home); a link's own amount stands over it.
+  final String? amount;
 
   @override
   ConsumerState<Epic1SendPage> createState() => _Epic1SendPageState();
@@ -65,6 +68,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   @override
   void initState() {
     super.initState();
+    _amount.text = widget.amount ?? '';
     final code = widget.code;
     if (code != null && code.trim().isNotEmpty) {
       // In the field as a paste would put it; what it is not clears it.
@@ -163,7 +167,9 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       case SlateText() || SlateFrames():
         _fail((l) => l.deskE1ModeClassicFile, settings: true);
       default:
-        _fail((l) => l.deskE1ErrNotLink);
+        // No code: a name, so the contacts are searched for it, as the field's line says
+        // ("epic1 link or contact").
+        await _pick(query: t);
     }
   }
 
@@ -222,8 +228,8 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     return ok == true;
   }
 
-  Future<void> _pick() async {
-    final c = await showContactPicker(context, send: true);
+  Future<void> _pick({String query = ''}) async {
+    final c = await showContactPicker(context, send: true, query: query);
     if (c == null || !mounted) return;
     // No pairing that takes epic1: the contact's epic1 link is paid, as if pasted.
     if (contactEpic1Link(ref, c, watch: false) case final link?) {
