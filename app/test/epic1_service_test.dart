@@ -1,94 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
-// The epic1 service layer on the fakes: the switch kept per wallet across lock and unlock, the
-// sealed-file naming and recognition of `BEGINEPICTX.` text, and the restore drain in epic1 mode.
+// The epic1 service layer on the fakes: the sealed-file naming and recognition of
+// `BEGINEPICTX.` text, and the restore drain, which follows the epic1 switch of the payment
+// settings.
 
 import 'dart:convert';
 
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart' show isSealedLepicText;
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/restore_scan.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-WalletConfig _config(String dir) => WalletConfig(
-  dataDir: dir,
-  chain: Chain.mainnet,
-  nodeUrl: 'https://node.example.invalid',
-  epicboxDomain: 'relay.example.invalid',
-  epicboxPort: 443,
-);
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  group('the switch per wallet', () {
-    test('on, lock, unlock: stored and in use; off again likewise', () async {
-      final service = FakeWalletService(existingWallets: {'w1'});
-      final config = _config('w1');
-
-      var session = await service.open(config: config, password: 'correct horse');
-      expect(session.epic1!.storedOn, isFalse);
-      expect(session.epic1!.inUse, isFalse);
-
-      await session.epic1!.setStoredOn(true);
-      // Applies at the next unlock.
-      expect(session.epic1!.storedOn, isTrue);
-      expect(session.epic1!.inUse, isFalse);
-      expect(session.paymentMode, PaymentMode.classic);
-
-      session.dispose();
-      session = await service.open(config: config, password: 'correct horse');
-      expect(session.epic1!.storedOn, isTrue);
-      expect(session.epic1!.inUse, isTrue);
-      expect(session.paymentMode, PaymentMode.epic1);
-
-      await session.epic1!.setStoredOn(false);
-      expect(session.epic1!.inUse, isTrue);
-      session.dispose();
-      session = await service.open(config: config, password: 'correct horse');
-      expect(session.epic1!.storedOn, isFalse);
-      expect(session.epic1!.inUse, isFalse);
-      expect(session.paymentMode, PaymentMode.classic);
-    });
-
-    test('the PIN unlock keeps it too', () async {
-      final service = FakeWalletService(existingWallets: {'w1'});
-      final config = _config('w1');
-      var session = await service.open(config: config, password: 'correct horse');
-      await session.epic1!.setStoredOn(true);
-      session.dispose();
-
-      final sealed = fakeSealedPassword('123456');
-      session = await service.openWithPin(config: config, pin: '123456', sealedPassword: sealed);
-      expect(session.epic1!.inUse, isTrue);
-    });
-
-    test('each wallet keeps its own setting', () async {
-      final service = FakeWalletService(existingWallets: {'w1', 'w2'});
-      var session = await service.open(config: _config('w1'), password: 'correct horse');
-      await session.epic1!.setStoredOn(true);
-      session.dispose();
-
-      session = await service.open(config: _config('w2'), password: 'correct horse');
-      expect(session.epic1!.storedOn, isFalse);
-      expect(session.epic1!.inUse, isFalse);
-      session.dispose();
-
-      session = await service.open(config: _config('w1'), password: 'correct horse');
-      expect(session.epic1!.inUse, isTrue);
-    });
-
-    test('a new wallet starts with it off', () async {
-      final service = FakeWalletService();
-      final session = await service.create(config: _config('fresh'), password: 'correct horse');
-      expect(session.epic1!.storedOn, isFalse);
-      expect(session.epic1!.inUse, isFalse);
-    });
-  });
 
   group('sealed files', () {
     const uuid = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
@@ -125,9 +55,11 @@ void main() {
     });
   });
 
-  group('restore in epic1 mode', () {
-    ProviderContainer container() {
-      final c = ProviderContainer(overrides: [secretStoreProvider.overrideWithValue(MemorySecretStore())]);
+  group('restore with epic1 on', () {
+    ProviderContainer container({PaymentPrefs? payments}) {
+      final store = MemorySecretStore();
+      if (payments != null) store.values['app.payment_prefs'] = payments.encode();
+      final c = ProviderContainer(overrides: [secretStoreProvider.overrideWithValue(store)]);
       c.listen(restoreScanProvider, (_, _) {});
       return c;
     }
@@ -137,7 +69,7 @@ void main() {
       addTearDown(c.dispose);
       final session = FakeWalletSession()
         ..restoreScanPending = true
-        ..epic1Fake = FakeEpic1(on: true);
+        ..epic1Fake = FakeEpic1();
       c.read(sessionProvider.notifier).unlocked(session);
       await pumpEventQueue();
 
@@ -149,15 +81,29 @@ void main() {
       expect(session.epic1Fake.calls.where((n) => n == 'restore'), hasLength(1));
     });
 
-    test('classic mode drains nothing', () async {
-      final c = container();
+    test('epic1 off in the payment settings drains nothing', () async {
+      final c = container(payments: const PaymentPrefs(epic1: false));
       addTearDown(c.dispose);
+      await c.read(appSettingsProvider.future);
       final session = FakeWalletSession()..restoreScanPending = true;
       c.read(sessionProvider.notifier).unlocked(session);
       await pumpEventQueue();
 
+      expect(c.read(epic1OnProvider), isFalse);
       expect(session.restoreScanPending, isFalse);
       expect(session.epic1Fake.calls, isNot(contains('restore')));
+    });
+
+    test('a wallet whose settings never held the switch drains: it reads as on', () async {
+      final c = container(payments: PaymentPrefs.decode('v2,file,noqr|epicbox'));
+      addTearDown(c.dispose);
+      await c.read(appSettingsProvider.future);
+      final session = FakeWalletSession()..restoreScanPending = true;
+      c.read(sessionProvider.notifier).unlocked(session);
+      await pumpEventQueue();
+
+      expect(c.read(epic1OnProvider), isTrue);
+      expect(session.epic1Fake.calls.where((n) => n == 'restore'), hasLength(1));
     });
 
     test('a failed drain does not fail the unlock', () async {
@@ -165,7 +111,7 @@ void main() {
       addTearDown(c.dispose);
       final session = FakeWalletSession()
         ..restoreScanPending = true
-        ..epic1Fake = (FakeEpic1(on: true)..failNext = const WalletError(kind: WalletErrorKind.transportFailed, message: 'down'));
+        ..epic1Fake = (FakeEpic1()..failNext = const WalletError(kind: WalletErrorKind.transportFailed, message: 'down'));
       c.read(sessionProvider.notifier).unlocked(session);
       await pumpEventQueue();
 

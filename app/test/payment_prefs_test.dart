@@ -96,6 +96,37 @@ void main() {
     expect(deskSettingsFromJson(deskSettingsToJson(const DeskSettings(payments: off))).payments, off);
   });
 
+  test('the epic1 switch: on by default, read as on from every value stored before it, off once saved off', () {
+    expect(PaymentPrefs.defaults.epic1, isTrue);
+    expect(PaymentPrefs.phoneDefaults.epic1, isTrue);
+    // The migration: a stored value from before the switch names no epic1, on either platform,
+    // whatever the old experimental switch was. It reads as on and changes no other switch.
+    for (final old in [null, 'direct,file|epicbox', 'file|qr', 'v2,http|linkHttp', 'v2,tor,file,noqr,noepicbox|linkTor']) {
+      final read = PaymentPrefs.decode(old, phone: true);
+      expect(read.epic1, isTrue, reason: '$old');
+      expect(PaymentPrefs.decode(old).epic1, isTrue, reason: '$old');
+      // Saved again with the switch on, it reads back the same.
+      expect(PaymentPrefs.decode(read.encode(), phone: true), read, reason: '$old');
+    }
+    expect(PaymentPrefs.fromJson({'direct': false, 'file': true}).epic1, isTrue);
+    expect(PaymentPrefs.fromJson(const <String, dynamic>{}).epic1, isTrue);
+    expect(deskSettingsFromJson(const <String, dynamic>{}).payments.epic1, isTrue);
+    // On is written as nothing in the phone's form, so a value saved on reads the same in an older build.
+    expect(PaymentPrefs.defaults.encode(), isNot(contains('epic1')));
+    const off = PaymentPrefs(directQr: false, epic1: false);
+    expect(off.encode(), 'v2,file,noqr,noepic1|epicbox');
+    expect(PaymentPrefs.decode(off.encode()), off);
+    expect(PaymentPrefs.decode(off.encode()).epic1, isFalse);
+    expect(PaymentPrefs.fromJson(off.toJson()).epic1, isFalse);
+    expect(deskSettingsFromJson(deskSettingsToJson(const DeskSettings(payments: off))).payments.epic1, isFalse);
+    expect(off == PaymentPrefs.defaults, isFalse);
+    expect(off.copyWith(epic1: true), PaymentPrefs.defaults);
+    // It is no route of a classic payment: the methods and Send's start do not move with it.
+    expect(_on(off), _on(PaymentPrefs.defaults));
+    expect(off.startMethod, PaymentPrefs.defaults.startMethod);
+    expect(const PaymentPrefs(directQr: false, directFile: false).canTurnOff(MethodKind.epicbox), isFalse, reason: 'epic1 on keeps no classic method replaceable');
+  });
+
   test('at least one method stays on', () {
     const one = PaymentPrefs(directQr: false, directFile: false);
     expect(one.on, [MethodKind.epicbox]);
