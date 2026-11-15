@@ -19,7 +19,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../support/real_time.dart';
 import '../support/signed_update.dart';
 
 final _l = englishStrings;
