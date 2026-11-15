@@ -171,6 +171,16 @@ if ($CargoTarget) {
 $env:RUSTFLAGS = '-C target-feature=+crt-static'
 Push-Location $clone
 try {
+    # The tor and notor builds run side by side and share ~/.rustup: two first-time installs of a
+    # new pinned toolchain collide on its download folder (26.11.4-run14). Install the clone's
+    # rust-toolchain.toml once, under a machine-wide lock; cargo then finds it installed.
+    $rustupLock = New-Object System.Threading.Mutex($false, 'Global\wfe-rustup-install')
+    [void]$rustupLock.WaitOne()
+    try {
+        rustup toolchain install
+        $rustupExit = $LASTEXITCODE
+    } finally { $rustupLock.ReleaseMutex(); $rustupLock.Dispose() }
+    if ($rustupExit) { throw 'rustup toolchain install failed' }
     # xtask has the clone's path built in (CARGO_MANIFEST_DIR) and builds LEPIC there. A target
     # copied or kept from another clone would run the xtask built for that one, against that
     # clone's sources: build it again for this clone (seconds).
