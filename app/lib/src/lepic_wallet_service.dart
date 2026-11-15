@@ -1499,6 +1499,7 @@ class LepicWalletService implements WalletService {
         ..nodeUrl = config.nodeUrl
         ..nodeApiSecret = config.nodeApiSecret;
       await session.readStoreOpen();
+      session.retireNativeDirect();
       // The open wallet, for [peerCompat]; forgotten when the session goes. A session opened
       // beside one still alive (another wallet opened for a moment) hands it back on dispose.
       final previous = _open;
@@ -1795,6 +1796,19 @@ class LepicWalletSession
     if (_storeOpen != StoreOpenOutcome.plainFallback) await _retirePlainCopies();
   }
 
+  /// The experimental "epic1 payments" switch (before epic1 became a payment method) stored
+  /// LEPIC's `native_direct`. Nothing sets it now: epic1 links, in-person codes and epic1 files
+  /// work without it. A wallet that stored it on has it stored off here, so every wallet sends
+  /// the same slates to its contacts and to Link addresses from its next unlock.
+  @visibleForTesting
+  void retireNativeDirect() {
+    try {
+      if (_wallet.nativeDirect()) _wallet.setNativeDirect(enabled: false);
+    } on Object catch (error) {
+      logWarn('epic1', 'native_direct not read: ${error is lepic.WalletError ? error.kind.name : error.runtimeType}');
+    }
+  }
+
   /// Days an `after-rollback` plain database is kept before [_retirePlainCopies] deletes it, so
   /// a downgrade made a few weeks ago can still be looked at. The `pre-encryption` copy goes at
   /// once: encryption shipped in 26.10.25 and LEPIC ADR 0032 has the app retire it one release on.
@@ -2024,11 +2038,11 @@ class LepicWalletSession
   @override
   late final Epic1Wallet epic1Wallet = _LepicEpic1(this);
 
-  /// An answer to a payment that came to a link is posted after each collect in epic1 mode: the payer's
+  /// An answer to a payment that came to a link is posted after each collect: the payer's
   /// own link named the mailbox, so no one is asked ([Epic1Wallet.postAnswer] with `relayOk`). One
   /// run at a time; a failure is logged and the next collect tries again.
   Future<void> _postEpic1Answers() async {
-    if (_postingAnswers || _wallet.isDisposed || !_wallet.nativeDirectInUse()) return;
+    if (_postingAnswers || _wallet.isDisposed) return;
     if (lepicRelayMode() != lepic.ContactRelayMode.online) return;
     _postingAnswers = true;
     try {

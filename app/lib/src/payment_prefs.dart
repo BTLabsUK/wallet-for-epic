@@ -4,7 +4,8 @@
 /// (`DeskSettings.payments`), so the page reads the same on both.
 ///
 /// One switch per method ([MethodKind], `payment_method.dart`), grouped by family: Epicbox;
-/// Link · HTTP and Link · Tor; Direct · QR Payment and Direct · File Transfer. Off means off
+/// Link · HTTP and Link · Tor; Direct · QR Payment and Direct · File Transfer; and epic1
+/// ([epic1], no [MethodKind]: an epic1 link is paid as a link, never picked as a route). Off means off
 /// for each: no listener, no address on Receive, no option on Send (a payment half-way keeps
 /// its method, the screens say so). At least one stays on ([canTurnOff]). Epicbox off is the
 /// one setting behind every Epicbox connection (`network_gate.dart`, [NetGate]); the others
@@ -14,6 +15,7 @@
 /// never QR Payment; the phone offers QR Payment and keeps File Transfer behind Advanced (a
 /// phone that had it keeps it). Link · HTTP and Link · Tor are off until chosen: HTTP receiving
 /// needs a listener (on the phone it reaches this network only), Tor receiving needs Tor.
+/// epic1 is on everywhere, and a value stored before its switch existed reads as on.
 library;
 
 import 'payment_method.dart';
@@ -28,6 +30,7 @@ class PaymentPrefs {
     bool linkTor = false,
     this.directQr = true,
     this.directFile = true,
+    this.epic1 = true,
     this.defaultMethod = MethodKind.epicbox,
   }) : linkTor = torBuilt && linkTor;
 
@@ -48,6 +51,11 @@ class PaymentPrefs {
 
   /// Direct · File Transfer.
   final bool directFile;
+
+  /// epic1: epic1 links, in-person codes and epic1 files are paid and opened, and Receive
+  /// offers an epic1 link among its other ways. It is no route of a classic payment, so it is
+  /// not a [MethodKind] and does not count for [canTurnOff].
+  final bool epic1;
 
   /// The method Send starts on; the first one on when the chosen one is off ([startMethod]).
   final MethodKind defaultMethod;
@@ -103,6 +111,7 @@ class PaymentPrefs {
     bool? linkTor,
     bool? directQr,
     bool? directFile,
+    bool? epic1,
     MethodKind? defaultMethod,
   }) => PaymentPrefs(
     epicbox: epicbox ?? this.epicbox,
@@ -110,15 +119,16 @@ class PaymentPrefs {
     linkTor: linkTor ?? this.linkTor,
     directQr: directQr ?? this.directQr,
     directFile: directFile ?? this.directFile,
+    epic1: epic1 ?? this.epic1,
     defaultMethod: defaultMethod ?? this.defaultMethod,
   );
 
   /// `v2,http,tor,file|epicbox`: the methods on besides Epicbox and QR, then the default. QR
-  /// and Epicbox are on unless `noqr` or `noepicbox` stands among them, so a value stored
-  /// before either switch existed reads as on. `v2` marks the per-method form; a value
+  /// Epicbox and epic1 are on unless `noqr`, `noepicbox` or `noepic1` stands among them, so a
+  /// value stored before any of these switches existed reads as on. `v2` marks the per-method form; a value
   /// without it comes from the one Link switch ([decode]).
   String encode() =>
-      '${['v2', if (linkHttp) 'http', if (linkTor) 'tor', if (directFile) 'file', if (!directQr) 'noqr', if (!epicbox) 'noepicbox'].join(',')}|${defaultMethod.name}';
+      '${['v2', if (linkHttp) 'http', if (linkTor) 'tor', if (directFile) 'file', if (!directQr) 'noqr', if (!epicbox) 'noepicbox', if (!epic1) 'noepic1'].join(',')}|${defaultMethod.name}';
 
   /// [raw] as stored; null (never saved) is the defaults ([phoneDefaults] on a [phone]), with
   /// Link on when [legacyDirect] (the Advanced page's "Direct receiving" switch before
@@ -138,6 +148,7 @@ class PaymentPrefs {
       linkTor: on.contains('tor'),
       directFile: on.contains('file'),
       directQr: !on.contains('noqr'),
+      epic1: !on.contains('noepic1'),
       defaultMethod: parts.length > 1 ? _method(parts[1]) : MethodKind.epicbox,
     );
     return v2 ? prefs : _legacyLink(prefs, on.contains('direct'), phone: phone);
@@ -161,6 +172,7 @@ class PaymentPrefs {
     'linkTor': linkTor,
     'directQr': directQr,
     'directFile': directFile,
+    'epic1': epic1,
     'default': defaultMethod.name,
   };
 
@@ -176,6 +188,7 @@ class PaymentPrefs {
       linkTor: flag('linkTor', false),
       directQr: flag('directQr', flag('qr', false)),
       directFile: flag('directFile', flag('file', true)),
+      epic1: flag('epic1', true),
       defaultMethod: _method('${j['default']}'),
     );
     return legacy ? _legacyLink(prefs, flag('direct', legacyDirect), phone: false) : prefs;
@@ -189,10 +202,11 @@ class PaymentPrefs {
       other.linkTor == linkTor &&
       other.directQr == directQr &&
       other.directFile == directFile &&
+      other.epic1 == epic1 &&
       other.defaultMethod == defaultMethod;
 
   @override
-  int get hashCode => Object.hash(epicbox, linkHttp, linkTor, directQr, directFile, defaultMethod);
+  int get hashCode => Object.hash(epicbox, linkHttp, linkTor, directQr, directFile, epic1, defaultMethod);
 
   @override
   String toString() => 'PaymentPrefs(${encode()})';

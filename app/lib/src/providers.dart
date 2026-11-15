@@ -231,6 +231,14 @@ final sessionProvider = NotifierProvider<SessionNotifier, WalletSession?>(
 /// them.
 final epic1Provider = Provider<Epic1Wallet?>((ref) => ref.watch(sessionProvider)?.epic1);
 
+/// epic1 is on: the open wallet has epic1 and its switch in Settings › Payments is on
+/// ([PaymentPrefs.epic1], on by default). Send, Home, the scanner and file opening pay and
+/// open epic1 links, in-person codes and epic1 files beside the classic ones; Receive offers
+/// an epic1 link among its other ways. The switch applies at once.
+final epic1OnProvider = Provider<bool>(
+  (ref) => ref.watch(epic1Provider) != null && (ref.watch(appSettingsProvider).value?.payments.epic1 ?? true),
+);
+
 /// Which transaction UI the open wallet shows: epic1 when its switch was on at unlock. Turning
 /// the switch changes this only at the next unlock (a new session).
 final paymentModeProvider = Provider<PaymentMode>(

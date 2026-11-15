@@ -694,6 +694,15 @@ class DeskController extends Notifier<DeskState> {
 
 final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.new);
 
+/// epic1 is on: the open wallet has epic1 and its switch in Settings › Payments is on
+/// ([PaymentPrefs.epic1], on by default). Send, Home, Scan and Import pay and open epic1 links,
+/// in-person codes and epic1 files beside the classic ones; Receive offers an epic1 link among
+/// its other ways. The switch applies at once.
+final deskEpic1OnProvider = Provider<bool>((ref) {
+  final on = ref.watch(deskProvider.select((s) => (s.account, s.session, s.settings.payments.epic1))).$3;
+  return on && ref.read(deskApiProvider).epic1 != null;
+});
+
 /// The open wallet's payment UI: epic1 only when its session runs epic1 payments. Read again at
 /// each unlock, as the switch applies then.
 final deskPaymentModeProvider = Provider<PaymentMode>((ref) {

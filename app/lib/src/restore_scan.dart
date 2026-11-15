@@ -63,7 +63,7 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
   /// Screens that run the restore's own scan ([hold]).
   int _holds = 0;
 
-  /// The flag was set while this session was in epic1 mode: when it clears, the link mailboxes
+  /// The flag was set while epic1 was on: when it clears, the link mailboxes
   /// are drained once ([Epic1Wallet.restore]).
   bool _epic1Due = false;
 
@@ -166,7 +166,7 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
       }
       return;
     }
-    if (session.epic1?.inUse ?? false) _epic1Due = true;
+    if (ref.read(epic1OnProvider)) _epic1Due = true;
     // The scan from the restore's start ended without an error and the flag stayed (the core skipped it,
     // or it did not count): a failure to wait out, never a scan straight after a scan.
     if (afterOwn) {
@@ -192,7 +192,7 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
     if (!ref.read(scanProvider).running) _own = false;
   }
 
-  /// After a restore in epic1 mode: the 50 on-screen and 32 printed link mailboxes of the own
+  /// After a restore with epic1 on: the 50 on-screen and 32 printed link mailboxes of the own
   /// relay, drained once. A failure is logged; nothing waits on it.
   Future<void> _restoreLinks(WalletSession session) async {
     final epic1 = session.epic1;
