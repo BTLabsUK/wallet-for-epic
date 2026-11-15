@@ -12,6 +12,7 @@ A stand-in ends with the lane that started it: a lane killed outside its own shu
 holding ports a resume needs (26.11.4 night, run-1).
 """
 import http.server
+import re
 import socket
 import socketserver
 import os
@@ -90,6 +91,10 @@ class R(socketserver.BaseRequestHandler):
         sys.stderr.write("relay connection\n")
         t = threading.Thread(target=_pipe, args=(up, self.request), daemon=True)
         t.start()
+        # The upstream routes by Host; the app sends the loopback address, which nginx answers with 400.
+        first = self.request.recv(65536)
+        first = re.sub(rb"(?im)^host:[^\r\n]*", b"Host: " + host.encode(), first, count=1)
+        up.sendall(first)
         _pipe(self.request, up)
         t.join()
 
