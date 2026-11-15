@@ -525,6 +525,25 @@ class _ESelectState<T> extends State<ESelect<T>> {
     if (h != _maxHeight) setState(() => _maxHeight = h);
   }
 
+  /// One option as a reader and the platform's accessibility API see it: a selectable button
+  /// with its own frame (the row's), named by its title, the subtitle as its hint. A bare
+  /// [MenuItemButton] is a focusable text node with no button role or selected state, and the
+  /// platforms read its frame from a merged boundary node. An option with its own action
+  /// button keeps its inner nodes.
+  Widget _optionSemantics({required ESelectItem<T> item, required bool selected, required VoidCallback onPick, required Widget child}) {
+    if (item.action != null || item.trailing != null) return child;
+    return Semantics(
+      container: true,
+      button: true,
+      selected: selected,
+      label: item.title,
+      hint: item.subtitle,
+      onTap: onPick,
+      excludeSemantics: true,
+      child: child,
+    );
+  }
+
   /// The list's height at four options (fewer when there are fewer), with its padding and footer.
   double get _fourRows {
     final rows = widget.items.take(4).fold<double>(0, (sum, i) => sum + (i.subtitle == null ? 40.u : 52.u));
@@ -574,7 +593,14 @@ class _ESelectState<T> extends State<ESelect<T>> {
           ),
           menuChildren: [
             for (final item in items)
-              MenuItemButton(
+              _optionSemantics(
+                item: item,
+                selected: item.value == value,
+                onPick: () {
+                  _controller.close();
+                  onChanged(item.value);
+                },
+                child: MenuItemButton(
                 onPressed: () => onChanged(item.value),
                 style: ButtonStyle(
                   minimumSize: WidgetStatePropertyAll(Size(box.maxWidth - Sp.x4, item.subtitle == null ? 40.u : 52.u)),
@@ -613,6 +639,7 @@ class _ESelectState<T> extends State<ESelect<T>> {
                       ],
                     ),
                   ),
+                ),
                 ),
               ),
             if (footer != null) ...[Divider(height: Sp.x3, color: c.line), footer],
