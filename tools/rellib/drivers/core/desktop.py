@@ -965,11 +965,39 @@ class Desktop:
 
         def choose():
             if not d.find_in(option, d.tree()):
-                d.press(select, step="open-%s" % select.id, timeout=20,
-                        then=Expect("the %s list open" % what, lambda dd, tree: dd.find_in(option, tree)))
+                self._open_select(select, option, what)
             d.press(option, step=what, timeout=20,
                     then=Expect("%s chosen" % option, lambda dd, tree: self._select_shows(select, option, tree)))
         d.achieve(Goal(what, lambda tree: self._select_shows(select, option, tree), choose), timeout=5)
+
+    def _open_select(self, select, option, what):
+        """The dropdown's list open (`option` listed). Pressed once (a second press closes the list);
+        a press that opened nothing, then the keyboard: the field focused, Enter."""
+        d = self.d
+        step = "open-%s" % select.id
+        listed = Expect("the %s list open" % what, lambda dd, tree: dd.find_in(option, tree))
+        d.step = step
+        node = d.locate(select)
+        d.s.press(node)
+        if d.wait(listed, 8, dismiss=False):
+            return d.reached(step)
+        menu = [n.brief() for n in d.tree() if n.role == "menu_item" or "expanded" in n.states][:6]
+        self.log("%s: the list not open after a press (menu items on screen: %s); with the keyboard" % (select, menu or "none"))
+        if self._select_open_closed(select):
+            d.s.key("escape")
+        keyboard = getattr(d.s, "_keyboard_press", None)
+        node = d.locate(select)
+        if keyboard:
+            keyboard(node, "enter")
+        else:
+            d.s.key("enter")
+        if d.wait(listed, 8, dismiss=False):
+            return d.reached(step)
+        d.harness("never reached: %s, after a press and Enter on %s" % (listed, select))
+
+    def _select_open_closed(self, select):
+        """Whether the screen shows any menu item (a list open that does not hold the option)."""
+        return any(n.role == "menu_item" for n in self.d.tree())
 
     def set_confirmations(self, want):
         """− or + on the stepper (its page open) until it shows `want`; the count it shows at the end
