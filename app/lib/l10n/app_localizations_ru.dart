@@ -1878,13 +1878,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Введите PIN-код, чтобы заменить этот кошелёк. Восстановленный кошелёк сохранит этот PIN-код.';
 
   @override
-  String restorePhraseUnknownWord(int position, String word) {
-    return 'Слова $position («$word») нет в списке слов.';
+  String restorePhraseUnknownWord(int position) {
+    return 'Слова $position нет в списке слов.';
   }
 
   @override
-  String restorePhraseUnknownWords(String words) {
-    return 'Нет в списке слов: $words.';
+  String restorePhraseUnknownWords(String positions) {
+    return 'Слов $positions нет в списке слов.';
   }
 
   @override
@@ -8368,8 +8368,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нечего вставить: в буфере обмена нет слов.';
 
   @override
-  String deskOnbRestoreBadWord(int position, String word) {
-    return 'Слова $position («$word») нет в списке слов.';
+  String deskOnbRestoreBadWord(int position) {
+    return 'Слова $position нет в списке слов.';
   }
 
   @override
@@ -16207,6 +16207,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String restoreWordNumber(int position) {
+    return 'Слово $position';
+  }
+
+  @override
   String get deskActNoneUnderFilter => 'Под этим фильтром ничего нет';
 
   @override
@@ -17315,8 +17320,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbFailedTitle => 'Не завершено';
 
   @override
-  String deskOnbRestoreBadWords(String words) {
-    return 'Нет в списке слов: $words.';
+  String deskOnbRestoreBadWords(String positions) {
+    return 'Слов $positions нет в списке слов.';
   }
 
   @override

@@ -2959,17 +2959,17 @@ abstract class AppLocalizations {
   /// **'Enter the PIN to replace this wallet. The restored wallet keeps the same PIN.'**
   String get restoreReplacePinReason;
 
-  /// Phrase error: the word at 1-based {position} is not a BIP39 word. Same text as deskOnbRestoreBadWord.
+  /// Phrase error: the word at 1-based {position} is not a BIP39 word. Names the number only, never the word. Same text as deskOnbRestoreBadWord.
   ///
   /// In en, this message translates to:
-  /// **'Word {position}, “{word}”, is not in the word list.'**
-  String restorePhraseUnknownWord(int position, String word);
+  /// **'Word {position} is not in the word list.'**
+  String restorePhraseUnknownWord(int position);
 
-  /// Status line on the Restore screen when more than one word is not a valid recovery word. {words} lists them as "word (place)", comma-separated.
+  /// Status line on the Restore screen when more than one word is not a valid recovery word. {positions} lists their numbers in the phrase, comma-separated; never the words.
   ///
   /// In en, this message translates to:
-  /// **'Not in the word list: {words}.'**
-  String restorePhraseUnknownWords(String words);
+  /// **'Words {positions} are not in the word list.'**
+  String restorePhraseUnknownWords(String positions);
 
   /// Phrase error: wrong number of words; {count} is what was typed.
   ///
@@ -12776,11 +12776,11 @@ abstract class AppLocalizations {
   /// **'Nothing to paste: the clipboard holds no words.'**
   String get deskOnbRestoreNothingToPaste;
 
-  /// Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase.
+  /// Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase; the word itself is never shown.
   ///
   /// In en, this message translates to:
-  /// **'Word {position}, “{word}”, is not in the word list.'**
-  String deskOnbRestoreBadWord(int position, String word);
+  /// **'Word {position} is not in the word list.'**
+  String deskOnbRestoreBadWord(int position);
 
   /// Status line under the phrase grid when the whole phrase is valid. {count} is 12 or 24.
   ///
@@ -24157,6 +24157,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{1 word is not in the list.} other{{count} words are not in the list.}}'**
   String restoreWordsUnknown(int count);
 
+  /// Restore: a chip under the phrase box for a word that is not in the recovery word list. Shows its number in the phrase only, never the word.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {position}'**
+  String restoreWordNumber(int position);
+
   /// Activity: title of the empty state when the chosen filter (Sent, Pending…) has no payment and nothing was typed in the search.
   ///
   /// In en, this message translates to:
@@ -25825,11 +25831,11 @@ abstract class AppLocalizations {
   /// **'Not finished'**
   String get deskOnbFailedTitle;
 
-  /// Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as "word (place)", comma-separated.
+  /// Status line under the phrase grid when more than one word is not a valid recovery word. {positions} lists their numbers in the phrase, comma-separated; never the words.
   ///
   /// In en, this message translates to:
-  /// **'Not in the word list: {words}.'**
-  String deskOnbRestoreBadWords(String words);
+  /// **'Words {positions} are not in the word list.'**
+  String deskOnbRestoreBadWords(String positions);
 
   /// Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short.
   ///

@@ -1887,13 +1887,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wpisz PIN, aby zastąpić ten portfel. Przywrócony portfel zachowa ten PIN.';
 
   @override
-  String restorePhraseUnknownWord(int position, String word) {
-    return 'Słowo $position, „$word”, nie występuje na liście słów.';
+  String restorePhraseUnknownWord(int position) {
+    return 'Słowo $position nie występuje na liście słów.';
   }
 
   @override
-  String restorePhraseUnknownWords(String words) {
-    return 'Nie ma na liście słów: $words.';
+  String restorePhraseUnknownWords(String positions) {
+    return 'Słowa $positions nie występują na liście słów.';
   }
 
   @override
@@ -8394,8 +8394,8 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie ma czego wkleić: w schowku nie ma słów.';
 
   @override
-  String deskOnbRestoreBadWord(int position, String word) {
-    return 'Słowo $position, „$word”, nie występuje na liście słów.';
+  String deskOnbRestoreBadWord(int position) {
+    return 'Słowo $position nie występuje na liście słów.';
   }
 
   @override
@@ -16223,6 +16223,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String restoreWordNumber(int position) {
+    return 'Słowo $position';
+  }
+
+  @override
   String get deskActNoneUnderFilter => 'Nic pod tym filtrem';
 
   @override
@@ -17332,8 +17337,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbFailedTitle => 'Nie ukończono';
 
   @override
-  String deskOnbRestoreBadWords(String words) {
-    return 'Nie ma na liście słów: $words.';
+  String deskOnbRestoreBadWords(String positions) {
+    return 'Słowa $positions nie występują na liście słów.';
   }
 
   @override

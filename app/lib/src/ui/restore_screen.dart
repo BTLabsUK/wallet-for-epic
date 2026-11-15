@@ -149,12 +149,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final problem = phraseProblem(phrase);
     return switch (problem.kind) {
       PhraseProblemKind.word when problem.unknown.length > 1 => l.restorePhraseUnknownWords(
-        unknownWordsText(problem.unknown),
+        wordNumbersText(problem.unknown),
       ),
-      PhraseProblemKind.word => l.restorePhraseUnknownWord(
-        problem.position!,
-        problem.word!,
-      ),
+      PhraseProblemKind.word => l.restorePhraseUnknownWord(problem.position!),
       PhraseProblemKind.count => l.restorePhraseWordCount(problem.count),
       PhraseProblemKind.checksum => l.restorePhraseChecksum,
     };
@@ -785,8 +782,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 }
 
 /// The count line under the phrase box, as the desktop's grid says it: "All 24 words check
-/// out." for 12 or 24 known words, else the count; a word the list lacks is named in a risk
-/// coloured chip, so a typo is found without reading every word.
+/// out." for 12 or 24 known words, else the count; a word the list lacks gets a risk coloured
+/// chip with its number (never the word), so a typo is found without reading every word.
 class RestoreWordCheck extends StatelessWidget {
   const RestoreWordCheck({super.key, required this.text});
 
@@ -801,7 +798,7 @@ class RestoreWordCheck extends StatelessWidget {
     if (words.isEmpty) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
-    final unknownWords = [for (final (i, w) in words.indexed) if (!bip39Words.contains(w)) (i + 1, w)];
+    final unknownWords = [for (final (i, w) in words.indexed) if (!bip39Words.contains(w)) i + 1];
     final unknown = unknownWords.length;
     final complete = unknown == 0 && (words.length == 12 || words.length == 24);
     final line = complete
@@ -822,7 +819,7 @@ class RestoreWordCheck extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: [
-                for (final (position, w) in unknownWords)
+                for (final position in unknownWords)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -830,14 +827,9 @@ class RestoreWordCheck extends StatelessWidget {
                       borderRadius: BorderRadius.circular(Kit.rButtonSmall),
                       border: Border.all(color: t.risk),
                     ),
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: '$position ', style: TextStyle(color: t.dim)),
-                          TextSpan(text: w, style: TextStyle(color: t.risk)),
-                        ],
-                      ),
-                      style: KitType.chip.copyWith(fontFamily: t.monoFamily),
+                    child: Text(
+                      l.restoreWordNumber(position),
+                      style: KitType.chip.copyWith(fontFamily: t.monoFamily, color: t.risk),
                     ),
                   ),
               ],

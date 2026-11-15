@@ -1803,13 +1803,13 @@ class AppLocalizationsTh extends AppLocalizations {
       'ใส่ PIN เพื่อแทนที่กระเป๋าเงินนี้ กระเป๋าเงินที่กู้คืนจะใช้ PIN นี้ต่อ';
 
   @override
-  String restorePhraseUnknownWord(int position, String word) {
-    return 'คำที่ $position “$word” ไม่อยู่ในรายการคำ';
+  String restorePhraseUnknownWord(int position) {
+    return 'คำที่ $position ไม่อยู่ในรายการคำ';
   }
 
   @override
-  String restorePhraseUnknownWords(String words) {
-    return 'ไม่อยู่ในรายการคำ: $words';
+  String restorePhraseUnknownWords(String positions) {
+    return 'คำที่ $positions ไม่อยู่ในรายการคำ';
   }
 
   @override
@@ -7845,8 +7845,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'ไม่มีอะไรให้วาง: คลิปบอร์ดไม่มีคำ';
 
   @override
-  String deskOnbRestoreBadWord(int position, String word) {
-    return 'คำที่ $position “$word” ไม่อยู่ในรายการคำ';
+  String deskOnbRestoreBadWord(int position) {
+    return 'คำที่ $position ไม่อยู่ในรายการคำ';
   }
 
   @override
@@ -15300,6 +15300,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String restoreWordNumber(int position) {
+    return 'คำที่ $position';
+  }
+
+  @override
   String get deskActNoneUnderFilter => 'ไม่มีรายการในตัวกรองนี้';
 
   @override
@@ -16377,8 +16382,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbFailedTitle => 'ไม่เสร็จสิ้น';
 
   @override
-  String deskOnbRestoreBadWords(String words) {
-    return 'ไม่อยู่ในรายการคำ: $words';
+  String deskOnbRestoreBadWords(String positions) {
+    return 'คำที่ $positions ไม่อยู่ในรายการคำ';
   }
 
   @override

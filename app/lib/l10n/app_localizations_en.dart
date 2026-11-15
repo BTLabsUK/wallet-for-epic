@@ -1828,13 +1828,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the PIN to replace this wallet. The restored wallet keeps the same PIN.';
 
   @override
-  String restorePhraseUnknownWord(int position, String word) {
-    return 'Word $position, “$word”, is not in the word list.';
+  String restorePhraseUnknownWord(int position) {
+    return 'Word $position is not in the word list.';
   }
 
   @override
-  String restorePhraseUnknownWords(String words) {
-    return 'Not in the word list: $words.';
+  String restorePhraseUnknownWords(String positions) {
+    return 'Words $positions are not in the word list.';
   }
 
   @override
@@ -8071,8 +8071,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing to paste: the clipboard holds no words.';
 
   @override
-  String deskOnbRestoreBadWord(int position, String word) {
-    return 'Word $position, “$word”, is not in the word list.';
+  String deskOnbRestoreBadWord(int position) {
+    return 'Word $position is not in the word list.';
   }
 
   @override
@@ -15664,6 +15664,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String restoreWordNumber(int position) {
+    return 'Word $position';
+  }
+
+  @override
   String get deskActNoneUnderFilter => 'Nothing under this filter';
 
   @override
@@ -16753,8 +16758,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbFailedTitle => 'Not finished';
 
   @override
-  String deskOnbRestoreBadWords(String words) {
-    return 'Not in the word list: $words.';
+  String deskOnbRestoreBadWords(String positions) {
+    return 'Words $positions are not in the word list.';
   }
 
   @override

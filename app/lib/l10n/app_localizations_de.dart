@@ -1852,13 +1852,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Geben Sie Ihre PIN ein, um diese Wallet zu ersetzen. Die wiederhergestellte Wallet behält diese PIN.';
 
   @override
-  String restorePhraseUnknownWord(int position, String word) {
-    return 'Wort $position, „$word“, steht nicht in der Wortliste.';
+  String restorePhraseUnknownWord(int position) {
+    return 'Wort $position steht nicht in der Wortliste.';
   }
 
   @override
-  String restorePhraseUnknownWords(String words) {
-    return 'Nicht in der Wortliste: $words.';
+  String restorePhraseUnknownWords(String positions) {
+    return 'Die Wörter $positions stehen nicht in der Wortliste.';
   }
 
   @override
@@ -8172,8 +8172,8 @@ class AppLocalizationsDe extends AppLocalizations {
       'Nichts einzufügen: Die Zwischenablage enthält keine Wörter.';
 
   @override
-  String deskOnbRestoreBadWord(int position, String word) {
-    return 'Wort $position, „$word“, steht nicht in der Wortliste.';
+  String deskOnbRestoreBadWord(int position) {
+    return 'Wort $position steht nicht in der Wortliste.';
   }
 
   @override
@@ -15833,6 +15833,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String restoreWordNumber(int position) {
+    return 'Wort $position';
+  }
+
+  @override
   String get deskActNoneUnderFilter => 'Nichts unter diesem Filter';
 
   @override
@@ -16933,8 +16938,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOnbFailedTitle => 'Nicht abgeschlossen';
 
   @override
-  String deskOnbRestoreBadWords(String words) {
-    return 'Nicht in der Wortliste: $words.';
+  String deskOnbRestoreBadWords(String positions) {
+    return 'Die Wörter $positions stehen nicht in der Wortliste.';
   }
 
   @override

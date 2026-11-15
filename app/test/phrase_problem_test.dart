@@ -8,17 +8,16 @@ import 'package:flutter_test/flutter_test.dart';
 const _twelve = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
 void main() {
-  test('names the first word that is not in the list, with its place', () {
+  test('gives the place of the first word that is not in the list', () {
     final p = phraseProblem('abandon abandom zoo');
     expect(p.kind, PhraseProblemKind.word);
     expect(p.position, 2);
-    expect(p.word, 'abandom');
   });
 
-  test('lists every unknown word, in phrase order', () {
+  test('lists every unknown word by place, in phrase order, never the words', () {
     final p = phraseProblem('abandon abandom zoo harbo');
-    expect(p.unknown, [(2, 'abandom'), (4, 'harbo')]);
-    expect(unknownWordsText(p.unknown), 'abandom (2), harbo (4)');
+    expect(p.unknown, [2, 4]);
+    expect(wordNumbersText(p.unknown), '2, 4');
   });
 
   test('a wrong count once every word is in the list', () {

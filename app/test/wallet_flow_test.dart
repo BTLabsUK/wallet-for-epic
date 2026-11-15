@@ -511,13 +511,20 @@ void main() {
       await _pumpApp(tester, service, device);
       await _tapText(tester, _l.firstRunRestore);
 
-      // The error names every word that is not a phrase word, with its place.
-      await _enter(tester, _l.restorePhraseLabel, 'not a valid phrase');
+      // The error and the chips give the place of every word that is not a phrase word,
+      // never the word.
+      await _enter(tester, _l.restorePhraseLabel, 'qzxw vrolp');
       await _tapText(tester, _l.commonContinue);
-      expect(
-        find.text('Not in the word list: not (1), a (2).'),
-        findsOneWidget,
-      );
+      expect(find.text('Words 1, 2 are not in the word list.'), findsOneWidget);
+      expect(find.text('Word 1'), findsOneWidget);
+      expect(find.text('Word 2'), findsOneWidget);
+      for (final word in ['qzxw', 'vrolp']) {
+        expect(
+          find.byWidgetPredicate((w) => w is Text && (w.data ?? w.textSpan?.toPlainText() ?? '').contains(word)),
+          findsNothing,
+          reason: '"$word" is shown only in the phrase box',
+        );
+      }
 
       await _enter(
         tester,
@@ -526,7 +533,7 @@ void main() {
       );
       // The error was about the words as they were: an edit takes it away (the field scrolled
       // into view may push it out of sight, so look past the viewport).
-      expect(find.text('Not in the word list: not (1), a (2).', skipOffstage: false), findsNothing);
+      expect(find.text('Words 1, 2 are not in the word list.', skipOffstage: false), findsNothing);
       // The start choice is offered to everyone behind the calendar button.
       // The phrase step's own list scrolls to the start row (the phrase box has a scrollable too).
       await tester.scrollUntilVisible(

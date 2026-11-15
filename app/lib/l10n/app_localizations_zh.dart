@@ -1726,13 +1726,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreReplacePinReason => '输入 PIN 码以替换此钱包。恢复后的钱包沿用此 PIN 码。';
 
   @override
-  String restorePhraseUnknownWord(int position, String word) {
-    return '第 $position 个单词“$word”不在词表中。';
+  String restorePhraseUnknownWord(int position) {
+    return '第 $position 个单词不在词表中。';
   }
 
   @override
-  String restorePhraseUnknownWords(String words) {
-    return '不在词表中：$words。';
+  String restorePhraseUnknownWords(String positions) {
+    return '第 $positions 个单词不在词表中。';
   }
 
   @override
@@ -7585,8 +7585,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbRestoreNothingToPaste => '没有可粘贴的内容：剪贴板中没有单词。';
 
   @override
-  String deskOnbRestoreBadWord(int position, String word) {
-    return '第 $position 个单词“$word”不在词表中。';
+  String deskOnbRestoreBadWord(int position) {
+    return '第 $position 个单词不在词表中。';
   }
 
   @override
@@ -14782,6 +14782,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String restoreWordNumber(int position) {
+    return '第 $position 个单词';
+  }
+
+  @override
   String get deskActNoneUnderFilter => '此筛选下没有内容';
 
   @override
@@ -15817,8 +15822,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbFailedTitle => '未完成';
 
   @override
-  String deskOnbRestoreBadWords(String words) {
-    return '不在词表中：$words。';
+  String deskOnbRestoreBadWords(String positions) {
+    return '第 $positions 个单词不在词表中。';
   }
 
   @override

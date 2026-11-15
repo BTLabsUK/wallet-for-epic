@@ -248,25 +248,22 @@
   "@deskOnbRestoreNothingToPaste": {
     "description": "Status line under the phrase grid when Paste found no words on the clipboard."
   },
-  "deskOnbRestoreBadWord": "Word {position}, “{word}”, is not in the word list.",
+  "deskOnbRestoreBadWord": "Word {position} is not in the word list.",
   "@deskOnbRestoreBadWord": {
-    "description": "Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase.",
+    "description": "Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase; the word itself is never shown.",
     "placeholders": {
       "position": {
         "type": "int"
-      },
-      "word": {
-        "type": "String"
       }
     }
   },
-  "deskOnbRestoreBadWords": "Not in the word list: {words}.",
+  "deskOnbRestoreBadWords": "Words {positions} are not in the word list.",
   "@deskOnbRestoreBadWords": {
-    "description": "Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as \"word (place)\", comma-separated.",
+    "description": "Status line under the phrase grid when more than one word is not a valid recovery word. {positions} lists their numbers in the phrase, comma-separated; never the words.",
     "placeholders": {
-      "words": {
+      "positions": {
         "type": "String",
-        "example": "harbo (24), wandr (15)"
+        "example": "15, 24"
       }
     }
   },

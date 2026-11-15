@@ -125,13 +125,14 @@ class PhraseEntry extends ChangeNotifier {
 
   List<String> get phrase => words.take(length).toList();
 
-  /// Every bad field as (place from 1, word), in field order.
-  List<(int, String)> get unknownWords => [for (final i in invalid.toList()..sort()) (i + 1, words[i])];
+  /// Every bad field's place, from 1, in field order (an error names a word by number only).
+  List<int> get unknownPositions => [for (final i in invalid.toList()..sort()) i + 1];
 
   /// The first bad field, or null.
   int? get firstInvalid => invalid.isEmpty ? null : (invalid.toList()..sort()).first;
 
   static final _separators = RegExp(r'[\s,;]+');
+  static final _trailing = RegExp(r'[\s,;]$');
   static final _numbering = RegExp(r'^\d+[.):-]?');
   static final _letter = RegExp('[a-z]');
 
@@ -187,10 +188,8 @@ class PhraseEntry extends ChangeNotifier {
 
   /// A field's text changed by typing (or text arriving some other way than the clipboard).
   void changed(int i, String text) {
-    // Several words at once: a paste. It fills from field 1 whichever field took it. A digit
-    // or a single word is typing and leaves the focus where it is.
-    if (split(text).length > 1) {
-      _focusAfter(paste(text).length);
+    if (_separators.hasMatch(text)) {
+      _spread(i, text);
       return;
     }
     final c = count;
@@ -202,10 +201,46 @@ class PhraseEntry extends ChangeNotifier {
     _notify();
   }
 
-  /// Checks field [i] against the list (blur or commit).
+  /// Text with a separator in it that came in without a key event: a lone character message
+  /// (Windows input methods, dictation, a remote desktop) or a drop. Twelve words or more are a
+  /// paste and fill from field 1; fewer go into field [i] and the fields after it, as typing
+  /// would put them: a word followed by a separator is done and checked, and the focus goes on.
+  void _spread(int i, String text) {
+    final ws = split(text);
+    if (ws.length >= phraseLengths.first || i + ws.length > max) {
+      _focusAfter(paste(text).length);
+      return;
+    }
+    final done = _trailing.hasMatch(text);
+    if (ws.isEmpty) {
+      // Only separators, as Space in an empty field: nothing to keep.
+      controllers[i].value = TextEditingValue.empty;
+      invalid.remove(i);
+      _notify();
+      return;
+    }
+    for (var k = 0; k < ws.length; k++) {
+      final w = ws[k];
+      controllers[i + k].value = TextEditingValue(text: w, selection: TextSelection.collapsed(offset: w.length));
+      final checked = k < ws.length - 1 || done;
+      if (checked && !bip39Words.contains(w)) {
+        invalid.add(i + k);
+      } else if (checked || bip39Words.contains(w)) {
+        invalid.remove(i + k);
+      }
+    }
+    final c = count;
+    if (c != null && i + ws.length > c) count = null;
+    pasteError = null;
+    _notify();
+    final next = i + ws.length - (done ? 0 : 1);
+    focusField(next < max ? next : max - 1);
+  }
+
   /// Tells listeners the focus moved between fields (see [typingLast]).
   void focusMoved() => _notify();
 
+  /// Checks field [i] against the list (blur or commit).
   void validate(int i) {
     final w = words[i];
     final bad = w.isNotEmpty && !bip39Words.contains(w);
@@ -394,7 +429,38 @@ class _PhraseGridState extends State<PhraseGrid> {
       entry.focusField(i - 1);
       return KeyEventResult.handled;
     }
+    final typed = _typed(event);
+    if (typed != null) {
+      _insert(i, typed);
+      return KeyEventResult.handled;
+    }
     return KeyEventResult.ignored;
+  }
+
+  /// The character a key press types, when the grid puts it in itself: one printable character,
+  /// no Ctrl, Alt or Meta held (those are shortcuts).
+  ///
+  /// The desktop engines send the text of a key the app leaves alone in a separate message, after
+  /// the key event and to the field that had the connection then. When typing is fast that text
+  /// comes after the next key's event: a Space that moves on to the next field drops the
+  /// letters still on their way, and a Space that comes before a word's first letter finds the
+  /// field empty. Taking the character from the key event keeps letters and Space in order.
+  static String? _typed(KeyEvent event) {
+    final ch = event.character;
+    if (ch == null || ch.runes.length != 1 || ch.runes.first < 0x20 || ch.runes.first == 0x7f) return null;
+    final k = HardwareKeyboard.instance;
+    if (k.isControlPressed || k.isAltPressed || k.isMetaPressed) return null;
+    return ch;
+  }
+
+  /// Puts [text] into field [i] at the cursor, over the selection, as the text input would.
+  void _insert(int i, String text) {
+    final c = entry.controllers[i];
+    final v = c.value;
+    final sel = v.selection.isValid ? v.selection : TextSelection.collapsed(offset: v.text.length);
+    final next = v.text.replaceRange(sel.start, sel.end, text.toLowerCase());
+    c.value = TextEditingValue(text: next, selection: TextSelection.collapsed(offset: sel.start + text.length));
+    entry.changed(i, next);
   }
 
   Future<void> _paste(int i) async {

@@ -3,7 +3,7 @@ import 'bip39_words.dart';
 
 /// What is wrong with a recovery phrase the core refused, so the error can say it.
 enum PhraseProblemKind {
-  /// A word that is not in the BIP-39 list ([PhraseProblem.position], [PhraseProblem.word]).
+  /// A word that is not in the BIP-39 list ([PhraseProblem.position]).
   word,
 
   /// Not 12, 15, 18, 21 or 24 words ([PhraseProblem.count]).
@@ -15,7 +15,7 @@ enum PhraseProblemKind {
 }
 
 class PhraseProblem {
-  const PhraseProblem(this.kind, {required this.count, this.position, this.word, this.unknown = const []});
+  const PhraseProblem(this.kind, {required this.count, this.position, this.unknown = const []});
 
   final PhraseProblemKind kind;
 
@@ -24,14 +24,14 @@ class PhraseProblem {
 
   /// The first unknown word's place, from 1.
   final int? position;
-  final String? word;
 
-  /// Every unknown word as (place from 1, word), in phrase order; [position]/[word] are its first.
-  final List<(int, String)> unknown;
+  /// Every unknown word's place, from 1, in phrase order; [position] is the first. The words
+  /// themselves are never kept: an error names a word by its number only.
+  final List<int> unknown;
 }
 
-/// The unknown words for the status line: `harbo (24), wandr (15)`, one entry per word, in place order.
-String unknownWordsText(Iterable<(int, String)> unknown) => unknown.map((u) => '${u.$2} (${u.$1})').join(', ');
+/// The places of the unknown words for the status line: `15, 24`. Never the words.
+String wordNumbersText(Iterable<int> positions) => positions.join(', ');
 
 /// Word counts a recovery phrase can have.
 const Set<int> phraseWordCounts = {12, 15, 18, 21, 24};
@@ -41,18 +41,12 @@ const Set<int> phraseWordCounts = {12, 15, 18, 21, 24};
 /// after the core refused the phrase; the core alone decides validity.
 PhraseProblem phraseProblem(String phrase) {
   final words = phrase.isEmpty ? const <String>[] : phrase.split(' ');
-  final unknown = <(int, String)>[
+  final unknown = [
     for (var i = 0; i < words.length; i++)
-      if (!bip39Words.contains(words[i])) (i + 1, words[i]),
+      if (!bip39Words.contains(words[i])) i + 1,
   ];
   if (unknown.isNotEmpty) {
-    return PhraseProblem(
-      PhraseProblemKind.word,
-      count: words.length,
-      position: unknown.first.$1,
-      word: unknown.first.$2,
-      unknown: unknown,
-    );
+    return PhraseProblem(PhraseProblemKind.word, count: words.length, position: unknown.first, unknown: unknown);
   }
   if (!phraseWordCounts.contains(words.length)) {
     return PhraseProblem(PhraseProblemKind.count, count: words.length);

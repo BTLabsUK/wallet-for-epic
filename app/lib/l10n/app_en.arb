@@ -2287,27 +2287,23 @@
   "@restoreReplacePinReason": {
     "description": "PIN prompt reason in Settings › Restore after the warning."
   },
-  "restorePhraseUnknownWord": "Word {position}, “{word}”, is not in the word list.",
+  "restorePhraseUnknownWord": "Word {position} is not in the word list.",
   "@restorePhraseUnknownWord": {
-    "description": "Phrase error: the word at 1-based {position} is not a BIP39 word. Same text as deskOnbRestoreBadWord.",
+    "description": "Phrase error: the word at 1-based {position} is not a BIP39 word. Names the number only, never the word. Same text as deskOnbRestoreBadWord.",
     "placeholders": {
       "position": {
         "type": "int",
         "example": "7"
-      },
-      "word": {
-        "type": "String",
-        "example": "abandom"
       }
     }
   },
-  "restorePhraseUnknownWords": "Not in the word list: {words}.",
+  "restorePhraseUnknownWords": "Words {positions} are not in the word list.",
   "@restorePhraseUnknownWords": {
-    "description": "Status line on the Restore screen when more than one word is not a valid recovery word. {words} lists them as \"word (place)\", comma-separated.",
+    "description": "Status line on the Restore screen when more than one word is not a valid recovery word. {positions} lists their numbers in the phrase, comma-separated; never the words.",
     "placeholders": {
-      "words": {
+      "positions": {
         "type": "String",
-        "example": "harbo (24), wandr (15)"
+        "example": "15, 24"
       }
     }
   },
@@ -10608,15 +10604,12 @@
   "@deskOnbRestoreNothingToPaste": {
     "description": "Status line under the phrase grid when Paste found no words on the clipboard."
   },
-  "deskOnbRestoreBadWord": "Word {position}, “{word}”, is not in the word list.",
+  "deskOnbRestoreBadWord": "Word {position} is not in the word list.",
   "@deskOnbRestoreBadWord": {
-    "description": "Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase.",
+    "description": "Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase; the word itself is never shown.",
     "placeholders": {
       "position": {
         "type": "int"
-      },
-      "word": {
-        "type": "String"
       }
     }
   },
@@ -21002,6 +20995,16 @@
       }
     }
   },
+  "restoreWordNumber": "Word {position}",
+  "@restoreWordNumber": {
+    "description": "Restore: a chip under the phrase box for a word that is not in the recovery word list. Shows its number in the phrase only, never the word.",
+    "placeholders": {
+      "position": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
   "deskActNoneUnderFilter": "Nothing under this filter",
   "@deskActNoneUnderFilter": {
     "description": "Activity: title of the empty state when the chosen filter (Sent, Pending…) has no payment and nothing was typed in the search."
@@ -22672,13 +22675,13 @@
   "@deskOnbFailedTitle": {
     "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
   },
-  "deskOnbRestoreBadWords": "Not in the word list: {words}.",
+  "deskOnbRestoreBadWords": "Words {positions} are not in the word list.",
   "@deskOnbRestoreBadWords": {
-    "description": "Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as \"word (place)\", comma-separated.",
+    "description": "Status line under the phrase grid when more than one word is not a valid recovery word. {positions} lists their numbers in the phrase, comma-separated; never the words.",
     "placeholders": {
-      "words": {
+      "positions": {
         "type": "String",
-        "example": "harbo (24), wandr (15)"
+        "example": "15, 24"
       }
     }
   },

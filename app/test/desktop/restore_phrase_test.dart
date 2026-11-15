@@ -73,6 +73,69 @@ List<String> _v24With12Prefix() {
   return [...head, bip39List.firstWhere((w) => bip39PhraseValid([...head, w]))];
 }
 
+/// Types [text] key by key the way the desktop engines deliver it: each key event goes to the
+/// app first, and only a key the app leaves alone becomes text, inserted by the engine into its
+/// copy of the field and sent as a separate message to the field that had the input connection
+/// when the key was pressed. With [lag] 1 that text arrives after the next key's event (fast
+/// typing); with 0, before it. Text sent to a connection that has closed since is dropped.
+/// Without [keys], characters come as text alone, with no key event (Windows input methods,
+/// dictation, a remote desktop).
+Future<void> _typeKeys(WidgetTester tester, String text, {int lag = 1, bool keys = true}) async {
+  final input = tester.testTextInput;
+  var seen = 0;
+  int? client;
+  var value = TextEditingValue.empty;
+  // Follows what the app told the engine: which field has the connection, and its text.
+  void follow() {
+    for (; seen < input.log.length; seen++) {
+      final call = input.log[seen];
+      switch (call.method) {
+        case 'TextInput.setClient':
+          client = (call.arguments as List)[0] as int;
+          value = TextEditingValue.empty;
+        case 'TextInput.setEditingState':
+          value = TextEditingValue.fromJSON((call.arguments as Map).cast<String, dynamic>());
+        case 'TextInput.clearClient':
+          client = null;
+      }
+    }
+  }
+
+  final pending = <(int, TextEditingValue)>[];
+  Future<void> deliver(int keep) async {
+    while (pending.length > keep) {
+      final (id, v) = pending.removeAt(0);
+      final call = MethodCall('TextInputClient.updateEditingState', [id, v.toJSON()]);
+      await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+        SystemChannels.textInput.name,
+        SystemChannels.textInput.codec.encodeMethodCall(call),
+        (_) {},
+      );
+    }
+  }
+
+  for (final ch in text.split('')) {
+    follow();
+    final handled = keys && await tester.sendKeyDownEvent(LogicalKeyboardKey(ch.toLowerCase().codeUnitAt(0)), character: ch);
+    follow();
+    if (!handled && client != null) {
+      final sel = value.selection.isValid ? value.selection : TextSelection.collapsed(offset: value.text.length);
+      final t = value.text.replaceRange(sel.start, sel.end, ch);
+      value = TextEditingValue(text: t, selection: TextSelection.collapsed(offset: sel.start + 1));
+      pending.add((client!, value));
+    }
+    await deliver(lag);
+    if (keys) await tester.sendKeyUpEvent(LogicalKeyboardKey(ch.toLowerCase().codeUnitAt(0)));
+  }
+  await deliver(0);
+  await tester.pump();
+}
+
+/// Text widgets (labels, status and error lines; not the word fields) that show [word].
+Finder _shown(String word) => find.byWidgetPredicate(
+  (w) => w is Text && (w.data ?? w.textSpan?.toPlainText() ?? '').contains(word),
+);
+
 Future<void> _type(WidgetTester tester, int i, String text) async {
   await tester.enterText(_field(i), text);
   await tester.pump();
@@ -171,7 +234,7 @@ void main() {
         .firstWhere((p) => bip39Words.contains(p) && !bip39PhraseValid([...head, p]));
     await _pump(tester);
     for (var i = 0; i < 23; i++) {
-      await _type(tester, i, head[i]);
+      _entry(tester).controllers[i].text = head[i];
     }
     _entry(tester).focusField(23);
     await tester.pump();
@@ -193,7 +256,8 @@ void main() {
     await _key(tester, LogicalKeyboardKey.tab);
     expect(_focusedOn(tester, 1), isTrue);
     expect(_entry(tester).invalid, {0});
-    expect(find.text('Word 1, “abandn”, is not in the word list.'), findsOneWidget);
+    expect(find.text('Word 1 is not in the word list.'), findsOneWidget);
+    expect(_shown('abandn'), findsNothing, reason: 'the error names the word by number only');
     await _type(tester, 0, 'abandon');
     expect(_entry(tester).invalid, isEmpty);
     expect(find.textContaining('not in the word list'), findsNothing);
@@ -350,9 +414,74 @@ void main() {
   testWidgets('a pasted word off the list is marked at once, by number', (tester) async {
     await _pump(tester);
     await _type(tester, 0, [..._v24.take(23), 'h4rbor'].join(' '));
-    expect(find.text('Word 24, “h4rbor”, is not in the word list.'), findsOneWidget);
+    expect(find.text('Word 24 is not in the word list.'), findsOneWidget);
+    expect(_shown('h4rbor'), findsNothing, reason: 'the error names the word by number only');
     expect(_focusedOn(tester, 23), isTrue, reason: 'focus lands on the bad word');
     expect(_continueEnabled(tester), isFalse);
+  });
+
+  for (final (speed, lag) in [('slowly', 0), ('fast', 1)]) {
+    testWidgets('a 24-word phrase typed key by key, $speed, fills every field and checks out', (tester) async {
+      final words = _v24With12Prefix();
+      await _pump(tester);
+      expect(_focusedOn(tester, 0), isTrue);
+      await _typeKeys(tester, words.join(' '), lag: lag);
+      expect([for (var i = 0; i < 24; i++) _entry(tester).controllers[i].text], words);
+      expect(_entry(tester).invalid, isEmpty);
+      expect(find.text('All 24 words check out.'), findsOneWidget);
+      expect(_continueEnabled(tester), isTrue);
+    });
+  }
+
+  testWidgets('a 24-word phrase that comes as text without key events fills field by field', (tester) async {
+    final words = _v24With12Prefix();
+    await _pump(tester);
+    await _typeKeys(tester, words.join(' '), lag: 0, keys: false);
+    expect([for (var i = 0; i < 24; i++) _entry(tester).controllers[i].text], words);
+    expect(_entry(tester).count, isNull, reason: 'typing, not a paste');
+    expect(find.text('All 24 words check out.'), findsOneWidget);
+    expect(_continueEnabled(tester), isTrue);
+  });
+
+  testWidgets('a few words at once in a later field go there and on, not to field 1', (tester) async {
+    await _pump(tester);
+    await _typeKeys(tester, 'abandon ', lag: 0, keys: false);
+    await _type(tester, 1, 'ability able abo');
+    final e = _entry(tester);
+    expect([for (var i = 0; i < 5; i++) e.controllers[i].text], ['abandon', 'ability', 'able', 'abo', '']);
+    expect(e.invalid, isEmpty, reason: 'the last word is still being typed');
+    expect(_focusedOn(tester, 3), isTrue);
+    await _type(tester, 3, 'abqz ');
+    expect(e.invalid, {3});
+    expect(_focusedOn(tester, 4), isTrue);
+  });
+
+  testWidgets('typed letters go in at the cursor, lower-cased; Backspace still deletes', (tester) async {
+    await _pump(tester);
+    await _typeKeys(tester, 'Abndon');
+    final c = _entry(tester).controllers[0];
+    expect(c.text, 'abndon');
+    c.selection = const TextSelection.collapsed(offset: 2);
+    await tester.pump();
+    await _typeKeys(tester, 'a');
+    expect(c.text, 'abandon');
+    expect(c.selection, const TextSelection.collapsed(offset: 3));
+    c.selection = const TextSelection(baseOffset: 0, extentOffset: 7);
+    await tester.pump();
+    await _typeKeys(tester, 'x');
+    expect(c.text, 'x', reason: 'a typed letter replaces the selection');
+    await _key(tester, LogicalKeyboardKey.backspace);
+    expect(c.text, isEmpty);
+  });
+
+  testWidgets('several words off the list: the line gives their numbers, never the words', (tester) async {
+    await _pump(tester);
+    await _typeKeys(tester, 'abandon qzxw abandon vrolp ');
+    expect(_entry(tester).invalid, {1, 3});
+    expect(find.text('Words 2, 4 are not in the word list.'), findsOneWidget);
+    expect(_shown('qzxw'), findsNothing);
+    expect(_shown('vrolp'), findsNothing);
+    expect(_shown('abandon'), findsNothing);
   });
 
   testWidgets('Backspace in an empty field goes back; Tab takes the completion', (tester) async {
