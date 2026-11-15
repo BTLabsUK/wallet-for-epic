@@ -3324,7 +3324,8 @@ class _SendViewState extends ConsumerState<SendView> {
                     leading: KitIconWell.child(KitQrGlyph(color: t.accent), size: 40),
                     minHeight: 72,
                     title: l.phoneSendInPerson,
-                    subtitle: l.phoneSendInPersonSub,
+                    // Beside the epic1 row, each says its method.
+                    subtitle: ref.read(epic1OnProvider) ? '${l.methodQr} · ${l.phoneSendInPersonSub}' : l.phoneSendInPersonSub,
                     chevron: true,
                     onTap: () {
                       Navigator.of(sheet).pop();
@@ -3338,7 +3339,7 @@ class _SendViewState extends ConsumerState<SendView> {
                     leading: KitIconWell.child(Epic1Glyph(size: 22, color: t.accent), size: 40),
                     minHeight: 72,
                     title: l.deskE1PhPayInPerson,
-                    subtitle: l.phoneSendInPersonSub,
+                    subtitle: _qrOffered ? '${l.deskE1SetSwitch} · ${l.phoneSendInPersonSub}' : l.phoneSendInPersonSub,
                     chevron: true,
                     onTap: () {
                       Navigator.of(sheet).pop();

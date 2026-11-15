@@ -317,7 +317,6 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
       phoneTourSteps(
         invoices: ref.read(invoicesShownProvider),
         devices: ref.read(linkedDevicesOnProvider),
-        epic1: ref.read(epic1OnProvider),
       );
 
   /// The step being opened, and the one the card shows: they differ while the next screen

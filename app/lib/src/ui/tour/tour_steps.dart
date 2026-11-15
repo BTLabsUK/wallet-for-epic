@@ -38,8 +38,7 @@ class PhoneTourStep {
 /// The steps: what the wallet holds (Wallet, Send, Receive, Activity, Invoices when the wallet
 /// [invoices] as the desktop does, Linked devices while [devices] is on), then where it is set up
 /// (Network & privacy, Advanced) and Help. No Contacts step: on a new wallet its list is empty.
-/// [epic1]: the wallet is in epic1 mode, so Send and Receive speak of links and in-person codes.
-List<PhoneTourStep> phoneTourSteps({required bool invoices, bool devices = true, bool epic1 = false}) => [
+List<PhoneTourStep> phoneTourSteps({required bool invoices, bool devices = true}) => [
   PhoneTourStep(
     place: TourPlace.wallet,
     targets: const ['tour-balance'],
@@ -51,13 +50,13 @@ List<PhoneTourStep> phoneTourSteps({required bool invoices, bool devices = true,
     // Without coins the Send tab says so and offers nothing else: that is what is lit.
     targets: const ['tour-send-methods', 'tour-send-recipient', 'tour-send-empty'],
     titleOf: (l) => l.tourPhoneSendTitle,
-    textOf: (l) => epic1 ? l.deskE1TourPhSendText : l.tourPhoneSendText,
+    textOf: (l) => l.tourPhoneSendText,
   ),
   PhoneTourStep(
     place: TourPlace.receive,
     targets: const ['tour-receive-address'],
     titleOf: (l) => l.tourPhoneReceiveTitle,
-    textOf: (l) => epic1 ? l.deskE1TourPhReceiveText : l.tourPhoneReceiveText,
+    textOf: (l) => l.tourPhoneReceiveText,
   ),
   PhoneTourStep(
     place: TourPlace.activity,
