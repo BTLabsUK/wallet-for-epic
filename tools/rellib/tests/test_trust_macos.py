@@ -4,6 +4,7 @@ fail-closed proof, signing decision, dialog guard and the AX tree on a recorded 
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
 import tempfile
@@ -290,6 +291,38 @@ class TreeTest(unittest.TestCase):
         self.assertEqual(create.ref["path"], [0, 0, 0, 0, 0, 0, 0, 2])
         self.assertTrue(create.ref["key"].startswith("AXButton\x01Create a new wallet"))
         self.assertIn("showing", create.states)
+
+
+class RestoreTreeTest(unittest.TestCase):
+    """26.11.3's restore screen as the helper read it on the Mac (run-16): 24 word fields with no name."""
+
+    def setUp(self):
+        with open(os.path.join(DRIVERS, "fixtures", "macos-ax-restore-26.11.3.json")) as f:
+            self.nodes = ax.parse(json.load(f)["nodes"])
+
+    def test_the_grid_fields_are_named_word_n_row_by_row(self):
+        fields = [n for n in self.nodes if n.role == "text_field"]
+        self.assertEqual(len(fields), 24)
+        self.assertEqual([f.name for f in fields], ["Word %d" % k for k in range(1, 25)])
+        f5 = fields[4].ref["frame"]   # Word 5 opens the second row, under Word 1
+        self.assertEqual(f5[0], fields[0].ref["frame"][0])
+        self.assertGreater(f5[1], fields[3].ref["frame"][1])
+
+    def test_the_drivers_word_targets_find_their_field(self):
+        from core import targets as tg
+        from dataclasses import replace
+        for i in (1, 2, 13, 24):
+            name = "re:(?:.* )?%s(?: .*)?" % re.escape(tg._norm("Word %d" % i))
+            t = tg.T("g4.restore.phrase").at(None, names=(name,)) if i == 1 else \
+                replace(tg.T("g4.restore.word.*").at(i, names=(name,)), kind="named")
+            hits = tg.find(t, self.nodes)
+            self.assertTrue(hits, "Word %d" % i)
+            self.assertEqual(hits[0].name, "Word %d" % i)
+
+    def test_a_short_run_of_unnamed_fields_is_left_alone(self):
+        raw = [{"path": [0], "role": "AXWindow", "frame": [0, 0, 900, 700]}] + [
+            {"path": [0, 0, k], "role": "AXTextField", "value": "", "frame": [10, 10 + 40 * k, 100, 30]} for k in range(3)]
+        self.assertEqual([n.name for n in ax.parse(raw)], ["", "", ""])
 
 
 class TrustShTest(Files):

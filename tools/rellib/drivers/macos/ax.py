@@ -49,6 +49,7 @@ CHROME = {"AXCloseButton", "AXFullScreenButton", "AXMinimizeButton", "AXZoomButt
 KEYS = {"escape", "back", "enter", "tab", "shift_tab", "page_down", "page_up", "space", "end", "home", "ctrl_enter",
         "shift", "select_all", "delete", "quit"}
 EYE = re.compile(r"(?i)^(show|hide)\b")
+WORDS = (12, 15, 18, 21, 24)   # the phrase lengths a restore grid can hold
 SEP = "\x01"
 q = shlex.quote
 
@@ -139,7 +140,25 @@ def parse(nodes):
         nxt = out[k + 1]
         if n.role == "text_field" and nxt.role == "button" and EYE.match(nxt.name):
             n.states = n.states | {"password"}
+    _name_words(out)
     return out
+
+
+def _name_words(out):
+    """The phrase grid's fields carry no name in macOS AX (26.11.3: no title, description, placeholder,
+    help or identifier, nor a labelled group around them), where AT-SPI reads "Word N". A run of 12 to 24
+    unnamed plain text fields side by side in the tree is that grid: each is named "Word N" by its place
+    on screen, row by row (the app's own label, deskOnbWordN)."""
+    run = []
+    for n in out + [None]:
+        if n is not None and n.role == "text_field" and not n.name and "password" not in n.states:
+            run.append(n)
+            continue
+        if len(run) in WORDS:
+            spot = lambda f: (round((f.ref.get("frame") or [0, 0])[1]), (f.ref.get("frame") or [0, 0])[0])
+            for k, f in enumerate(sorted(run, key=spot), 1):
+                f.name = "Word %d" % k
+        run = []
 
 
 class MacSurface:

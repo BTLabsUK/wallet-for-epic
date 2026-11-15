@@ -1,0 +1,1104 @@
+{
+"nodes": [
+{
+"actions": [
+"AXRaise"
+],
+"frame": [
+151,
+118,
+1210,
+700
+],
+"path": [
+0
+],
+"role": "AXWindow",
+"sub": "AXStandardWindow",
+"title": "BT Wallet"
+},
+{
+"desc": "BT Wallet",
+"frame": [
+151,
+150,
+1210,
+668
+],
+"path": [
+0,
+0
+],
+"role": "AXGroup"
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+151,
+150,
+1210,
+668
+],
+"path": [
+0,
+0,
+0
+],
+"role": "AXGroup",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+151,
+150,
+1210,
+668
+],
+"path": [
+0,
+0,
+0,
+0
+],
+"role": "AXGroup",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+151,
+201,
+1210,
+617
+],
+"path": [
+0,
+0,
+0,
+0,
+0
+],
+"role": "AXGroup",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+151,
+201,
+1210,
+617
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0
+],
+"role": "AXGroup",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"desc": "Restore wallet",
+"enabled": true,
+"frame": [
+177,
+227,
+223,
+23
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+0
+],
+"role": "AXGroup",
+"sub": "AXLandmarkBanner",
+"title": "Restore wallet",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+168,
+276,
+241,
+49
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+1
+],
+"role": "AXStaticText",
+"value": "Recovery phrase"
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+168,
+325,
+241,
+49
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+2
+],
+"role": "AXStaticText",
+"value": "Password"
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+427,
+201,
+934,
+527
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3
+],
+"role": "AXGroup",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"desc": "Recovery phrase",
+"enabled": true,
+"frame": [
+478,
+252,
+638,
+36
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+0
+],
+"role": "AXGroup",
+"sub": "AXLandmarkBanner",
+"title": "Recovery phrase",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+478,
+297,
+638,
+26
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+1
+],
+"role": "AXStaticText",
+"value": "Type the words in order, or paste the whole phrase into any box."
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"desc": "Words",
+"enabled": true,
+"frame": [
+478,
+357,
+551,
+20
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+2
+],
+"role": "AXGroup",
+"sub": "AXLandmarkBanner",
+"title": "Words",
+"value": ""
+},
+{
+"actions": [
+"AXScrollToVisible"
+],
+"enabled": true,
+"frame": [
+1028,
+359,
+88,
+18
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+3
+],
+"role": "AXStaticText",
+"value": "0 of 24 words"
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+479,
+389,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+4
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+640.75,
+389,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+5
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+802.5,
+389,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+6
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+964.25,
+389,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+7
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+479,
+441,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+8
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+640.75,
+441,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+9
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+802.5,
+441,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+10
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+964.25,
+441,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+11
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+479,
+493,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+12
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+640.75,
+493,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+13
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+802.5,
+493,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+14
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+964.25,
+493,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+15
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+479,
+545,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+16
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+640.75,
+545,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+17
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+802.5,
+545,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+18
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+964.25,
+545,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+19
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+479,
+597,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+20
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+640.75,
+597,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+21
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+802.5,
+597,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+22
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+964.25,
+597,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+23
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+479,
+649,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+24
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+640.75,
+649,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+25
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+802.5,
+649,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+26
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXShowMenu",
+"AXConfirm"
+],
+"enabled": true,
+"frame": [
+964.25,
+649,
+150.75,
+45
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+3,
+27
+],
+"role": "AXTextField",
+"value": ""
+},
+{
+"actions": [
+"AXPress",
+"AXScrollToVisible"
+],
+"desc": "Back",
+"enabled": true,
+"frame": [
+478,
+754,
+91,
+39
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+4
+],
+"role": "AXButton",
+"title": "Back",
+"value": ""
+},
+{
+"actions": [
+"AXPress",
+"AXScrollToVisible"
+],
+"desc": "Paste",
+"enabled": true,
+"frame": [
+788,
+754,
+96,
+39
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+5
+],
+"role": "AXButton",
+"title": "Paste",
+"value": ""
+},
+{
+"actions": [
+"AXPress",
+"AXScrollToVisible"
+],
+"desc": "Clear",
+"enabled": true,
+"frame": [
+896,
+754,
+95,
+39
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+6
+],
+"role": "AXButton",
+"title": "Clear",
+"value": ""
+},
+{
+"actions": [
+"AXPress",
+"AXScrollToVisible"
+],
+"desc": "Continue",
+"enabled": true,
+"frame": [
+1003,
+750,
+113,
+47
+],
+"path": [
+0,
+0,
+0,
+0,
+0,
+0,
+7
+],
+"role": "AXButton",
+"title": "Continue",
+"value": ""
+},
+{
+"actions": [
+"AXPress"
+],
+"enabled": true,
+"frame": [
+159,
+126,
+16,
+16
+],
+"path": [
+0,
+1
+],
+"role": "AXButton",
+"sub": "AXCloseButton"
+},
+{
+"actions": [
+"AXPress",
+"AXZoomWindow",
+"AXShowMenu"
+],
+"enabled": true,
+"frame": [
+205,
+126,
+16,
+16
+],
+"help": "this button also has an action to zoom the window",
+"path": [
+0,
+2
+],
+"role": "AXButton",
+"sub": "AXFullScreenButton"
+},
+{
+"frame": [
+206,
+127,
+14,
+14
+],
+"path": [
+0,
+2,
+0
+],
+"role": "AXGroup"
+},
+{
+"actions": [
+"AXPress"
+],
+"enabled": true,
+"frame": [
+182,
+126,
+16,
+16
+],
+"path": [
+0,
+3
+],
+"role": "AXButton",
+"sub": "AXMinimizeButton"
+},
+{
+"enabled": true,
+"frame": [
+233,
+126,
+66,
+16
+],
+"path": [
+0,
+4
+],
+"role": "AXStaticText",
+"value": "BT Wallet"
+}
+]
+}
