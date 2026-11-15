@@ -2,6 +2,8 @@
 // Restore's phrase grid: 24 numbered fields, a paste sets the count, words are checked on
 // blur or commit only, the checksum once the phrase is complete. The mock wallet answers the
 // checksum with the real BIP-39 rule, so the standard vectors apply.
+import 'dart:ui' as ui;
+
 import 'package:epic_wallet/src/bip39_words.dart';
 import 'package:epic_wallet/src/desktop/data/phrase_check.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/phrase_grid.dart';
@@ -129,6 +131,45 @@ Future<void> _typeKeys(WidgetTester tester, String text, {int lag = 1, bool keys
   }
   await deliver(0);
   await tester.pump();
+}
+
+/// Types [text] the way a desktop engine delivers fast typing: the key events of [batch] keys come
+/// in one key message, and the framework hands all of them to the field that has the focus when
+/// the message arrives (a focus move made by one of them takes effect only after the message).
+Future<void> _typeBatched(WidgetTester tester, String text, {required int batch}) async {
+  // The engine's own entry points (deprecated for apps, still what the desktop engines call).
+  // ignore: deprecated_member_use
+  final keys = tester.binding.keyEventManager;
+  final chars = text.split('');
+  for (var start = 0; start < chars.length; start += batch) {
+    for (final ch in chars.skip(start).take(batch)) {
+      for (final down in [true, false]) {
+        // ignore: deprecated_member_use
+        keys.handleKeyData(
+          ui.KeyData(
+            timeStamp: Duration.zero,
+            type: down ? ui.KeyEventType.down : ui.KeyEventType.up,
+            physical: 0x100000000 + ch.codeUnitAt(0),
+            logical: ch.toLowerCase().codeUnitAt(0),
+            character: down ? ch : null,
+            synthesized: false,
+          ),
+        );
+      }
+    }
+    // The raw message that makes the framework dispatch every key event since the last one.
+    // ignore: deprecated_member_use
+    await keys.handleRawKeyMessage(<String, dynamic>{
+      'type': 'keyup',
+      'keymap': 'linux',
+      'toolkit': 'gtk',
+      'keyCode': 0x61,
+      'scanCode': 0x26,
+      'modifiers': 0,
+      'unicodeScalarValues': 0,
+    });
+    await tester.pump();
+  }
 }
 
 /// Text widgets (labels, status and error lines; not the word fields) that show [word].
@@ -426,6 +467,18 @@ void main() {
       await _pump(tester);
       expect(_focusedOn(tester, 0), isTrue);
       await _typeKeys(tester, words.join(' '), lag: lag);
+      expect([for (var i = 0; i < 24; i++) _entry(tester).controllers[i].text], words);
+      expect(_entry(tester).invalid, isEmpty);
+      expect(find.text('All 24 words check out.'), findsOneWidget);
+      expect(_continueEnabled(tester), isTrue);
+    });
+  }
+
+  for (final batch in [3, 5]) {
+    testWidgets('a 24-word phrase typed so fast that $batch keys come in one key message fills every field', (tester) async {
+      final words = _v24With12Prefix();
+      await _pump(tester);
+      await _typeBatched(tester, words.join(' '), batch: batch);
       expect([for (var i = 0; i < 24; i++) _entry(tester).controllers[i].text], words);
       expect(_entry(tester).invalid, isEmpty);
       expect(find.text('All 24 words check out.'), findsOneWidget);

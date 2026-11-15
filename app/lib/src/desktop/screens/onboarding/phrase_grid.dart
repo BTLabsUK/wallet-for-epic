@@ -238,7 +238,19 @@ class PhraseEntry extends ChangeNotifier {
   }
 
   /// Tells listeners the focus moved between fields (see [typingLast]).
-  void focusMoved() => _notify();
+  void focusMoved() {
+    _moving = null;
+    _notify();
+  }
+
+  /// The field [focusField] last moved the focus to, until the move has taken effect.
+  int? _moving;
+
+  /// The field a key event that reached field [i] is for. Fast typing brings the events of
+  /// several keys in one key message, and the framework hands all of them to the field that had
+  /// the focus when it arrived, also the keys after a Space that moved on: those are for the
+  /// field the focus is moving to.
+  int fieldFor(int i) => _moving ?? i;
 
   /// Checks field [i] against the list (blur or commit).
   void validate(int i) {
@@ -289,6 +301,7 @@ class PhraseEntry extends ChangeNotifier {
 
   void focusField(int i) {
     if (i < 0 || i >= max) return;
+    _moving = focus[i].hasFocus ? null : i;
     focus[i].requestFocus();
     final c = controllers[i];
     c.selection = TextSelection.collapsed(offset: c.text.length);
@@ -400,8 +413,9 @@ class _PhraseGridState extends State<PhraseGrid> {
     super.dispose();
   }
 
-  KeyEventResult _key(int i, KeyEvent event) {
+  KeyEventResult _key(int at, KeyEvent event) {
     if (event is KeyUpEvent) return KeyEventResult.ignored;
+    final i = entry.fieldFor(at);
     final key = event.logicalKey;
     final c = entry.controllers[i];
     if (key == LogicalKeyboardKey.space || key == LogicalKeyboardKey.comma) {
