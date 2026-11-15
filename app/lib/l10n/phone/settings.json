@@ -371,7 +371,6 @@
   "@phoneSettingsLinkDevice": {
     "description": "Button on Linked devices: start linking another device."
   },
-  "phoneSettingsEpic1Line": "Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.",
   "phoneHelpSecStart": "Getting started",
   "phoneHelpSecHow": "How payments work",
   "phoneHelpSecNetwork": "Networks and privacy",

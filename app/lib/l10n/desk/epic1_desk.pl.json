@@ -1,13 +1,7 @@
 {
-  "deskE1SetGroup": "epic1",
   "deskE1SetSwitch": "epic1",
   "deskE1SetInfo": "Płać i dostawaj zapłatę przez linki epic1, kody do płatności osobistych i pliki epic1. Link jest w Odbierz, wśród innych sposobów odbierania. Wyłączone: żadne z nich się nie otwiera. Wszystkie portfele.",
   "deskE1SetSyn": "epic1, zapieczętowane, linki, osobiście, kody",
-  "deskE1TurnOnTitle": "Używać płatności epic1?",
-  "deskE1TurnOnBody": "Płatności idą wtedy tylko do portfeli z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby zapłacić innemu portfelowi Epic.",
-  "deskE1TurnOn": "Włącz",
-  "deskE1AppliesNext": "Obowiązuje od następnego odblokowania",
-  "deskE1LockNow": "Zablokuj teraz",
   "deskE1PrintedCodes": "Linki drukowane",
   "deskE1PrintedHint": "Linki epic1 do wydruku lub zachowania. Wycofaj link, gdy nie jest już używany.",
   "deskE1PrintedCount": "{n} z 32",
@@ -46,7 +40,6 @@
   "deskE1Sent": "Wysłano",
   "deskE1Cancelled": "Płatność anulowana",
   "deskE1Done": "Gotowe",
-  "deskE1ClassicTip": "Wyłącz płatności epic1, aby zapłacić temu kontaktowi",
   "deskE1PayInPerson": "Zapłać osobiście",
   "deskE1Back": "Wstecz"
 }

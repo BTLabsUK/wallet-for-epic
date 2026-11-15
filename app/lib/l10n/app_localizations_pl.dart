@@ -19627,29 +19627,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Utworzono w nowszej wersji aplikacji. Zaktualizuj, aby otworzyć ten portfel.';
 
   @override
-  String get deskE1ModeClassicAddress =>
-      'Adres klasyczny. Wyłącz płatności epic1, aby go opłacić.';
-
-  @override
-  String get deskE1ModeClassicCode =>
-      'Kod klasyczny. Wyłącz płatności epic1, aby go użyć.';
-
-  @override
-  String get deskE1ModeClassicFile =>
-      'Plik klasyczny. Wyłącz płatności epic1, aby go otworzyć.';
-
-  @override
-  String get deskE1ModeEpic1Link =>
-      'Link epic1. Włącz płatności epic1, aby go opłacić.';
-
-  @override
-  String get deskE1ModeEpic1File =>
-      'Plik epic1. Włącz płatności epic1, aby go otworzyć.';
-
-  @override
-  String get deskE1ClassicOnly => 'Tylko klasyczne';
-
-  @override
   String get deskE1PaymentStopped =>
       'Płatność zatrzymana. Nic nie zostało wysłane.';
 
@@ -19793,34 +19770,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskIpPostFailed => 'Odpowiedź nie dotarła. Spróbuj ponownie.';
 
   @override
-  String get deskE1PhExperimental => 'Eksperymentalne';
-
-  @override
-  String get deskE1PhSwitch => 'Płatności epic1';
-
-  @override
-  String get deskE1PhConfirmTitle => 'Używać płatności epic1?';
-
-  @override
-  String get deskE1PhConfirmBody =>
-      'Płatności idą wtedy tylko do portfeli z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby zapłacić innemu portfelowi Epic.';
-
-  @override
-  String get deskE1PhTurnOn => 'Włącz';
-
-  @override
-  String get deskE1PhAppliesNext => 'Zadziała po następnym odblokowaniu';
-
-  @override
-  String get deskE1PhLockNow => 'Zablokuj teraz';
-
-  @override
-  String get deskE1PhSection => 'epic1';
-
-  @override
-  String get deskE1PhReceiving => 'Odbieranie';
-
-  @override
   String get deskE1PhPrinted => 'Linki drukowane';
 
   @override
@@ -19879,9 +19828,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskE1PhAnyAmount => 'Dowolna kwota';
 
   @override
-  String get deskE1PhInPerson => 'Osobiście';
-
-  @override
   String get deskE1PhSettings => 'Ustawienia';
 
   @override
@@ -19893,13 +19839,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhField => 'Link epic1 lub kontakt';
-
-  @override
   String get deskE1PhPayInPerson => 'Zapłać osobiście';
-
-  @override
-  String get deskE1PhContacts => 'Kontakty';
 
   @override
   String get deskE1PhUnknownTitle => 'Wysłać przez ten serwer?';
@@ -19951,13 +19891,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskE1PhDone => 'Gotowe';
 
   @override
-  String get deskE1PhClassicOnlyTip =>
-      'Wyłącz płatności epic1, aby zapłacić temu kontaktowi';
-
-  @override
-  String get deskE1SetGroup => 'epic1';
-
-  @override
   String get deskE1SetSwitch => 'epic1';
 
   @override
@@ -19966,22 +19899,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1SetSyn => 'epic1, zapieczętowane, linki, osobiście, kody';
-
-  @override
-  String get deskE1TurnOnTitle => 'Używać płatności epic1?';
-
-  @override
-  String get deskE1TurnOnBody =>
-      'Płatności idą wtedy tylko do portfeli z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby zapłacić innemu portfelowi Epic.';
-
-  @override
-  String get deskE1TurnOn => 'Włącz';
-
-  @override
-  String get deskE1AppliesNext => 'Obowiązuje od następnego odblokowania';
-
-  @override
-  String get deskE1LockNow => 'Zablokuj teraz';
 
   @override
   String get deskE1PrintedCodes => 'Linki drukowane';
@@ -20113,10 +20030,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskE1Done => 'Gotowe';
 
   @override
-  String get deskE1ClassicTip =>
-      'Wyłącz płatności epic1, aby zapłacić temu kontaktowi';
-
-  @override
   String get deskE1PayInPerson => 'Zapłać osobiście';
 
   @override
@@ -20131,22 +20044,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'Od';
-
-  @override
-  String get deskE1TourPhSendText =>
-      'Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Najpierw jest podgląd.';
-
-  @override
-  String get deskE1TourPhReceiveText =>
-      'Twój link epic1. Udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.';
-
-  @override
-  String get deskE1TourSendText =>
-      'Wklej link epic1 albo wybierz kontakt. „Zapłać osobiście” służy do płatności telefonowi obok ciebie. Przed wysłaniem jest podgląd.';
-
-  @override
-  String get deskE1TourReceiveText =>
-      'Link epic1 tego portfela: udostępnij go, aby dostać zapłatę. „Poproś osobiście” służy do telefonu obok ciebie.';
 
   @override
   String get deskE1Sealed => 'Zapieczętowane przez epic1';
@@ -21613,10 +21510,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Bloki, zanim płatność będzie Twoja do wydania';
 
   @override
-  String get phoneSettingsEpic1Line =>
-      'Płać i odbieraj płatności linkami epic1 i kodami osobistymi. Klasyczne płatności nadal docierają.';
-
-  @override
   String get phoneHelpSecStart => 'Pierwsze kroki';
 
   @override
@@ -22037,10 +21930,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskE1ErrNotInPerson =>
       'To nie jest kod, który ten portfel może opłacić lub sprawdzić.';
-
-  @override
-  String get deskE1ModeEpic1Code =>
-      'Kod osobisty epic1. Włącz płatności epic1, aby go opłacić.';
 
   @override
   String get pairRefusesInvoices => 'Portfel tego kontaktu nie opłaca faktur.';

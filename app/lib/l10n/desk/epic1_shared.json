@@ -47,30 +47,6 @@
   "@deskE1ErrWalletTooNew": {
     "description": "The wallet's data was written by a newer app version."
   },
-  "deskE1ModeClassicAddress": "Classic address. Turn off epic1 payments to pay it.",
-  "@deskE1ModeClassicAddress": {
-    "description": "epic1 payments are on and the user entered a classic wallet address. 'epic1 payments' is the setting's name."
-  },
-  "deskE1ModeClassicCode": "Classic code. Turn off epic1 payments to use it.",
-  "@deskE1ModeClassicCode": {
-    "description": "epic1 payments are on and the user scanned a classic payment code."
-  },
-  "deskE1ModeClassicFile": "Classic file. Turn off epic1 payments to open it.",
-  "@deskE1ModeClassicFile": {
-    "description": "epic1 payments are on and the user opened a classic payment file."
-  },
-  "deskE1ModeEpic1Link": "epic1 link. Turn on epic1 payments to pay it.",
-  "@deskE1ModeEpic1Link": {
-    "description": "epic1 payments are off and the user entered an epic1 payment link."
-  },
-  "deskE1ModeEpic1File": "epic1 file. Turn on epic1 payments to open it.",
-  "@deskE1ModeEpic1File": {
-    "description": "epic1 payments are off and the user opened an epic1 payment file."
-  },
-  "deskE1ClassicOnly": "Classic only",
-  "@deskE1ClassicOnly": {
-    "description": "Badge on a contact that cannot receive epic1 payments, only classic ones."
-  },
   "deskE1PaymentStopped": "Payment stopped. Nothing was posted.",
   "@deskE1PaymentStopped": {
     "description": "The user stopped a payment before it was sent to the network."
@@ -120,9 +96,5 @@
   "deskE1ErrNotInPerson": "Not a code this wallet can pay or check.",
   "@deskE1ErrNotInPerson": {
     "description": "A scanned animated code is neither an in-person code this wallet can pay nor an answer to one of its own codes (altered, or meant for another device)."
-  },
-  "deskE1ModeEpic1Code": "epic1 in-person code. Turn on epic1 payments to pay it.",
-  "@deskE1ModeEpic1Code": {
-    "description": "epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name."
   }
 }

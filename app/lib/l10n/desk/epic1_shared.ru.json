@@ -11,12 +11,6 @@
   "deskE1ErrRelayInvalid": "Это не адрес сервера. Укажите host или host:port.",
   "deskE1ErrSavedTx": "Это не файл платежа.",
   "deskE1ErrWalletTooNew": "Создано более новой версией приложения. Обновите его, чтобы открыть этот кошелёк.",
-  "deskE1ModeClassicAddress": "Классический адрес. Выключите платежи epic1, чтобы оплатить его.",
-  "deskE1ModeClassicCode": "Классический код. Выключите платежи epic1, чтобы использовать его.",
-  "deskE1ModeClassicFile": "Классический файл. Выключите платежи epic1, чтобы открыть его.",
-  "deskE1ModeEpic1Link": "Ссылка epic1. Включите платежи epic1, чтобы оплатить её.",
-  "deskE1ModeEpic1File": "Файл epic1. Включите платежи epic1, чтобы открыть его.",
-  "deskE1ClassicOnly": "Только классические",
   "deskE1PaymentStopped": "Платёж остановлен. Ничего не отправлено.",
   "deskE1SameCodeTwice": "Два телефона ответили одним и тем же кодом.",
   "deskE1ShowNewCode": "Показать новый код",
@@ -26,6 +20,5 @@
   "deskE1Sealed": "Запечатано epic1",
   "deskE1SpokenSealed": "{row}, запечатано epic1",
   "deskE1ErrCodeWrongNetwork": "Этот код для другой сети.",
-  "deskE1ErrNotInPerson": "Этот кошелёк не может оплатить или проверить этот код.",
-  "deskE1ModeEpic1Code": "Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его."
+  "deskE1ErrNotInPerson": "Этот кошелёк не может оплатить или проверить этот код."
 }

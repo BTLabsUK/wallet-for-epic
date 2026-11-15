@@ -29491,42 +29491,6 @@ abstract class AppLocalizations {
   /// **'Made by a newer version of the app. Update to open this wallet.'**
   String get deskE1ErrWalletTooNew;
 
-  /// epic1 payments are on and the user entered a classic wallet address. 'epic1 payments' is the setting's name.
-  ///
-  /// In en, this message translates to:
-  /// **'Classic address. Turn off epic1 payments to pay it.'**
-  String get deskE1ModeClassicAddress;
-
-  /// epic1 payments are on and the user scanned a classic payment code.
-  ///
-  /// In en, this message translates to:
-  /// **'Classic code. Turn off epic1 payments to use it.'**
-  String get deskE1ModeClassicCode;
-
-  /// epic1 payments are on and the user opened a classic payment file.
-  ///
-  /// In en, this message translates to:
-  /// **'Classic file. Turn off epic1 payments to open it.'**
-  String get deskE1ModeClassicFile;
-
-  /// epic1 payments are off and the user entered an epic1 payment link.
-  ///
-  /// In en, this message translates to:
-  /// **'epic1 link. Turn on epic1 payments to pay it.'**
-  String get deskE1ModeEpic1Link;
-
-  /// epic1 payments are off and the user opened an epic1 payment file.
-  ///
-  /// In en, this message translates to:
-  /// **'epic1 file. Turn on epic1 payments to open it.'**
-  String get deskE1ModeEpic1File;
-
-  /// Badge on a contact that cannot receive epic1 payments, only classic ones.
-  ///
-  /// In en, this message translates to:
-  /// **'Classic only'**
-  String get deskE1ClassicOnly;
-
   /// The user stopped a payment before it was sent to the network.
   ///
   /// In en, this message translates to:
@@ -29767,60 +29731,6 @@ abstract class AppLocalizations {
   /// **'The answer did not go through. Try again.'**
   String get deskIpPostFailed;
 
-  /// Settings › Transactions: header of the last section, for features that can still change.
-  ///
-  /// In en, this message translates to:
-  /// **'Experimental'**
-  String get deskE1PhExperimental;
-
-  /// Settings switch that turns on the epic1 payment format. "epic1" is a name; keep it as is.
-  ///
-  /// In en, this message translates to:
-  /// **'epic1 payments'**
-  String get deskE1PhSwitch;
-
-  /// Title of the dialog shown when turning on epic1 payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Use epic1 payments?'**
-  String get deskE1PhConfirmTitle;
-
-  /// Body of the dialog shown when turning on epic1 payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.'**
-  String get deskE1PhConfirmBody;
-
-  /// Confirm button of the "Use epic1 payments?" dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on'**
-  String get deskE1PhTurnOn;
-
-  /// Under the epic1 payments switch while the stored setting differs from the one in use.
-  ///
-  /// In en, this message translates to:
-  /// **'Applies at next unlock'**
-  String get deskE1PhAppliesNext;
-
-  /// Button that locks the wallet so the epic1 setting applies at the next unlock.
-  ///
-  /// In en, this message translates to:
-  /// **'Lock now'**
-  String get deskE1PhLockNow;
-
-  /// Settings › Transactions: header of the epic1 section. A name; keep it as is.
-  ///
-  /// In en, this message translates to:
-  /// **'epic1'**
-  String get deskE1PhSection;
-
-  /// Settings › Transactions in epic1 mode: header above Confirmations.
-  ///
-  /// In en, this message translates to:
-  /// **'Receiving'**
-  String get deskE1PhReceiving;
-
   /// Settings row: the payment link codes made for printing.
   ///
   /// In en, this message translates to:
@@ -29917,12 +29827,6 @@ abstract class AppLocalizations {
   /// **'Any amount'**
   String get deskE1PhAnyAmount;
 
-  /// Receive: a payment from a phone next to this one.
-  ///
-  /// In en, this message translates to:
-  /// **'In person'**
-  String get deskE1PhInPerson;
-
   /// Button that opens Settings › Transactions.
   ///
   /// In en, this message translates to:
@@ -29941,23 +29845,11 @@ abstract class AppLocalizations {
   /// **'{host} is on the local network. Only wallets on this network can pay links made with it.'**
   String deskE1PhLanBody(String host);
 
-  /// Send: label of the one recipient field in epic1 mode.
-  ///
-  /// In en, this message translates to:
-  /// **'epic1 link or contact'**
-  String get deskE1PhField;
-
   /// Send: button under the field that pays a phone next to this one.
   ///
   /// In en, this message translates to:
   /// **'Pay in person'**
   String get deskE1PhPayInPerson;
-
-  /// Tooltip of the button that picks a contact.
-  ///
-  /// In en, this message translates to:
-  /// **'Contacts'**
-  String get deskE1PhContacts;
 
   /// Dialog when the link's server is not in the server list.
   ///
@@ -30049,18 +29941,6 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get deskE1PhDone;
 
-  /// Tooltip on a contact that only takes classic payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn off epic1 payments to pay this contact'**
-  String get deskE1PhClassicOnlyTip;
-
-  /// Settings › Transactions: title of the section for epic1 payments (a payment format name, kept lowercase).
-  ///
-  /// In en, this message translates to:
-  /// **'epic1'**
-  String get deskE1SetGroup;
-
   /// Settings › Payments: the name of the epic1 payment method, on the row with its switch and in the line that says a method is off (a payment format name, kept lowercase).
   ///
   /// In en, this message translates to:
@@ -30078,36 +29958,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'epic1, sealed, links, in person, codes'**
   String get deskE1SetSyn;
-
-  /// Confirm dialog title when turning epic1 payments on.
-  ///
-  /// In en, this message translates to:
-  /// **'Use epic1 payments?'**
-  String get deskE1TurnOnTitle;
-
-  /// Confirm dialog body when turning epic1 payments on.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.'**
-  String get deskE1TurnOnBody;
-
-  /// Confirm button that turns epic1 payments on.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn on'**
-  String get deskE1TurnOn;
-
-  /// Under the epic1 payments switch: the change takes effect after the wallet is locked and unlocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Applies at next unlock'**
-  String get deskE1AppliesNext;
-
-  /// Button that locks the wallet now so a changed setting applies at the next unlock.
-  ///
-  /// In en, this message translates to:
-  /// **'Lock now'**
-  String get deskE1LockNow;
 
   /// Settings › Transactions › epic1: the row that opens the list of printed payment link codes.
   ///
@@ -30337,12 +30187,6 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get deskE1Done;
 
-  /// Tooltip on a contact without epic1 in epic1 mode.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn off epic1 payments to pay this contact'**
-  String get deskE1ClassicTip;
-
   /// Send (epic1 mode): opens the in-person payment, a code shown on this screen.
   ///
   /// In en, this message translates to:
@@ -30372,30 +30216,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From'**
   String get deskImpFrom;
-
-  /// Phone tour, Send step, in epic1 mode: one field for an epic1 link or a contact, and the Pay in person button. Names the button 'Pay in person' as on the screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes first.'**
-  String get deskE1TourPhSendText;
-
-  /// Phone tour, Receive step, in epic1 mode: the epic1 link card and the Request in person button below it. Names the button 'Request in person' as on the screen.
-  ///
-  /// In en, this message translates to:
-  /// **'This wallet’s epic1 link. Share it to get paid. Request in person is for a phone close by.'**
-  String get deskE1TourPhReceiveText;
-
-  /// Desktop tour, Send step, in epic1 mode: the epic1 link field and the Pay in person button.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes before anything leaves.'**
-  String get deskE1TourSendText;
-
-  /// Desktop tour, Receive step, in epic1 mode: the epic1 link card and the In person panel.
-  ///
-  /// In en, this message translates to:
-  /// **'This wallet\'s epic1 link: share it to get paid. Request in person is for a phone next to you.'**
-  String get deskE1TourReceiveText;
 
   /// Badge on a payment that was sealed (only the two wallets in it can read it): to or from a paired contact, or through an epic1 link. "epic1" is a name: keep it as is, never translate.
   ///
@@ -32827,12 +32647,6 @@ abstract class AppLocalizations {
   /// **'Blocks before a payment can be spent'**
   String get phoneSettingsConfirmationsLine;
 
-  /// No description provided for @phoneSettingsEpic1Line.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.'**
-  String get phoneSettingsEpic1Line;
-
   /// No description provided for @phoneHelpSecStart.
   ///
   /// In en, this message translates to:
@@ -33534,12 +33348,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not a code this wallet can pay or check.'**
   String get deskE1ErrNotInPerson;
-
-  /// epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name.
-  ///
-  /// In en, this message translates to:
-  /// **'epic1 in-person code. Turn on epic1 payments to pay it.'**
-  String get deskE1ModeEpic1Code;
 
   /// Invoice to a contact refused: the contact's card says its wallet does not pay invoices. No name known.
   ///

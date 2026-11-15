@@ -25795,30 +25795,6 @@
   "@deskE1ErrWalletTooNew": {
     "description": "The wallet's data was written by a newer app version."
   },
-  "deskE1ModeClassicAddress": "Classic address. Turn off epic1 payments to pay it.",
-  "@deskE1ModeClassicAddress": {
-    "description": "epic1 payments are on and the user entered a classic wallet address. 'epic1 payments' is the setting's name."
-  },
-  "deskE1ModeClassicCode": "Classic code. Turn off epic1 payments to use it.",
-  "@deskE1ModeClassicCode": {
-    "description": "epic1 payments are on and the user scanned a classic payment code."
-  },
-  "deskE1ModeClassicFile": "Classic file. Turn off epic1 payments to open it.",
-  "@deskE1ModeClassicFile": {
-    "description": "epic1 payments are on and the user opened a classic payment file."
-  },
-  "deskE1ModeEpic1Link": "epic1 link. Turn on epic1 payments to pay it.",
-  "@deskE1ModeEpic1Link": {
-    "description": "epic1 payments are off and the user entered an epic1 payment link."
-  },
-  "deskE1ModeEpic1File": "epic1 file. Turn on epic1 payments to open it.",
-  "@deskE1ModeEpic1File": {
-    "description": "epic1 payments are off and the user opened an epic1 payment file."
-  },
-  "deskE1ClassicOnly": "Classic only",
-  "@deskE1ClassicOnly": {
-    "description": "Badge on a contact that cannot receive epic1 payments, only classic ones."
-  },
   "deskE1PaymentStopped": "Payment stopped. Nothing was posted.",
   "@deskE1PaymentStopped": {
     "description": "The user stopped a payment before it was sent to the network."
@@ -26004,42 +25980,6 @@
   "@deskIpPostFailed": {
     "description": "The answer could not be posted to the server; the user can retry."
   },
-  "deskE1PhExperimental": "Experimental",
-  "@deskE1PhExperimental": {
-    "description": "Settings › Transactions: header of the last section, for features that can still change."
-  },
-  "deskE1PhSwitch": "epic1 payments",
-  "@deskE1PhSwitch": {
-    "description": "Settings switch that turns on the epic1 payment format. \"epic1\" is a name; keep it as is."
-  },
-  "deskE1PhConfirmTitle": "Use epic1 payments?",
-  "@deskE1PhConfirmTitle": {
-    "description": "Title of the dialog shown when turning on epic1 payments."
-  },
-  "deskE1PhConfirmBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
-  "@deskE1PhConfirmBody": {
-    "description": "Body of the dialog shown when turning on epic1 payments."
-  },
-  "deskE1PhTurnOn": "Turn on",
-  "@deskE1PhTurnOn": {
-    "description": "Confirm button of the \"Use epic1 payments?\" dialog."
-  },
-  "deskE1PhAppliesNext": "Applies at next unlock",
-  "@deskE1PhAppliesNext": {
-    "description": "Under the epic1 payments switch while the stored setting differs from the one in use."
-  },
-  "deskE1PhLockNow": "Lock now",
-  "@deskE1PhLockNow": {
-    "description": "Button that locks the wallet so the epic1 setting applies at the next unlock."
-  },
-  "deskE1PhSection": "epic1",
-  "@deskE1PhSection": {
-    "description": "Settings › Transactions: header of the epic1 section. A name; keep it as is."
-  },
-  "deskE1PhReceiving": "Receiving",
-  "@deskE1PhReceiving": {
-    "description": "Settings › Transactions in epic1 mode: header above Confirmations."
-  },
   "deskE1PhPrinted": "Printed links",
   "@deskE1PhPrinted": {
     "description": "Settings row: the payment link codes made for printing."
@@ -26132,10 +26072,6 @@
   "@deskE1PhAnyAmount": {
     "description": "Button that goes back to a link without a set amount."
   },
-  "deskE1PhInPerson": "In person",
-  "@deskE1PhInPerson": {
-    "description": "Receive: a payment from a phone next to this one."
-  },
   "deskE1PhSettings": "Settings",
   "@deskE1PhSettings": {
     "description": "Button that opens Settings › Transactions."
@@ -26153,17 +26089,9 @@
       }
     }
   },
-  "deskE1PhField": "epic1 link or contact",
-  "@deskE1PhField": {
-    "description": "Send: label of the one recipient field in epic1 mode."
-  },
   "deskE1PhPayInPerson": "Pay in person",
   "@deskE1PhPayInPerson": {
     "description": "Send: button under the field that pays a phone next to this one."
-  },
-  "deskE1PhContacts": "Contacts",
-  "@deskE1PhContacts": {
-    "description": "Tooltip of the button that picks a contact."
   },
   "deskE1PhUnknownTitle": "Send through this server?",
   "@deskE1PhUnknownTitle": {
@@ -26235,14 +26163,6 @@
   "@deskE1PhDone": {
     "description": "Button that closes the finished send."
   },
-  "deskE1PhClassicOnlyTip": "Turn off epic1 payments to pay this contact",
-  "@deskE1PhClassicOnlyTip": {
-    "description": "Tooltip on a contact that only takes classic payments."
-  },
-  "deskE1SetGroup": "epic1",
-  "@deskE1SetGroup": {
-    "description": "Settings › Transactions: title of the section for epic1 payments (a payment format name, kept lowercase)."
-  },
   "deskE1SetSwitch": "epic1",
   "@deskE1SetSwitch": {
     "description": "Settings › Payments: the name of the epic1 payment method, on the row with its switch and in the line that says a method is off (a payment format name, kept lowercase)."
@@ -26254,26 +26174,6 @@
   "deskE1SetSyn": "epic1, sealed, links, in person, codes",
   "@deskE1SetSyn": {
     "description": "Settings search: other words that find the epic1 payment method, comma-separated."
-  },
-  "deskE1TurnOnTitle": "Use epic1 payments?",
-  "@deskE1TurnOnTitle": {
-    "description": "Confirm dialog title when turning epic1 payments on."
-  },
-  "deskE1TurnOnBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
-  "@deskE1TurnOnBody": {
-    "description": "Confirm dialog body when turning epic1 payments on."
-  },
-  "deskE1TurnOn": "Turn on",
-  "@deskE1TurnOn": {
-    "description": "Confirm button that turns epic1 payments on."
-  },
-  "deskE1AppliesNext": "Applies at next unlock",
-  "@deskE1AppliesNext": {
-    "description": "Under the epic1 payments switch: the change takes effect after the wallet is locked and unlocked."
-  },
-  "deskE1LockNow": "Lock now",
-  "@deskE1LockNow": {
-    "description": "Button that locks the wallet now so a changed setting applies at the next unlock."
   },
   "deskE1PrintedCodes": "Printed links",
   "@deskE1PrintedCodes": {
@@ -26462,10 +26362,6 @@
   "@deskE1Done": {
     "description": "Send (epic1 mode): closes the result."
   },
-  "deskE1ClassicTip": "Turn off epic1 payments to pay this contact",
-  "@deskE1ClassicTip": {
-    "description": "Tooltip on a contact without epic1 in epic1 mode."
-  },
   "deskE1PayInPerson": "Pay in person",
   "@deskE1PayInPerson": {
     "description": "Send (epic1 mode): opens the in-person payment, a code shown on this screen."
@@ -26485,22 +26381,6 @@
   "deskImpFrom": "From",
   "@deskImpFrom": {
     "description": "Receive a file › result: label before the sender (a paired contact's name, or Unknown sender for a plain file)."
-  },
-  "deskE1TourPhSendText": "Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes first.",
-  "@deskE1TourPhSendText": {
-    "description": "Phone tour, Send step, in epic1 mode: one field for an epic1 link or a contact, and the Pay in person button. Names the button 'Pay in person' as on the screen."
-  },
-  "deskE1TourPhReceiveText": "This wallet’s epic1 link. Share it to get paid. Request in person is for a phone close by.",
-  "@deskE1TourPhReceiveText": {
-    "description": "Phone tour, Receive step, in epic1 mode: the epic1 link card and the Request in person button below it. Names the button 'Request in person' as on the screen."
-  },
-  "deskE1TourSendText": "Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes before anything leaves.",
-  "@deskE1TourSendText": {
-    "description": "Desktop tour, Send step, in epic1 mode: the epic1 link field and the Pay in person button."
-  },
-  "deskE1TourReceiveText": "This wallet's epic1 link: share it to get paid. Request in person is for a phone next to you.",
-  "@deskE1TourReceiveText": {
-    "description": "Desktop tour, Receive step, in epic1 mode: the epic1 link card and the In person panel."
   },
   "deskE1Sealed": "Sealed with epic1",
   "@deskE1Sealed": {
@@ -28525,7 +28405,6 @@
   "@phoneSettingsConfirmationsLine": {
     "description": "Line under the Confirmations stepper."
   },
-  "phoneSettingsEpic1Line": "Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.",
   "phoneHelpSecStart": "Getting started",
   "phoneHelpSecHow": "How payments work",
   "phoneHelpSecNetwork": "Networks and privacy",
@@ -29121,10 +29000,6 @@
   "deskE1ErrNotInPerson": "Not a code this wallet can pay or check.",
   "@deskE1ErrNotInPerson": {
     "description": "A scanned animated code is neither an in-person code this wallet can pay nor an answer to one of its own codes (altered, or meant for another device)."
-  },
-  "deskE1ModeEpic1Code": "epic1 in-person code. Turn on epic1 payments to pay it.",
-  "@deskE1ModeEpic1Code": {
-    "description": "epic1 payments are off and the user scanned an epic1 in-person payment code. 'epic1 payments' is the setting's name."
   },
   "pairRefusesInvoices": "This contact’s wallet does not pay invoices.",
   "@pairRefusesInvoices": {

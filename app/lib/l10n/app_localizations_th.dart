@@ -18629,29 +18629,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'สร้างโดยแอปเวอร์ชันใหม่กว่า อัปเดตเพื่อเปิดกระเป๋าเงินนี้';
 
   @override
-  String get deskE1ModeClassicAddress =>
-      'ที่อยู่แบบคลาสสิก ปิดการชำระเงิน epic1 เพื่อจ่าย';
-
-  @override
-  String get deskE1ModeClassicCode =>
-      'รหัสแบบคลาสสิก ปิดการชำระเงิน epic1 เพื่อใช้';
-
-  @override
-  String get deskE1ModeClassicFile =>
-      'ไฟล์แบบคลาสสิก ปิดการชำระเงิน epic1 เพื่อเปิด';
-
-  @override
-  String get deskE1ModeEpic1Link =>
-      'ลิงก์ epic1 เปิดการชำระเงิน epic1 เพื่อจ่าย';
-
-  @override
-  String get deskE1ModeEpic1File =>
-      'ไฟล์ epic1 เปิดการชำระเงิน epic1 เพื่อเปิด';
-
-  @override
-  String get deskE1ClassicOnly => 'คลาสสิกเท่านั้น';
-
-  @override
   String get deskE1PaymentStopped => 'หยุดการชำระเงินแล้ว ไม่มีสิ่งใดถูกส่ง';
 
   @override
@@ -18789,34 +18766,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskIpPostFailed => 'ส่งคำตอบไม่สำเร็จ ลองอีกครั้ง';
 
   @override
-  String get deskE1PhExperimental => 'ทดลอง';
-
-  @override
-  String get deskE1PhSwitch => 'การชำระเงิน epic1';
-
-  @override
-  String get deskE1PhConfirmTitle => 'ใช้การชำระเงิน epic1 หรือไม่';
-
-  @override
-  String get deskE1PhConfirmBody =>
-      'จากนั้นจะจ่ายเงินให้วอลเล็ตที่มี epic1 เท่านั้น การชำระเงินแบบคลาสสิกยังเข้ามาได้ ปิดเพื่อจ่ายให้วอลเล็ต Epic อื่น';
-
-  @override
-  String get deskE1PhTurnOn => 'เปิด';
-
-  @override
-  String get deskE1PhAppliesNext => 'มีผลเมื่อปลดล็อกครั้งถัดไป';
-
-  @override
-  String get deskE1PhLockNow => 'ล็อกตอนนี้';
-
-  @override
-  String get deskE1PhSection => 'epic1';
-
-  @override
-  String get deskE1PhReceiving => 'การรับ';
-
-  @override
   String get deskE1PhPrinted => 'ลิงก์สำหรับพิมพ์';
 
   @override
@@ -18875,9 +18824,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskE1PhAnyAmount => 'จำนวนใดก็ได้';
 
   @override
-  String get deskE1PhInPerson => 'แบบพบหน้า';
-
-  @override
   String get deskE1PhSettings => 'การตั้งค่า';
 
   @override
@@ -18889,13 +18835,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhField => 'ลิงก์ epic1 หรือผู้ติดต่อ';
-
-  @override
   String get deskE1PhPayInPerson => 'จ่ายแบบพบหน้า';
-
-  @override
-  String get deskE1PhContacts => 'ผู้ติดต่อ';
 
   @override
   String get deskE1PhUnknownTitle => 'ส่งผ่านเซิร์ฟเวอร์นี้หรือไม่';
@@ -18947,13 +18887,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskE1PhDone => 'เสร็จสิ้น';
 
   @override
-  String get deskE1PhClassicOnlyTip =>
-      'ปิดการชำระเงิน epic1 เพื่อจ่ายให้ผู้ติดต่อนี้';
-
-  @override
-  String get deskE1SetGroup => 'epic1';
-
-  @override
   String get deskE1SetSwitch => 'epic1';
 
   @override
@@ -18962,22 +18895,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1SetSyn => 'epic1, ปิดผนึก, ลิงก์, พบหน้า, รหัส';
-
-  @override
-  String get deskE1TurnOnTitle => 'ใช้การชำระเงิน epic1 หรือไม่';
-
-  @override
-  String get deskE1TurnOnBody =>
-      'จากนั้นจะจ่ายเงินให้กระเป๋าที่มี epic1 เท่านั้น การชำระเงินแบบดั้งเดิมยังเข้ามาได้ ปิดเพื่อจ่ายให้กระเป๋า Epic อื่น';
-
-  @override
-  String get deskE1TurnOn => 'เปิด';
-
-  @override
-  String get deskE1AppliesNext => 'มีผลเมื่อปลดล็อกครั้งถัดไป';
-
-  @override
-  String get deskE1LockNow => 'ล็อกเลย';
 
   @override
   String get deskE1PrintedCodes => 'ลิงก์ที่พิมพ์';
@@ -19109,10 +19026,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskE1Done => 'เสร็จ';
 
   @override
-  String get deskE1ClassicTip =>
-      'ปิดการชำระเงิน epic1 เพื่อจ่ายให้ผู้ติดต่อนี้';
-
-  @override
   String get deskE1PayInPerson => 'จ่ายต่อหน้า';
 
   @override
@@ -19127,22 +19040,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'จาก';
-
-  @override
-  String get deskE1TourPhSendText =>
-      'วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนเสมอ';
-
-  @override
-  String get deskE1TourPhReceiveText =>
-      'ลิงก์ epic1 ของคุณ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ';
-
-  @override
-  String get deskE1TourSendText =>
-      'วางลิงก์ epic1 หรือเลือกผู้ติดต่อ «จ่ายต่อหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ จะมีการตรวจสอบก่อนส่งทุกครั้ง';
-
-  @override
-  String get deskE1TourReceiveText =>
-      'ลิงก์ epic1 ของกระเป๋าเงินนี้ แชร์เพื่อรับเงิน «ขอเงินแบบพบหน้า» ใช้กับโทรศัพท์ที่อยู่ข้างคุณ';
 
   @override
   String get deskE1Sealed => 'ปิดผนึกด้วย epic1';
@@ -20579,10 +20476,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'จำนวนบล็อกก่อนที่เงินจะใช้จ่ายได้';
 
   @override
-  String get phoneSettingsEpic1Line =>
-      'จ่ายและรับด้วยลิงก์ epic1 และโค้ดต่อหน้า การจ่ายแบบเดิมยังเข้ามาตามปกติ';
-
-  @override
   String get phoneHelpSecStart => 'เริ่มต้นใช้งาน';
 
   @override
@@ -21000,10 +20893,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1ErrNotInPerson => 'กระเป๋านี้จ่ายหรือตรวจสอบโค้ดนี้ไม่ได้';
-
-  @override
-  String get deskE1ModeEpic1Code =>
-      'โค้ดแบบพบตัว epic1 เปิดการชำระเงิน epic1 เพื่อจ่าย';
 
   @override
   String get pairRefusesInvoices =>

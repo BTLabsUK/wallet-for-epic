@@ -1,8 +1,4 @@
 {
-  "deskE1SetGroup": "epic1",
-  "@deskE1SetGroup": {
-    "description": "Settings › Transactions: title of the section for epic1 payments (a payment format name, kept lowercase)."
-  },
   "deskE1SetSwitch": "epic1",
   "@deskE1SetSwitch": {
     "description": "Settings › Payments: the name of the epic1 payment method, on the row with its switch and in the line that says a method is off (a payment format name, kept lowercase)."
@@ -14,26 +10,6 @@
   "deskE1SetSyn": "epic1, sealed, links, in person, codes",
   "@deskE1SetSyn": {
     "description": "Settings search: other words that find the epic1 payment method, comma-separated."
-  },
-  "deskE1TurnOnTitle": "Use epic1 payments?",
-  "@deskE1TurnOnTitle": {
-    "description": "Confirm dialog title when turning epic1 payments on."
-  },
-  "deskE1TurnOnBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
-  "@deskE1TurnOnBody": {
-    "description": "Confirm dialog body when turning epic1 payments on."
-  },
-  "deskE1TurnOn": "Turn on",
-  "@deskE1TurnOn": {
-    "description": "Confirm button that turns epic1 payments on."
-  },
-  "deskE1AppliesNext": "Applies at next unlock",
-  "@deskE1AppliesNext": {
-    "description": "Under the epic1 payments switch: the change takes effect after the wallet is locked and unlocked."
-  },
-  "deskE1LockNow": "Lock now",
-  "@deskE1LockNow": {
-    "description": "Button that locks the wallet now so a changed setting applies at the next unlock."
   },
   "deskE1PrintedCodes": "Printed links",
   "@deskE1PrintedCodes": {
@@ -221,10 +197,6 @@
   "deskE1Done": "Done",
   "@deskE1Done": {
     "description": "Send (epic1 mode): closes the result."
-  },
-  "deskE1ClassicTip": "Turn off epic1 payments to pay this contact",
-  "@deskE1ClassicTip": {
-    "description": "Tooltip on a contact without epic1 in epic1 mode."
   },
   "deskE1PayInPerson": "Pay in person",
   "@deskE1PayInPerson": {

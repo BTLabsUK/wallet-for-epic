@@ -19015,29 +19015,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Made by a newer version of the app. Update to open this wallet.';
 
   @override
-  String get deskE1ModeClassicAddress =>
-      'Classic address. Turn off epic1 payments to pay it.';
-
-  @override
-  String get deskE1ModeClassicCode =>
-      'Classic code. Turn off epic1 payments to use it.';
-
-  @override
-  String get deskE1ModeClassicFile =>
-      'Classic file. Turn off epic1 payments to open it.';
-
-  @override
-  String get deskE1ModeEpic1Link =>
-      'epic1 link. Turn on epic1 payments to pay it.';
-
-  @override
-  String get deskE1ModeEpic1File =>
-      'epic1 file. Turn on epic1 payments to open it.';
-
-  @override
-  String get deskE1ClassicOnly => 'Classic only';
-
-  @override
   String get deskE1PaymentStopped => 'Payment stopped. Nothing was posted.';
 
   @override
@@ -19177,34 +19154,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskIpPostFailed => 'The answer did not go through. Try again.';
 
   @override
-  String get deskE1PhExperimental => 'Experimental';
-
-  @override
-  String get deskE1PhSwitch => 'epic1 payments';
-
-  @override
-  String get deskE1PhConfirmTitle => 'Use epic1 payments?';
-
-  @override
-  String get deskE1PhConfirmBody =>
-      'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.';
-
-  @override
-  String get deskE1PhTurnOn => 'Turn on';
-
-  @override
-  String get deskE1PhAppliesNext => 'Applies at next unlock';
-
-  @override
-  String get deskE1PhLockNow => 'Lock now';
-
-  @override
-  String get deskE1PhSection => 'epic1';
-
-  @override
-  String get deskE1PhReceiving => 'Receiving';
-
-  @override
   String get deskE1PhPrinted => 'Printed links';
 
   @override
@@ -19263,9 +19212,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskE1PhAnyAmount => 'Any amount';
 
   @override
-  String get deskE1PhInPerson => 'In person';
-
-  @override
   String get deskE1PhSettings => 'Settings';
 
   @override
@@ -19277,13 +19223,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhField => 'epic1 link or contact';
-
-  @override
   String get deskE1PhPayInPerson => 'Pay in person';
-
-  @override
-  String get deskE1PhContacts => 'Contacts';
 
   @override
   String get deskE1PhUnknownTitle => 'Send through this server?';
@@ -19336,13 +19276,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskE1PhDone => 'Done';
 
   @override
-  String get deskE1PhClassicOnlyTip =>
-      'Turn off epic1 payments to pay this contact';
-
-  @override
-  String get deskE1SetGroup => 'epic1';
-
-  @override
   String get deskE1SetSwitch => 'epic1';
 
   @override
@@ -19351,22 +19284,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1SetSyn => 'epic1, sealed, links, in person, codes';
-
-  @override
-  String get deskE1TurnOnTitle => 'Use epic1 payments?';
-
-  @override
-  String get deskE1TurnOnBody =>
-      'Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.';
-
-  @override
-  String get deskE1TurnOn => 'Turn on';
-
-  @override
-  String get deskE1AppliesNext => 'Applies at next unlock';
-
-  @override
-  String get deskE1LockNow => 'Lock now';
 
   @override
   String get deskE1PrintedCodes => 'Printed links';
@@ -19498,9 +19415,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskE1Done => 'Done';
 
   @override
-  String get deskE1ClassicTip => 'Turn off epic1 payments to pay this contact';
-
-  @override
   String get deskE1PayInPerson => 'Pay in person';
 
   @override
@@ -19515,22 +19429,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'From';
-
-  @override
-  String get deskE1TourPhSendText =>
-      'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes first.';
-
-  @override
-  String get deskE1TourPhReceiveText =>
-      'This wallet’s epic1 link. Share it to get paid. Request in person is for a phone close by.';
-
-  @override
-  String get deskE1TourSendText =>
-      'Paste an epic1 link or pick a contact. Pay in person is for a phone next to you. A review comes before anything leaves.';
-
-  @override
-  String get deskE1TourReceiveText =>
-      'This wallet\'s epic1 link: share it to get paid. Request in person is for a phone next to you.';
 
   @override
   String get deskE1Sealed => 'Sealed with epic1';
@@ -21002,10 +20900,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Blocks before a payment can be spent';
 
   @override
-  String get phoneSettingsEpic1Line =>
-      'Pay and be paid with epic1 links and in-person codes. Classic payments still arrive.';
-
-  @override
   String get phoneHelpSecStart => 'Getting started';
 
   @override
@@ -21426,10 +21320,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1ErrNotInPerson => 'Not a code this wallet can pay or check.';
-
-  @override
-  String get deskE1ModeEpic1Code =>
-      'epic1 in-person code. Turn on epic1 payments to pay it.';
 
   @override
   String get pairRefusesInvoices =>

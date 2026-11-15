@@ -1,13 +1,7 @@
 {
-  "deskE1SetGroup": "epic1",
   "deskE1SetSwitch": "epic1",
   "deskE1SetInfo": "Zahlen und bezahlt werden mit epic1-Links, Codes für persönliche Zahlungen und epic1-Dateien. Den Link finden Sie unter Empfangen bei den weiteren Empfangswegen. Aus: Nichts davon wird geöffnet. Alle Wallets.",
   "deskE1SetSyn": "epic1, versiegelt, Links, persönlich, Codes",
-  "deskE1TurnOnTitle": "epic1-Zahlungen verwenden?",
-  "deskE1TurnOnBody": "Zahlungen gehen dann nur an Wallets mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um eine andere Epic-Wallet zu bezahlen.",
-  "deskE1TurnOn": "Einschalten",
-  "deskE1AppliesNext": "Gilt ab dem nächsten Entsperren",
-  "deskE1LockNow": "Jetzt sperren",
   "deskE1PrintedCodes": "Gedruckte Links",
   "deskE1PrintedHint": "epic1-Links zum Drucken oder Aufbewahren. Legen Sie einen still, wenn er nicht mehr gebraucht wird.",
   "deskE1PrintedCount": "{n} von 32",
@@ -46,7 +40,6 @@
   "deskE1Sent": "Gesendet",
   "deskE1Cancelled": "Zahlung abgebrochen",
   "deskE1Done": "Fertig",
-  "deskE1ClassicTip": "Schalte epic1-Zahlungen aus, um diesen Kontakt zu bezahlen",
   "deskE1PayInPerson": "Persönlich bezahlen",
   "deskE1Back": "Zurück"
 }

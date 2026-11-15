@@ -1,13 +1,4 @@
 {
-  "deskE1PhExperimental": "Experimentell",
-  "deskE1PhSwitch": "epic1-Zahlungen",
-  "deskE1PhConfirmTitle": "epic1-Zahlungen verwenden?",
-  "deskE1PhConfirmBody": "Zahlungen gehen dann nur an Wallets mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um eine andere Epic-Wallet zu bezahlen.",
-  "deskE1PhTurnOn": "Einschalten",
-  "deskE1PhAppliesNext": "Gilt ab dem nächsten Entsperren",
-  "deskE1PhLockNow": "Jetzt sperren",
-  "deskE1PhSection": "epic1",
-  "deskE1PhReceiving": "Empfangen",
   "deskE1PhPrinted": "Gedruckte Links",
   "deskE1PhPrintedCount": "{n} von {max}",
   "deskE1PhPrintedEmpty": "Keine gedruckten Links.",
@@ -24,13 +15,10 @@
   "deskE1PhMakeLink": "Link erstellen",
   "deskE1PhLinkAsks": "Fordert {amount}",
   "deskE1PhAnyAmount": "Beliebiger Betrag",
-  "deskE1PhInPerson": "Persönlich",
   "deskE1PhSettings": "Einstellungen",
   "deskE1PhLanTitle": "Server im lokalen Netzwerk verwenden?",
   "deskE1PhLanBody": "{host} ist im lokalen Netzwerk. Nur Wallets in diesem Netzwerk können damit erstellte Links bezahlen.",
-  "deskE1PhField": "epic1-Link oder Kontakt",
   "deskE1PhPayInPerson": "Persönlich bezahlen",
-  "deskE1PhContacts": "Kontakte",
   "deskE1PhUnknownTitle": "Über diesen Server senden?",
   "deskE1PhUnknownBody": "{host} ist nicht in deiner Serverliste.",
   "deskE1PhUseServer": "Server verwenden",
@@ -45,6 +33,5 @@
   "deskE1PhCancelUnlock": "Abbrechen und freigeben",
   "deskE1PhCancelled": "Zahlung abgebrochen. Die Coins sind wieder frei.",
   "deskE1PhSent": "Gesendet",
-  "deskE1PhDone": "Fertig",
-  "deskE1PhClassicOnlyTip": "Schalte epic1-Zahlungen aus, um diesen Kontakt zu bezahlen"
+  "deskE1PhDone": "Fertig"
 }

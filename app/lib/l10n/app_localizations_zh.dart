@@ -17963,24 +17963,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1ErrWalletTooNew => '由更新版本的应用创建。请更新后打开此钱包。';
 
   @override
-  String get deskE1ModeClassicAddress => '经典地址。关闭 epic1 付款后才能支付。';
-
-  @override
-  String get deskE1ModeClassicCode => '经典码。关闭 epic1 付款后才能使用。';
-
-  @override
-  String get deskE1ModeClassicFile => '经典文件。关闭 epic1 付款后才能打开。';
-
-  @override
-  String get deskE1ModeEpic1Link => 'epic1 链接。开启 epic1 付款后才能支付。';
-
-  @override
-  String get deskE1ModeEpic1File => 'epic1 文件。开启 epic1 付款后才能打开。';
-
-  @override
-  String get deskE1ClassicOnly => '仅经典';
-
-  @override
   String get deskE1PaymentStopped => '付款已停止。未发送任何内容。';
 
   @override
@@ -18116,34 +18098,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskIpPostFailed => '回应未送达。请重试。';
 
   @override
-  String get deskE1PhExperimental => '实验性';
-
-  @override
-  String get deskE1PhSwitch => 'epic1 付款';
-
-  @override
-  String get deskE1PhConfirmTitle => '使用 epic1 付款？';
-
-  @override
-  String get deskE1PhConfirmBody =>
-      '之后付款只发往支持 epic1 的钱包。经典付款仍会到达。关闭后可向其他任何 Epic 钱包付款。';
-
-  @override
-  String get deskE1PhTurnOn => '开启';
-
-  @override
-  String get deskE1PhAppliesNext => '下次解锁时生效';
-
-  @override
-  String get deskE1PhLockNow => '立即锁定';
-
-  @override
-  String get deskE1PhSection => 'epic1';
-
-  @override
-  String get deskE1PhReceiving => '收款';
-
-  @override
   String get deskE1PhPrinted => '打印的链接';
 
   @override
@@ -18202,9 +18156,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1PhAnyAmount => '任意金额';
 
   @override
-  String get deskE1PhInPerson => '面对面';
-
-  @override
   String get deskE1PhSettings => '设置';
 
   @override
@@ -18216,13 +18167,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhField => 'epic1 链接或联系人';
-
-  @override
   String get deskE1PhPayInPerson => '面对面付款';
-
-  @override
-  String get deskE1PhContacts => '联系人';
 
   @override
   String get deskE1PhUnknownTitle => '通过此服务器发送？';
@@ -18274,12 +18219,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1PhDone => '完成';
 
   @override
-  String get deskE1PhClassicOnlyTip => '关闭 epic1 付款以向此联系人付款';
-
-  @override
-  String get deskE1SetGroup => 'epic1';
-
-  @override
   String get deskE1SetSwitch => 'epic1';
 
   @override
@@ -18288,22 +18227,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1SetSyn => 'epic1, 密封, 链接, 面对面, 码';
-
-  @override
-  String get deskE1TurnOnTitle => '使用 epic1 付款？';
-
-  @override
-  String get deskE1TurnOnBody =>
-      '之后付款只发往支持 epic1 的钱包。经典付款仍会到达。关闭后可向其他任何 Epic 钱包付款。';
-
-  @override
-  String get deskE1TurnOn => '开启';
-
-  @override
-  String get deskE1AppliesNext => '下次解锁时生效';
-
-  @override
-  String get deskE1LockNow => '立即锁定';
 
   @override
   String get deskE1PrintedCodes => '打印的链接';
@@ -18434,9 +18357,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1Done => '完成';
 
   @override
-  String get deskE1ClassicTip => '关闭 epic1 付款以向此联系人付款';
-
-  @override
   String get deskE1PayInPerson => '当面付款';
 
   @override
@@ -18450,19 +18370,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskImpFrom => '来自';
-
-  @override
-  String get deskE1TourPhSendText =>
-      '粘贴 epic1 链接，或选择联系人。“面对面付款”用于身边的手机。发出前会先确认。';
-
-  @override
-  String get deskE1TourPhReceiveText => '你的 epic1 链接。分享它即可收款。“面对面收款”用于身边的手机。';
-
-  @override
-  String get deskE1TourSendText => '粘贴 epic1 链接，或选择联系人。“当面付款”用于身边的手机。发出前会先确认。';
-
-  @override
-  String get deskE1TourReceiveText => '这个钱包的 epic1 链接：分享它即可收款。“当面请求”用于身边的手机。';
 
   @override
   String get deskE1Sealed => '已用 epic1 密封';
@@ -19831,9 +19738,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get phoneSettingsConfirmationsLine => '付款需要经过多少个区块才算可花费';
 
   @override
-  String get phoneSettingsEpic1Line => '用 epic1 链接和当面码付款与收款。经典付款仍可到账。';
-
-  @override
   String get phoneHelpSecStart => '开始使用';
 
   @override
@@ -20233,9 +20137,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1ErrNotInPerson => '此钱包无法支付或核对此码。';
-
-  @override
-  String get deskE1ModeEpic1Code => 'epic1 当面代码。开启 epic1 付款后才能支付。';
 
   @override
   String get pairRefusesInvoices => '此联系人的钱包不支付账单。';

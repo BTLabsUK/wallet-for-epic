@@ -1,13 +1,4 @@
 {
-  "deskE1PhExperimental": "实验性",
-  "deskE1PhSwitch": "epic1 付款",
-  "deskE1PhConfirmTitle": "使用 epic1 付款？",
-  "deskE1PhConfirmBody": "之后付款只发往支持 epic1 的钱包。经典付款仍会到达。关闭后可向其他任何 Epic 钱包付款。",
-  "deskE1PhTurnOn": "开启",
-  "deskE1PhAppliesNext": "下次解锁时生效",
-  "deskE1PhLockNow": "立即锁定",
-  "deskE1PhSection": "epic1",
-  "deskE1PhReceiving": "收款",
   "deskE1PhPrinted": "打印的链接",
   "deskE1PhPrintedCount": "{n} / {max}",
   "deskE1PhPrintedEmpty": "没有打印的链接。",
@@ -24,13 +15,10 @@
   "deskE1PhMakeLink": "生成链接",
   "deskE1PhLinkAsks": "金额 {amount}",
   "deskE1PhAnyAmount": "任意金额",
-  "deskE1PhInPerson": "面对面",
   "deskE1PhSettings": "设置",
   "deskE1PhLanTitle": "使用本地网络服务器？",
   "deskE1PhLanBody": "{host} 位于本地网络。只有该网络中的钱包能支付用它生成的链接。",
-  "deskE1PhField": "epic1 链接或联系人",
   "deskE1PhPayInPerson": "面对面付款",
-  "deskE1PhContacts": "联系人",
   "deskE1PhUnknownTitle": "通过此服务器发送？",
   "deskE1PhUnknownBody": "{host} 不在你的服务器列表中。",
   "deskE1PhUseServer": "使用服务器",
@@ -45,6 +33,5 @@
   "deskE1PhCancelUnlock": "取消并解锁",
   "deskE1PhCancelled": "付款已取消。币已解锁。",
   "deskE1PhSent": "已发送",
-  "deskE1PhDone": "完成",
-  "deskE1PhClassicOnlyTip": "关闭 epic1 付款以向此联系人付款"
+  "deskE1PhDone": "完成"
 }

@@ -1,13 +1,4 @@
 {
-  "deskE1PhExperimental": "ทดลอง",
-  "deskE1PhSwitch": "การชำระเงิน epic1",
-  "deskE1PhConfirmTitle": "ใช้การชำระเงิน epic1 หรือไม่",
-  "deskE1PhConfirmBody": "จากนั้นจะจ่ายเงินให้วอลเล็ตที่มี epic1 เท่านั้น การชำระเงินแบบคลาสสิกยังเข้ามาได้ ปิดเพื่อจ่ายให้วอลเล็ต Epic อื่น",
-  "deskE1PhTurnOn": "เปิด",
-  "deskE1PhAppliesNext": "มีผลเมื่อปลดล็อกครั้งถัดไป",
-  "deskE1PhLockNow": "ล็อกตอนนี้",
-  "deskE1PhSection": "epic1",
-  "deskE1PhReceiving": "การรับ",
   "deskE1PhPrinted": "ลิงก์สำหรับพิมพ์",
   "deskE1PhPrintedCount": "{n} จาก {max}",
   "deskE1PhPrintedEmpty": "ไม่มีลิงก์สำหรับพิมพ์",
@@ -24,13 +15,10 @@
   "deskE1PhMakeLink": "สร้างลิงก์",
   "deskE1PhLinkAsks": "ขอ {amount}",
   "deskE1PhAnyAmount": "จำนวนใดก็ได้",
-  "deskE1PhInPerson": "แบบพบหน้า",
   "deskE1PhSettings": "การตั้งค่า",
   "deskE1PhLanTitle": "ใช้เซิร์ฟเวอร์ในเครือข่ายท้องถิ่นหรือไม่",
   "deskE1PhLanBody": "{host} อยู่ในเครือข่ายท้องถิ่น เฉพาะวอลเล็ตในเครือข่ายนี้เท่านั้นที่จ่ายลิงก์ที่สร้างด้วยเซิร์ฟเวอร์นี้ได้",
-  "deskE1PhField": "ลิงก์ epic1 หรือผู้ติดต่อ",
   "deskE1PhPayInPerson": "จ่ายแบบพบหน้า",
-  "deskE1PhContacts": "ผู้ติดต่อ",
   "deskE1PhUnknownTitle": "ส่งผ่านเซิร์ฟเวอร์นี้หรือไม่",
   "deskE1PhUnknownBody": "{host} ไม่อยู่ในรายการเซิร์ฟเวอร์ของคุณ",
   "deskE1PhUseServer": "ใช้เซิร์ฟเวอร์",
@@ -45,6 +33,5 @@
   "deskE1PhCancelUnlock": "ยกเลิกและปลดล็อก",
   "deskE1PhCancelled": "ยกเลิกการชำระเงินแล้ว เหรียญกลับมาใช้ได้",
   "deskE1PhSent": "ส่งแล้ว",
-  "deskE1PhDone": "เสร็จสิ้น",
-  "deskE1PhClassicOnlyTip": "ปิดการชำระเงิน epic1 เพื่อจ่ายให้ผู้ติดต่อนี้"
+  "deskE1PhDone": "เสร็จสิ้น"
 }

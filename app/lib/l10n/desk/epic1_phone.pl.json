@@ -1,13 +1,4 @@
 {
-  "deskE1PhExperimental": "Eksperymentalne",
-  "deskE1PhSwitch": "Płatności epic1",
-  "deskE1PhConfirmTitle": "Używać płatności epic1?",
-  "deskE1PhConfirmBody": "Płatności idą wtedy tylko do portfeli z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby zapłacić innemu portfelowi Epic.",
-  "deskE1PhTurnOn": "Włącz",
-  "deskE1PhAppliesNext": "Zadziała po następnym odblokowaniu",
-  "deskE1PhLockNow": "Zablokuj teraz",
-  "deskE1PhSection": "epic1",
-  "deskE1PhReceiving": "Odbieranie",
   "deskE1PhPrinted": "Linki drukowane",
   "deskE1PhPrintedCount": "{n} z {max}",
   "deskE1PhPrintedEmpty": "Brak linków drukowanych.",
@@ -24,13 +15,10 @@
   "deskE1PhMakeLink": "Utwórz link",
   "deskE1PhLinkAsks": "Prosi o {amount}",
   "deskE1PhAnyAmount": "Dowolna kwota",
-  "deskE1PhInPerson": "Osobiście",
   "deskE1PhSettings": "Ustawienia",
   "deskE1PhLanTitle": "Użyć serwera w sieci lokalnej?",
   "deskE1PhLanBody": "{host} jest w sieci lokalnej. Tylko portfele w tej sieci mogą opłacić utworzone z nim linki.",
-  "deskE1PhField": "Link epic1 lub kontakt",
   "deskE1PhPayInPerson": "Zapłać osobiście",
-  "deskE1PhContacts": "Kontakty",
   "deskE1PhUnknownTitle": "Wysłać przez ten serwer?",
   "deskE1PhUnknownBody": "{host} nie ma na Twojej liście serwerów.",
   "deskE1PhUseServer": "Użyj serwera",
@@ -45,6 +33,5 @@
   "deskE1PhCancelUnlock": "Anuluj i odblokuj",
   "deskE1PhCancelled": "Płatność anulowana. Monety są znów wolne.",
   "deskE1PhSent": "Wysłano",
-  "deskE1PhDone": "Gotowe",
-  "deskE1PhClassicOnlyTip": "Wyłącz płatności epic1, aby zapłacić temu kontaktowi"
+  "deskE1PhDone": "Gotowe"
 }

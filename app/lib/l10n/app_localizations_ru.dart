@@ -19612,29 +19612,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Создано более новой версией приложения. Обновите его, чтобы открыть этот кошелёк.';
 
   @override
-  String get deskE1ModeClassicAddress =>
-      'Классический адрес. Выключите платежи epic1, чтобы оплатить его.';
-
-  @override
-  String get deskE1ModeClassicCode =>
-      'Классический код. Выключите платежи epic1, чтобы использовать его.';
-
-  @override
-  String get deskE1ModeClassicFile =>
-      'Классический файл. Выключите платежи epic1, чтобы открыть его.';
-
-  @override
-  String get deskE1ModeEpic1Link =>
-      'Ссылка epic1. Включите платежи epic1, чтобы оплатить её.';
-
-  @override
-  String get deskE1ModeEpic1File =>
-      'Файл epic1. Включите платежи epic1, чтобы открыть его.';
-
-  @override
-  String get deskE1ClassicOnly => 'Только классические';
-
-  @override
   String get deskE1PaymentStopped => 'Платёж остановлен. Ничего не отправлено.';
 
   @override
@@ -19777,34 +19754,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskIpPostFailed => 'Ответ не доставлен. Повторите попытку.';
 
   @override
-  String get deskE1PhExperimental => 'Экспериментальное';
-
-  @override
-  String get deskE1PhSwitch => 'Платежи epic1';
-
-  @override
-  String get deskE1PhConfirmTitle => 'Использовать платежи epic1?';
-
-  @override
-  String get deskE1PhConfirmBody =>
-      'Тогда платежи уходят только на кошельки с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы заплатить любому другому кошельку Epic.';
-
-  @override
-  String get deskE1PhTurnOn => 'Включить';
-
-  @override
-  String get deskE1PhAppliesNext => 'Применится при следующей разблокировке';
-
-  @override
-  String get deskE1PhLockNow => 'Заблокировать';
-
-  @override
-  String get deskE1PhSection => 'epic1';
-
-  @override
-  String get deskE1PhReceiving => 'Получение';
-
-  @override
   String get deskE1PhPrinted => 'Печатные ссылки';
 
   @override
@@ -19863,9 +19812,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskE1PhAnyAmount => 'Любая сумма';
 
   @override
-  String get deskE1PhInPerson => 'Лично';
-
-  @override
   String get deskE1PhSettings => 'Настройки';
 
   @override
@@ -19877,13 +19823,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskE1PhField => 'Ссылка epic1 или контакт';
-
-  @override
   String get deskE1PhPayInPerson => 'Оплатить лично';
-
-  @override
-  String get deskE1PhContacts => 'Контакты';
 
   @override
   String get deskE1PhUnknownTitle => 'Отправить через этот сервер?';
@@ -19935,13 +19875,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskE1PhDone => 'Готово';
 
   @override
-  String get deskE1PhClassicOnlyTip =>
-      'Выключите платежи epic1, чтобы заплатить этому контакту';
-
-  @override
-  String get deskE1SetGroup => 'epic1';
-
-  @override
   String get deskE1SetSwitch => 'epic1';
 
   @override
@@ -19950,22 +19883,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1SetSyn => 'epic1, запечатанные, ссылки, лично, коды';
-
-  @override
-  String get deskE1TurnOnTitle => 'Использовать платежи epic1?';
-
-  @override
-  String get deskE1TurnOnBody =>
-      'Тогда платежи уходят только на кошельки с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы заплатить любому другому кошельку Epic.';
-
-  @override
-  String get deskE1TurnOn => 'Включить';
-
-  @override
-  String get deskE1AppliesNext => 'Применится при следующей разблокировке';
-
-  @override
-  String get deskE1LockNow => 'Заблокировать сейчас';
 
   @override
   String get deskE1PrintedCodes => 'Печатные ссылки';
@@ -20098,10 +20015,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskE1Done => 'Готово';
 
   @override
-  String get deskE1ClassicTip =>
-      'Выключите платежи epic1, чтобы заплатить этому контакту';
-
-  @override
   String get deskE1PayInPerson => 'Оплатить лично';
 
   @override
@@ -20116,22 +20029,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskImpFrom => 'От';
-
-  @override
-  String get deskE1TourPhSendText =>
-      'Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Сначала — проверка.';
-
-  @override
-  String get deskE1TourPhReceiveText =>
-      'Ваша ссылка epic1. Поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.';
-
-  @override
-  String get deskE1TourSendText =>
-      'Вставьте ссылку epic1 или выберите контакт. «Оплатить лично» — для телефона рядом с вами. Перед отправкой — проверка.';
-
-  @override
-  String get deskE1TourReceiveText =>
-      'Ссылка epic1 этого кошелька: поделитесь ею, чтобы получить платёж. «Запросить лично» — для телефона рядом с вами.';
 
   @override
   String get deskE1Sealed => 'Запечатано epic1';
@@ -21605,10 +21502,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Блоков до того, как платёж можно тратить';
 
   @override
-  String get phoneSettingsEpic1Line =>
-      'Платите и получайте по ссылкам epic1 и личным кодам. Обычные платежи по-прежнему приходят.';
-
-  @override
   String get phoneHelpSecStart => 'Начало работы';
 
   @override
@@ -22031,10 +21924,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskE1ErrNotInPerson =>
       'Этот кошелёк не может оплатить или проверить этот код.';
-
-  @override
-  String get deskE1ModeEpic1Code =>
-      'Код epic1 для личной оплаты. Включите платежи epic1, чтобы оплатить его.';
 
   @override
   String get pairRefusesInvoices =>

@@ -11,12 +11,6 @@
   "deskE1ErrRelayInvalid": "To nie jest adres serwera. Użyj host lub host:port.",
   "deskE1ErrSavedTx": "To nie jest plik płatności.",
   "deskE1ErrWalletTooNew": "Utworzono w nowszej wersji aplikacji. Zaktualizuj, aby otworzyć ten portfel.",
-  "deskE1ModeClassicAddress": "Adres klasyczny. Wyłącz płatności epic1, aby go opłacić.",
-  "deskE1ModeClassicCode": "Kod klasyczny. Wyłącz płatności epic1, aby go użyć.",
-  "deskE1ModeClassicFile": "Plik klasyczny. Wyłącz płatności epic1, aby go otworzyć.",
-  "deskE1ModeEpic1Link": "Link epic1. Włącz płatności epic1, aby go opłacić.",
-  "deskE1ModeEpic1File": "Plik epic1. Włącz płatności epic1, aby go otworzyć.",
-  "deskE1ClassicOnly": "Tylko klasyczne",
   "deskE1PaymentStopped": "Płatność zatrzymana. Nic nie zostało wysłane.",
   "deskE1SameCodeTwice": "Dwa telefony odpowiedziały tym samym kodem.",
   "deskE1ShowNewCode": "Pokaż nowy kod",
@@ -26,6 +20,5 @@
   "deskE1Sealed": "Zapieczętowane przez epic1",
   "deskE1SpokenSealed": "{row}, zapieczętowane przez epic1",
   "deskE1ErrCodeWrongNetwork": "Ten kod jest dla innej sieci.",
-  "deskE1ErrNotInPerson": "To nie jest kod, który ten portfel może opłacić lub sprawdzić.",
-  "deskE1ModeEpic1Code": "Kod osobisty epic1. Włącz płatności epic1, aby go opłacić."
+  "deskE1ErrNotInPerson": "To nie jest kod, który ten portfel może opłacić lub sprawdzić."
 }

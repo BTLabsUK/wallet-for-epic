@@ -1,40 +1,4 @@
 {
-  "deskE1PhExperimental": "Experimental",
-  "@deskE1PhExperimental": {
-    "description": "Settings › Transactions: header of the last section, for features that can still change."
-  },
-  "deskE1PhSwitch": "epic1 payments",
-  "@deskE1PhSwitch": {
-    "description": "Settings switch that turns on the epic1 payment format. \"epic1\" is a name; keep it as is."
-  },
-  "deskE1PhConfirmTitle": "Use epic1 payments?",
-  "@deskE1PhConfirmTitle": {
-    "description": "Title of the dialog shown when turning on epic1 payments."
-  },
-  "deskE1PhConfirmBody": "Payments then go only to wallets with epic1. Classic payments still arrive. Turn it off to pay any other Epic wallet.",
-  "@deskE1PhConfirmBody": {
-    "description": "Body of the dialog shown when turning on epic1 payments."
-  },
-  "deskE1PhTurnOn": "Turn on",
-  "@deskE1PhTurnOn": {
-    "description": "Confirm button of the \"Use epic1 payments?\" dialog."
-  },
-  "deskE1PhAppliesNext": "Applies at next unlock",
-  "@deskE1PhAppliesNext": {
-    "description": "Under the epic1 payments switch while the stored setting differs from the one in use."
-  },
-  "deskE1PhLockNow": "Lock now",
-  "@deskE1PhLockNow": {
-    "description": "Button that locks the wallet so the epic1 setting applies at the next unlock."
-  },
-  "deskE1PhSection": "epic1",
-  "@deskE1PhSection": {
-    "description": "Settings › Transactions: header of the epic1 section. A name; keep it as is."
-  },
-  "deskE1PhReceiving": "Receiving",
-  "@deskE1PhReceiving": {
-    "description": "Settings › Transactions in epic1 mode: header above Confirmations."
-  },
   "deskE1PhPrinted": "Printed links",
   "@deskE1PhPrinted": {
     "description": "Settings row: the payment link codes made for printing."
@@ -127,10 +91,6 @@
   "@deskE1PhAnyAmount": {
     "description": "Button that goes back to a link without a set amount."
   },
-  "deskE1PhInPerson": "In person",
-  "@deskE1PhInPerson": {
-    "description": "Receive: a payment from a phone next to this one."
-  },
   "deskE1PhSettings": "Settings",
   "@deskE1PhSettings": {
     "description": "Button that opens Settings › Transactions."
@@ -148,17 +108,9 @@
       }
     }
   },
-  "deskE1PhField": "epic1 link or contact",
-  "@deskE1PhField": {
-    "description": "Send: label of the one recipient field in epic1 mode."
-  },
   "deskE1PhPayInPerson": "Pay in person",
   "@deskE1PhPayInPerson": {
     "description": "Send: button under the field that pays a phone next to this one."
-  },
-  "deskE1PhContacts": "Contacts",
-  "@deskE1PhContacts": {
-    "description": "Tooltip of the button that picks a contact."
   },
   "deskE1PhUnknownTitle": "Send through this server?",
   "@deskE1PhUnknownTitle": {
@@ -229,9 +181,5 @@
   "deskE1PhDone": "Done",
   "@deskE1PhDone": {
     "description": "Button that closes the finished send."
-  },
-  "deskE1PhClassicOnlyTip": "Turn off epic1 payments to pay this contact",
-  "@deskE1PhClassicOnlyTip": {
-    "description": "Tooltip on a contact that only takes classic payments."
   }
 }

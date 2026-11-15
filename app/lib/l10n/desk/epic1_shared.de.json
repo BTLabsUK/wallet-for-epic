@@ -11,12 +11,6 @@
   "deskE1ErrRelayInvalid": "Keine Serveradresse. Verwende host oder host:port.",
   "deskE1ErrSavedTx": "Keine Zahlungsdatei.",
   "deskE1ErrWalletTooNew": "Mit einer neueren App-Version erstellt. Aktualisiere, um diese Wallet zu öffnen.",
-  "deskE1ModeClassicAddress": "Klassische Adresse. Schalte epic1-Zahlungen aus, um sie zu bezahlen.",
-  "deskE1ModeClassicCode": "Klassischer Code. Schalte epic1-Zahlungen aus, um ihn zu verwenden.",
-  "deskE1ModeClassicFile": "Klassische Datei. Schalte epic1-Zahlungen aus, um sie zu öffnen.",
-  "deskE1ModeEpic1Link": "epic1-Link. Schalte epic1-Zahlungen ein, um ihn zu bezahlen.",
-  "deskE1ModeEpic1File": "epic1-Datei. Schalte epic1-Zahlungen ein, um sie zu öffnen.",
-  "deskE1ClassicOnly": "Nur klassisch",
   "deskE1PaymentStopped": "Zahlung gestoppt. Nichts wurde gesendet.",
   "deskE1SameCodeTwice": "Zwei Telefone haben mit demselben Code geantwortet.",
   "deskE1ShowNewCode": "Neuen Code zeigen",
@@ -26,6 +20,5 @@
   "deskE1Sealed": "Mit epic1 versiegelt",
   "deskE1SpokenSealed": "{row}, mit epic1 versiegelt",
   "deskE1ErrCodeWrongNetwork": "Dieser Code ist für ein anderes Netzwerk.",
-  "deskE1ErrNotInPerson": "Kein Code, den diese Wallet bezahlen oder prüfen kann.",
-  "deskE1ModeEpic1Code": "epic1-Persönlich-Code. Schalte epic1-Zahlungen ein, um ihn zu bezahlen."
+  "deskE1ErrNotInPerson": "Kein Code, den diese Wallet bezahlen oder prüfen kann."
 }

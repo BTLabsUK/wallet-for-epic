@@ -11,12 +11,6 @@
   "deskE1ErrRelayInvalid": "不是服务器地址。请使用 host 或 host:port。",
   "deskE1ErrSavedTx": "不是付款文件。",
   "deskE1ErrWalletTooNew": "由更新版本的应用创建。请更新后打开此钱包。",
-  "deskE1ModeClassicAddress": "经典地址。关闭 epic1 付款后才能支付。",
-  "deskE1ModeClassicCode": "经典码。关闭 epic1 付款后才能使用。",
-  "deskE1ModeClassicFile": "经典文件。关闭 epic1 付款后才能打开。",
-  "deskE1ModeEpic1Link": "epic1 链接。开启 epic1 付款后才能支付。",
-  "deskE1ModeEpic1File": "epic1 文件。开启 epic1 付款后才能打开。",
-  "deskE1ClassicOnly": "仅经典",
   "deskE1PaymentStopped": "付款已停止。未发送任何内容。",
   "deskE1SameCodeTwice": "两部手机用同一个码作了回复。",
   "deskE1ShowNewCode": "显示新码",
@@ -26,6 +20,5 @@
   "deskE1Sealed": "已用 epic1 密封",
   "deskE1SpokenSealed": "{row}，已用 epic1 密封",
   "deskE1ErrCodeWrongNetwork": "此码属于另一个网络。",
-  "deskE1ErrNotInPerson": "此钱包无法支付或核对此码。",
-  "deskE1ModeEpic1Code": "epic1 当面代码。开启 epic1 付款后才能支付。"
+  "deskE1ErrNotInPerson": "此钱包无法支付或核对此码。"
 }
