@@ -14,6 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../epic1.dart' show PaymentMode;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
+import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
+import '../../../recipient.dart' show epic1Shaped;
 import '../../../scan/scan_checks.dart' show CodeOrigin;
 import '../../../scan/scan_router.dart' show classifyScan;
 import '../../../send_route.dart';
@@ -22,12 +24,13 @@ import '../../../settings_file/settings_providers.dart' show hostSettingsProvide
 import '../../../send_summary.dart' show SendSummary;
 import '../../../smart_outputs.dart';
 import '../../../ui/send_route_text.dart' show sendContactedText, sendMethodName, sendProblemText;
-import '../../data/pairing_state.dart' show deskContactPairingProvider, deskInvoicesShownProvider;
+import '../../data/pairing_state.dart' show deskContactPairingProvider, deskInvoicesShownProvider, deskPairsProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/issue_invoice_screen.dart' show RequestArgs, deskRequestPayers;
 import '../scan/desk_scan.dart' show DeskScanButton;
 import '../scan/desk_scan_route.dart';
+import '../transfer/contact_picker.dart' show contactEpic1Link, contactPairsNatively;
 import '../transfer/send_screen.dart' show SendArgs;
 import 'home_field_parse.dart';
 
@@ -323,6 +326,30 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     if (detail == null && rr != null && rr.isAddress) {
       detail = [sendMethodName(l, rr), sendContactedText(rr)].where((x) => x.isNotEmpty).join(' · ');
       if (detail.isEmpty) detail = null;
+    }
+
+    // What Send would stop on: a contact that takes no payments, and in epic1 mode anything that
+    // is not an epic1 link, a paired contact or a contact with an epic1 link.
+    if (!request) {
+      final epic1 = ref.read(deskPaymentModeProvider) == PaymentMode.epic1;
+      final c = who?.contact;
+      if (c != null) {
+        final pairing = ref.read(deskPairsProvider) ? ref.read(deskContactPairingProvider(c.id)) : null;
+        final refusals = ref.read(paymentRefusalsProvider);
+        if (refusals.refusesPayments(pairingId: pairing?.id, address: c.epicbox)) {
+          problem ??= l.contactNoPaymentsNamed(refusals.refusedName(pairingId: pairing?.id, address: c.epicbox) ?? c.name);
+        } else if (epic1) {
+          if (contactEpic1Link(ref, c, watch: false) != null) {
+            detail = l.deskE1LinkTitle;
+          } else if (!contactPairsNatively(ref, c, watch: false)) {
+            problem ??= l.deskE1ClassicTip;
+          }
+        }
+      } else if (epic1 && who != null) {
+        problem ??= l.deskE1ModeClassicAddress;
+      } else if (epic1 && r.kind == HomeKind.address && !epic1Shaped(r.address ?? '')) {
+        problem ??= l.deskE1ModeClassicAddress;
+      }
     }
 
     final notes = <String>[];

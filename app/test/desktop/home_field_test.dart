@@ -2,6 +2,7 @@
 // Home's field: what Enter opens, and the contacts a typed name brings up under it.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/models.dart' show Contact;
 import 'package:epic_wallet/src/desktop/screens/invoices/issue_invoice_screen.dart' show RequestArgs;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show SendArgs;
 import 'package:epic_wallet/src/desktop/screens/wallet/home_field.dart';
@@ -14,11 +15,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
 
-Future<ProviderContainer> _open(WidgetTester tester, {bool epic1 = false}) async {
+Future<ProviderContainer> _open(WidgetTester tester, {bool epic1 = false, Contact? extra}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final wallet = MockDeskWallet(delay: Duration.zero);
+  if (extra != null) await wallet.saveContact(extra);
   if (epic1) {
     await wallet.epic1Fake.setStoredOn(true);
     wallet.epic1Fake.reopen();
@@ -179,24 +181,55 @@ void main() {
   });
 
   group('epic1', () {
-    testWidgets('"4 anna" in epic1 mode still opens Send with the amount', (tester) async {
-      final container = await _open(tester, epic1: true);
-      await _type(tester, '4 anna');
+    const link = 'epic:epic1qw508d6qejxtdg4y5r3zarvary0c5xw7kxw5r4tm8q9?server=https://pay.example.net';
+    Future<ProviderContainer> openWithE1Contact(WidgetTester tester) => _open(tester, epic1: true, extra: Contact(id: '', name: 'Epic One', epic1: link));
+
+    testWidgets('"4 epic one" opens Send with the contact and the amount; the line names the link', (tester) async {
+      final container = await openWithE1Contact(tester);
+      await _type(tester, '4 epic one');
+      expect(_line(tester), contains('epic1 link'));
       await _enter(tester);
       final a = container.read(deskNavProvider).arg as SendArgs;
       expect(container.read(deskNavProvider).route, DeskRoute.send);
-      expect(a.contact?.name, 'Anna Kowalska');
+      expect(a.contact?.name, 'Epic One');
       expect(a.amount, '4');
       await _end(tester);
     });
 
-    testWidgets('"anna max" in epic1 mode hands over the figure, not the flag', (tester) async {
-      final container = await _open(tester, epic1: true);
-      await _type(tester, 'anna max');
+    testWidgets('"epic one max" hands over the figure, not the flag', (tester) async {
+      final container = await openWithE1Contact(tester);
+      await _type(tester, 'epic one max');
       await _enter(tester);
       final a = container.read(deskNavProvider).arg as SendArgs;
       expect(a.all, isFalse);
       expect(a.amount, isNotNull);
+      await _end(tester);
+    });
+
+    testWidgets('a contact with no epic1 link is classic only: the line says so, Enter does nothing', (tester) async {
+      final container = await _open(tester, epic1: true);
+      await _type(tester, '4 anna');
+      expect(_line(tester), contains(_l.deskE1ClassicTip));
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      await _end(tester);
+    });
+
+    testWidgets('a classic address is not paid in epic1 mode: the line says so, Enter does nothing', (tester) async {
+      final container = await _open(tester, epic1: true);
+      await _type(tester, '3 esMASi45ub7Qe4ZE36UT5G6cU4ud8Fhhe4deS4F3cw9KTAb8dLcu@epicbox.example.org');
+      expect(_line(tester), contains(_l.deskE1ModeClassicAddress));
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      await _end(tester);
+    });
+
+    testWidgets('the same contact and address still go through in classic mode', (tester) async {
+      final container = await _open(tester);
+      await _type(tester, '4 anna');
+      expect(_line(tester), isNot(contains(_l.deskE1ClassicTip)));
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.send);
       await _end(tester);
     });
   });
