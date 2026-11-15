@@ -5599,7 +5599,7 @@
   "deskHomeMaxAmount": "{amount} (สูงสุด)",
   "deskHomeMaxWord": "สูงสุด",
   "deskHomeOpenCode": "เปิดรหัสนี้ในหน้าส่ง",
-  "deskHomeNoMatch": "ไม่มีผู้ติดต่อหรือที่อยู่ที่ตรงกับ ''{text}''",
+  "deskHomeNoMatch": "ไม่มีผู้ติดต่อหรือที่อยู่ที่ตรงกับ '{text}'",
   "deskHomeOver": "มากกว่ายอดที่ใช้ได้ ({spendable})",
   "deskHomeFee": "ค่าธรรมเนียม {fee} · ยอดคงเหลือหลังส่ง {after}",
   "deskHomeMessage": "ข้อความ: {text}",

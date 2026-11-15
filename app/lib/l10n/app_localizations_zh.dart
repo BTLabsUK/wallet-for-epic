@@ -20316,7 +20316,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskHomeNoMatch(String text) {
-    return '没有联系人或地址匹配 \'\'$text\'\'';
+    return '没有联系人或地址匹配 \'$text\'';
   }
 
   @override

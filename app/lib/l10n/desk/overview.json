@@ -421,7 +421,7 @@
   "@deskHomeOpenCode": {
     "description": "Preview line under Home's field for a pasted payment code, link or slate."
   },
-  "deskHomeNoMatch": "No contact or address matches ''{text}''",
+  "deskHomeNoMatch": "No contact or address matches '{text}'",
   "@deskHomeNoMatch": {
     "description": "Line under Home's field when the typing names nothing. The typed text is in quotes.",
     "placeholders": {

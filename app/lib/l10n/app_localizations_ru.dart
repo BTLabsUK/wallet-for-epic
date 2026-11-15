@@ -22120,7 +22120,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskHomeNoMatch(String text) {
-    return 'Ни один контакт или адрес не подходит к \'\'$text\'\'';
+    return 'Ни один контакт или адрес не подходит к \'$text\'';
   }
 
   @override

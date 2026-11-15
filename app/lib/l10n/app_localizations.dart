@@ -33670,7 +33670,7 @@ abstract class AppLocalizations {
   /// Line under Home's field when the typing names nothing. The typed text is in quotes.
   ///
   /// In en, this message translates to:
-  /// **'No contact or address matches \'\'{text}\'\''**
+  /// **'No contact or address matches \'{text}\''**
   String deskHomeNoMatch(String text);
 
   /// Line under Home's field: the amount is over what can be spent. Enter does nothing.

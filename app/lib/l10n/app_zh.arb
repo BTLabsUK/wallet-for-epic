@@ -5599,7 +5599,7 @@
   "deskHomeMaxAmount": "{amount}（最大）",
   "deskHomeMaxWord": "最大",
   "deskHomeOpenCode": "在发送中打开此代码",
-  "deskHomeNoMatch": "没有联系人或地址匹配 ''{text}''",
+  "deskHomeNoMatch": "没有联系人或地址匹配 '{text}'",
   "deskHomeOver": "超过可用金额（{spendable}）",
   "deskHomeFee": "手续费 {fee} · 之后余额 {after}",
   "deskHomeMessage": "留言：{text}",

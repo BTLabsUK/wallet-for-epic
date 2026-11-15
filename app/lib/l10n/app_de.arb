@@ -5599,7 +5599,7 @@
   "deskHomeMaxAmount": "{amount} (max.)",
   "deskHomeMaxWord": "max.",
   "deskHomeOpenCode": "Diesen Code in Senden öffnen",
-  "deskHomeNoMatch": "Kein Kontakt und keine Adresse passt zu ''{text}''",
+  "deskHomeNoMatch": "Kein Kontakt und keine Adresse passt zu '{text}'",
   "deskHomeOver": "Mehr als verfügbar ({spendable})",
   "deskHomeFee": "Gebühr {fee} · Guthaben danach {after}",
   "deskHomeMessage": "Nachricht: {text}",

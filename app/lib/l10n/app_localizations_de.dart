@@ -21748,7 +21748,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskHomeNoMatch(String text) {
-    return 'Kein Kontakt und keine Adresse passt zu \'\'$text\'\'';
+    return 'Kein Kontakt und keine Adresse passt zu \'$text\'';
   }
 
   @override

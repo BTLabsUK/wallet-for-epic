@@ -105,6 +105,7 @@ void main() {
     testWidgets('nothing matches: the line says so, Enter does nothing, To is untouched', (tester) async {
       final container = await _open(tester);
       await _type(tester, 'xyzzy');
+      expect(_l.deskHomeNoMatch('xyzzy'), "No contact or address matches 'xyzzy'");
       expect(find.text(_l.deskHomeNoMatch('xyzzy')), findsWidgets);
       await _enter(tester);
       expect(container.read(deskNavProvider).route, DeskRoute.overview);

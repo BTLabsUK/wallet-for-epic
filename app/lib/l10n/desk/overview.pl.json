@@ -73,7 +73,7 @@
   "deskHomeMaxAmount": "{amount} (maks.)",
   "deskHomeMaxWord": "maks.",
   "deskHomeOpenCode": "Otwórz ten kod w Wyślij",
-  "deskHomeNoMatch": "Żaden kontakt ani adres nie pasuje do ''{text}''",
+  "deskHomeNoMatch": "Żaden kontakt ani adres nie pasuje do '{text}'",
   "deskHomeOver": "Więcej niż dostępne ({spendable})",
   "deskHomeFee": "Opłata {fee} · Saldo po: {after}",
   "deskHomeMessage": "Wiadomość: {text}",

@@ -21087,7 +21087,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskHomeNoMatch(String text) {
-    return 'ไม่มีผู้ติดต่อหรือที่อยู่ที่ตรงกับ \'\'$text\'\'';
+    return 'ไม่มีผู้ติดต่อหรือที่อยู่ที่ตรงกับ \'$text\'';
   }
 
   @override
