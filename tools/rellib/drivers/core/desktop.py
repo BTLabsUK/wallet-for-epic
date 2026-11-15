@@ -472,6 +472,10 @@ class Desktop:
                 break
             d.s.key("escape")
             d.wait(gone(SETTINGS_BACK), 3)
+        if target.id in (NAV_SEND.id, NAV_RECEIVE.id) and not d.seen(target):
+            # Send and Receive are no longer tabs: they are the buttons on Home. A build that still
+            # has them as tabs shows them at once, so this never runs there.
+            d.press(NAV_OVERVIEW, step="nav-overview", then=shows(target), timeout=30)
         d.press(target, step="nav-%s" % target.id.rsplit(".", 1)[-1], then=Expect("page %s" % target, lambda dd, tree: True),
                 timeout=30)
         self._settled()
