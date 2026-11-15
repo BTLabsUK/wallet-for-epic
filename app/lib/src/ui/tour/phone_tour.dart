@@ -21,7 +21,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/phone_devices.dart' show linkedDevicesOnProvider;
-import '../../epic1.dart' show PaymentMode;
 import '../../l10n.dart';
 import '../../pairing_providers.dart' show invoicesShownProvider;
 import '../../providers.dart';
@@ -318,7 +317,7 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
       phoneTourSteps(
         invoices: ref.read(invoicesShownProvider),
         devices: ref.read(linkedDevicesOnProvider),
-        epic1: ref.read(paymentModeProvider) == PaymentMode.epic1,
+        epic1: ref.read(epic1OnProvider),
       );
 
   /// The step being opened, and the one the card shows: they differ while the next screen

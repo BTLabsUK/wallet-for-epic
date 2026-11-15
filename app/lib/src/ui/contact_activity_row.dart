@@ -15,7 +15,6 @@ import '../pairing_providers.dart' show PairNet, pairNetProvider;
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'epic1/epic1_sealed.dart' show phoneShowsSealed;
 import 'kit/kit_avatar.dart';
 import 'kit/kit_support.dart';
 import 'kit/kit_tokens.dart';
@@ -45,7 +44,7 @@ class ContactActivityRow extends ConsumerWidget {
     final (:amount, :outgoing) = txAmount(tx);
     final cancelled = tx.status == TxStatus.cancelled;
     final open = paymentInProgress(tx, tip, target: target);
-    final sealed = phoneShowsSealed(ref, tx) && !cancelled;
+    final sealed = tx.sealed && !cancelled;
     final paused = ref.watch(pairNetProvider) == PairNet.epicboxOff;
     // Two or more payments from the contact on their way: the count, as the frame says.
     final arriving = others.where((o) => !txAmount(o).outgoing && paymentInProgress(o, tip, target: target)).length;

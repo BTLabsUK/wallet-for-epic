@@ -306,6 +306,9 @@ void main() {
         await h.pump(tester, SendView(onDone: () {}));
         await _openWays(tester);
         expect(_way('Pay in person'), findsNothing);
+        // With epic1 on the sheet opens here too (its own Pay in person row): close it first.
+        await tester.tap(find.text(_l.commonCancel));
+        await tester.pumpAndSettle();
         h = _Harness(prefs: 'file,noqr|epicbox');
         await h.pump(tester, SendView(onDone: () {}));
         await _openWays(tester);

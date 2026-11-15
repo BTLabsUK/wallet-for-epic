@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_task.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
-import '../epic1.dart' show PaymentMode;
 import '../l10n.dart';
 import '../btlabs_onions.dart';
 import '../net/tor_net.dart';
@@ -277,10 +276,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       unawaited(_offerOnionNotice());
       _noteStaleOpen();
     });
-    // epic1 mode has no Tor address payments: its notice goes with the switch.
-    ref.listenManual<PaymentMode>(paymentModeProvider, (_, mode) {
-      if (mode == PaymentMode.epic1) ref.read(noticeProvider.notifier).dismissTag(onionNoticeTag);
-    });
   }
 
   /// A wallet not opened for a while says so, once per open (`stale_open.dart`).
@@ -295,11 +290,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// The one notice a wallet from before the onion's own key sees (onion_notice.dart): once,
   /// also when closed without its link. The link is copied: the phone opens no browser itself.
-  /// Not in epic1 mode: the wallet takes no Tor address payments there. The notice waits for
-  /// the classic mode.
   Future<void> _offerOnionNotice() async {
     if (!mounted || ref.read(phoneTourProvider).open) return;
-    if (ref.read(paymentModeProvider) == PaymentMode.epic1) return;
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final store = ref.read(secretStoreProvider);

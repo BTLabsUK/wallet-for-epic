@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../connection_state.dart';
 import '../dev_networks.dart';
-import '../epic1.dart' show PaymentMode;
 import '../errors.dart';
 import '../l10n.dart';
 import '../epicmail_mark.dart';
@@ -27,7 +26,6 @@ import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'address_view.dart';
 import 'common.dart';
-import 'epic1/epic1_receive.dart';
 import 'in_person/in_person_entry.dart' show openScannedInPerson;
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
@@ -115,8 +113,8 @@ class ReceiveScreen extends StatelessWidget {
 /// Receiving: one screen. The epicbox address as a QR code and in words, with Copy and Share
 /// and a line saying the wallet is listening; Ask for an amount (when the wallet handles
 /// invoices) and Other ways to receive (a sheet: in person, with a file, Tor address). A
-/// payment arriving opens its steps in a sheet over the screen. In epic1 mode the epic1 link
-/// takes the place of the address.
+/// payment arriving opens its steps in a sheet over the screen. With epic1 on, Other ways to
+/// receive also offers the epic1 link.
 class ReceiveView extends ConsumerStatefulWidget {
   const ReceiveView({super.key});
 
@@ -146,7 +144,6 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
 
   @override
   Widget build(BuildContext context) {
-    if (ref.watch(receiveModeProvider) == PaymentMode.epic1) return const Epic1ReceiveView();
     ref.listen(
       homeProvider.select((h) => arrivingPayment(h.value?.transactions ?? const [])?.key),
       (_, key) => _announce(key),
@@ -168,6 +165,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
       inPerson: payments.directQr && offersQrPayment(ref),
       file: true,
       tor: torAvailable,
+      epic1: ref.watch(epic1OnProvider),
     );
     final value = noServer ? null : address.value;
     final Widget top;

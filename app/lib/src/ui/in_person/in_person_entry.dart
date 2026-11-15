@@ -12,7 +12,7 @@ import '../../epic1.dart';
 import '../../l10n.dart';
 import '../../models.dart';
 import '../../providers.dart';
-import '../epic1/epic1_common.dart' show showEpic1ModeSheet;
+import '../epic1/epic1_common.dart' show showEpic1OffSheet;
 import 'in_person_logic.dart';
 import 'in_person_scan.dart';
 import 'in_person_screens.dart';
@@ -57,14 +57,14 @@ Future<bool> openInPersonText(BuildContext context, String text) async {
 }
 
 /// A whole in-person code or answer another scanner read as an animated code (Home's scan
-/// reads one as the payment QR it looks like): in epic1 mode its review, or an answer's
-/// check; in classic mode the sheet that says to turn epic1 on (spec P3).
+/// reads one as the payment QR it looks like): its review, or an answer's check; with epic1
+/// off, the stop that says epic1 is off.
 Future<void> openScannedInPerson(BuildContext context, Uint8List bytes) async {
   final container = ProviderScope.containerOf(context, listen: false);
   final wallet = container.read(epic1Provider);
   if (wallet == null) return;
-  if (container.read(paymentModeProvider) != PaymentMode.epic1) {
-    await showEpic1ModeSheet(context, context.l10n.deskE1ModeEpic1Code);
+  if (!container.read(epic1OnProvider)) {
+    await showEpic1OffSheet(context);
     return;
   }
   await _openWhole(context, container, wallet, bytes);

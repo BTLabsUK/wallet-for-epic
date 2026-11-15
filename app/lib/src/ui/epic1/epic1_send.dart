@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Send in epic1 mode (spec P2): the one "epic1 link or contact" field, and the link payment
-/// (read, "Send through this server?", Review, Waiting for the recipient, Sent).
+/// Paying an epic1 link (spec P2): read, "Send through this server?", Review, Waiting for the
+/// recipient, Sent.
 library;
 
 import 'dart:async';
@@ -10,19 +10,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
-import '../../contact_epic1.dart';
 import '../../devices/phone_devices.dart' show deviceServiceProvider;
 import '../../epic1.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../models.dart';
-import '../../pairing_providers.dart' show contactPairingProvider;
 import '../../providers.dart';
-import '../../recipient.dart' show epic1AddressOnly, epic1Unwrap;
+import '../../recipient.dart' show epic1Unwrap;
 import '../app_dialog.dart';
 import '../common.dart';
-import '../contacts_screen.dart';
-import '../in_person/in_person_entry.dart';
 import '../pin.dart' show showPinSheet, usesPassphrase;
 import '../theme/tokens.dart';
 import '../tip.dart';
@@ -30,12 +26,9 @@ import '../kit/kit_ground.dart' show KitGround;
 import 'epic1_common.dart';
 
 /// Keys for tests and the screenshot tour.
-const Key epic1SendFieldKey = ValueKey('epic1-send-field');
-const Key epic1SendPasteKey = ValueKey('epic1-send-paste');
-const Key epic1SendContactsKey = ValueKey('epic1-send-contacts');
-const Key epic1SendContinueKey = ValueKey('epic1-send-continue');
-const Key epic1PayInPersonKey = ValueKey('epic1-pay-in-person');
 const Key epic1FieldSettingsKey = ValueKey('epic1-field-settings');
+/// The "No address?" sheet's Pay in person row (an epic1 in-person code).
+const Key epic1PayInPersonKey = ValueKey('epic1-pay-in-person');
 const Key epic1UseServerKey = ValueKey('epic1-use-server');
 const Key epic1ReviewServerKey = ValueKey('epic1-review-server');
 const Key epic1ReviewAmountKey = ValueKey('epic1-review-amount');
@@ -45,155 +38,6 @@ const Key epic1TryNextKey = ValueKey('epic1-try-next');
 const Key epic1CancelUnlockKey = ValueKey('epic1-cancel-unlock');
 const Key epic1SentKey = ValueKey('epic1-sent');
 const Key epic1DoneKey = ValueKey('epic1-done');
-
-/// The recipient step of Send in epic1 mode: the field with Paste and Contacts, Continue,
-/// and Pay in person. [classicCode] says whether a text is a classic address or request;
-/// [onContact] takes a contact picked that can be paid; [onDone] runs after a link payment.
-class Epic1SendStart extends ConsumerStatefulWidget {
-  const Epic1SendStart({super.key, required this.classicCode, required this.onContact, required this.onDone, this.header});
-
-  final bool Function(String text) classicCode;
-  final void Function(Contact contact) onContact;
-  final VoidCallback onDone;
-  final Widget? header;
-
-  @override
-  ConsumerState<Epic1SendStart> createState() => _Epic1SendStartState();
-}
-
-class _Epic1SendStartState extends ConsumerState<Epic1SendStart> {
-  final _field = TextEditingController();
-  String? _error;
-
-  /// The error is the classic address line: it carries Settings.
-  bool _classic = false;
-
-  @override
-  void dispose() {
-    _field.dispose();
-    super.dispose();
-  }
-
-  Future<void> _paste() async {
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
-    final text = data?.text?.trim();
-    if (text == null || text.isEmpty || !mounted) return;
-    _field.text = text;
-    await _open(text);
-  }
-
-  Future<void> _open(String raw) async {
-    final l = context.l10n;
-    final text = raw.trim();
-    if (text.isEmpty) return;
-    setState(() {
-      _error = null;
-      _classic = false;
-    });
-    // An epic1 address alone names no server, so it cannot be paid: the line says so.
-    if (epic1AddressOnly(text)) {
-      final verdict = await checkEpic1(ref.read(epic1Provider), text);
-      if (mounted) setState(() => _error = epic1CheckText(l, verdict, invalid: l.deskE1ErrNotLink));
-      return;
-    }
-    if (looksLikeEpic1Link(text)) {
-      final done = await openEpic1LinkSend(context, text);
-      if (!mounted) return;
-      if (done) {
-        _field.clear();
-        widget.onDone();
-      }
-      return;
-    }
-    if (widget.classicCode(text)) {
-      setState(() {
-        _error = l.deskE1ModeClassicAddress;
-        _classic = true;
-      });
-      return;
-    }
-    if (await openInPersonText(context, text)) {
-      if (mounted) _field.clear();
-      return;
-    }
-    if (mounted) setState(() => _error = l.deskE1ErrNotLink);
-  }
-
-  Future<void> _pickContact() async {
-    final contact = await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(builder: (_) => const ContactsScreen(pick: true, forPayment: true)),
-    );
-    if (contact == null || !mounted) return;
-    // No pairing that takes epic1: the contact's epic1 link is paid, as if pasted.
-    final link = contact.epic1;
-    if (link != null && classicOnlyPairing(ref.read(contactPairingProvider(contact.id)))) {
-      _field.text = link;
-      return _open(link);
-    }
-    widget.onContact(contact);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ?widget.header,
-        TextField(
-          key: epic1SendFieldKey,
-          controller: _field,
-          autocorrect: false,
-          enableSuggestions: false,
-          keyboardType: TextInputType.url,
-          textInputAction: TextInputAction.go,
-          style: TextStyle(fontFamily: t.monoFamily),
-          decoration: InputDecoration(
-            labelText: l.deskE1PhField,
-            errorText: _error,
-            errorMaxLines: 4,
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Tip(l.commonPaste, child: IconButton(key: epic1SendPasteKey, icon: const Icon(Icons.content_paste), onPressed: _paste)),
-                Tip(
-                  l.deskE1PhContacts,
-                  child: IconButton(key: epic1SendContactsKey, icon: const Icon(Icons.contacts_outlined), onPressed: _pickContact),
-                ),
-              ],
-            ),
-          ),
-          onChanged: (_) {
-            if (_error != null) setState(() => _error = null);
-            setState(() {});
-          },
-          onSubmitted: _open,
-        ),
-        if (_classic)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton(key: epic1FieldSettingsKey, onPressed: () => openEpic1Settings(context), child: Text(l.deskE1PhSettings)),
-          ),
-        const SizedBox(height: 16),
-        FilledButton(
-          key: epic1SendContinueKey,
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: _field.text.trim().isEmpty ? null : () => _open(_field.text),
-          child: Text(l.commonContinue),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          key: epic1PayInPersonKey,
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          icon: const Icon(Icons.handshake_outlined),
-          label: Text(l.deskE1PhPayInPerson),
-          onPressed: () => openPayInPerson(context),
-        ),
-      ],
-    );
-  }
-}
 
 /// Pays the epic1 [link]: true when it was sent and Done pressed.
 Future<bool> openEpic1LinkSend(BuildContext context, String link) async {

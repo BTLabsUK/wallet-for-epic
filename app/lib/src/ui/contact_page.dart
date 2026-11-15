@@ -45,7 +45,6 @@ import 'phone_tx_row.dart' show paymentInProgress;
 import 'tx_details_screen.dart' show TxDetailsScreen;
 import '../trust_ids.dart';
 import 'payment_steps.dart' show paymentStepWord;
-import 'epic1/epic1_sealed.dart' show phoneShowsSealed;
 import '../contact_label.dart' show ContactLabelListMark;
 import 'contact_label_mark.dart' show AvatarLabelMark, ContactLabelGlyph;
 import 'contact_label_picker.dart';
@@ -66,8 +65,7 @@ import 'theme/logo_qr.dart';
 import 'theme/epic1_mark.dart' show Epic1Glyph;
 import 'theme/tokens.dart';
 import 'tip.dart';
-import '../epic1.dart' show PaymentMode;
-import 'epic1/epic1_common.dart' show ClassicOnlyText, classicOnlyPairing, classicOnlyProvider;
+import 'epic1/epic1_common.dart' show contactHasClassicWay;
 import 'epic1/epic1_send.dart' show openEpic1LinkSend;
 
 /// Keys of the contact page, for tests.
@@ -193,7 +191,7 @@ class _PaymentBubble extends ConsumerWidget {
     final (:amount, :outgoing) = txAmount(tx);
     final cancelled = tx.status == TxStatus.cancelled;
     final inProgress = paymentInProgress(tx, tip, target: target);
-    final sealed = phoneShowsSealed(ref, tx);
+    final sealed = tx.sealed;
     final name = txPartyName(ref, tx);
     final step = paymentStepWord(
       l,
@@ -474,13 +472,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   /// Send with the contact's address whose method is on (Epicbox, Tor, HTTP), as Send picks it;
   /// a contact with no address, through its pairing's mailbox.
-  /// In epic1 mode, through the pairing that takes epic1, else the contact's epic1 link (the
-  /// header offers Send only with one of them).
+  /// A contact with only an epic1 link is paid by the link (the header offers Send only while
+  /// epic1 is on).
   void _send(Contact contact, PairingRecord? pairing) {
-    final epic1 = ref.read(paymentModeProvider) == PaymentMode.epic1;
-    if (epic1 && classicOnlyPairing(pairing) && contact.epic1 != null) {
+    if (contact.epic1 != null && !contactHasClassicWay(contact, pairing)) {
       unawaited(openEpic1LinkSend(context, contact.epic1!));
-    } else if (pairing != null && (contact.addresses.isEmpty || epic1)) {
+    } else if (pairing != null && contact.methodKinds.isEmpty) {
       showShellFlow(context, ShellFlow.send, pairingTo: pairing.id);
     } else {
       showShellFlow(context, ShellFlow.send, recipient: contactSendAddress(contact, sendPayments(ref).offers));
@@ -558,11 +555,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
     final t = context.tokens;
-    final classicOnly = ref.watch(classicOnlyProvider(contact.id));
     final pairingOnPage = pairs && pairingNeedsPage(ref, contact, pairing, pending);
     final canAsk = pairing != null && !pairing.ended && pairing.state.isPaired && ref.watch(invoicesShownProvider);
     final showSend = !noPayments;
-    final sendOn = !classicOnly && !(contact.addresses.isEmpty && !(pairing?.paysByMailbox ?? false));
+    final sendOn = contactHasClassicWay(contact, pairing) || (contact.epic1 != null && ref.watch(epic1OnProvider));
     Widget bar() {
       final send = KitButton(
         key: contactPageSendKey,
@@ -584,7 +580,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                 padding: EdgeInsets.fromLTRB(Kit.gutter, 12, Kit.gutter, math.max(MediaQuery.paddingOf(context).bottom, 34)),
                 child: Row(
                   children: [
-                    if (showSend) Expanded(child: classicOnly ? Tip(l.deskE1PhClassicOnlyTip, child: send) : send),
+                    if (showSend) Expanded(child: send),
                     if (showSend && canAsk) const SizedBox(width: 10),
                     if (canAsk)
                       Expanded(
@@ -914,8 +910,8 @@ class _Header extends ConsumerWidget {
     final p = pairing;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: p?.id, address: contact.epicbox);
     final claimed = p?.name?.trim();
-    final classicOnly = ref.watch(classicOnlyProvider(contact.id));
     final paired = p != null && !p.ended && p.state.isPaired;
+    final sendOn = contactHasClassicWay(contact, p) || (contact.epic1 != null && ref.watch(epic1OnProvider));
     final dim = KitType.rowSub.copyWith(color: t.dim);
     final verifiedPlain = p != null && p.state == PairingState.verified && !p.removedByPeer && !p.notAnswering;
     final showTrust = p != null && pairingVouchesFor(p, contact.epicbox) && !verifiedPlain;
@@ -971,7 +967,6 @@ class _Header extends ConsumerWidget {
             ],
           ),
         ],
-        if (classicOnly) ...[const SizedBox(height: 6), const ClassicOnlyText()],
         // Verified is about the Epicbox address: none beside one the pairing did not bring.
         // A verified pairing draws no badge here: the paired line above already says it, as the frame
         // has it; Paired, not verified, Keys changed, Removed and the rest still show.
@@ -1050,7 +1045,7 @@ class _Header extends ConsumerWidget {
         ),
         ],
         // A contact with only a pairing that cannot take a payment now: why Send is off.
-        if (!noPayments && !classicOnly && contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
+        if (!noPayments && !sendOn && p != null) ...[
           const SizedBox(height: 8),
           Text(
             p.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(contact.name),

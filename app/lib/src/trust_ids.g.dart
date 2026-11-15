@@ -241,7 +241,7 @@ abstract final class TrustIds {
   static const paymentsStrategyAll = 'g4.payments.strategy.all';
   static const paymentsSplit = 'g4.payments.split';
   static const paymentsInvoices = 'g4.payments.invoices';
-  static const paymentsExperimental = 'g4.payments.experimental';
+  static const paymentsEpic1 = 'g4.payments.epic1';
   static const advancedOutputs = 'g4.advanced.outputs';
   static const advancedSendOptions = 'g4.advanced.sendOptions';
   static const advancedServerDetails = 'g4.advanced.serverDetails';
@@ -366,6 +366,7 @@ abstract final class TrustIds {
   static const sendRecent = 'g4.send.recent';
   static const sendNoaddress = 'g4.send.noaddress';
   static const sendNoaddressPerson = 'g4.send.noaddress.person';
+  static const sendNoaddressEpic1Person = 'g4.send.noaddress.epic1-person';
   static const sendNoaddressFile = 'g4.send.noaddress.file';
   static const sendAddcontact = 'g4.send.addcontact';
   static const sendRoute = 'g4.send.route';
@@ -515,6 +516,7 @@ abstract final class TrustIds {
   static const receiveOther = 'g4.receive.other';
   static const receiveOtherSheet = 'g4.receive.other-sheet';
   static const receiveOtherInPerson = 'g4.receive.other-in-person';
+  static const receiveOtherEpic1 = 'g4.receive.other-epic1';
   static const receiveOtherFile = 'g4.receive.other-file';
   static const receiveOtherTor = 'g4.receive.other-tor';
   static const receiveOtherCancel = 'g4.receive.other-cancel';
@@ -820,7 +822,7 @@ abstract final class TrustIds {
     'g4.payments.strategy.all',
     'g4.payments.split',
     'g4.payments.invoices',
-    'g4.payments.experimental',
+    'g4.payments.epic1',
     'g4.advanced.outputs',
     'g4.advanced.sendOptions',
     'g4.advanced.serverDetails',
@@ -945,6 +947,7 @@ abstract final class TrustIds {
     'g4.send.recent',
     'g4.send.noaddress',
     'g4.send.noaddress.person',
+    'g4.send.noaddress.epic1-person',
     'g4.send.noaddress.file',
     'g4.send.addcontact',
     'g4.send.route',
@@ -1094,6 +1097,7 @@ abstract final class TrustIds {
     'g4.receive.other',
     'g4.receive.other-sheet',
     'g4.receive.other-in-person',
+    'g4.receive.other-epic1',
     'g4.receive.other-file',
     'g4.receive.other-tor',
     'g4.receive.other-cancel',

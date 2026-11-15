@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/contacts.dart' show checkRecipient, contactSendA
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/recipient.dart';
@@ -19,10 +20,10 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
-import 'package:epic_wallet/src/ui/epic1/epic1_common.dart' show classicOnlyProvider;
 import 'package:epic_wallet/src/ui/address_view.dart' show ShortAddressText;
 import 'package:epic_wallet/src/ui/badge.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_send.dart';
+import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -53,10 +54,12 @@ class _NoPrice implements PriceSource {
 }
 
 class _Harness {
-  _Harness({bool epic1 = false}) {
-    if (epic1) session.epic1Fake = FakeEpic1(on: true);
+  /// A wallet with epic1; [epic1] off is its switch in Settings › Payments.
+  _Harness({bool epic1 = true}) {
+    if (!epic1) store.values['app.payment_prefs'] = PaymentPrefs.defaults.copyWith(epic1: false).encode();
   }
 
+  final store = MemorySecretStore();
   final session = FakeWalletSession();
   late final service = FakeWalletService(session: session);
 
@@ -72,7 +75,7 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           walletServiceProvider.overrideWithValue(service),
-          secretStoreProvider.overrideWithValue(MemorySecretStore()),
+          secretStoreProvider.overrideWithValue(store),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
@@ -125,7 +128,7 @@ void main() {
     });
 
     test("LEPIC's verdict: link, address alone, other network, cannot pay, invalid", () async {
-      final e1 = FakeEpic1(on: true);
+      final e1 = FakeEpic1();
       expect(await checkEpic1(e1, _link), Epic1Check.link);
       expect(await checkEpic1(e1, _bare), Epic1Check.addressOnly);
       expect(e1.calls.last, 'readLink', reason: 'a bare address is read as epic:<address>');
@@ -215,35 +218,35 @@ void main() {
       expect(both.kinds, [RecipientKind.epicbox, RecipientKind.epic1]);
     });
 
-    testWidgets('epic1 mode: a contact with a link is not Classic only; its page Send opens the epic1 link flow', (tester) async {
-      final h = _Harness(epic1: true);
+    testWidgets('epic1 on: a contact with only a link is paid through the epic1 link flow', (tester) async {
+      final h = _Harness();
       final eve = await h.session.saveContact(contact: Contact(id: '', name: 'Eve', epic1: _link));
-      final bob = await h.session.saveContact(contact: Contact(id: '', name: 'Bob', epicbox: _box));
       await h.pump(tester, ContactPage(contactId: eve.id));
-      final c = h.container(tester);
-      expect(c.read(classicOnlyProvider(eve.id)), isFalse);
-      expect(c.read(classicOnlyProvider(bob.id)), isTrue, reason: 'no pairing, no link: as before');
+      expect(tester.widget<KitButton>(find.byKey(contactPageSendKey)).onPressed, isNotNull);
       await tester.tap(find.byKey(contactPageSendKey));
       await tester.pumpAndSettle();
-      expect(find.byType(Epic1LinkSendScreen), findsOneWidget);
       expect(find.byType(Epic1LinkSendScreen).evaluate().single.widget, isA<Epic1LinkSendScreen>().having((s) => s.link, 'link', _link));
     });
 
-    testWidgets('epic1 Send: a bare address gets its line, a mistyped one "not an epic1 link"', (tester) async {
-      final h = _Harness(epic1: true);
-      await h.pump(tester, Scaffold(body: Epic1SendStart(classicCode: (_) => false, onContact: (_) {}, onDone: () {})));
-      await tester.enterText(find.byKey(epic1SendFieldKey), _bare);
-      await tester.pump();
-      await tester.tap(find.byKey(epic1SendContinueKey));
-      await tester.pumpAndSettle();
-      expect(find.text(_l.epic1AddressAlone), findsOneWidget);
-      expect(find.byType(Epic1LinkSendScreen), findsNothing);
-      h.session.epic1Fake.failNext = const WalletError(kind: WalletErrorKind.notAnEpic1Link, message: 'bad checksum');
-      await tester.enterText(find.byKey(epic1SendFieldKey), 't$_bare');
-      await tester.pump();
-      await tester.tap(find.byKey(epic1SendContinueKey));
-      await tester.pumpAndSettle();
-      expect(find.text(_l.deskE1ErrNotLink), findsOneWidget);
+    testWidgets('epic1 off: a contact with only a link has no way to pay; Send is off and says why', (tester) async {
+      final h = _Harness(epic1: false);
+      final eve = await h.session.saveContact(contact: Contact(id: '', name: 'Eve', epic1: _link));
+      await h.pump(tester, ContactPage(contactId: eve.id));
+      expect(tester.widget<KitButton>(find.byKey(contactPageSendKey)).onPressed, isNull);
+      // The picker for a payment says why, beside the contact.
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester, const ContactsScreen(pick: true, forPayment: true));
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
+    });
+
+    testWidgets('a contact with an Epicbox address is paid as in classic, epic1 on or off', (tester) async {
+      for (final on in [true, false]) {
+        final h = _Harness(epic1: on);
+        final bob = await h.session.saveContact(contact: Contact(id: '', name: 'Bob', epicbox: _box));
+        await h.pump(tester, ContactPage(contactId: bob.id));
+        expect(tester.widget<KitButton>(find.byKey(contactPageSendKey)).onPressed, isNotNull, reason: 'epic1 on: $on');
+        await tester.pumpWidget(const SizedBox());
+      }
     });
   });
 

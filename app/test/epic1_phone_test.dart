@@ -1,26 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
-// epic1 payments on the phone (ui-spec P1-P4, D3, D7): the Experimental switch with its
-// confirm and "Applies at next unlock", the epic1 section in epic1 mode, the link card on
-// Receive, the link flow on Send with the unknown server question, Try next and Sent, the
-// mode lines for the other mode's codes, "Classic only" contacts, and the setting kept per
-// wallet across lock and unlock.
+// epic1 payments on the phone, a payment method beside the classic ones: its row in Settings ›
+// Payments (applies at once), the epic1 link among Receive's other ways, the link flow on Send
+// beside the classic form with the unknown server question, Try next and Sent, the stop that
+// says epic1 is off for its links, codes and files, and contacts paid through either.
 import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/contact_page.dart';
-import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_common.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_receive.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_send.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_settings.dart';
 import 'package:epic_wallet/src/ui/in_person/in_person_entry.dart' show openScannedInPerson;
+import 'package:epic_wallet/src/ui/in_person/in_person_screens.dart' show InPersonFormScreen;
+import 'package:epic_wallet/src/ui/receive_other.dart' show epic1LinkWayKey;
 import 'package:epic_wallet/src/ui/kit/kit_row.dart' show KitSwitch;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_route.dart' show openEpic1Text;
@@ -30,10 +31,8 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, WalletStatus;
 import 'package:epic_wallet/src/ui/status.dart' as status show NodeStatus;
 import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
-import 'package:epic_wallet/src/ui/tour/tour_target.dart' show PhoneTourTarget;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:epic_wallet/src/ui/kit/kit_button.dart';
 import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,8 +90,8 @@ final _forty = WalletSummary(
   validatedWithNode: true,
 );
 
-/// A session with 40 EPIC, in epic1 mode when [on].
-FakeWalletSession _session({bool on = false}) => FakeWalletSession(summary: _forty)..epic1Fake = FakeEpic1(on: on);
+/// A session with 40 EPIC and epic1.
+FakeWalletSession _session() => FakeWalletSession(summary: _forty)..epic1Fake = FakeEpic1();
 
 /// The shown status with Epicbox in [epicbox] and the node online.
 class _Epicbox extends WalletStatusNotifier {
@@ -109,8 +108,11 @@ Future<ProviderContainer> _pump(
   FakeWalletSession session,
   Widget home, {
   FakeWalletService? service,
+  bool epic1 = true,
   List<Override> extra = const [],
 }) async {
+  final store = sendPinStore()..values['app.network'] = 'mainnet';
+  if (!epic1) store.values['app.payment_prefs'] = PaymentPrefs.defaults.copyWith(epic1: false).encode();
   allowPinCheck(session, service);
   tester.view.physicalSize = const Size(1080, 3300);
   tester.view.devicePixelRatio = 3;
@@ -120,7 +122,7 @@ Future<ProviderContainer> _pump(
       retry: (_, _) => null,
       overrides: [
         walletServiceProvider.overrideWithValue(service ?? FakeWalletService(session: session)),
-        secretStoreProvider.overrideWithValue(sendPinStore()..values['app.network'] = 'mainnet'),
+        secretStoreProvider.overrideWithValue(store),
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_NoRelays()),
         relayProbeProvider.overrideWithValue(FakeRelayProbe()),
@@ -140,8 +142,14 @@ Future<ProviderContainer> _pump(
     ),
   );
   await tester.pumpAndSettle();
-  return ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+  final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+  // The app watches its settings from the start; a bare page does not, so load them here.
+  await container.read(appSettingsProvider.future);
+  return container;
 }
+
+/// The secret store [_pump] gave the app: where the payment settings are kept.
+String? _storedPayments(ProviderContainer c) => (c.read(secretStoreProvider) as dynamic).values['app.payment_prefs'] as String?;
 
 const _settings = SettingsSectionScreen(section: SettingsSection.transactions);
 
@@ -174,66 +182,46 @@ Future<void> _tapFrames(WidgetTester tester, Finder finder) async {
   await _frames(tester);
 }
 
-/// The [PhoneTourTarget] [id] around [inner].
-Finder _tourTarget(String id, Finder inner) =>
-    find.ancestor(of: inner, matching: find.byWidgetPredicate((w) => w is PhoneTourTarget && w.id == id));
-
 void main() {
-  group('Settings › Transactions', () {
-    testWidgets('classic: the methods, then Experimental; turning on asks, then Applies at next unlock', (tester) async {
-      final session = _session();
-      await _pump(tester, session, _settings);
-      expect(_key(const ValueKey('tx-epicbox')), findsOneWidget);
-      expect(find.text(_l.deskE1PhExperimental), findsOneWidget);
-      expect(_switchOn(tester), isFalse);
-      expect(_key(epic1EpicboxKey), findsNothing);
-      expect(_key(epic1AppliesKey), findsNothing);
-
-      // Cancel on the confirm keeps it off.
-      await _tap(tester, _key(epic1SwitchKey));
-      expect(_e1(_l.deskE1PhConfirmTitle), findsOneWidget);
-      await _tap(tester, find.text(_l.commonCancel));
-      expect(_switchOn(tester), isFalse);
-      expect(session.epic1Fake.storedOn, isFalse);
-
-      await _tap(tester, _key(epic1SwitchKey));
-      await _tap(tester, _key(epic1TurnOnKey));
+  group('Settings › Payments', () {
+    testWidgets('the epic1 row follows Epicbox, on by default, with Printed links under it', (tester) async {
+      await _pump(tester, _session(), _settings);
+      expect(_key(epic1SwitchKey), findsOneWidget);
       expect(_switchOn(tester), isTrue);
-      expect(session.epic1Fake.storedOn, isTrue);
-      expect(session.epic1Fake.inUse, isFalse);
-      expect(_key(epic1AppliesKey), findsOneWidget);
-      expect(_key(epic1LockNowKey), findsOneWidget);
-      // This unlock stays classic.
-      expect(_key(const ValueKey('tx-epicbox')), findsOneWidget);
-      expect(_key(epic1EpicboxKey), findsNothing);
-
-      // Back to what is in use: the line goes.
-      await _tap(tester, _key(epic1SwitchKey));
-      expect(_switchOn(tester), isFalse);
-      expect(_key(epic1AppliesKey), findsNothing);
+      expect(_key(epic1PrintedKey), findsOneWidget);
+      final epicbox = tester.getTopLeft(_key(const ValueKey('tx-epicbox'))).dy;
+      final epic1 = tester.getTopLeft(_key(epic1SwitchKey)).dy;
+      final printed = tester.getTopLeft(_key(epic1PrintedKey)).dy;
+      expect(epicbox, lessThan(epic1));
+      expect(epic1, lessThan(printed));
+      // No mode rows, no pending line.
+      expect(_e1(_l.deskE1SetSwitch), findsOneWidget);
     });
 
-    testWidgets('epic1: the epic1 section, Receiving and Experimental in place of the methods', (tester) async {
-      final session = _session(on: true);
-      await _pump(tester, session, _settings);
-      expect(_key(const ValueKey('tx-epicbox')), findsNothing);
-      expect(_e1(_l.deskE1PhSection), findsOneWidget);
-      expect(_key(epic1EpicboxKey), findsOneWidget);
-      expect(find.descendant(of: _key(epic1EpicboxKey), matching: find.textContaining('relay.example.invalid')), findsOneWidget);
-      expect(_key(epic1PrintedKey), findsOneWidget);
-      expect(find.text(_l.deskE1PhReceiving), findsOneWidget);
-      expect(_switchOn(tester), isTrue);
-
-      // Turning off asks nothing; it applies at the next unlock.
+    testWidgets('turning it off applies at once: Printed links goes, the setting is kept', (tester) async {
+      final container = await _pump(tester, _session(), _settings);
       await _tap(tester, _key(epic1SwitchKey));
-      expect(_e1(_l.deskE1PhConfirmTitle), findsNothing);
-      expect(session.epic1Fake.storedOn, isFalse);
-      expect(_key(epic1AppliesKey), findsOneWidget);
-      expect(_key(epic1EpicboxKey), findsOneWidget);
+      expect(_switchOn(tester), isFalse);
+      expect(_key(epic1PrintedKey), findsNothing);
+      expect(container.read(epic1OnProvider), isFalse);
+      expect(_storedPayments(container), contains('noepic1'));
+      expect(_key(const ValueKey('tx-epicbox')), findsOneWidget);
+
+      await _tap(tester, _key(epic1SwitchKey));
+      expect(_switchOn(tester), isTrue);
+      expect(container.read(epic1OnProvider), isTrue);
+      expect(_key(epic1PrintedKey), findsOneWidget);
+    });
+
+    testWidgets('a wallet that kept it off opens with it off', (tester) async {
+      final container = await _pump(tester, _session(), _settings, epic1: false);
+      expect(_switchOn(tester), isFalse);
+      expect(_key(epic1PrintedKey), findsNothing);
+      expect(container.read(epic1OnProvider), isFalse);
     });
 
     testWidgets('Printed links: each with Retire, which asks first', (tester) async {
-      final session = _session(on: true);
+      final session = _session();
       await session.epic1Fake.makeLink(kind: Epic1LinkKind.printed, relays: const ['relay.example.invalid']);
       await session.epic1Fake.makeLink(kind: Epic1LinkKind.printed, relays: const ['relay.example.invalid']);
       await _pump(tester, session, _settings);
@@ -246,54 +234,69 @@ void main() {
       expect(_key(const ValueKey('epic1-printed-0')), findsNothing);
       expect(_key(const ValueKey('epic1-printed-1')), findsOneWidget);
     });
-
-    testWidgets('the setting is kept per wallet across lock and unlock', (tester) async {
-      final service = FakeWalletService(existingWallets: {_config.dataDir});
-      var session = await service.open(config: _config, password: service.password) as FakeWalletSession;
-      expect(session.paymentMode, PaymentMode.classic);
-      await _pump(tester, session, _settings, service: service);
-      await _tap(tester, _key(epic1SwitchKey));
-      await _tap(tester, _key(epic1TurnOnKey));
-      expect(_key(epic1AppliesKey), findsOneWidget);
-
-      // Next unlock: epic1 mode, no pending line.
-      session = await service.open(config: _config, password: service.password) as FakeWalletSession;
-      expect(session.paymentMode, PaymentMode.epic1);
-      await tester.pumpWidget(const SizedBox());
-      await _pump(tester, session, _settings, service: service);
-      expect(_key(epic1EpicboxKey), findsOneWidget);
-      expect(_key(epic1AppliesKey), findsNothing);
-      await _tap(tester, _key(epic1SwitchKey));
-      expect(_key(epic1AppliesKey), findsOneWidget);
-
-      // And off again at the unlock after.
-      session = await service.open(config: _config, password: service.password) as FakeWalletSession;
-      expect(session.paymentMode, PaymentMode.classic);
-      await tester.pumpWidget(const SizedBox());
-      await _pump(tester, session, _settings, service: service);
-      expect(_key(const ValueKey('tx-epicbox')), findsOneWidget);
-      expect(_key(epic1EpicboxKey), findsNothing);
-      expect(_switchOn(tester), isFalse);
-    });
   });
 
   group('Receive', () {
     const receive = SlotScaffold(body: ReceiveView());
 
-    testWidgets('epic1: the link card with its QR, Copy link and Share', (tester) async {
-      final session = _session(on: true);
+    Future<void> openOther(WidgetTester tester) => _tap(tester, find.text(_l.phoneRecvOther));
+
+    testWidgets('epic1 on: the classic layout stays; the epic1 link is the first of the other ways', (tester) async {
+      final session = _session();
       await _pump(tester, session, receive);
+      expect(_key(receiveAddressKey), findsOneWidget);
+      expect(_key(receiveRequestKey), findsOneWidget);
+      expect(_key(epic1LinkCardKey), findsNothing);
+      // No link is made before the row is opened.
+      expect(session.epic1Fake.calls, isNot(contains('makeLink')));
+
+      await openOther(tester);
+      expect(_key(epic1LinkWayKey), findsOneWidget);
+      expect(find.text(_l.deskE1LinkTitle), findsOneWidget);
+      expect(find.text(_l.deskE1LinkSub), findsOneWidget);
+      expect(session.epic1Fake.calls, isNot(contains('makeLink')));
+      // First in the sheet.
+      expect(tester.getTopLeft(_key(epic1LinkWayKey)).dy, lessThan(tester.getTopLeft(find.text(_l.phoneSettingsWithFile)).dy));
+    });
+
+    testWidgets('the epic1 link row opens the link page: QR, Copy link, Ask amount, Request in person; back returns', (tester) async {
+      final session = _session();
+      await _pump(tester, session, receive);
+      await openOther(tester);
+      await _tap(tester, _key(epic1LinkWayKey));
+      expect(find.byType(Epic1ReceiveView), findsOneWidget);
       expect(_key(epic1LinkCardKey), findsOneWidget);
       expect(_key(epic1QrKey), findsOneWidget);
       expect(_key(epic1CopyLinkKey), findsOneWidget);
       expect(_key(epic1AskAmountKey), findsOneWidget);
       expect(_key(epic1RequestInPersonKey), findsOneWidget);
-      // The tour's Receive step lights the link card.
-      expect(_tourTarget('tour-receive-address', _key(epic1LinkCardKey)), findsOneWidget);
       expect(session.epic1Fake.calls, contains('makeLink'));
+
+      await _tap(tester, find.byTooltip(MaterialLocalizations.of(tester.element(find.byType(Epic1ReceivePage))).backButtonTooltip));
+      expect(find.byType(Epic1ReceiveView), findsNothing);
+      expect(_key(receiveAddressKey), findsOneWidget);
     });
 
-    testWidgets('epic1: the listening line follows Epicbox', (tester) async {
+    testWidgets('epic1 off: no epic1 row among the other ways', (tester) async {
+      final session = _session();
+      await _pump(tester, session, receive, epic1: false);
+      expect(_key(receiveAddressKey), findsOneWidget);
+      await openOther(tester);
+      expect(_key(epic1LinkWayKey), findsNothing);
+      expect(session.epic1Fake.calls, isNot(contains('makeLink')));
+    });
+
+    testWidgets('turned off in Settings, Receive drops the row at once', (tester) async {
+      final session = _session();
+      await _pump(tester, session, _settings);
+      await _tap(tester, _key(epic1SwitchKey));
+      Navigator.of(tester.element(find.byType(SettingsSectionScreen))).push(MaterialPageRoute<void>(builder: (_) => receive));
+      await tester.pumpAndSettle();
+      await openOther(tester);
+      expect(_key(epic1LinkWayKey), findsNothing);
+    });
+
+    testWidgets('the link page: the listening line follows Epicbox', (tester) async {
       String line(WidgetTester tester) =>
           tester.widget<Text>(find.descendant(of: _key(epic1ListeningKey), matching: find.byType(Text))).data!;
       for (final (state, word) in [
@@ -303,41 +306,10 @@ void main() {
         (null, _l.statusEpicboxOffline),
         (EpicboxState.blocked, _l.statusEpicboxBlocked),
       ]) {
-        await _pump(tester, _session(on: true), receive, extra: [walletStatusProvider.overrideWith(() => _Epicbox(state))]);
+        await _pump(tester, _session(), const Epic1ReceivePage(), extra: [walletStatusProvider.overrideWith(() => _Epicbox(state))]);
         expect(line(tester), word, reason: '$state');
         await tester.pumpWidget(const SizedBox());
       }
-    });
-
-    testWidgets('epic1 turned off in Settings: Receive shows the Epicbox address at once', (tester) async {
-      final session = _session(on: true);
-      final container = await _pump(tester, session, _settings);
-      await _tap(tester, _key(epic1SwitchKey));
-      expect(session.epic1Fake.storedOn, isFalse);
-      expect(session.epic1Fake.inUse, isTrue);
-      expect(container.read(receiveModeProvider), PaymentMode.classic);
-
-      Navigator.of(tester.element(find.byType(SettingsSectionScreen))).push(MaterialPageRoute<void>(builder: (_) => receive));
-      await tester.pumpAndSettle();
-      expect(find.byType(Epic1ReceiveView), findsNothing);
-      expect(_key(epic1LinkCardKey), findsNothing);
-      expect(_key(receiveAddressKey), findsOneWidget);
-      expect(_key(receiveRequestKey), findsOneWidget);
-    });
-
-    testWidgets('epic1 turned on in a classic unlock: Receive waits for the next unlock', (tester) async {
-      final session = _session();
-      final container = await _pump(tester, session, _settings);
-      await _tap(tester, _key(epic1SwitchKey));
-      await _tap(tester, _key(epic1TurnOnKey));
-      expect(session.epic1Fake.storedOn, isTrue);
-      expect(container.read(receiveModeProvider), PaymentMode.classic);
-    });
-
-    testWidgets('classic: no link card', (tester) async {
-      await _pump(tester, _session(), receive);
-      expect(_key(epic1LinkCardKey), findsNothing);
-      expect(find.byType(Epic1ReceiveView), findsNothing);
     });
   });
 
@@ -351,20 +323,18 @@ void main() {
       expect(looksLikeEpic1Link('zzQGPvjAfqxm9VhHSdsTPFQznkQmdKMTiAMEka5d5eQBUXkWivgC'), isFalse);
     });
 
-    testWidgets('epic1: a classic address says so, with Settings', (tester) async {
-      await _pump(tester, _session(on: true), send());
-      expect(_key(epic1SendFieldKey), findsOneWidget);
-      expect(_key(sendRecipientFieldKey), findsNothing);
-      // The tour's Send step lights the link field.
-      expect(_tourTarget('tour-send-recipient', _key(epic1SendFieldKey)), findsOneWidget);
-      await tester.enterText(_key(epic1SendFieldKey), _classic);
-      await _tap(tester, _key(epic1SendContinueKey));
-      expect(find.text(_l.deskE1ModeClassicAddress), findsOneWidget);
-      expect(_key(epic1FieldSettingsKey), findsOneWidget);
+    testWidgets('epic1 on: the classic form is the start, and a classic address is taken as it always was', (tester) async {
+      await _pump(tester, _session(), send());
+      expect(_key(sendRecipientFieldKey), findsOneWidget);
+      await tester.enterText(_key(sendRecipientFieldKey), _classic);
+      await tester.pumpAndSettle();
+      expect(find.byType(Epic1LinkSendScreen), findsNothing);
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsNothing);
+      expect(_key(epic1FieldSettingsKey), findsNothing);
     });
 
-    testWidgets('epic1: a link with an unknown server asks, reviews, waits, tries the next, then Sent', (tester) async {
-      final session = _session(on: true);
+    testWidgets('epic1 on: a link with an unknown server asks, reviews, waits, tries the next, then Sent; a classic address works after', (tester) async {
+      final session = _session();
       session.epic1Fake
         ..linkHosts = const [
           Epic1Host(host: 'first.example.invalid', port: 443, inRelayList: false),
@@ -372,8 +342,8 @@ void main() {
         ]
         ..failPosts.add('first.example.invalid');
       final container = await _pump(tester, session, send());
-      await tester.enterText(_key(epic1SendFieldKey), _link);
-      await _tapFrames(tester, _key(epic1SendContinueKey));
+      await tester.enterText(_key(sendRecipientFieldKey), _link);
+      await _frames(tester);
 
       expect(find.text(_l.deskE1PhUnknownTitle), findsOneWidget);
       await _tapFrames(tester, _key(epic1UseServerKey));
@@ -400,14 +370,20 @@ void main() {
       await _frames(tester);
       expect(_key(epic1SentKey), findsOneWidget);
       await _tapFrames(tester, _key(epic1DoneKey));
-      expect(_key(epic1SendFieldKey), findsOneWidget);
+
+      // Back on the classic form, empty; a classic address goes on in the same session.
+      expect(_key(sendRecipientFieldKey), findsOneWidget);
+      expect(tester.widget<TextField>(_key(sendRecipientFieldKey)).controller!.text, isEmpty);
+      await tester.enterText(_key(sendRecipientFieldKey), _classic);
+      await tester.pumpAndSettle();
+      expect(find.byType(Epic1LinkSendScreen), findsNothing);
     });
 
-    testWidgets('epic1: a link on a listed server reviews with no question and pays', (tester) async {
-      final session = _session(on: true);
+    testWidgets('epic1 on: a link on a listed server reviews with no question and pays', (tester) async {
+      final session = _session();
       await _pump(tester, session, send());
-      await tester.enterText(_key(epic1SendFieldKey), _link);
-      await _tapFrames(tester, _key(epic1SendContinueKey));
+      await tester.enterText(_key(sendRecipientFieldKey), _link);
+      await _frames(tester);
       expect(find.text(_l.deskE1PhUnknownTitle), findsNothing);
       expect(_key(epic1ReviewServerKey), findsOneWidget);
 
@@ -418,13 +394,50 @@ void main() {
       expect(_key(epic1WaitingKey), findsOneWidget);
     });
 
-    testWidgets('classic: an epic1 link says so, with Settings', (tester) async {
+    testWidgets('epic1 on: a bare epic1 address gets its line, a mistyped link "not an epic1 link"', (tester) async {
       await _pump(tester, _session(), send());
-      expect(_key(epic1SendFieldKey), findsNothing);
+      await tester.enterText(_key(sendRecipientFieldKey), 'epic:epic1qlink0000000000000000000000000000');
+      await tester.pumpAndSettle();
+      expect(find.text(_l.epic1AddressAlone), findsOneWidget);
+      expect(find.byType(Epic1LinkSendScreen), findsNothing);
+    });
+
+    testWidgets('epic1 off: a link stops with the off line and Settings, which opens the Payments row', (tester) async {
+      await _pump(tester, _session(), send(), epic1: false);
       await tester.enterText(_key(sendRecipientFieldKey), _link);
       await tester.pumpAndSettle();
-      expect(find.text(_l.deskE1ModeEpic1Link), findsOneWidget);
+      expect(find.byType(Epic1LinkSendScreen), findsNothing);
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
       expect(_key(epic1FieldSettingsKey), findsOneWidget);
+      await _tap(tester, _key(epic1FieldSettingsKey));
+      expect(_key(epic1SwitchKey), findsOneWidget);
+      // Turning it on there applies at once.
+      await _tap(tester, _key(epic1SwitchKey));
+      expect(_switchOn(tester), isTrue);
+    });
+
+    testWidgets('epic1 off: a classic address is paid as ever', (tester) async {
+      await _pump(tester, _session(), send(), epic1: false);
+      await tester.enterText(_key(sendRecipientFieldKey), _classic);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsNothing);
+      expect(_key(epic1FieldSettingsKey), findsNothing);
+    });
+
+    testWidgets('epic1 on: No address? offers Pay in person for epic1; off: it does not', (tester) async {
+      await _pump(tester, _session(), send());
+      await _tap(tester, find.text(_l.sendNoAddress));
+      expect(_key(epic1PayInPersonKey), findsOneWidget);
+      await _tap(tester, _key(epic1PayInPersonKey));
+      expect(find.byType(InPersonFormScreen), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, _session(), send(), epic1: false);
+      final noAddress = find.text(_l.sendNoAddress);
+      if (noAddress.evaluate().isNotEmpty) {
+        await _tap(tester, noAddress);
+        expect(_key(epic1PayInPersonKey), findsNothing);
+      }
     });
   });
 
@@ -439,19 +452,62 @@ void main() {
       ),
     );
 
-    testWidgets('classic: an in-person code says so, with Settings', (tester) async {
+    testWidgets('epic1 off: an epic1 link stops with the off line and Settings', (tester) async {
       final taken = <bool>[];
-      await _pump(tester, _session(), scanOf('ur:epic1/${'A' * 24}', taken));
+      await _pump(tester, _session(), scanOf(_link, taken), epic1: false);
       await _tap(tester, find.text('scan'));
-      expect(find.text(_l.deskE1ModeEpic1Link), findsOneWidget);
+      // The answer comes when the stop is closed; Settings closes it and opens the row.
+      expect(taken, isEmpty);
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
+      await _tap(tester, _key(epic1ModeSettingsKey));
+      expect(_key(epic1SwitchKey), findsOneWidget);
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      expect(taken, [true]);
     });
 
-    testWidgets('classic: an animated payment QR is left to the QR Payment reader', (tester) async {
+    testWidgets('epic1 off: an epic1 file stops the same way', (tester) async {
       final taken = <bool>[];
-      await _pump(tester, _session(), scanOf('ur:epic-slate/1-3/lpadaxcfaxhl', taken));
+      await _pump(tester, _session(), scanOf('BEGINEPICTX.abc', taken), epic1: false);
+      await _tap(tester, find.text('scan'));
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
+      await _tap(tester, find.text(_l.commonClose));
+      expect(taken, [true]);
+    });
+
+    testWidgets('epic1 off: a classic address is left to the classic route', (tester) async {
+      final taken = <bool>[];
+      await _pump(tester, _session(), scanOf(_classic, taken), epic1: false);
       await _tap(tester, find.text('scan'));
       expect(taken, [false]);
-      expect(find.text(_l.deskE1ModeEpic1Link), findsNothing);
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsNothing);
+    });
+
+    testWidgets('epic1 on: an epic1 link opens its pay flow; a classic address is left to the classic route', (tester) async {
+      final taken = <bool>[];
+      await _pump(tester, _session(), scanOf(_classic, taken));
+      await _tap(tester, find.text('scan'));
+      expect(taken, [false]);
+
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, _session(), scanOf(_link, taken));
+      await _tapFrames(tester, find.text('scan'));
+      expect(find.byType(Epic1LinkSendScreen), findsOneWidget);
+      // The answer comes when the pay flow is left.
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await _frames(tester);
+      expect(taken, [false, true]);
+    });
+
+    testWidgets('an animated payment QR is left to the QR Payment reader, epic1 on or off', (tester) async {
+      for (final on in [true, false]) {
+        final taken = <bool>[];
+        await _pump(tester, _session(), scanOf('ur:epic-slate/1-3/lpadaxcfaxhl', taken), epic1: on);
+        await _tap(tester, find.text('scan'));
+        expect(taken, [false], reason: 'epic1 on: $on');
+        expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsNothing);
+        await tester.pumpWidget(const SizedBox());
+      }
     });
 
     // The QR Payment reader reads a whole animated in-person code too (an in-person code and a
@@ -467,16 +523,16 @@ void main() {
 
     final request = [InPersonStage.request.index, ...List.filled(32, 7)];
 
-    testWidgets('classic: a whole animated in-person code says so, with Settings', (tester) async {
+    testWidgets('epic1 off: a whole animated in-person code stops with the off line', (tester) async {
       final session = _session();
-      await _pump(tester, session, wholeOf(request));
+      await _pump(tester, session, wholeOf(request), epic1: false);
       await _tap(tester, find.text('scan'));
-      expect(find.text(_l.deskE1ModeEpic1Code), findsOneWidget);
+      expect(find.text(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
       expect(session.epic1Fake.calls, isNot(contains('inPersonRead')));
     });
 
     testWidgets('epic1: a whole animated in-person request opens its review', (tester) async {
-      final session = _session(on: true);
+      final session = _session();
       await _pump(tester, session, wholeOf(request));
       await _tapFrames(tester, find.text('scan'));
       expect(session.epic1Fake.calls, contains('inPersonRead'));
@@ -484,7 +540,7 @@ void main() {
     });
 
     testWidgets('epic1: a code for another network says so', (tester) async {
-      final session = _session(on: true);
+      final session = _session();
       session.epic1Fake.failNext = const WalletError(kind: WalletErrorKind.epic1WrongNetwork, message: 'floonet');
       await _pump(tester, session, wholeOf(request));
       await _tapFrames(tester, find.text('scan'));
@@ -492,44 +548,11 @@ void main() {
     });
 
     testWidgets('epic1: an altered code that is no answer either is refused', (tester) async {
-      final session = _session(on: true);
+      final session = _session();
       await _pump(tester, session, wholeOf([9, ...List.filled(32, 7)]));
       await _tapFrames(tester, find.text('scan'));
       expect(session.epic1Fake.calls, containsAllInOrder(['inPersonRead', 'inPersonTake']));
       expect(find.text(_l.deskE1ErrNotInPerson), findsOneWidget);
-    });
-  });
-
-  group('Contacts', () {
-    Future<FakeWalletSession> withAlice({required bool on}) async {
-      final session = _session(on: on);
-      await session.saveContact(contact: Contact(id: '', name: 'Alice', address: _classic));
-      return session;
-    }
-
-    testWidgets('epic1: the picker shows a contact without an epic1 pairing as Classic only', (tester) async {
-      final session = await withAlice(on: true);
-      await _pump(tester, session, const ContactsScreen(pick: true, forPayment: true));
-      expect(_key(classicOnlyKey), findsOneWidget);
-      expect(find.text(_l.deskE1ClassicOnly), findsOneWidget);
-      // The row does not pick.
-      await tester.tap(find.text('Alice'));
-      await tester.pumpAndSettle();
-      expect(find.byType(ContactsScreen), findsOneWidget);
-    });
-
-    testWidgets('classic: no Classic only line', (tester) async {
-      final session = await withAlice(on: false);
-      await _pump(tester, session, const ContactsScreen(pick: true, forPayment: true));
-      expect(_key(classicOnlyKey), findsNothing);
-    });
-
-    testWidgets('epic1: the contact page says Classic only and Send is off', (tester) async {
-      final session = await withAlice(on: true);
-      final alice = (await session.contacts()).single;
-      await _pump(tester, session, ContactPage(contactId: alice.id));
-      expect(_key(classicOnlyKey), findsOneWidget);
-      expect(tester.widget<KitButton>(_key(contactPageSendKey)).onPressed, isNull);
     });
   });
 }
