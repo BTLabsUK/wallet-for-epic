@@ -701,8 +701,11 @@ def reload_drivers(root=None):
             with open(path, encoding="utf-8") as f:
                 mods.append((m, compile(f.read(), path, "exec")))
     moved = {}
-    for m, code in reversed(mods):
-        _reload(m, code, moved)
+    # Twice: a module that builds values at import (phone.py: TAB_WALLET = T(...)) may run before the
+    # module it calls (targets.py) is new; the second pass runs each one against new code everywhere.
+    for _ in range(2):
+        for m, code in reversed(mods):
+            _reload(m, code, moved)
     for new, was in moved.items():
         bases = tuple(moved.get(b, b) for b in new.__bases__)
         if bases != was.__bases__:
