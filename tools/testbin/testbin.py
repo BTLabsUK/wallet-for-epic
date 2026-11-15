@@ -11,7 +11,8 @@ built once into a store on this host and reused by every agent and worktree.
         macos: bt-wallet-<app12>-<variant>-macos.tar, the ad-hoc signed arm64 "BT Wallet.app"
         (tor or notor; tar -xf it on a Mac). ios-sim: bt-wallet-<app12>-notor-ios-simulator.zip,
         the Simulator .app (notor only; the default variant for it). Both are built on the Mac
-        (TESTBIN_MAC_HOST, default the Mac) with tools/build-apple.sh: the commit is
+        (TESTBIN_MAC_HOST, else ssh under [host.apple] in the release hosts file) with
+        tools/build-apple.sh: the commit is
         pushed there as refs/heads/testbin/<app12> and built in its worktree ~/wfe-wt/testbin
         (TESTBIN_MAC_WT), under the Mac's build lock; LEPIC comes from ~/src/lepic.git and
         ~/src/lepic-flutter.git there (the pinned revs are pushed first when missing).
@@ -67,7 +68,23 @@ MIN_FREE_GB = float(os.environ.get("TESTBIN_MIN_FREE_GB", "12"))
 REL_LOCKS = str(HOME / "epic-build" / "rel" / "*" / "run-*" / ".lock")
 ARTIFACTS = {"linux": "linux", "apk": "app-debug.apk", "macos": None, "ios-sim": None}
 MAC_KINDS = ("macos", "ios-sim")
-MAC_HOST = os.environ.get("TESTBIN_MAC_HOST", "the Mac")
+HOSTS_FILE = Path(os.environ.get("REL_HOSTS") or HOME / ".config" / "btlabs" / "release-hosts.toml")
+
+
+def mac_host_name():
+    """The Mac's ssh name: TESTBIN_MAC_HOST, else ssh under [host.apple] in the release hosts file
+    (REL_HOSTS, ~/.config/btlabs/release-hosts.toml); "" when neither says."""
+    if os.environ.get("TESTBIN_MAC_HOST"):
+        return os.environ["TESTBIN_MAC_HOST"]
+    try:
+        import tomllib
+        with open(HOSTS_FILE, "rb") as f:
+            return str(tomllib.load(f).get("host", {}).get("apple", {}).get("ssh") or "")
+    except (OSError, ValueError):
+        return ""
+
+
+MAC_HOST = mac_host_name()
 MAC_WT = os.environ.get("TESTBIN_MAC_WT", "~/wfe-wt/testbin")  # ~ is the Mac's
 MAC_REPO = os.environ.get("TESTBIN_MAC_REPO", "wallet-for-epic")  # relative to the Mac's home
 MAC_LOCK = "~/.wfe-mac-build.lock"
@@ -422,6 +439,9 @@ def build_mac(sha, lepic, binding, variant, what):
     entry = entry_dir(sha, lepic)
     if have(entry, variant, what):
         return entry
+    if not MAC_HOST:
+        raise SystemExit(f"testbin: no Mac to build {what} on: set TESTBIN_MAC_HOST, or ssh under "
+                         f"[host.apple] in {HOSTS_FILE}")
     prune()
     if free_gb() < MIN_FREE_GB:
         raise SystemExit(f"testbin: only {free_gb():.1f} GB free under {STORE} (needs "
