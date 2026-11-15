@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Repository gate. Two modes:
 #   tools/check.sh           fast, the default (a branch before review, main after a merge):
-#                            version, install contract, UI targets, LEPIC at the pin, no hosts, workflows,
+#                            version, install contract, LEPIC at the pin, no hosts, workflows,
 #                            the plain-Dart core, flutter analyze, and only the Flutter tests of
 #                            what really changed (tools/t affected); the bot's tests only when bot/
-#                            changed; the smaller release-tool tests (the nightly, sbom, test order,
+#                            changed; the smaller release-tool tests (sbom, test order,
 #                            check-workflow, tools/t, the incremental publisher, the screens
 #                            feedback service) only when tools/ changed; tools/rel's own suite
 #                            (tools/rellib/tests) only when a file it runs or reads
@@ -14,7 +14,7 @@
 #                            tools/push-github.sh, release/, app/assets/config/app-config.toml.
 #   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
 #                            the web build and LEPIC's golden-vector replay too. Once per release candidate: tools/rel's source
-#                            gate runs it, or the nightly, or the release lead on the candidate.
+#                            gate runs it, or the release lead on the candidate.
 #                            Green on a clean tree, it records /tmp/epic-build/green/<sha>.json
 #                            (tools/rellib/green.py; tools/t full ran both passes, with and
 #                            without Tor), which G2 reuses for that content; without one G2 runs
@@ -53,7 +53,7 @@ esac
 [[ $mode == bad || ( $# -gt 1 && $cached == 0 ) ]] && { echo "usage: tools/check.sh [--full [--cached] | --list]" >&2; exit 64; }
 
 # Each step prints its time when it ends, one line (`== bot: ok 4s`; the name is the title up to
-# " ("), so the nightly's log and the audit have per-step times.
+# " ("), so a run's log and the audit have per-step times.
 # No failure stops the run (keep-going): a failed command marks its step failed, the step's other
 # commands and the later steps still run, the step ends with `== <name>: FAILED (exit N) after Ns`
 # and the check fails at the end naming every failed step. One run then shows every failure, to be
@@ -104,7 +104,7 @@ if [[ $mode == full ]]; then
   echo "check mode: FULL$( ((cached)) && echo ' CACHED') (whole flutter test suite, integration tests, bot, release tools, web build)"
 else
   echo "check mode: fast (--full runs everything: once per release candidate, by tools/rel)"
-  echo "rule: tools/t affected (the tests that directly import the change or name a changed key, plus the sentinels, at most 40)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: small tool tests run (nightly, sbom, tlib ...)')$([[ $rel_changed == 1 ]] && echo '; tools/rel inputs changed: tools/rellib/tests run (rule: tools/rel, env.sh, rellib/, signer/, releases/, release-files.py, publish-update-json.sh, push-github.sh, release/, app-config.toml)')"
+  echo "rule: tools/t affected (the tests that directly import the change or name a changed key, plus the sentinels, at most 40)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: small tool tests run (sbom, tlib ...)')$([[ $rel_changed == 1 ]] && echo '; tools/rel inputs changed: tools/rellib/tests run (rule: tools/rel, env.sh, rellib/, signer/, releases/, release-files.py, publish-update-json.sh, push-github.sh, release/, app-config.toml)')"
   "$root/tools/t" affected --list --base "$base_ref"
 fi
 [[ $mode == list ]] && exit 0
@@ -114,9 +114,6 @@ step "version (https://docs.btlabs.uk/developers/releases/)"
 
 step "install contract (docs/install-contract.md)"
 "$root/tools/check-install-contract.sh" || step_failed $?
-
-step "UI targets (tools/ui-targets)"
-"$root/tools/ui-targets" check || step_failed $?
 
 step "no hosts in code (docs/settings-file.md)"
 "$root/tools/check-no-hosts.sh" || step_failed $?
@@ -171,7 +168,7 @@ if [[ $mode == full || $tools_changed == 1 ]]; then
   fi
   (cd "$root" && python3 -m unittest discover -s tools/tlib/tests) || step_failed $?
   (cd "$root" && python3 -m unittest discover -s tools/signer/tests) || step_failed $?
-  (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py \
+  (cd "$root" && python3 -m unittest tools/test_sbom.py tools/test_flutter_test_order.py \
     tools/test_check_workflow.py tools/publish/test_buildcheck.py) || step_failed $?
   # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
   "$root/tools/publish/test-incremental.sh" || step_failed $?
@@ -191,7 +188,7 @@ LEPIC_SHARED="${LEPIC_SHARED:-1}" "$root/tools/lepic.sh" build linux || step_fai
 if [[ $mode == full ]]; then
   step "LEPIC golden vectors (cargo xtask vectors verify)"
   # LEPIC's own replay of its golden vectors, at the pin, in the shared clone (tools/lepic.sh xtask).
-  # tools/rel's source gate and the nightly both run this through --full.
+  # tools/rel's source gate runs this through --full.
   "$root/tools/lepic.sh" xtask vectors verify || step_failed $?
 fi
 
@@ -215,7 +212,7 @@ if [[ $mode == full ]]; then
   # One run per file: a second app start in one `flutter test` run fails on Linux now and then.
   # The app keeps its PIN vault in the platform keyring. Run by hand (ssh, an agent's shell) there
   # is no unlocked one and the test waits on it forever, so each file gets its own session bus
-  # and an unlocked throwaway keyring, as the nightly does, and a hard time limit.
+  # and an unlocked throwaway keyring, and a hard time limit.
   # A file whose failure is the machine's (docs/TESTING.md, "Infrastructure failures are retried
   # once": a timeout before the app started, xvfb, dbus or the keyring not starting) runs once more;
   # a file with a failing test never does.
