@@ -4,6 +4,8 @@
 /// reached by hand. Not product UI: its words stay English and it never ships with LEPIC.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -108,6 +110,9 @@ class _ProtoPanelState extends ConsumerState<_ProtoPanel> {
               ('Same bill again', 'The last paid bill arrived again.', (p) => p.billArrives(same: true)),
               ('Service withdraws', 'The service withdrew an invoice.', (p) => p.serviceWithdraws()),
               ('Service posts', 'The service posted your payment.', (p) => p.servicePosts()),
+            ]),
+            _group('Incoming payments', [
+              ('A payment arrives', 'A payment arrived.', (p) => unawaited((ref.read(deskApiProvider) as MockDeskWallet).simulateIncoming())),
             ]),
             _group('Chain and clock', [
               ('Mine 1 block', 'One block mined.', (p) => p.blocks(1)),

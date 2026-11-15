@@ -497,6 +497,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       text,
       level: paymentNoticeLevel(event.kind),
       txKey: key,
+      // An arriving payment waits for the user, with View when the list has it.
+      persistent: event.kind == ListenerEventKind.received,
       // A failed payment the list does not name yet still has a way in: Activity (UP-030).
       activity: event.kind == ListenerEventKind.error && event.slateId != null && key == null,
     );
@@ -523,12 +525,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   /// A notice with a way to the payment when it is known, or to Activity when [activity]. It
-  /// leaves on its own; the payment is always one tap away in the list too.
+  /// leaves on its own unless [persistent]; the payment is always one tap away in the list too.
   void _showNotice(
     String text, {
     required NoticeLevel level,
     String? txKey,
     bool activity = false,
+    bool persistent = false,
   }) {
     final Widget? target = txKey != null
         ? TxDetailsScreen(txKey: txKey)
@@ -540,6 +543,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         .show(
           text,
           level: level,
+          persistent: persistent,
           action: target == null
               ? null
               : NoticeAction(context.l10n.homeNoticeView, () {

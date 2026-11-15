@@ -28,6 +28,10 @@ import 'invoices.dart';
 import 'models.dart';
 
 abstract interface class DeskWalletApi {
+  /// Payments the listener accepts while the wallet is open, one event each (the phone's
+  /// "received" notice); the open wallet's only.
+  Stream<IncomingPayment> incomingPayments();
+
   // Wallets on this computer and opening one.
   /// The wallets of this network; [WalletEntry.current] is the one [unlock] opens.
   Future<List<WalletEntry>> wallets();

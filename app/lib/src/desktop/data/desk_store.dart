@@ -282,6 +282,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'language': s.language,
   'helpLanguage': s.helpLanguage,
   'hideAmounts': s.hideAmounts,
+  'systemNotices': s.systemNotices,
   'internetGuideSeen': s.internetGuideSeen,
   'tourSeen': s.tourSeen,
   'importWarningSeen': s.importWarningSeen,
@@ -301,6 +302,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   const d = DeskSettings();
   final scale = j['scale'];
   final hide = j['hideAmounts'];
+  final sysNotices = j['systemNotices'];
   final language = j['language'];
   final helpLanguage = j['helpLanguage'];
   final guide = j['internetGuideSeen'];
@@ -321,6 +323,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     language: language is String && appLanguages.any((a) => a.code == language) ? language : null,
     helpLanguage: helpLanguage is String && appLanguages.any((a) => a.code == helpLanguage) ? helpLanguage : null,
     hideAmounts: hide is bool ? hide : d.hideAmounts,
+    systemNotices: sysNotices is bool ? sysNotices : d.systemNotices,
     internetGuideSeen: guide is bool ? guide : d.internetGuideSeen,
     tourSeen: tour is bool ? tour : d.tourSeen,
     importWarningSeen: importWarned is bool ? importWarned : d.importWarningSeen,

@@ -105,6 +105,7 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.language, DeskRoute.settingsAppearance, label: (l) => l.deskSetAppearLanguage, synonyms: (l) => l.deskSetSynLanguage),
   SetEntry(SetId.scale, DeskRoute.settingsAppearance, label: (l) => l.deskSetAppearScale, hint: (l) => l.deskSetRowScaleHint, synonyms: (l) => l.deskSetSynScale),
   SetEntry(SetId.hideAmounts, DeskRoute.settingsAppearance, label: (l) => l.deskOvHideAmounts, hint: (l) => l.deskSetRowHideAmountsHint, synonyms: (l) => l.deskSetSynHideAmounts),
+  SetEntry(SetId.systemNotices, DeskRoute.settingsAppearance, label: (l) => l.deskSetSystemNotices, synonyms: (l) => l.deskSetSynSystemNotices),
   SetEntry(SetId.nodeServer, DeskRoute.settingsNode, label: (l) => l.deskSetNodeServer, group: (l) => l.deskSetGrpConnection, hint: (l) => l.deskSetRowNodeServerHint, synonyms: (l) => l.deskSetSynNodeServer),
   SetEntry(SetId.failover, DeskRoute.settingsNode, label: (l) => l.deskSetRowFailover, group: (l) => l.deskSetGrpConnection, hint: (l) => l.deskSetRowFailoverHint, synonyms: (l) => l.deskSetSynFailover),
   SetEntry(SetId.myNode, DeskRoute.settingsNode, label: (l) => l.deskOwnMine, group: (l) => l.deskSetGrpConnection, hint: (l) => l.deskSetRowMyNodeHint, synonyms: (l) => l.deskSetSynMyNode),

@@ -5604,5 +5604,9 @@
   "deskHomeFee": "ค่าธรรมเนียม {fee} · ยอดคงเหลือหลังส่ง {after}",
   "deskHomeMessage": "ข้อความ: {text}",
   "deskHomeRequestsOff": "คำขอปิดอยู่",
-  "deskHomeNotPayer": "{name} ไม่มีกระเป๋าที่จับคู่ไว้ให้ขอ คำขอจะเปิดโดยไม่มีผู้จ่าย"
+  "deskHomeNotPayer": "{name} ไม่มีกระเป๋าที่จับคู่ไว้ให้ขอ คำขอจะเปิดโดยไม่มีผู้จ่าย",
+  "deskSysNoticeTitle": "ได้รับการชำระเงิน",
+  "deskSysNoticeOpen": "เปิด",
+  "deskSetSystemNotices": "การแจ้งเตือนของระบบ",
+  "deskSetSynSystemNotices": "แจ้งเตือน, การแจ้งเตือน, แบนเนอร์, ป๊อปอัป, ได้รับการชำระเงิน, เดสก์ท็อป"
 }

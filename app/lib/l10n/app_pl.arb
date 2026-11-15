@@ -5604,5 +5604,9 @@
   "deskHomeFee": "Opłata {fee} · Saldo po: {after}",
   "deskHomeMessage": "Wiadomość: {text}",
   "deskHomeRequestsOff": "Prośby są wyłączone.",
-  "deskHomeNotPayer": "{name} nie ma sparowanego portfela, który można poprosić. Prośba otworzy się bez płatnika."
+  "deskHomeNotPayer": "{name} nie ma sparowanego portfela, który można poprosić. Prośba otworzy się bez płatnika.",
+  "deskSysNoticeTitle": "Otrzymano płatność",
+  "deskSysNoticeOpen": "Otwórz",
+  "deskSetSystemNotices": "Powiadomienia systemowe",
+  "deskSetSynSystemNotices": "powiadomienia, alert, komunikat, baner, wyskakujące, płatność otrzymana, pulpit"
 }

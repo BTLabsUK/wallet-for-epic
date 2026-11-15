@@ -5604,5 +5604,9 @@
   "deskHomeFee": "Gebühr {fee} · Guthaben danach {after}",
   "deskHomeMessage": "Nachricht: {text}",
   "deskHomeRequestsOff": "Anfragen sind aus.",
-  "deskHomeNotPayer": "{name} hat kein gekoppeltes Wallet, das gefragt werden kann. Die Anfrage öffnet ohne Zahler."
+  "deskHomeNotPayer": "{name} hat kein gekoppeltes Wallet, das gefragt werden kann. Die Anfrage öffnet ohne Zahler.",
+  "deskSysNoticeTitle": "Zahlung erhalten",
+  "deskSysNoticeOpen": "Öffnen",
+  "deskSetSystemNotices": "Systembenachrichtigungen",
+  "deskSetSynSystemNotices": "benachrichtigung, mitteilung, hinweis, banner, popup, zahlung erhalten, desktop"
 }

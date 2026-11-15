@@ -1327,6 +1327,31 @@ class MockDeskWallet implements DeskWalletApi {
   int get sessionRevision => _sessionRevision;
   int _sessionRevision = 0;
 
+  final _incoming = StreamController<IncomingPayment>.broadcast();
+
+  @override
+  Stream<IncomingPayment> incomingPayments() => _incoming.stream;
+
+  /// The Demo panel's "A payment arrives": a payment from the first contact lands in the list
+  /// and the listener's event follows, as the core's does.
+  Future<void> simulateIncoming({double epic = 12.5}) async {
+    final tx = Tx(
+      id: _nextId++,
+      slateId: 'aa${_rng.nextInt(99999999).toString().padLeft(8, '0')}-1b2c-4d3e-8f4a-5b6c7d8e9f0a',
+      direction: TxDirection.received,
+      state: TxState.confirming,
+      method: TxMethod.epicbox,
+      amount: _epic(epic),
+      fee: 0,
+      created: DateTime.now(),
+      counterparty: _contacts[0].address,
+      contactName: _contacts[0].name,
+    );
+    _txs.insert(0, tx);
+    _changes.add(null);
+    _incoming.add(IncomingPayment(txId: tx.id, slateId: tx.slateId, amount: tx.amount));
+  }
+
   /// The prototype shows its other side's moves on the page itself.
   @override
   Stream<InvoiceNotice> invoiceNotices() => const Stream.empty();

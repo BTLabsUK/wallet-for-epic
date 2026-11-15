@@ -21112,4 +21112,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskHomeNotPayer(String name) {
     return '$name ไม่มีกระเป๋าที่จับคู่ไว้ให้ขอ คำขอจะเปิดโดยไม่มีผู้จ่าย';
   }
+
+  @override
+  String get deskSysNoticeTitle => 'ได้รับการชำระเงิน';
+
+  @override
+  String get deskSysNoticeOpen => 'เปิด';
+
+  @override
+  String get deskSetSystemNotices => 'การแจ้งเตือนของระบบ';
+
+  @override
+  String get deskSetSynSystemNotices =>
+      'แจ้งเตือน, การแจ้งเตือน, แบนเนอร์, ป๊อปอัป, ได้รับการชำระเงิน, เดสก์ท็อป';
 }

@@ -105,6 +105,8 @@ dependencies:
   hooks: 2.0.2
   # The settings file (lib/src/settings_file/): its values; where each key sits is our own scan.
   toml: 0.18.0
+  # Desktop system notifications for an arriving payment (Windows toast, macOS, Linux D-Bus); local only, no network or tracking.
+  flutter_local_notifications: 23.0.2
 
 dev_dependencies:
   fake_async: ^1.3.3

@@ -5604,5 +5604,9 @@
   "deskHomeFee": "Комиссия {fee} · Баланс после: {after}",
   "deskHomeMessage": "Сообщение: {text}",
   "deskHomeRequestsOff": "Запросы выключены.",
-  "deskHomeNotPayer": "У {name} нет сопряжённого кошелька для запроса. Запрос откроется без плательщика."
+  "deskHomeNotPayer": "У {name} нет сопряжённого кошелька для запроса. Запрос откроется без плательщика.",
+  "deskSysNoticeTitle": "Платёж получен",
+  "deskSysNoticeOpen": "Открыть",
+  "deskSetSystemNotices": "Системные уведомления",
+  "deskSetSynSystemNotices": "уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол"
 }

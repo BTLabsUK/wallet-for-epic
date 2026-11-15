@@ -33702,6 +33702,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} has no paired wallet to ask. Request opens without a payer.'**
   String deskHomeNotPayer(String name);
+
+  /// Title of the operating system's notification when a payment arrives while the wallet window is not in front. The body is the same sentence as the in-app notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get deskSysNoticeTitle;
+
+  /// Label of the default action of the Linux notification (clicking it opens the wallet and the payment).
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get deskSysNoticeOpen;
+
+  /// Settings row (Appearance): a switch for showing an arriving payment as the system's notification while the wallet window is not in front.
+  ///
+  /// In en, this message translates to:
+  /// **'System notifications'**
+  String get deskSetSystemNotices;
+
+  /// Settings search: other words that find the “System notifications” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'notifications, alerts, toast, banner, desktop notification, payment received, popup'**
+  String get deskSetSynSystemNotices;
 }
 
 class _AppLocalizationsDelegate

@@ -386,7 +386,8 @@ class EDrawer extends StatelessWidget {
 /// fold under the title (a digest's kinds), a chevron unfolds them, each a way somewhere; such
 /// a toast stays while the pointer is over it or it is unfolded. A toast
 /// goes with the screen it was shown on; one that [stay]s shows again on the next, until it is
-/// closed or the window leaves the wallet (lock, welcome).
+/// closed or the window leaves the wallet (lock, welcome). A [persistent] toast waits for the
+/// user: it has a close button and no clock (an arriving payment); others queue behind it.
 void showEToast(
   BuildContext context,
   String title, {
@@ -395,6 +396,7 @@ void showEToast(
     ({String label, VoidCallback run})? action,
     List<({String label, VoidCallback run})> items = const [],
     bool stay = false,
+    bool persistent = false,
   }) {
     final c = context.dc;
     final toasts = deskToastsOf(context);
@@ -416,7 +418,10 @@ void showEToast(
               toasts.hide();
               action.run();
             },
-      trailing: trailing,
+      trailing: trailing ??
+          (persistent
+              ? EIconButton(icon: EIcons.close, label: context.l10n.commonClose, tabStop: false, onPressed: toasts.hide)
+              : null),
     );
     // A toast with items keeps its own clock: it stops while the pointer is over the toast or
     // the items are unfolded, so the host's own must not run out first.
@@ -437,14 +442,14 @@ void showEToast(
               )
             : head(),
       ),
-      folds ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
+      folds || persistent ? const Duration(days: 1) : Duration(seconds: action == null ? 4 : 10),
     );
     _closeWithScreen(
       context,
       toasts,
       shown,
       showAgain: () => stay && !acted,
-      again: () => showEToast(context, title, text: text, tone: tone, action: action, items: items, stay: true),
+      again: () => showEToast(context, title, text: text, tone: tone, action: action, items: items, stay: true, persistent: persistent),
     );
   }
 

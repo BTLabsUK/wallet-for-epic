@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/models.dart' show IncomingPayment;
 import 'package:epic_wallet/src/message_checks.dart' show MessageChecks;
 import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, QrSlateProgress, StoreMigrationProgress;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
@@ -106,6 +107,9 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   MockDeskWallet get mock => _m;
   final List<String> calls = [];
+
+  @override
+  Stream<IncomingPayment> incomingPayments() => _m.incomingPayments();
 
   @override
   void dropNodeConnections() => _m.dropNodeConnections();

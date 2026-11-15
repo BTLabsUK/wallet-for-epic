@@ -22145,4 +22145,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskHomeNotPayer(String name) {
     return 'У $name нет сопряжённого кошелька для запроса. Запрос откроется без плательщика.';
   }
+
+  @override
+  String get deskSysNoticeTitle => 'Платёж получен';
+
+  @override
+  String get deskSysNoticeOpen => 'Открыть';
+
+  @override
+  String get deskSetSystemNotices => 'Системные уведомления';
+
+  @override
+  String get deskSetSynSystemNotices =>
+      'уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол';
 }

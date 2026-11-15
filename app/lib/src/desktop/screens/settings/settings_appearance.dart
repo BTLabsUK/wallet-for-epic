@@ -81,6 +81,11 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             hint: l.deskSetAppearHideHint,
             control: ESwitch(value: s.hideAmounts, semanticLabel: l.deskOvHideAmounts, onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),
           ),
+          ESetRow(
+            anchor: SetId.systemNotices,
+            title: l.deskSetSystemNotices,
+            control: ESwitch(value: s.systemNotices, semanticLabel: l.deskSetSystemNotices, onChanged: (v) => n.saveSettings(s.copyWith(systemNotices: v))),
+          ),
         ],
       ),
     );

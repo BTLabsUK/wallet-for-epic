@@ -53,6 +53,8 @@ import 'desk_failover.dart';
 import 'service_rows.dart';
 import 'screens.dart';
 import 'close_guard.dart';
+import 'desk_window.dart' show deskWindowProvider;
+import 'system_notice.dart';
 import 'last_session_offer.dart';
 import 'update_strip.dart' show DeskUpdateStrip;
 import 'old_app_offer.dart';
@@ -204,6 +206,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       if (mounted) unawaited(ref.read(deskFailoverWatchProvider.notifier).askBehind());
     });
     HardwareKeyboard.instance.addHandler(_onKey);
+    ref.read(deskSystemNotifierProvider).onTap = _systemNoticeTapped;
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _open().ignore();
@@ -460,6 +463,53 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     );
   }
 
+  /// A click on a system notification: the window comes forward, the payment opens.
+  void _systemNoticeTapped(String? payload) {
+    if (!mounted) return;
+    unawaited(ref.read(deskWindowProvider).show());
+    _openIncoming(int.tryParse(payload ?? ''));
+  }
+
+  void _openIncoming(int? txId) => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, txId);
+
+  /// The notice of a payment that arrived: the phone's sentence, kept until closed, with View.
+  Future<void> _incomingNotice(BuildContext context, IncomingPayment p) async {
+    final l = context.l10n;
+    // The list in state is reloaded after the event: ask the wallet for the payment itself, so the
+    // sender is named as on the phone. Worded without it when the wallet cannot say.
+    Tx? tx;
+    try {
+      tx = (await ref.read(deskApiProvider).transactions()).where((t) => (p.slateId != null && t.slateId == p.slateId) || (p.txId != null && t.id == p.txId)).firstOrNull;
+    } on Object {
+      tx = null;
+    }
+    if (!mounted || !context.mounted) return;
+    final s = ref.read(deskProvider);
+    final name = tx?.contactName;
+    final amount = p.amount ?? tx?.amount;
+    final shown = s.settings.hideAmounts || amount == null ? null : formatEpicL(l, amount);
+    final text = switch ((shown, name)) {
+      (null, null) => l.homeNoticeReceived,
+      (null, final from?) => l.homeNoticeReceivedFrom(from),
+      (final a?, null) => l.homeNoticeReceivedAmount(a),
+      (final a?, final from?) => l.homeNoticeReceivedAmountFrom(a, from),
+    };
+    final txId = p.txId ?? tx?.id;
+    showEToast(
+      context,
+      text,
+      tone: ETone.ok,
+      persistent: true,
+      stay: true,
+      action: (label: l.homeNoticeView, run: () => _openIncoming(txId)),
+    );
+    final window = ref.read(deskWindowProvider);
+    final inFront = window.state.value.focused && window.visible.value;
+    if (s.settings.systemNotices && !inFront) {
+      unawaited(ref.read(deskSystemNotifierProvider).show(title: l.deskSysNoticeTitle, body: text, payload: '${txId ?? ''}', openLabel: l.deskSysNoticeOpen));
+    }
+  }
+
   /// What the shell listens to while it shows: links, invoice and pairing news, digests, the
   /// device service, failover, contacts' keys and the old wallet's history.
   void _listen(BuildContext context) {
@@ -470,6 +520,12 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskInvoiceNoticesProvider, (_, next) {
       final n = next.value;
       if (n != null && mounted) _invoiceToast(context, n);
+    });
+    // A payment that arrived: a notice that waits for the user, and the system's own notification
+    // while the window is not in front.
+    ref.listen(deskIncomingProvider, (_, next) {
+      final p = next.value;
+      if (p != null && mounted) unawaited(_incomingNotice(context, p));
     });
     // What the pairing engine found (RFC 10.4), as a toast; the screens that wait open the
     // words check themselves, Pending invites keeps the rest.

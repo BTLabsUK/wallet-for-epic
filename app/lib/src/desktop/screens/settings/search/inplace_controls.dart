@@ -27,7 +27,7 @@ const Map<String, AdvancedFeature> _featureRows = {
 /// The ids [settingsInPlaceControl] has a control for.
 const Set<String> settingsInPlaceIds = {
   SetId.advOutputs, SetId.advTech, SetId.advSendopts, SetId.advServers, SetId.advHeight, SetId.advLocal, SetId.advLogs,
-  SetId.theme, SetId.scale, SetId.language, SetId.hideAmounts,
+  SetId.theme, SetId.scale, SetId.language, SetId.hideAmounts, SetId.systemNotices,
 };
 
 /// Row [id]'s control, usable here; null when the result opens its page instead.
@@ -73,6 +73,7 @@ Widget? settingsInPlaceControl(BuildContext context, WidgetRef ref, String id) {
       ),
     ),
     SetId.hideAmounts => ESwitch(value: s.hideAmounts, semanticLabel: l.deskOvHideAmounts, onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),
+    SetId.systemNotices => ESwitch(value: s.systemNotices, semanticLabel: l.deskSetSystemNotices, onChanged: (v) => n.saveSettings(s.copyWith(systemNotices: v))),
     _ => null,
   };
 }

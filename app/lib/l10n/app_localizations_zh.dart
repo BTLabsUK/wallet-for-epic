@@ -20341,4 +20341,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskHomeNotPayer(String name) {
     return '$name 没有可请求的已配对钱包。请求将不带付款人打开。';
   }
+
+  @override
+  String get deskSysNoticeTitle => '已收到付款';
+
+  @override
+  String get deskSysNoticeOpen => '打开';
+
+  @override
+  String get deskSetSystemNotices => '系统通知';
+
+  @override
+  String get deskSetSynSystemNotices => '通知, 提醒, 横幅, 弹窗, 收到付款, 桌面通知';
 }

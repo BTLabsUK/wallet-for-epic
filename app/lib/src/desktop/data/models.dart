@@ -274,6 +274,19 @@ class OutputPrefs {
 const Object _keepName = Object();
 
 @immutable
+/// A payment the Epicbox listener just accepted (a sender's slate arrived), for the in-app
+/// notice and the system notification. The row itself comes with the next list read.
+@immutable
+class IncomingPayment {
+  const IncomingPayment({this.txId, this.slateId, this.amount});
+
+  final int? txId;
+  final String? slateId;
+
+  /// In the smallest unit, as [Tx.amount]; null when the core did not say.
+  final int? amount;
+}
+
 class Tx {
   const Tx({
     required this.id,
@@ -1361,6 +1374,7 @@ class DeskSettings {
     this.language,
     this.helpLanguage,
     this.hideAmounts = false,
+    this.systemNotices = true,
     this.directHttp = false,
     this.tor = false,
     this.publicMode = false,
@@ -1403,6 +1417,9 @@ class DeskSettings {
   /// interface ([language]). Chosen with the switch at the top of Help.
   final String? helpLanguage;
   final bool hideAmounts;
+
+  /// An arriving payment also shows as the system's own notification while the window is not in front.
+  final bool systemNotices;
 
   /// The HTTP listener switch: on, it runs while receiving is on. Not saved: at unlock it is
   /// what Start with the wallet says.
@@ -1467,6 +1484,7 @@ class DeskSettings {
     String? Function()? language,
     String? Function()? helpLanguage,
     bool? hideAmounts,
+    bool? systemNotices,
     bool? directHttp,
     bool? tor,
     bool? publicMode,
@@ -1491,6 +1509,7 @@ class DeskSettings {
     language: language != null ? language() : this.language,
     helpLanguage: helpLanguage != null ? helpLanguage() : this.helpLanguage,
     hideAmounts: hideAmounts ?? this.hideAmounts,
+    systemNotices: systemNotices ?? this.systemNotices,
     directHttp: directHttp ?? this.directHttp,
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,

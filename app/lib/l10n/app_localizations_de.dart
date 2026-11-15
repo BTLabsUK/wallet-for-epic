@@ -21773,4 +21773,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskHomeNotPayer(String name) {
     return '$name hat kein gekoppeltes Wallet, das gefragt werden kann. Die Anfrage öffnet ohne Zahler.';
   }
+
+  @override
+  String get deskSysNoticeTitle => 'Zahlung erhalten';
+
+  @override
+  String get deskSysNoticeOpen => 'Öffnen';
+
+  @override
+  String get deskSetSystemNotices => 'Systembenachrichtigungen';
+
+  @override
+  String get deskSetSynSystemNotices =>
+      'benachrichtigung, mitteilung, hinweis, banner, popup, zahlung erhalten, desktop';
 }

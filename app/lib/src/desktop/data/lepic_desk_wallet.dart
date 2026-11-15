@@ -4114,6 +4114,9 @@ class LepicDeskWallet implements DeskWalletApi {
             _epicboxHealth = ServiceHealth.down;
             _relayMaybeBlocked(e.reason ?? e.message);
           case core.ListenerEventKind.received || core.ListenerEventKind.finalized || core.ListenerEventKind.expired:
+            if (e.kind == core.ListenerEventKind.received && !_incoming.isClosed) {
+              _incoming.add(IncomingPayment(txId: e.txId, slateId: e.slateId, amount: e.amount?.toInt()));
+            }
             unawaited(_reload());
           case core.ListenerEventKind.stopped:
             _epicboxHealth = ServiceHealth.off;
@@ -5061,6 +5064,10 @@ class LepicDeskWallet implements DeskWalletApi {
   StreamSubscription<core.IssuerEvent>? _issuerSub;
   StreamSubscription<core.PairingEvent>? _pairingSub;
   final _invoiceNotices = StreamController<InvoiceNotice>.broadcast();
+  final _incoming = StreamController<IncomingPayment>.broadcast();
+
+  @override
+  Stream<IncomingPayment> incomingPayments() => _incoming.stream;
 
   /// How long invoices stay payable here (Settings › Invoices); kept per wallet in the
   /// wallet's saved data under [_invoiceExpiryKey] and read back when the invoices start.
@@ -5884,6 +5891,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // screen), so after a lock the close never ended and closing waited its 40 s (LNX-4).
     unawaited(_changes.close());
     unawaited(_invoiceNotices.close());
+    unawaited(_incoming.close());
     step('done');
   }
 }

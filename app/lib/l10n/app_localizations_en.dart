@@ -21540,4 +21540,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskHomeNotPayer(String name) {
     return '$name has no paired wallet to ask. Request opens without a payer.';
   }
+
+  @override
+  String get deskSysNoticeTitle => 'Payment received';
+
+  @override
+  String get deskSysNoticeOpen => 'Open';
+
+  @override
+  String get deskSetSystemNotices => 'System notifications';
+
+  @override
+  String get deskSetSynSystemNotices =>
+      'notifications, alerts, toast, banner, desktop notification, payment received, popup';
 }

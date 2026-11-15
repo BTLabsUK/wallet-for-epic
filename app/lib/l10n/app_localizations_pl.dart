@@ -22150,4 +22150,17 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskHomeNotPayer(String name) {
     return '$name nie ma sparowanego portfela, który można poprosić. Prośba otworzy się bez płatnika.';
   }
+
+  @override
+  String get deskSysNoticeTitle => 'Otrzymano płatność';
+
+  @override
+  String get deskSysNoticeOpen => 'Otwórz';
+
+  @override
+  String get deskSetSystemNotices => 'Powiadomienia systemowe';
+
+  @override
+  String get deskSetSynSystemNotices =>
+      'powiadomienia, alert, komunikat, baner, wyskakujące, płatność otrzymana, pulpit';
 }
