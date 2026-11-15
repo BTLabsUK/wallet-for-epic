@@ -592,7 +592,7 @@ class _Tour {
     // A wallet made on this version: the one-time Tor address notice is already seen.
     store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
     if (pairingOff) session.pairing.enabled = false;
-    if (epic1) session.epic1Fake = FakeEpic1(on: true);
+    if (epic1) session.epic1Fake = FakeEpic1();
     service = (vectorLinks ? _VectorService.new : otherChain ? _OtherChainService.new : FakeWalletService.new)(
       existingWallets: {_mainnetDir},
       session: session,

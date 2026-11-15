@@ -2146,12 +2146,12 @@ void main() {
       expect(find.text(_l.phoneBackupReminderText), findsOneWidget);
     });
 
-    testWidgets('epic1 mode: not shown and not spent, the classic mode still has it', (tester) async {
-      final session = FakeWalletSession(summary: _summary(), transactions: _backlog())..epic1Fake = FakeEpic1(on: true);
+    testWidgets('a wallet with epic1 sees it too: it is not held back', (tester) async {
+      final session = FakeWalletSession(summary: _summary(), transactions: _backlog())..epic1Fake = FakeEpic1();
       final h = _Harness(session: session, fromBeforeOnionKey: true);
       await h.pump(tester);
-      expect(find.text(_l.torAddressChangedTitle), findsNothing);
-      expect(h.store.values[onionNoticeKey('mainnet', null)], isNull);
+      expect(find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.torAddressChangedTitle)), findsOneWidget);
+      expect(h.store.values[onionNoticeKey('mainnet', null)], onionNoticeSeen);
     });
   });
 

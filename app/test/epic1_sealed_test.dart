@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // The epic1 wordmark (its size from the text it stands in, one "epic1" for screen readers,
 // plain text below 13 px or without the token) and the "Sealed with epic1" mark on a history
-// row: only on a sealed payment, only in epic1 mode, said once in the row's sentence.
+// row: only on a sealed payment (whatever the epic1 switch), said once in the row's sentence.
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/history/meta_store.dart' show Meta;
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -52,16 +53,18 @@ Widget _app(Widget child) => MaterialApp(
 const _pairing = 'pair-1';
 final _sent = fakeTx(id: 1, kind: TxKind.sent, status: TxStatus.confirmed, blockHeight: BigInt.from(100), transport: 'epicbox');
 
-/// One row's status line for [tx], in epic1 mode when [on].
+/// One row's status line for [tx], with the epic1 switch [on] or off.
 Future<void> _line(WidgetTester tester, TxEntry tx, {required bool on}) async {
-  final session = FakeWalletSession()..epic1Fake = FakeEpic1(on: on);
+  final session = FakeWalletSession()..epic1Fake = FakeEpic1();
   allowPinCheck(session, null);
+  final store = sendPinStore()..values['app.network'] = 'mainnet';
+  if (!on) store.values['app.payment_prefs'] = PaymentPrefs.defaults.copyWith(epic1: false).encode();
   await tester.pumpWidget(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
         walletServiceProvider.overrideWithValue(FakeWalletService(session: session)),
-        secretStoreProvider.overrideWithValue(sendPinStore()..values['app.network'] = 'mainnet'),
+        secretStoreProvider.overrideWithValue(store),
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_NoRelays()),
         priceSourceProvider.overrideWithValue(_NoPrice()),
@@ -153,7 +156,7 @@ void main() {
   });
 
   group('Sealed with epic1', () {
-    testWidgets('a sealed payment in epic1 mode shows the lock, with the words in its tip', (tester) async {
+    testWidgets('a sealed payment shows the lock, with the words in its tip', (tester) async {
       await _line(tester, copyTxPairing(_sent, _pairing), on: true);
       expect(find.byKey(epic1SealedKey), findsOneWidget);
       expect(find.byWidgetPredicate((w) => w is Tip && w.message == _l.deskE1Sealed), findsOneWidget);
@@ -168,9 +171,9 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('classic mode shows none, even on a sealed payment', (tester) async {
+    testWidgets('a sealed payment shows it with the epic1 switch off too', (tester) async {
       await _line(tester, copyTxPairing(_sent, _pairing), on: false);
-      expect(find.byKey(epic1SealedKey), findsNothing);
+      expect(find.byKey(epic1SealedKey), findsOneWidget);
       await _end(tester);
     });
 

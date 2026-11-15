@@ -549,7 +549,7 @@ class _Tour {
       // A wallet made on this version: the one-time Tor address notice is already seen.
       store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
     }
-    if (epic1) session.epic1Fake = FakeEpic1(on: true);
+    if (epic1) session.epic1Fake = FakeEpic1();
     service = _TourService(
       existingWallets: switch (from) {
         _Start.unlock || _Start.home => {_mainnetDir},

@@ -547,7 +547,7 @@ class _Tour {
     store.values['wallet.mainnet.backedUp'] = '1';
     // A wallet made on this version: the one-time Tor address notice is already seen.
     store.values[onionNoticeKey('mainnet', null)] = onionNoticeSeen;
-    if (epic1) session.epic1Fake = unlisted ? _UnlistedEpic1(on: true) : FakeEpic1(on: true);
+    if (epic1) session.epic1Fake = unlisted ? _UnlistedEpic1() : FakeEpic1();
     service = FakeWalletService(
       existingWallets: {_mainnetDir},
       session: session,
@@ -1128,7 +1128,7 @@ Future<DeviceService> _linkedDevices(_Tour t, {bool linked = true}) async {
 
 /// A wallet whose mailbox is not in the shipped relay list, so "Send through this server?" asks.
 class _UnlistedEpic1 extends FakeEpic1 {
-  _UnlistedEpic1({super.on});
+  _UnlistedEpic1();
 
   static const _host = Epic1Host(host: 'relay.unlisted.example', port: 443, inRelayList: false);
 
