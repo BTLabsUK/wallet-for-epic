@@ -2059,6 +2059,18 @@ abstract class AppLocalizations {
   /// **'Epicbox connected'**
   String get statusEpicboxOnline;
 
+  /// Status beside the Epicmail logo, also what a screen reader says: this wallet's connection to its Epicbox server is up and that server runs Epicmail (a proper name, BT Labs' relay software; keep it as is).
+  ///
+  /// In en, this message translates to:
+  /// **'Epicmail connected'**
+  String get statusEpicmailOnline;
+
+  /// The name Epicmail (a proper name; keep it as is) where the screen would say Epicbox for a relay that runs Epicmail: Receive, status, payment details. A logo stands beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicmail'**
+  String get relayNameEpicmail;
+
   /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No connection to the epicbox relay yet.
   ///
   /// In en, this message translates to:

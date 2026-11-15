@@ -592,7 +592,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         ? null
         : net.byMode
         ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off, detail: l.statusOffByModeDetailNet)
-        : methodStateLine(context.l10n, m, status, st.settings);
+        : methodStateLine(context.l10n, m, status, st.settings, epicmail: statusRelayIsEpicmail(ref, status));
     final health = net.byMode ? null : status?.epicboxHealth;
     final tag = !on
         ? l.deskRecvTagPaused

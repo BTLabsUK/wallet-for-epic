@@ -13,6 +13,8 @@ import '../dev_networks.dart';
 import '../epic1.dart' show PaymentMode;
 import '../errors.dart';
 import '../l10n.dart';
+import '../epicmail_mark.dart';
+import '../relay_software.dart' show ownRelayIsEpicmail;
 import '../network_gate.dart';
 import '../payment_prefs.dart';
 import '../phone_tor.dart';
@@ -508,6 +510,8 @@ class _EpicboxLine extends ConsumerWidget {
     final config = ref.watch(walletConfigProvider);
     // The server is named only with Advanced server details on.
     final host = config == null || !AdvancedOptions.has(context, AdvancedFeature.serverDetails) ? null : relayLabel(config);
+    // The relay says it runs Epicmail: "Connected · Epicmail" with its logo, while it is connected.
+    final epicmail = epicbox == EpicboxState.online && ownRelayIsEpicmail(ref);
     final (String word, Color color) = epicbox == EpicboxState.online
         ? (host != null ? l.receiveEpicboxConnected(host) : l.phoneRecvListening, t.ok)
         : blocked
@@ -540,7 +544,11 @@ class _EpicboxLine extends ConsumerWidget {
               ),
               const SizedBox(width: 9),
               // Frame: the dot carries the state's colour, the words stay dim.
-              Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: epicbox == EpicboxState.online ? t.dim : color))),
+              Flexible(
+                child: epicmail
+                    ? EpicmailName.connected(l, style: KitType.rowSub.copyWith(color: t.dim), size: 14, server: host)
+                    : Text(word, style: KitType.rowSub.copyWith(color: epicbox == EpicboxState.online ? t.dim : color)),
+              ),
             ],
           ),
         )),

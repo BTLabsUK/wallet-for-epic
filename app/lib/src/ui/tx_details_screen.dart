@@ -24,6 +24,8 @@ import '../l10n.dart';
 import '../providers.dart';
 import 'epic1/epic1_sealed.dart' show Epic1SealedBadge, phoneShowsSealed;
 import '../network.dart' show EpicboxRelay;
+import '../epicmail_mark.dart';
+import '../relay_software.dart' show addressRelayIsEpicmail, ownRelay;
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingByIdProvider, pairingSlateProvider;
 import '../send_preflight.dart' show recipientRelay;
 import '../settings.dart';
@@ -894,6 +896,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             killSwitch: NetGate.killSwitch,
           );
     final via = paymentVia(tx);
+    // The payment went by Epicbox and the other side's relay runs Epicmail: named with its logo.
+    final epicmail = via == Via.epicbox && _counterpartyOnEpicmail(ref, tx);
     // What the status area offers beside the status.
     final ownServer = ownEpicboxServer(ref);
     final who = withdrawal?.name ??
@@ -1276,7 +1280,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                           fiat: fiat,
                           hidden: hidden,
                           via: via,
-                          onVia: via == null ? null : () => _showVia(tx, via, name: name),
+                          epicmail: epicmail,
+                          onVia: via == null ? null : () => _showVia(tx, via, name: name, epicmail: epicmail),
                         ),
                         SizedBox(height: statusGap),
                         statusArea,
@@ -1361,10 +1366,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   }
 
   /// What the route chip explains: how this payment travelled, and the other ways.
-  Future<void> _showVia(TxEntry tx, Via via, {required String? name}) {
+  Future<void> _showVia(TxEntry tx, Via via, {required String? name, bool epicmail = false}) {
     final l = context.l10n;
     final outgoing = txAmount(tx).outgoing;
-    final route = _routeName(l, via);
+    final route = _routeName(l, via, epicmail: epicmail);
     final explanation = switch (via) {
       Via.epicbox => outgoing
           ? (name == null ? l.phonePayViaEpicboxOut : l.phonePayViaEpicboxOutNamed(name))
@@ -1403,7 +1408,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    KitIconWell.child(KitRouteIcon(via, size: 22, color: t.accentText)),
+                    KitIconWell.child(epicmail ? const EpicmailMark(size: 22) : KitRouteIcon(via, size: 22, color: t.accentText)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Semantics(
@@ -1494,9 +1499,16 @@ Via? paymentVia(TxEntry tx) => switch (tx.epic1Via) {
   null => viaOfTransport(tx.transport) ?? (tx.pairingId != null ? Via.epicbox : null),
 };
 
+/// The other side's relay of [tx] runs Epicmail, as the relay's own info file says. Only a relay the
+/// app lists is asked (`addressRelayIsEpicmail`); the wallet's own relay counts as listed.
+bool _counterpartyOnEpicmail(WidgetRef ref, TxEntry tx) {
+  final own = ownRelay(ref);
+  return addressRelayIsEpicmail(ref, tx.counterparty, extra: [?own]);
+}
+
 /// The name of a route, as the chip and the explanation say it.
-String _routeName(AppLocalizations l, Via via) => switch (via) {
-  Via.epicbox => l.phonePayRouteEpicbox,
+String _routeName(AppLocalizations l, Via via, {bool epicmail = false}) => switch (via) {
+  Via.epicbox => epicmail ? l.relayNameEpicmail : l.phonePayRouteEpicbox,
   Via.link => l.phonePayRouteEpic1,
   Via.inPerson || Via.qr => l.phonePayRouteInPerson,
   Via.file => l.phonePayRouteFile,
@@ -1513,6 +1525,7 @@ class _PayHero extends StatelessWidget {
     required this.fiat,
     required this.via,
     required this.onVia,
+    this.epicmail = false,
     required this.hidden,
   });
 
@@ -1525,6 +1538,9 @@ class _PayHero extends StatelessWidget {
   final String? who;
   final String? fiat;
   final Via? via;
+
+  /// The relay behind an Epicbox route runs Epicmail: its name and logo stand for "Epicbox".
+  final bool epicmail;
   final VoidCallback? onVia;
   final bool hidden;
 
@@ -1611,8 +1627,8 @@ class _PayHero extends StatelessWidget {
             // `.chip` margin 12, less the 8 the 44 tap target adds above the 28 pill.
             const SizedBox(height: 2),
             KitChip(
-              _routeName(l, via!),
-              leading: KitRouteIcon(via!),
+              _routeName(l, via!, epicmail: epicmail),
+              leading: epicmail ? const EpicmailMark() : KitRouteIcon(via!),
               onTap: onVia,
               semanticsId: TrustIds.payRoute,
             ),
@@ -1937,7 +1953,13 @@ class _MoreSheetState extends ConsumerState<_MoreSheet> {
           title: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
           body: '${widget.mailboxName}\n${l.sendRecipientPairing(widget.mailboxName!, l.sendRoutePairedInline)}',
         ),
-      if (via != null) KitKvRow(label: outgoing ? l.phonePaySentThrough : l.phonePayReceivedThrough, value: _routeName(l, via)),
+      if (via != null)
+        via == Via.epicbox && _counterpartyOnEpicmail(ref, tx)
+            ? KitKvRow(
+                label: outgoing ? l.phonePaySentThrough : l.phonePayReceivedThrough,
+                valueWidget: EpicmailName(style: KitType.body.copyWith(color: t.text, height: 1.3), size: 16, textAlign: TextAlign.end),
+              )
+            : KitKvRow(label: outgoing ? l.phonePaySentThrough : l.phonePayReceivedThrough, value: _routeName(l, via)),
       if (fee != null && outgoing)
         KitKvRow(label: l.phonePayTotal, value: shownEpic(l, amount + fee, hidden: hidden, exact: true), mono: true),
       // A finished payment shows its date in the status row above.

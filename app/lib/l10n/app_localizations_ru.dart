@@ -1295,6 +1295,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusEpicboxOnline => 'Epicbox подключён';
 
   @override
+  String get statusEpicmailOnline => 'Epicmail подключён';
+
+  @override
+  String get relayNameEpicmail => 'Epicmail';
+
+  @override
   String get statusEpicboxConnecting => 'Подключение к epicbox';
 
   @override

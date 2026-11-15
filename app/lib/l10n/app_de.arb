@@ -323,6 +323,8 @@
   "statusNodeConnecting": "Node: Verbindung…",
   "statusNodeOffline": "Node offline",
   "statusEpicboxOnline": "Epicbox verbunden",
+  "statusEpicmailOnline": "Epicmail verbunden",
+  "relayNameEpicmail": "Epicmail",
   "statusEpicboxConnecting": "Epicbox: Verbindung…",
   "statusEpicboxOffline": "Epicbox nicht verbunden",
   "statusEpicboxBlocked": "Epicbox blockiert",

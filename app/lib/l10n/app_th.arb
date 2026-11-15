@@ -323,6 +323,8 @@
   "statusNodeConnecting": "กำลังเชื่อมต่อโหนด",
   "statusNodeOffline": "โหนดออฟไลน์",
   "statusEpicboxOnline": "เชื่อมต่อ Epicbox แล้ว",
+  "statusEpicmailOnline": "เชื่อมต่อ Epicmail แล้ว",
+  "relayNameEpicmail": "Epicmail",
   "statusEpicboxConnecting": "กำลังเชื่อมต่อ Epicbox",
   "statusEpicboxOffline": "ไม่ได้เชื่อมต่อ Epicbox",
   "statusEpicboxBlocked": "Epicbox ถูกบล็อก",

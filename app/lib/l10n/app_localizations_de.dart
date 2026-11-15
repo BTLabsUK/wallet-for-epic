@@ -1267,6 +1267,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get statusEpicboxOnline => 'Epicbox verbunden';
 
   @override
+  String get statusEpicmailOnline => 'Epicmail verbunden';
+
+  @override
+  String get relayNameEpicmail => 'Epicmail';
+
+  @override
   String get statusEpicboxConnecting => 'Epicbox: Verbindung…';
 
   @override

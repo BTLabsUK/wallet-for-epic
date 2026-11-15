@@ -1521,6 +1521,14 @@
   "@statusEpicboxOnline": {
     "description": "Status beside the Epicbox icon, also what a screen reader says: this wallet's connection to its Epicbox server (the relay payments arrive through) is up."
   },
+  "statusEpicmailOnline": "Epicmail connected",
+  "@statusEpicmailOnline": {
+    "description": "Status beside the Epicmail logo, also what a screen reader says: this wallet's connection to its Epicbox server is up and that server runs Epicmail (a proper name, BT Labs' relay software; keep it as is)."
+  },
+  "relayNameEpicmail": "Epicmail",
+  "@relayNameEpicmail": {
+    "description": "The name Epicmail (a proper name; keep it as is) where the screen would say Epicbox for a relay that runs Epicmail: Receive, status, payment details. A logo stands beside it."
+  },
   "statusEpicboxConnecting": "Epicbox connecting",
   "@statusEpicboxConnecting": {
     "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No connection to the epicbox relay yet."

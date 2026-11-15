@@ -508,7 +508,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final ebOff = !s.payments.epicbox;
     final ebLine = ebOff
         ? MethodLine(l.deskKitMethodOff, EState.off, detail: l.netBlockEpicboxOff)
-        : methodStateLine(l, TxMethod.epicbox, status, s);
+        : methodStateLine(l, TxMethod.epicbox, status, s, epicmail: statusRelayIsEpicmail(ref, status));
     final httpLine = methodStateLine(l, TxMethod.http, status, s, reachClosed: ref.watch(deskHttpReachClosedProvider));
     final torPay = _torPay(s);
 
@@ -528,7 +528,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             '${l.deskSetRecvEpicboxText}\n\n${status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint}',
             status.epicboxHealth != ServiceHealth.off,
             // The picker names the server: the line keeps its word and any detail beyond the host.
-            ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine,
+            ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state, brand: ebLine.brand) : ebLine,
             anchor: SetId.epicboxRecv,
             notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
             picker: SetAnchor(id: SetId.epicboxServer, child: serverPanel),
@@ -583,7 +583,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             Epic1SettingsGroup(
               server: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [serverPanel, SizedBox(height: Sp.x2), EStateLine(ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine)],
+                children: [serverPanel, SizedBox(height: Sp.x2), EStateLine(ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state, brand: ebLine.brand) : ebLine)],
               ),
               serverHint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
             )

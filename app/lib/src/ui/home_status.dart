@@ -13,6 +13,7 @@ import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../relay_software.dart' show ownRelayIsEpicmail;
 import '../advanced.dart';
 import '../node_failover_phone.dart';
 import '../phone_tor.dart';
@@ -190,11 +191,12 @@ String statusBrief(String detail, {String? host}) {
         : '${node.detail}\n${l.nodeFailoverInsteadOf(serverHost(failover.chosen))}',
     way: nodeTorWay(nodeUrl, torState, mode),
   );
-  final epicbox = epicboxIconFace(context, status.epicbox, config);
+  final epicmail = !mode.restricted && status.epicbox == EpicboxState.online && ownRelayIsEpicmail(ref);
+  final epicbox = epicboxIconFace(context, status.epicbox, config, epicmail: epicmail);
   final epicboxTor = underTor(
     context,
     dot: epicbox.dot,
-    label: '${l.netStatusEpicbox}, ${epicbox.word}',
+    label: '${epicmail ? l.relayNameEpicmail : l.netStatusEpicbox}, ${epicbox.word}',
     detail: epicbox.detail,
     way: torWayIn(TorRoute.epicbox, torState, mode),
   );

@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
+
+import '../../epicmail_mark.dart' show EpicmailMark;
+import '../../network.dart' show EpicboxRelay;
+import '../../relay_software.dart' show relayIsEpicmail;
 import '../../state_language.dart';
 import '../../ui/state_mark.dart' show StateMarkDot;
 import '../../ui/status.dart' show OffSlash, StatusGlyph;
@@ -211,28 +216,45 @@ class EMethodIcon extends StatelessWidget {
 }
 
 /// One receiving method's state line: [word] bold in the state colour, then
-/// [detail]. [retry]: the line offers Try again (HTTP) or Retry (Tor).
+/// [detail]. [retry]: the line offers Try again (HTTP) or Retry (Tor). [brand]: the name of the
+/// relay's software (Epicmail), drawn with its logo between the word and the detail.
 @immutable
 class MethodLine {
-  const MethodLine(this.word, this.state, {this.detail, this.retry = false});
+  const MethodLine(this.word, this.state, {this.detail, this.retry = false, this.brand});
 
   /// The line of a [ShownState]: its one word and its state.
-  MethodLine.of(AppLocalizations l, ShownState s, {this.detail, this.retry = false}) : word = s.word(l), state = EState.of(s);
+  MethodLine.of(AppLocalizations l, ShownState s, {this.detail, this.retry = false, this.brand}) : word = s.word(l), state = EState.of(s);
 
   final String word;
   final String? detail;
   final EState state;
   final bool retry;
+  final String? brand;
 
-  /// "Word · detail", for tooltips and screen readers.
-  String get text => detail == null ? word : metaLine([word, detail]);
+  /// The same line with [brand] set.
+  MethodLine withBrand(String? brand) => MethodLine(word, state, detail: detail, retry: retry, brand: brand);
+
+  /// "Word · Epicmail · detail", for tooltips and screen readers.
+  String get text => metaLine([word, brand, detail]);
+}
+
+/// The relay [s] connects to runs Epicmail, as far as it has said (relay_software.dart).
+bool statusRelayIsEpicmail(WidgetRef ref, ServiceStatus? s) {
+  if (s == null || s.epicboxHealth != ServiceHealth.ok || s.epicbox.domain.isEmpty) return false;
+  return relayIsEpicmail(ref, EpicboxRelay(host: s.epicbox.domain.toLowerCase(), port: s.epicbox.port));
 }
 
 /// The state line of [m] for Receive, Settings › Transactions and the status tooltip. One word
 /// per state ([ShownState]): a connection is Connected, a listener Receiving, a Tor address
 /// Reachable; On and Off are only the switches' words (#29). [reachClosed]: the reach check
 /// said the internet does not reach Link · HTTP's port, so the line does not claim it does.
-MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings, {bool reachClosed = false}) {
+/// [epicmail]: the Epicbox relay runs Epicmail (relay_software.dart); a connected line names it.
+MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings, {bool reachClosed = false, bool epicmail = false}) {
+  final line = _methodStateLine(l, m, s, settings, reachClosed: reachClosed);
+  return epicmail && m == TxMethod.epicbox && line.state == EState.ok ? line.withBrand(l.relayNameEpicmail) : line;
+}
+
+MethodLine _methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings, {required bool reachClosed}) {
   switch (m) {
     case TxMethod.epicbox:
       final host = s.epicbox.domain;
@@ -331,6 +353,14 @@ class EStateLine extends StatelessWidget {
               TextSpan(
                 children: [
                   TextSpan(text: line.word, style: ts.small.copyWith(color: line.state == EState.off ? c.text : color, fontWeight: FontWeight.w600)),
+                  if (line.brand != null) ...[
+                    const TextSpan(text: ' · '),
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(padding: const EdgeInsets.only(right: 5), child: EpicmailMark(size: 14.u)),
+                    ),
+                    TextSpan(text: line.brand),
+                  ],
                   if (line.detail != null) TextSpan(text: ' · ${line.detail}'),
                 ],
               ),

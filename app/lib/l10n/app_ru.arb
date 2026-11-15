@@ -323,6 +323,8 @@
   "statusNodeConnecting": "Подключение к узлу",
   "statusNodeOffline": "Узел не в сети",
   "statusEpicboxOnline": "Epicbox подключён",
+  "statusEpicmailOnline": "Epicmail подключён",
+  "relayNameEpicmail": "Epicmail",
   "statusEpicboxConnecting": "Подключение к epicbox",
   "statusEpicboxOffline": "Epicbox не подключён",
   "statusEpicboxBlocked": "Epicbox заблокирован",

@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dev_networks.dart' show devNetworksOf;
 
 import '../l10n.dart';
+import '../epicmail_mark.dart';
+import '../relay_software.dart' show ownRelayIsEpicmail;
 import '../models.dart' show Chain;
 import '../network.dart';
 import '../advanced.dart' show NetworkMode, NetworkModeRestricted;
@@ -130,11 +132,14 @@ class NetworkStatusCard extends ConsumerWidget {
           );
     final epicbox = mode.restricted ? pausedFace : epicboxNetFace(context, status.epicbox);
     final nodeWords = nodeStatusWords(context, status.node, config);
-    final epicboxWords = epicboxStatusWords(context, status.epicbox, config);
+    // The relay says it runs Epicmail: its name and logo stand for "Epicbox" while it is connected.
+    final epicmail = !mode.restricted && status.epicbox == EpicboxState.online && ownRelayIsEpicmail(ref);
+    final epicboxWords = epicboxStatusWords(context, status.epicbox, config, epicmail: epicmail);
     final rows = <Widget>[
       _StatusRow(
         key: netStatusEpicboxKey,
-        title: l.netStatusEpicbox,
+        title: epicmail ? l.relayNameEpicmail : l.netStatusEpicbox,
+        epicmail: epicmail,
         host: relay,
         face: epicbox,
         spoken: epicboxWords?.label,
@@ -193,7 +198,11 @@ class _StatusRow extends StatelessWidget {
     this.detail,
     this.torWay = TorWay.clearnet,
     this.note,
+    this.epicmail = false,
   });
+
+  /// The relay runs Epicmail: the title carries its logo.
+  final bool epicmail;
 
   /// A line under the host: the node chosen while failover uses another one.
   final String? note;
@@ -250,6 +259,7 @@ class _StatusRow extends StatelessWidget {
       onTap: onTap,
       child: KitRow(
         title: title,
+        titleWidget: epicmail ? EpicmailName(style: KitType.rowTitle.copyWith(color: t.text), size: 17, maxLines: 1, overflow: TextOverflow.ellipsis) : null,
         subtitleWidget: lines.isEmpty
             ? null
             : Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: lines),

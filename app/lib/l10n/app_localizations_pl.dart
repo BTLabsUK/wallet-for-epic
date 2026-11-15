@@ -1301,6 +1301,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get statusEpicboxOnline => 'Epicbox połączony';
 
   @override
+  String get statusEpicmailOnline => 'Epicmail połączony';
+
+  @override
+  String get relayNameEpicmail => 'Epicmail';
+
+  @override
   String get statusEpicboxConnecting => 'Łączenie z Epicbox';
 
   @override

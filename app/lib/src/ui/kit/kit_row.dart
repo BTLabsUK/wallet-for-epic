@@ -50,6 +50,7 @@ class KitRow extends StatelessWidget {
     this.valueIcon,
     this.compact = false,
     this.titleMarks = false,
+    this.titleWidget,
     this.enabled,
   });
 
@@ -159,6 +160,10 @@ class KitRow extends StatelessWidget {
   /// A tighter row (padding 8, 54 high) for the list of ways in a sheet.
   final bool compact;
 
+  /// A drawn title in place of [title] (a name with a logo); [title] is still what a screen
+  /// reader and a test find.
+  final Widget? titleWidget;
+
   /// The title draws "epic1" as its brand mark (the epic1 payments switch).
   final bool titleMarks;
 
@@ -204,7 +209,9 @@ class KitRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (titleMarks)
+                  if (titleWidget != null)
+                    titleWidget!
+                  else if (titleMarks)
                     Epic1Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text).merge(titleStyle), maxLines: 2, overflow: TextOverflow.ellipsis)
                   else
                     Text(title, style: KitType.rowTitle.copyWith(color: titleColor ?? t.text).merge(titleStyle), maxLines: 2, overflow: TextOverflow.ellipsis),

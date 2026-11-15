@@ -1191,6 +1191,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusEpicboxOnline => 'Epicbox 已连接';
 
   @override
+  String get statusEpicmailOnline => 'Epicmail 已连接';
+
+  @override
+  String get relayNameEpicmail => 'Epicmail';
+
+  @override
   String get statusEpicboxConnecting => '正在连接 Epicbox';
 
   @override

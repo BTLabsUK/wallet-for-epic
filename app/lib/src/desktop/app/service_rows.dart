@@ -86,7 +86,8 @@ class ServiceItem {
 }
 
 /// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
-List<ServiceItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings, {bool reachClosed = false}) {
+/// [epicmail]: the Epicbox relay runs Epicmail (relay_software.dart), so its row says so.
+List<ServiceItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings, {bool reachClosed = false, bool epicmail = false}) {
   final eb = st?.epicboxHealth ?? ServiceHealth.checking;
   final ebHost = st?.epicbox.domain;
   var tor = netTorState(settings, st);
@@ -108,7 +109,7 @@ List<ServiceItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, Desk
   final items = [
     ServiceItem(
       icon: EIcons.epicbox,
-      name: 'Epicbox', // l10n-ok: product name
+      name: epicmail && eb == ServiceHealth.ok ? l.relayNameEpicmail : 'Epicbox', // l10n-ok: product name
       word: st == null ? ShownState.checking.word(l) : ebWord,
       state: st == null
           ? EState.of(ShownState.checking)
@@ -337,7 +338,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     final reachClosed = settings.publicMode && httpRun(status) == HttpRun.on && ref.watch(deskHttpReachClosedProvider);
     // Right after the start and a return to the front, servers that do not answer yet read
     // Connecting (item 11, connection_grace.dart).
-    final items = graceRailItems(l, [nodeItem, ...receivingRailItems(l, status, settings, reachClosed: reachClosed)], grace: ref.watch(connectionGraceProvider));
+    final items = graceRailItems(l, [nodeItem, ...receivingRailItems(l, status, settings, reachClosed: reachClosed, epicmail: statusRelayIsEpicmail(ref, status))], grace: ref.watch(connectionGraceProvider));
     if (widget.builder != null) return widget.builder!(context, items);
     return Row(
       mainAxisSize: MainAxisSize.min,

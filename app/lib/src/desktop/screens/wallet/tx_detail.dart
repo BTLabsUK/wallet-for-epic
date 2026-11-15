@@ -17,7 +17,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../epicmail_mark.dart' show EpicmailName;
 import '../../../known_relays.dart' show recipientRelay;
+import '../../../network.dart' show EpicboxRelay;
+import '../../../relay_software.dart' show addressRelayIsEpicmail;
 import '../../../devices/device_ending.dart' show deviceEndingLabel, deviceEndingLine;
 import '../../../l10n.dart' show messageHint;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
@@ -751,6 +754,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               l.deskTxFactMethod,
               t.foundByScan
                   ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
+                  : _viaEpicmail(t, mailboxName != null)
+                  ? const EpicmailName()
                   : Text(methodLabelOf(l, t, mailbox: mailboxName != null)),
             ),
           (l.deskTxFactAmount, EMoney(t.amount, surface: AmountSurface.exact)),
@@ -850,6 +855,15 @@ class _TxDetailState extends ConsumerState<TxDetail> {
 
   /// An address no contact holds yet, of a payment that names one (not a file, a mining
   /// reward or a payment to this wallet): the phone's Add to contacts.
+  /// An Epicbox payment whose other side sits on an Epicmail relay the app lists (its own
+  /// included): the Method fact names Epicmail, with its logo.
+  bool _viaEpicmail(Tx t, bool mailbox) {
+    if (mailbox || t.method != TxMethod.epicbox || t.epic1Via != null) return false;
+    final own = ref.watch(deskProvider.select((s) => s.status?.epicbox));
+    final ownRelay = own == null || own.domain.isEmpty ? null : EpicboxRelay(host: own.domain.toLowerCase(), port: own.port);
+    return addressRelayIsEpicmail(ref, t.counterparty, extra: [?ownRelay]);
+  }
+
   bool _offerContact(Tx t) {
     final address = t.counterparty;
     if (address == null || t.contactName != null || t.toSelf || t.coinbase || t.method == TxMethod.file) return false;

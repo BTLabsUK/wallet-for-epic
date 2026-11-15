@@ -13,6 +13,8 @@ import '../../trust_ids.dart';
 import '../../epic1.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
+import '../../epicmail_mark.dart';
+import '../../relay_software.dart' show ownRelayIsEpicmail;
 import '../../providers.dart';
 import '../../slate_files.dart' show slateFilesProvider;
 import '../../models.dart' show WalletError, WalletErrorKind;
@@ -298,6 +300,8 @@ class _ListeningLine extends ConsumerWidget {
     final t = context.tokens;
     // As the header shows it: offline only once it lasts; a stopped listener (null) at once.
     final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
+    // The relay says it runs Epicmail: "Connected · Epicmail" with its logo, while it is connected.
+    final epicmail = epicbox == EpicboxState.online && ownRelayIsEpicmail(ref);
     final (String word, Color color) = switch (epicbox) {
       EpicboxState.online => (l.phoneRecvListening, t.ok),
       EpicboxState.blocked => (l.statusEpicboxBlocked, t.risk),
@@ -323,7 +327,11 @@ class _ListeningLine extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 9),
-          Flexible(child: Text(word, style: KitType.rowSub.copyWith(color: epicbox == EpicboxState.online ? t.dim : color))),
+          Flexible(
+            child: epicmail
+                ? EpicmailName.connected(l, style: KitType.rowSub.copyWith(color: t.dim), size: 14)
+                : Text(word, style: KitType.rowSub.copyWith(color: epicbox == EpicboxState.online ? t.dim : color)),
+          ),
         ],
       ),
     );

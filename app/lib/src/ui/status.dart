@@ -219,8 +219,9 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
 _Face _epicboxFace(
   BuildContext context,
   EpicboxState state,
-  WalletConfig? config,
-) {
+  WalletConfig? config, {
+  bool epicmail = false,
+}) {
   final l = context.l10n;
   final t = context.tokens;
   final (
@@ -231,9 +232,13 @@ _Face _epicboxFace(
   ) = switch (state) {
     EpicboxState.online => (
       EpicGlyphs.epicbox,
-      l.statusEpicboxOnline,
+      epicmail ? l.statusEpicmailOnline : l.statusEpicboxOnline,
       t.ok,
-      config == null ? l.statusEpicboxOnline : l.receiveEpicboxConnected(relayLabel(config)),
+      epicmail
+          ? l.receiveEpicboxConnected(l.relayNameEpicmail)
+          : config == null
+          ? l.statusEpicboxOnline
+          : l.receiveEpicboxConnected(relayLabel(config)),
     ),
     EpicboxState.connecting => (
       EpicGlyphs.epicbox,
@@ -666,8 +671,9 @@ class _SlashPainter extends CustomPainter {
 ({IconData icon, StatusDot dot, String word, String detail}) epicboxIconFace(
   BuildContext context,
   EpicboxState? state,
-  WalletConfig? config,
-) {
+  WalletConfig? config, {
+  bool epicmail = false,
+}) {
   final l = context.l10n;
   final net = epicboxNetFace(context, state);
   if (state == null) {
@@ -683,7 +689,7 @@ class _SlashPainter extends CustomPainter {
       detail: detail,
     );
   }
-  final f = _epicboxFace(context, state, config);
+  final f = _epicboxFace(context, state, config, epicmail: epicmail);
   final dot = switch (state) {
     EpicboxState.online => StatusDot.ok,
     EpicboxState.connecting => StatusDot.busy,
@@ -828,9 +834,10 @@ String serverHost(String url) => hostPort(url);
 ({String label, String detail})? epicboxStatusWords(
   BuildContext context,
   EpicboxState? state,
-  WalletConfig? config,
-) {
+  WalletConfig? config, {
+  bool epicmail = false,
+}) {
   if (state == null) return null;
-  final f = _epicboxFace(context, state, config);
+  final f = _epicboxFace(context, state, config, epicmail: epicmail);
   return (label: f.label, detail: f.detail);
 }

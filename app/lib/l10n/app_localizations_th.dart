@@ -1239,6 +1239,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get statusEpicboxOnline => 'เชื่อมต่อ Epicbox แล้ว';
 
   @override
+  String get statusEpicmailOnline => 'เชื่อมต่อ Epicmail แล้ว';
+
+  @override
+  String get relayNameEpicmail => 'Epicmail';
+
+  @override
   String get statusEpicboxConnecting => 'กำลังเชื่อมต่อ Epicbox';
 
   @override

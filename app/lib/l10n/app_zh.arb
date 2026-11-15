@@ -323,6 +323,8 @@
   "statusNodeConnecting": "正在连接节点",
   "statusNodeOffline": "节点离线",
   "statusEpicboxOnline": "Epicbox 已连接",
+  "statusEpicmailOnline": "Epicmail 已连接",
+  "relayNameEpicmail": "Epicmail",
   "statusEpicboxConnecting": "正在连接 Epicbox",
   "statusEpicboxOffline": "Epicbox 未连接",
   "statusEpicboxBlocked": "Epicbox 被拦截",
