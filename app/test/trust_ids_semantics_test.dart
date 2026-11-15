@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// The test drivers' ids (lib/src/trust_ids.dart) change nothing a screen reader gets: each screen
+// The stable test ids (lib/src/trust_ids.dart) change nothing a screen reader gets: each screen
 // that carries ids is built with them and without them (trustIdsOn), and the two semantics trees
 // are equal once the identifiers are left out: the same nodes, nesting, roles, states, labels,
 // values, hints, tooltips and actions. In a84d404d7 an id on EInput made a password field's row
