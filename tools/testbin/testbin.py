@@ -3,14 +3,23 @@
 """Shared test binaries of Epic Wallet: one Linux debug bundle and one debug APK per app commit,
 built once into a store on this host and reused by every agent and worktree.
 
-  testbin.sh get [linux|apk] [--commit X] [--variant tor|notor|devnet] [--no-build]
+  testbin.sh get [linux|apk|macos|ios-sim] [--commit X] [--variant tor|notor|devnet] [--no-build]
         print the path of the binary for commit X (default: HEAD of the worktree you are in).
         A hit prints at once. A miss builds it once into the store, under the store's build
         lock (a second caller waits for the first and then reuses its build), and prints it.
         linux: the bundle directory (run <path>/btwallet); apk: the .apk file.
-  testbin.sh refresh     what the timer runs: builds main (tor; linux and apk) when it has no
+        macos: bt-wallet-<app12>-<variant>-macos.tar, the ad-hoc signed arm64 "BT Wallet.app"
+        (tor or notor; tar -xf it on a Mac). ios-sim: bt-wallet-<app12>-notor-ios-simulator.zip,
+        the Simulator .app (notor only; the default variant for it). Both are built on the Mac
+        (TESTBIN_MAC_HOST, default the Mac) with tools/build-apple.sh: the commit is
+        pushed there as refs/heads/testbin/<app12> and built in its worktree ~/wfe-wt/testbin
+        (TESTBIN_MAC_WT), under the Mac's build lock; LEPIC comes from ~/src/lepic.git and
+        ~/src/lepic-flutter.git there (the pinned revs are pushed first when missing).
+  testbin.sh refresh [--with-mac]
+                         what the timer runs: builds main (tor; linux and apk) when it has no
                          entry yet and moves `latest` to it. Skips while a tools/rel run holds
-                         its lock or another build holds the store's lock.
+                         its lock or another build holds the store's lock. Mac builds (macos tor,
+                         ios-sim) only with --with-mac.
   testbin.sh list        the entries, newest first
   testbin.sh prune       keep `latest` and the most recently used entries (TESTBIN_KEEP, 4)
   testbin.sh pause [why] / resume
@@ -23,6 +32,8 @@ Store: /tmp/epic-build/testbins/ (TESTBIN_STORE)
                                           artifact: built, sha256, size, LEPIC features, seconds
   <app12>-<lepic12>/<variant>/linux/      flutter build linux --debug -t lib/main_desktop.dart
   <app12>-<lepic12>/<variant>/app-debug.apk   flutter build apk --debug
+  <app12>-<lepic12>/<variant>/bt-wallet-<app12>-<variant>-macos.tar         built on the Mac
+  <app12>-<lepic12>/notor/bt-wallet-<app12>-notor-ios-simulator.zip         built on the Mac
   <app12>-<lepic12>/<variant>/build-<artifact>.log
   latest -> <entry of main>
 Artifacts are read-only; copy one before changing it. Builds run in one worktree,
@@ -41,6 +52,7 @@ import json
 import os
 import shutil
 import stat
+import shlex
 import subprocess
 import sys
 import time
@@ -53,7 +65,14 @@ BUILD_WT = Path(os.environ.get("TESTBIN_WORKTREE", HOME / "wfe-worktrees" / "tes
 KEEP = int(os.environ.get("TESTBIN_KEEP", "4"))
 MIN_FREE_GB = float(os.environ.get("TESTBIN_MIN_FREE_GB", "12"))
 REL_LOCKS = str(HOME / "epic-build" / "rel" / "*" / "run-*" / ".lock")
-ARTIFACTS = {"linux": "linux", "apk": "app-debug.apk"}
+ARTIFACTS = {"linux": "linux", "apk": "app-debug.apk", "macos": None, "ios-sim": None}
+MAC_KINDS = ("macos", "ios-sim")
+MAC_HOST = os.environ.get("TESTBIN_MAC_HOST", "the Mac")
+MAC_WT = os.environ.get("TESTBIN_MAC_WT", "~/wfe-wt/testbin")  # ~ is the Mac's
+MAC_REPO = os.environ.get("TESTBIN_MAC_REPO", "wallet-for-epic")  # relative to the Mac's home
+MAC_LOCK = "~/.wfe-mac-build.lock"
+LEPIC_SRC = Path(os.environ.get("TESTBIN_LEPIC_SRC", HOME / "lepic"))
+LEPIC_FLUTTER_SRC = Path(os.environ.get("TESTBIN_LEPIC_FLUTTER_SRC", HOME / "lepic-flutter"))
 VARIANTS = ("tor", "notor", "devnet")  # devnet: tor plus the test networks (WFE_DEV_NETWORKS)
 # systemd's PATH lacks ~/.local/bin, where build-slot lives
 if str(HOME / ".local" / "bin") not in os.environ.get("PATH", "").split(":"):
@@ -93,6 +112,11 @@ def entry_dir(sha, lepic):
 
 
 def artifact_path(entry, variant, what):
+    """Where the artifact is. The Mac kinds are single files named for the app commit."""
+    if what == "macos":
+        return entry / variant / f"bt-wallet-{entry.name[:12]}-{variant}-macos.tar"
+    if what == "ios-sim":
+        return entry / variant / f"bt-wallet-{entry.name[:12]}-{variant}-ios-simulator.zip"
     return entry / variant / ARTIFACTS[what]
 
 
@@ -370,6 +394,101 @@ def build(sha, lepic, binding, variant, wants):
     return entry
 
 
+def sh(cmd, **kw):
+    return subprocess.run(cmd, capture_output=True, text=True, **kw)
+
+
+def mac_ssh(script, **kw):
+    """Runs a script in the Mac's login zsh over ssh (PATH has flutter and cargo there)."""
+    return subprocess.run(["ssh", "-o", "BatchMode=yes", MAC_HOST, "zsh", "-l", "-c",
+                           shlex.quote(script)], **kw)
+
+
+def push_lepic(src, bare, rev):
+    """Makes the pinned LEPIC rev exist in the Mac's bare repo, pushing it from here if missing."""
+    if not rev:
+        return
+    if mac_ssh(f"git --git-dir=$HOME/src/{bare} cat-file -e {rev}^{{commit}}",
+               capture_output=True).returncode == 0:
+        return
+    log(f"pushing {src.name} {rev[:12]} to {MAC_HOST}:src/{bare}")
+    r = sh(["git", "-C", str(src), "push", f"{MAC_HOST}:src/{bare}", f"{rev}:refs/heads/pin-{rev[:12]}"])
+    if r.returncode != 0:
+        raise SystemExit(f"testbin: pushing {rev} of {src} to the Mac failed: {r.stderr.strip()}")
+
+
+def build_mac(sha, lepic, binding, variant, what):
+    """Builds the macos or ios-sim artifact on the Mac; call with the build lock held."""
+    entry = entry_dir(sha, lepic)
+    if have(entry, variant, what):
+        return entry
+    prune()
+    if free_gb() < MIN_FREE_GB:
+        raise SystemExit(f"testbin: only {free_gb():.1f} GB free under {STORE} (needs "
+                         f"{MIN_FREE_GB:g}); free some space or lower TESTBIN_MIN_FREE_GB")
+    s12 = sha[:12]
+    ref = f"testbin/{s12}"
+    log(f"pushing {s12} to {MAC_HOST} as refs/heads/{ref}")
+    r = sh(["git", "-C", str(MAIN_REPO), "push", "-f", f"{MAC_HOST}:{MAC_REPO}", f"{sha}:refs/heads/{ref}"])
+    if r.returncode != 0:
+        raise SystemExit(f"testbin: pushing {s12} to the Mac failed: {r.stderr.strip()}")
+    push_lepic(LEPIC_SRC, "lepic.git", lepic)
+    push_lepic(LEPIC_FLUTTER_SRC, "lepic-flutter.git", binding)
+    out = f"$HOME/wfe-wt/testbin-out/{s12}-{variant}"  # one folder per build: nothing to clean
+    notor = "WFE_TOR=0 " if variant == "notor" else ""
+    steps = "doctor sources lepic " + ("macos" if what == "macos" else "ios-sim")
+    script = " && ".join([
+        f"wt={MAC_WT}",
+        f"(test -e $wt/.git || git -C ~/{MAC_REPO} worktree add --detach $wt {sha})",
+        "cd $wt",
+        f"git checkout --quiet --force --detach {sha}",
+        "git clean -ffdxq -e app/third_party -e app/build -e app/.dart_tool -e build-apple",
+        "export LEPIC_REPO=$HOME/src/lepic.git LEPIC_FLUTTER_REPO=$HOME/src/lepic-flutter.git",
+        f"mkdir -p {out}",
+        f"{notor}APPLE_OUT={out} /usr/bin/lockf -k {MAC_LOCK} tools/build-apple.sh {steps}"])
+    logf = entry / variant / f".tmp-build-{what}.log"
+    (entry / variant).mkdir(parents=True, exist_ok=True)
+    log(f"building {what} ({variant}) of {s12} on {MAC_HOST}; log {logf}")
+    t0 = time.time()
+    with open(logf, "w") as o:
+        rc = mac_ssh(script, stdout=o, stderr=subprocess.STDOUT).returncode
+    seconds = round(time.time() - t0)
+    if rc != 0:
+        tail = logf.read_text(errors="replace").splitlines()[-25:]
+        print("\n".join(tail), file=sys.stderr)
+        raise SystemExit(f"testbin: the Mac build failed (exit {rc}); full log {logf}")
+    dst = artifact_path(entry, variant, what)
+    tmp = entry / variant / f".tmp-{what}"
+    remove(tmp)
+    if what == "macos":
+        with open(tmp, "wb") as o:
+            rc = mac_ssh(f"tar -C {out} -cf - 'BT Wallet.app'", stdout=o).returncode
+    else:
+        r = mac_ssh(f"ls {out}/*-ios-simulator.zip", capture_output=True, text=True)
+        names = r.stdout.split()
+        if r.returncode != 0 or len(names) != 1:
+            raise SystemExit(f"testbin: no single Simulator zip in {out} on the Mac: {r.stdout!r}")
+        rc = subprocess.run(["scp", "-q", "-o", "BatchMode=yes", f"{MAC_HOST}:{names[0]}", str(tmp)]).returncode
+    if rc != 0 or not tmp.exists() or tmp.stat().st_size == 0:
+        raise SystemExit(f"testbin: copying the {what} artifact from the Mac failed")
+    digest = sha256_file(tmp)
+    make_readonly(tmp)
+    remove(dst)
+    os.rename(tmp, dst)
+    m = read_manifest(entry) or {
+        "app_commit": sha, "lepic_commit": lepic, "lepic_flutter_commit": binding,
+        "app_subject": git(MAIN_REPO, "log", "-1", "--format=%s", sha), "artifacts": {}}
+    m["artifacts"][f"{variant}/{what}"] = {
+        "path": str(dst.relative_to(entry)), "variant": variant,
+        "built": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "sha256": digest, "sha256_of": "file", "size": size_of(dst), "build_seconds": seconds,
+        "built_on": MAC_HOST, "log": f"{variant}/build-{what}.log"}
+    shutil.copy2(logf, entry / variant / f"build-{what}.log")
+    remove(logf)
+    write_manifest(entry, m)
+    return entry
+
+
 def set_latest(entry):
     link = STORE / "latest"
     tmp = STORE / ".latest.tmp"
@@ -382,6 +501,11 @@ def set_latest(entry):
 def cmd_get(a):
     repo = repo_of(Path.cwd())
     sha, lepic, binding = resolve(repo, a.commit or "HEAD")
+    if a.what == "ios-sim":
+        if a.variant not in (None, "notor"):
+            raise SystemExit("testbin: ios-sim is built without Tor only (--variant notor)")
+        a.variant = "notor"
+    a.variant = a.variant or "tor"
     if not a.commit and git(repo, "status", "--porcelain", "--untracked-files=no"):
         log(f"{repo} has uncommitted changes: they are not in the binary of {sha[:12]}")
     entry = entry_dir(sha, lepic)
@@ -393,8 +517,11 @@ def cmd_get(a):
         try:
             wait_unpaused()
             # the other caller may have built it while we waited
-            build(sha, lepic, binding, a.variant, [a.what])
-            if sha == main_sha() and have(entry, "tor", "linux") and have(entry, "tor", "apk"):
+            if a.what in MAC_KINDS:
+                build_mac(sha, lepic, binding, a.variant, a.what)
+            else:
+                build(sha, lepic, binding, a.variant, [a.what])
+            if a.what not in MAC_KINDS and sha == main_sha() and have(entry, "tor", "linux") and have(entry, "tor", "apk"):
                 set_latest(entry)
         finally:
             lock.close()
@@ -428,6 +555,17 @@ def cmd_refresh(a):
             lock.close()
     elif latest_target() != entry.resolve():
         set_latest(entry)
+    if getattr(a, "with_mac", False):
+        for what, variant in (("macos", "tor"), ("ios-sim", "notor")):
+            if not have(entry, variant, what):
+                lock = build_lock(wait=False)
+                if lock is None:
+                    log("skipped the Mac builds: another build holds the store's lock")
+                    break
+                try:
+                    build_mac(sha, lepic, binding, variant, what)
+                finally:
+                    lock.close()
     log(f"main {sha[:12]}: {entry}")
 
 
@@ -468,13 +606,15 @@ def main():
     g = sub.add_parser("get")
     g.add_argument("what", nargs="?", default="linux", choices=sorted(ARTIFACTS))
     g.add_argument("--commit")
-    g.add_argument("--variant", default="tor", choices=VARIANTS)
+    g.add_argument("--variant", default=None, choices=VARIANTS)
     g.add_argument("--no-build", action="store_true")
     g.set_defaults(fn=cmd_get)
     sub.add_parser("pause").add_argument("why", nargs="*")
     sub.choices["pause"].set_defaults(fn=cmd_pause)
     sub.add_parser("resume").set_defaults(fn=cmd_resume)
-    for name, fn in (("refresh", cmd_refresh), ("list", cmd_list), ("prune", cmd_prune)):
+    sub.add_parser("refresh").add_argument("--with-mac", action="store_true")
+    sub.choices["refresh"].set_defaults(fn=cmd_refresh)
+    for name, fn in (("list", cmd_list), ("prune", cmd_prune)):
         sub.add_parser(name).set_defaults(fn=fn)
     a = p.parse_args()
     a.fn(a)
