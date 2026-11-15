@@ -141,7 +141,7 @@ void main() {
     expect(find.text('Telegram'), findsNothing);
   });
 
-  testWidgets('Licences: folded, then one line per component, the tor source note, and Open goes to the full texts', (tester) async {
+  testWidgets('Licences: folded, then one line per component, and Open goes to the full texts', (tester) async {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
     expect(find.text(_l.deskSetAboutLicences), findsOneWidget);
     expect(find.byKey(const ValueKey('about-licences')), findsNothing, reason: 'folded by default');
@@ -150,9 +150,7 @@ void main() {
     expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
     expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
     expect(find.textContaining('Flutter and its Dart packages'), findsOneWidget);
-    // The note is an asset, read after the first frame.
-    await pumpUntil(tester, () => find.textContaining('tor 0.4.9.14, unmodified').evaluate().isNotEmpty);
-    expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget, reason: 'the GPL notice with the source');
+    expect(find.textContaining('tor 0.4.9.14, unmodified'), findsNothing, reason: 'the source note is on the Licences page, not here');
     expect(find.text('Credits'), findsNothing);
     // The full texts are a link to the web page, opened in the browser.
     final open = find.descendant(of: find.widgetWithText(ESetRow, _l.licencesFull), matching: find.widgetWithText(EButton, _l.deskSetAboutOpen));
