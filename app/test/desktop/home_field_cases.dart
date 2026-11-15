@@ -93,8 +93,6 @@ class HomeCase {
   final String? line;
 }
 
-const _s = HomeVerb.send;
-
 const homeCases = <HomeCase>[
   // Names
   HomeCase('N01', 'name', 'bt labs', HomeKind.person, 'Send · To BT Labs', to: 'btl', list: ['btl']),
