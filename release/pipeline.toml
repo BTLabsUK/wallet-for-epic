@@ -627,6 +627,7 @@ lane = "trust-linux-tor"
 warn_only = true
 capped = true
 run = "python3 -I {rel}/tools/nightly/trust_pair.py linux tor"
+cwd = "{rel}"   # the published pair, not the candidate: it needs no worktree, and runs before one exists
 timeout = "50m"
 env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
 
@@ -639,6 +640,7 @@ lane = "trust-linux-tor"
 warn_only = true
 capped = true
 run = "python3 -I {rel}/tools/nightly/trust_pair.py linux notor"
+cwd = "{rel}"   # the published pair, not the candidate: it needs no worktree, and runs before one exists
 timeout = "50m"
 env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
 
@@ -651,6 +653,7 @@ lane = "trust-android-tor"
 warn_only = true
 capped = true
 run = "python3 -I {rel}/tools/nightly/trust_pair.py android tor"
+cwd = "{rel}"   # the published pair, not the candidate: it needs no worktree, and runs before one exists
 timeout = "60m"
 env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
 
@@ -663,6 +666,7 @@ lane = "trust-windows-tor"
 warn_only = true
 remote = true
 run = "python3 -I {rel}/tools/nightly/trust_pair.py windows tor"
+cwd = "{rel}"   # the published pair, not the candidate: it needs no worktree, and runs before one exists
 timeout = "60m"
 env = { REL_TRUST_PAIR = "published", REL_OUT = "{stage}" }
 
