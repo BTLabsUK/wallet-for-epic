@@ -90,7 +90,7 @@ export REL_PREVIOUS_APK="$prev_apk" REL_CANDIDATE_APK="$cand_apk"
 # Health pick, BT Labs first, when the runner gave none.
 node_ok() { curl -fsS -m 10 "$1/v1/status" 2>/dev/null | grep -q '"height"'; }
 relay_ok() {
-  [[ "$(curl -s -m 10 -o /dev/null -w '%{http_code}' -H 'Connection: Upgrade' -H 'Upgrade: websocket' \
+  [[ "$(curl -s --http1.1 -m 10 -o /dev/null -w '%{http_code}' -H 'Connection: Upgrade' -H 'Upgrade: websocket' \
     -H 'Sec-WebSocket-Version: 13' -H 'Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==' "https://$1/")" == 101 ]]
 }
 picked=""

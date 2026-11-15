@@ -126,7 +126,7 @@ def health_node(url, timeout=10):
 
 
 def health_epicbox(host, timeout=8):
-    rc = subprocess.run(["curl", "-s", "-m", str(timeout), "-o", "/dev/null", "-w", "%{http_code}",
+    rc = subprocess.run(["curl", "-s", "--http1.1", "-m", str(timeout), "-o", "/dev/null", "-w", "%{http_code}",
                          "-H", "Connection: Upgrade", "-H", "Upgrade: websocket", "-H", "Sec-WebSocket-Version: 13",
                          "-H", "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==", f"https://{host}:443/"],
                         capture_output=True, text=True)
