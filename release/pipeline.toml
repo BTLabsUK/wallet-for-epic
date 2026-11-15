@@ -37,12 +37,13 @@
 # publish  blocks   publish-manifests        needs publish-downloads, publish-page, publish-source, publish-github-release
 # publish  blocks   verify-live              needs publish-manifests, publish-downloads, publish-page
 # publish  blocks   prune-downloads          needs verify-live
+# publish  informs  presign                  needs verify-live, prune-downloads
 # publish  blocks   store-play               needs verify-live, build-play@variant
 # publish  blocks   store-play-promote       needs store-play
 # publish  informs  screens-publish          needs verify-live, screens
 # publish  informs  announce                 needs verify-live
 # publish  informs  key-copies               needs verify-live
-# publish  blocks   cleanup                  needs verify-live, prune-downloads, store-play, store-play-promote, screens-publish, announce, key-copies
+# publish  blocks   cleanup                  needs verify-live, presign, prune-downloads, store-play, store-play-promote, screens-publish, announce, key-copies
 # flow:end
 #
 # Step fields:

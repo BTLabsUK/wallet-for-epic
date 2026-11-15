@@ -19,6 +19,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 
 from . import failures as known, flow, guards, hosted, retention, slow
 from .config import (ConfigError, PLATFORMS, Pipeline, VERSION_RE, load_hosts, load_scope, previous_of, scope_summary,
