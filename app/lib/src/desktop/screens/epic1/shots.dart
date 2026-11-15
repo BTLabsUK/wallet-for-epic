@@ -28,7 +28,7 @@ final List<DeskShot> epic1Shots = [
   DeskShot(id: '60-e1-settings-off', title: 'Settings › Transactions, epic1 off', route: DeskRoute.settingsReceiving, before: _epic1(on: false), prepare: _toSwitch),
   DeskShot(id: '60d-e1-settings-on', title: 'Settings › Transactions, epic1 on beside the other methods', route: DeskRoute.settingsReceiving, before: _epic1(), prepare: _toSwitch),
   DeskShot(id: '61-e1-receive', title: 'Receive: the classic address, the epic1 panel closed among the other ways', route: DeskRoute.receive, before: _epic1()),
-  DeskShot(id: '61b-e1-receive-link', title: 'Receive: the epic1 link made', route: DeskRoute.receive, before: _epic1(), prepare: (_, ctx) async => tapShotKey(ctx, const ValueKey('e1-receive-open'))),
+  DeskShot(id: '61b-e1-receive-link', title: 'Receive: the epic1 link made', route: DeskRoute.receive, before: _epic1(), prepare: (_, ctx) async => tapShotKey(ctx, const ValueKey('e1-open-link'))),
   DeskShot(id: '62-e1-send', title: 'Send: the classic form, epic1 on', route: DeskRoute.send, before: _epic1()),
   DeskShot(id: '62b-e1-send-review', title: 'Send an epic1 link: review with the server', route: DeskRoute.send, arg: const SendArgs(code: _link), before: _epic1(), prepare: (_, ctx) async => tapShotKey(ctx, const ValueKey('e1-review'))),
   DeskShot(

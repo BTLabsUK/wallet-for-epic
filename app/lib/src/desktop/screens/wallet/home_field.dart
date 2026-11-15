@@ -434,7 +434,12 @@ class _HomeFieldState extends ConsumerState<HomeField> {
           _nav(DeskRoute.send, SendArgs(recipient: who.addresses.first, amount: all ? null : amount, message: message, all: all));
         }
       case HomeKind.address:
-        _nav(DeskRoute.send, SendArgs(recipient: r.address, amount: all ? null : amount, message: message, all: all));
+        // An epic1 link with epic1 off goes in as a code: Send stops on it with the off line.
+        final offLink = r.verb == HomeVerb.send && !ref.read(deskEpic1OnProvider) && epic1Shaped(r.address ?? '');
+        _nav(
+          DeskRoute.send,
+          offLink ? SendArgs(code: r.address) : SendArgs(recipient: r.address, amount: all ? null : amount, message: message, all: all),
+        );
       case HomeKind.amount:
         final empty = amount == null && !all && message == null;
         _nav(DeskRoute.send, empty ? null : SendArgs(amount: all ? null : amount, message: message, all: all));

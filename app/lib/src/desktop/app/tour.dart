@@ -69,7 +69,7 @@ List<TourStep> tourStepsFor({required bool invoices, bool epic1 = false}) => [
   TourStep(
     route: DeskRoute.send,
     section: DeskSection.overview,
-    targets: [epic1 ? 'e1-send-form' : 'send-methods'],
+    targets: ['send-methods'],
     titleOf: (l) => l.deskTourSendTitle,
     textOf: (l) => epic1 ? l.deskE1TourSendText : l.deskTourSendText,
   ),
