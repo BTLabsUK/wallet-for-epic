@@ -57,8 +57,7 @@ class TourStep {
 final DeskRoute? deskInvoicesRoute = DeskRoute.values.where((r) => r.name == 'invoices').firstOrNull;
 
 /// The steps, in order; the Invoices step after Receive when [invoices] (the page exists).
-/// [epic1]: the wallet is in epic1 mode, so Send and Receive light the link pages and say so.
-List<TourStep> tourStepsFor({required bool invoices, bool epic1 = false}) => [
+List<TourStep> tourStepsFor({required bool invoices}) => [
   TourStep(
     route: DeskRoute.overview,
     targets: ['balance'],
@@ -71,14 +70,14 @@ List<TourStep> tourStepsFor({required bool invoices, bool epic1 = false}) => [
     section: DeskSection.overview,
     targets: ['send-methods'],
     titleOf: (l) => l.deskTourSendTitle,
-    textOf: (l) => epic1 ? l.deskE1TourSendText : l.deskTourSendText,
+    textOf: (l) => l.deskTourSendText,
   ),
   TourStep(
     route: DeskRoute.receive,
     section: DeskSection.overview,
-    targets: epic1 ? ['e1-receive-link'] : ['receive-epicbox', 'receive-files'],
+    targets: ['receive-epicbox', 'receive-files'],
     titleOf: (l) => l.deskTourReceiveTitle,
-    textOf: (l) => epic1 ? l.deskE1TourReceiveText : l.deskTourReceiveText,
+    textOf: (l) => l.deskTourReceiveText,
   ),
   if (invoices)
     TourStep(
@@ -128,11 +127,8 @@ final List<TourStep> deskTourSteps = tourStepsFor(invoices: deskInvoicesRoute !=
 
 /// The steps for the open wallet: with Invoices only when the page is in the app and the
 /// wallet takes invoices (the tabs hide the page otherwise).
-List<TourStep> deskTourStepsFor({required bool supportsInvoices, bool epic1 = false}) => epic1
-    ? tourStepsFor(invoices: supportsInvoices && deskInvoicesRoute != null, epic1: true)
-    : supportsInvoices
-    ? deskTourSteps
-    : tourStepsFor(invoices: false);
+List<TourStep> deskTourStepsFor({required bool supportsInvoices}) =>
+    supportsInvoices ? deskTourSteps : tourStepsFor(invoices: false);
 
 /// Tests: the steps the shell's overlay shows instead of [deskTourSteps].
 @visibleForTesting
@@ -274,10 +270,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   late final List<TourStep> _steps =
       widget.stepList ??
       debugTourSteps ??
-      deskTourStepsFor(
-        supportsInvoices: ref.read(deskInvoicesShownProvider),
-        epic1: ref.read(deskEpic1OnProvider),
-      );
+      deskTourStepsFor(supportsInvoices: ref.read(deskInvoicesShownProvider));
   late int _i = widget.startAt.clamp(0, _steps.length - 1);
   final _next = FocusNode(debugLabel: 'tour next');
   final _self = GlobalKey();

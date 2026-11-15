@@ -346,11 +346,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final e1On = ref.watch(deskEpic1OnProvider);
     final others = [
       // epic1, first of the other ways: closed until Make link; the classic panels stay as they are.
-      if (e1On)
-        TourTarget(
-          id: 'e1-receive-link',
-          child: Epic1ReceivePanel(relay: box == null ? null : relayLabel(box), open: _args?.qr == RxQr.epicbox, showQr: _args?.qr == RxQr.epicbox),
-        ),
+      if (e1On) Epic1ReceivePanel(relay: box == null ? null : relayLabel(box)),
       if (torPanel) _torPanel(st, status),
       if (httpPanel) _httpPanel(st, status),
     ];

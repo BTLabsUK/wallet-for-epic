@@ -153,8 +153,7 @@ void main() {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
-    // epic1 is on by default, so the tour says so on Send and Receive.
-    final steps = deskTourStepsFor(supportsInvoices: container.read(deskInvoicesShownProvider), epic1: true);
+    final steps = deskTourStepsFor(supportsInvoices: container.read(deskInvoicesShownProvider));
     for (final (i, step) in steps.indexed) {
       expect(container.read(deskNavProvider).route, step.route, reason: 'step ${i + 1}');
       expect(_inCard('${i + 1} of ${steps.length}'), findsOneWidget);
@@ -173,14 +172,14 @@ void main() {
     expect(container.read(deskNavProvider).route, DeskRoute.overview, reason: 'Done leaves the person on Overview');
   });
 
-  test('epic1 on: Send and Receive light the link pages and say so, at Shallow too', () {
-    final steps = deskTourStepsFor(supportsInvoices: false, epic1: true);
+  test('Send and Receive light the classic form and the Epicbox address, with epic1 on too', () {
+    final steps = deskTourStepsFor(supportsInvoices: false);
     final send = steps.firstWhere((s) => s.route == DeskRoute.send);
     final receive = steps.firstWhere((s) => s.route == DeskRoute.receive);
     expect(send.targets, ['send-methods']);
-    expect(send.text, englishStrings.deskE1TourSendText);
-    expect(receive.targets, ['e1-receive-link']);
-    expect(receive.text, englishStrings.deskE1TourReceiveText);
+    expect(send.text, englishStrings.deskTourSendText);
+    expect(receive.targets, ['receive-epicbox', 'receive-files']);
+    expect(receive.text, englishStrings.deskTourReceiveText);
     expect(steps.any((s) => s.title == 'Invoices'), isFalse);
   });
 

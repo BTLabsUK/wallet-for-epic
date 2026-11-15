@@ -32,23 +32,17 @@ bool _onLan(String relay) {
 /// The epic1 panel of Receive's "Other ways": the title, a line and Make link. No link is made
 /// before Make link is pressed; then the panel shows [Epic1LinkCard] and [Epic1OtherWays].
 class Epic1ReceivePanel extends StatefulWidget {
-  const Epic1ReceivePanel({super.key, required this.relay, this.open = false, this.showQr = false});
+  const Epic1ReceivePanel({super.key, required this.relay});
 
   /// The wallet's Epicbox server, `host[:port]`; null while it is not known yet.
   final String? relay;
-
-  /// Starts with the link made (the tour's and the shots').
-  final bool open;
-
-  /// The tour's uncovered QR code; the app never sets it.
-  final bool showQr;
 
   @override
   State<Epic1ReceivePanel> createState() => _Epic1ReceivePanelState();
 }
 
 class _Epic1ReceivePanelState extends State<Epic1ReceivePanel> {
-  late bool _open = widget.open;
+  bool _open = false;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +54,7 @@ class _Epic1ReceivePanelState extends State<Epic1ReceivePanel> {
         key: const ValueKey('e1-receive-open'),
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Epic1LinkCard(relay: widget.relay, showQr: widget.showQr),
+          Epic1LinkCard(relay: widget.relay),
           SizedBox(height: Sp.x3),
           const Epic1OtherWays(head: false),
         ],

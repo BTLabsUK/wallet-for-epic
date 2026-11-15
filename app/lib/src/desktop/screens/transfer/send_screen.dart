@@ -72,7 +72,7 @@ import '../../../scan/scan_text.dart';
 import 'send_code.dart';
 import '../../../epic1.dart' show looksLikeEpic1Link, looksLikeEpictx;
 import '../../../recipient.dart' show epic1Shaped, epic1Unwrap;
-import '../epic1/epic1_files.dart' show showEpic1OffStop;
+import '../epic1/epic1_files.dart' show openDeskEpictx, showEpic1OffStop;
 import '../epic1/send_link.dart' show Epic1SendPage;
 import 'send_summary_rows.dart';
 import '../../../ui/theme/protocol.dart' show CornerTicksPainter;
@@ -1157,9 +1157,10 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       }
       return true;
     }
+    // An epic1 file's text opens its flow; with epic1 off that stops with the off line.
     if (looksLikeEpictx(text)) {
       setState(() => _to.text = _lastTo);
-      unawaited(showEpic1OffStop(context, ref));
+      unawaited(openDeskEpictx(context, ref, text.trim()));
       return true;
     }
     switch (code) {
