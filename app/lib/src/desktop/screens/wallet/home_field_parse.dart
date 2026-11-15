@@ -86,6 +86,7 @@ class HomeRead {
     this.address,
     this.recipient,
     this.code,
+    this.classicRequest = false,
     this.wrongNetwork = false,
     this.query = '',
     this.nameStart = -1,
@@ -110,6 +111,9 @@ class HomeRead {
 
   /// For [HomeKind.code]: the whole text.
   final String? code;
+
+  /// For [HomeKind.code]: the code is a classic payment request (`epic:<key>@<relay>?…`).
+  final bool classicRequest;
 
   /// For [HomeKind.address]: the address is one of the other network (Floonet on mainnet).
   final bool wrongNetwork;
@@ -344,7 +348,9 @@ HomeRead readHomeField(
   final codeText = body.isEmpty ? text : text.substring(body.first.start);
   final scanned = classify(codeText);
   switch (scanned) {
-    case PaymentRequest() || PaymentLink() || PairingLink() || SlateText() || SlateFrames():
+    case PaymentRequest():
+      return HomeRead._(HomeKind.code, verb: verb, code: codeText, classicRequest: true);
+    case PaymentLink() || PairingLink() || SlateText() || SlateFrames():
       return HomeRead._(HomeKind.code, verb: verb, code: codeText);
     case ScannedAddress() || WrongNetwork():
       // A number is no address ("4.5" reads as a host); the words below take it as an amount.

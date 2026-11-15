@@ -15,7 +15,7 @@ import '../../../amount.dart' as shared show formatEpic;
 import '../../../epic1.dart' show PaymentMode;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
-import '../../../recipient.dart' show epic1Shaped;
+import '../../../recipient.dart' show epic1AddressOnly, epic1Shaped;
 import '../../../scan/scan_checks.dart' show CodeOrigin;
 import '../../../scan/scan_router.dart' show classifyScan;
 import '../../../send_route.dart';
@@ -275,6 +275,10 @@ class _HomeFieldState extends ConsumerState<HomeField> {
         if (r.query.isEmpty) return HomeIntent(line: l.scanPhraseFoundPasted, icon: EIcons.alert, problem: l.scanPhraseFoundPasted);
         return HomeIntent(line: l.deskHomeNoMatch(r.query), icon: EIcons.search, problem: l.deskHomeNoMatch(r.query));
       case HomeKind.code:
+        // Send's epic1 page takes no classic request: Home stops as it does for a classic address.
+        if (r.classicRequest && ref.read(deskPaymentModeProvider) == PaymentMode.epic1) {
+          return HomeIntent(line: l.deskE1ModeClassicAddress, icon: EIcons.alert, problem: l.deskE1ModeClassicAddress);
+        }
         return HomeIntent(
           line: l.deskHomeOpenCode,
           icon: EIcons.send,
@@ -312,7 +316,16 @@ class _HomeFieldState extends ConsumerState<HomeField> {
     } else if (r.kind == HomeKind.address) {
       rr = r.recipient;
     }
-    if (r.kind == HomeKind.address && !request) {
+    final epic1Mode = ref.read(deskPaymentModeProvider) == PaymentMode.epic1;
+    final epic1Code = r.kind == HomeKind.address && epic1Shaped(r.address ?? '');
+    if (epic1Code && !request) {
+      // An epic1 code is paid on Send's epic1 page, which takes the code and the amount; classic
+      // mode says what Send says.
+      if (!epic1Mode) {
+        problem ??= epic1AddressOnly(r.address!) ? l.epic1AddressAlone : l.deskE1ModeEpic1Link;
+        detail = problem;
+      }
+    } else if (r.kind == HomeKind.address && !request) {
       final x = r.recipient!;
       if (r.wrongNetwork) {
         problem ??= l.scanWrongNetworkBody;
