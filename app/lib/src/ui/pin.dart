@@ -162,7 +162,7 @@ class _PassphraseEntryState extends State<_PassphraseEntry> {
 }
 
 /// The trust id of a [KitKeypad] key of the PIN pad (digits '0'..'9', [KitKey.delete],
-/// [KitKey.biometrics]), for the test drivers.
+/// [KitKey.biometrics]), as a stable test id.
 String? pinKeyId(String key) => switch (key) {
   '0' => TrustIds.pinKey0,
   '1' => TrustIds.pinKey1,

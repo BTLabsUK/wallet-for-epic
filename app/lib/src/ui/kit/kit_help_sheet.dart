@@ -13,7 +13,7 @@ import 'kit_tokens.dart';
 /// The help sheet behind a header's "?" (HANDOFF Gap-2-Help): the grabber, a [title] such as
 /// "How sending works", a few short paragraphs ([lines], or any [body] widget instead), then a
 /// quiet "More in Help" button when [onMore] is set. Show it with [showKitHelp]. [sheetId] names
-/// the sheet and [moreId] the button for the test drivers.
+/// the sheet and [moreId] the button as stable test ids.
 class KitHelpSheet extends StatelessWidget {
   const KitHelpSheet({super.key, required this.title, this.lines = const [], this.body, this.onMore, this.sheetId, this.moreId})
     : assert(body == null || lines.length == 0, 'Give lines or a body, not both');

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Helpers the kit parts share: the test drivers' id and the one press feedback.
+/// Helpers the kit parts share: the stable test id and the one press feedback.
 library;
 
 import 'package:flutter/material.dart';
 
 import '../../trust_ids.dart';
 
-/// [child] named for the test drivers when [id] is set (`TrustIds.*`, given by the screen).
+/// [child] given its stable test id when [id] is set (`TrustIds.*`, given by the screen).
 Widget kitId(String? id, Widget child) => id == null ? child : TrustId(id, child: child);
 
 /// A tap target that keeps the part's own look: no Material ripple box, a soft press tint.

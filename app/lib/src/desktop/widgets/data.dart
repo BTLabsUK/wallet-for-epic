@@ -492,7 +492,7 @@ class ESelect<T> extends StatefulWidget {
   final bool mono;
   final String? semanticLabel;
 
-  /// The test drivers' stable name for the field (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for the field (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   /// The list opens with the first frame: the tour's shots of a list.
@@ -704,7 +704,7 @@ class ESubnav extends StatelessWidget {
   final Set<Object>? matches;
   final String? noMatchLabel;
 
-  /// The test drivers' stable name for an entry (`TrustIds`, lib/src/trust_ids.dart); null for none.
+  /// The stable test id for an entry (`TrustIds`, lib/src/trust_ids.dart); null for none.
   final String? Function(Object id)? idOf;
 
   @override
@@ -787,7 +787,7 @@ class ENavItem extends StatefulWidget {
   /// Quieter text and icon (a search found nothing here); [value] says why to a screen reader.
   final bool dimmed;
   final String? value;
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   @override
@@ -897,7 +897,7 @@ class ETab extends StatefulWidget {
   final int? count;
   final bool compact;
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   /// Between two tabs of a row.

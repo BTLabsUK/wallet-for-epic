@@ -60,7 +60,7 @@ class StartMonthOther {
   final String label;
   final VoidCallback onTap;
 
-  /// The test drivers' stable name for the link (`TrustIds`).
+  /// The stable test id for the link (`TrustIds`).
   final String? semanticsId;
 }
 

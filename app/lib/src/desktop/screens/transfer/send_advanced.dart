@@ -98,7 +98,7 @@ class SendAdvanced extends StatelessWidget {
 class ERadioRow extends StatefulWidget {
   const ERadioRow({super.key, this.semanticsId, required this.selected, required this.title, this.text, this.tag, this.onSelected, this.hint, this.hintIcon, this.onHint});
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   final bool selected;

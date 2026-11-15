@@ -12,7 +12,7 @@ import 'kit_tokens.dart';
 const Key kitScanButtonKey = ValueKey('kit-tab-scan');
 
 /// One tab of the [KitTabBar]: its two glyphs (the filled one when selected), its word, an
-/// optional count badge, and the id the test drivers know it by.
+/// optional count badge, and its stable test id.
 class KitTabItem {
   const KitTabItem({
     required this.icon,

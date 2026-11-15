@@ -77,7 +77,7 @@ class PrivacyGroup extends ConsumerWidget {
   }
 }
 
-/// The test drivers' stable names for the modes (`TrustIds`, lib/src/trust_ids.dart).
+/// The stable test id for the modes (`TrustIds`, lib/src/trust_ids.dart).
 const _modeId = {NetworkMode.standard: TrustIds.privacyModeStandard, NetworkMode.torOnly: TrustIds.privacyModeToronly};
 
 /// The network modes as radio rows (each with its ⓘ): Normal, Tor only, Node only, Kill switch.

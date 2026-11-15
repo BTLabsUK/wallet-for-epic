@@ -15,6 +15,6 @@ class InfoAction {
   /// The button's key, for tests.
   final Key? key;
 
-  /// The test drivers' stable name for the button (`TrustIds`).
+  /// The stable test id for the button (`TrustIds`).
   final String? semanticsId;
 }

@@ -138,7 +138,7 @@ class EButton extends StatefulWidget {
   /// Takes the focus when it appears: the default button of a confirm, so Enter presses it.
   final bool autofocus;
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   @override

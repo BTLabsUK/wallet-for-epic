@@ -187,7 +187,7 @@ class EInput extends StatefulWidget {
 
   /// The name a screen reader reads; by default the label of the [EField] around it, else [hint].
   final String? semanticLabel;
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   /// The soft keyboard's action; in an [EForm] "next", or "done" in its last field.
@@ -386,7 +386,7 @@ class ESearch extends StatefulWidget {
   final double? width;
   final Key? clearKey;
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   static double get standardWidth => 260.u;
@@ -473,7 +473,7 @@ class EPasswordInput extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final String? semanticLabel;
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
   final TextInputAction? textInputAction;
   /// A field for the wallet's own password. The web demo draws none of these (a node secret
@@ -541,7 +541,7 @@ class ESwitch extends StatelessWidget {
 
   /// Read by screen readers only, for a switch whose row already shows its title.
   final String? semanticLabel;
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   @override
@@ -613,7 +613,7 @@ class ESegment<T> {
 
   /// After the label: an "Off" badge on a choice that is not available now.
   final Widget? badge;
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 }
 
@@ -858,7 +858,7 @@ class EChoiceCard extends StatefulWidget {
   /// whether a title wraps or not (UD-021).
   final int? titleLines;
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   @override
@@ -935,7 +935,7 @@ class ECheckbox extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
   final String label;
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   @override

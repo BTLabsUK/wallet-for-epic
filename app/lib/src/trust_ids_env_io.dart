@@ -4,5 +4,5 @@ library;
 
 import 'dart:io';
 
-/// Set by the Linux lanes' sandbox, nowhere else.
+/// Set by whoever drives the Linux app through AT-SPI (WFE_TRUST_IDS=1), nowhere else.
 final bool trustIdsEnv = Platform.isLinux && Platform.environment['WFE_TRUST_IDS'] == '1';

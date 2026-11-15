@@ -20,7 +20,7 @@ abstract final class KitKey {
 /// A 3 × 4 keypad (HANDOFF 7.8, 7.7): 56 px keys of radius 16, Montserrat 26. The bottom-left
 /// key is the decimal point when [decimal] is set, the biometrics key when [onBiometrics] is
 /// set, else empty; the bottom-right key deletes. Each key gives a light tap. [idFor] names a
-/// key for the test drivers by its [KitKey] name or digit.
+/// key for testers by its [KitKey] name or digit.
 class KitKeypad extends StatelessWidget {
   const KitKeypad({super.key, required this.onDigit, required this.onDelete, this.onPoint, this.onBiometrics, this.idFor, this.onDeleteLong, this.inset = 23});
 

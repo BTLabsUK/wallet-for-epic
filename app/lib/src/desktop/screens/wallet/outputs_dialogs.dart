@@ -412,7 +412,7 @@ class EStepper extends StatefulWidget {
   final String? fewerLabel;
   final String? moreLabel;
 
-  /// The test drivers' stable names for the − and + buttons (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for the − and + buttons (`TrustIds`, lib/src/trust_ids.dart).
   final String? fewerId;
   final String? moreId;
 

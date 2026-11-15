@@ -45,7 +45,7 @@ class EStartDate extends StatelessWidget {
   /// The line under the field before a month is chosen; none when null.
   final String? hint;
 
-  /// The test drivers' stable name for the field (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for the field (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   /// The key of the recent-month warning, for tests.
@@ -135,7 +135,7 @@ class EStartMonthField extends StatefulWidget {
   /// Drawn with the risk edge (Recheck without a month).
   final bool invalid;
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   static const Key fieldKey = ValueKey('start-date-pick');

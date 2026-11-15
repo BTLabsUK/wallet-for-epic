@@ -18,12 +18,13 @@ part 'trust_ids.g.dart';
 bool trustIdsOn = true;
 
 /// Whether an id also goes in its node's label, as `⟦id⟧`. Flutter's Linux embedder hands AT-SPI only
-/// the label and the value, so `identifier` never reaches a Linux lane; its sandbox sets
-/// WFE_TRUST_IDS=1 and the driver takes the mark back out. Off everywhere else.
+/// the label and the value, so `identifier` never reaches an agent driving the Linux app through
+/// AT-SPI; running the app with WFE_TRUST_IDS=1 puts the id in the label (the agent strips the
+/// mark). Off everywhere else.
 @visibleForTesting
 bool trustIdsInLabels = trustIdsEnv;
 
-/// Names a control for the drivers: [id] joins the semantics node that [child]'s own semantics
+/// Names a control for agents and tests: [id] joins the semantics node that [child]'s own semantics
 /// end in, and changes nothing else. `Semantics(identifier:)` is not used for this: an identifier
 /// there starts a node of its own, which splits a control from the tooltip, label or button it
 /// shares a node with (a password field read as its "Show" button). Around a widget that makes

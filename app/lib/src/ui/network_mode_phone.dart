@@ -122,7 +122,7 @@ class NetworkModeConfirmSheet extends StatelessWidget {
   }
 }
 
-/// The test drivers' stable names for the modes (`TrustIds`, lib/src/trust_ids.dart).
+/// The stable test id for the modes (`TrustIds`, lib/src/trust_ids.dart).
 const _modeId = {NetworkMode.standard: TrustIds.privacyModeStandard, NetworkMode.torOnly: TrustIds.privacyModeToronly};
 
 /// The Connection mode block of Settings › Network & privacy: its label and one radio row per

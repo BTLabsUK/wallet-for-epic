@@ -47,7 +47,7 @@ class InvButton extends StatelessWidget {
   final bool busy;
   final String? tooltip;
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   @override

@@ -39,7 +39,7 @@ class AccountForm extends StatelessWidget {
   final String? passwordError;
   final String? confirmError;
 
-  /// The test drivers' names for the two fields (`TrustIds`): a new wallet's unless given.
+  /// The stable test ids for the two fields (`TrustIds`): a new wallet's unless given.
   final String passwordId, confirmId;
 
   @override
@@ -371,7 +371,7 @@ class PasswordBox extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final String? semanticLabel;
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
   final TextInputAction? textInputAction;
 

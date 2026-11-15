@@ -464,7 +464,7 @@ class StatusIcon extends StatelessWidget {
     this.semanticsId,
   });
 
-  /// The test drivers' stable name for this status ([TrustIds]).
+  /// The stable test id for this status ([TrustIds]).
   final String? semanticsId;
 
   /// Whether the service is on: the glyph is neutral then and the mark shows its connection;

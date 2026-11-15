@@ -2843,7 +2843,7 @@ class SendSummaryPanel extends StatelessWidget {
     this.reviewId = TrustIds.sendReview,
   });
 
-  /// The Review button's key and driver id (epic1 mode's Send names its own).
+  /// The Review button's key and test id (epic1 mode's Send names its own).
   final Key? reviewKey;
   final String reviewId;
 

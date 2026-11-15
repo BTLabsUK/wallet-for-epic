@@ -624,7 +624,7 @@ class EAddress extends StatelessWidget {
   /// A small control before the copy icon (Receive's QR button).
   final Widget? extra;
 
-  /// The address's id for the drivers ([TrustId]), on the address and not on Copy.
+  /// The address's stable test id ([TrustId]), on the address and not on Copy.
   final String? semanticsId;
 
   @override
@@ -764,7 +764,7 @@ class ECopyButton extends StatefulWidget {
     this.semanticsId,
   });
 
-  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this control (`TrustIds`, lib/src/trust_ids.dart).
   final String? semanticsId;
 
   final String text;

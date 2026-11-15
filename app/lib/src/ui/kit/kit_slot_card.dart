@@ -286,7 +286,7 @@ class KitNeedsYouCard extends StatelessWidget {
 /// The reminder card of Home's slot (frame "Wallet reminders", `.ann`): 90 tall, a 64 px well
 /// with a [icon] in gold, up to two lines of [text], a gold [action] link at the foot and a × at
 /// the top corner that puts it away ([onClose]). The card and its link open [onAction]; the × is
-/// its own button. [actionId] and [closeId] are the test drivers' names.
+/// its own button. [actionId] and [closeId] are stable test ids.
 class KitReminderCard extends StatelessWidget {
   const KitReminderCard({
     super.key,

@@ -119,7 +119,7 @@ class ScanStartController extends ChangeNotifier {
   }
 }
 
-/// The test drivers' names for the block's controls (`TrustIds`): the restore screens give
+/// The stable test ids for the block's controls (`TrustIds`): the restore screens give
 /// theirs; Recheck balance has none.
 class ScanStartIds {
   const ScanStartIds({this.start, this.info, this.byMonth, this.byHeight, this.month, this.height, this.fromStart});

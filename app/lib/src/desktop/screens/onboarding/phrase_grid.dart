@@ -300,7 +300,7 @@ class PhraseGrid extends StatefulWidget {
   final VoidCallback? onSubmit;
   final bool autofocus;
 
-  /// The test drivers' name for the first box, the one a whole pasted phrase goes into
+  /// The stable test id for the first box, the one a whole pasted phrase goes into
   /// (`TrustIds`); none when null.
   final String? firstId;
 

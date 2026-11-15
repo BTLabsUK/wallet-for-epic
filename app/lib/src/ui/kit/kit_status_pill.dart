@@ -12,7 +12,7 @@ import 'kit_tokens.dart';
 /// The state of the wallet's connection as a word with a dot (HANDOFF 7.1): [ok] "Ready",
 /// [warn] "Reconnecting". The dot ([KitConnectionDot]) has a soft halo of its colour. Pass
 /// [label] to name another state. [onTap] makes it a button (Home and unlock open the
-/// connections sheet from it); [semanticsId] names it for the test drivers.
+/// connections sheet from it); [semanticsId] is its stable test id.
 class KitStatusPill extends StatelessWidget {
   const KitStatusPill({super.key, required this.ready, this.label, this.onTap, this.semanticsId, this.modeMark, this.modeName, this.showState = true});
 

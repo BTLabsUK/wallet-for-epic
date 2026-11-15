@@ -41,7 +41,7 @@ class KitButton extends StatelessWidget {
   final IconData? icon;
   final bool expand;
 
-  /// The test drivers' name (`TrustIds.*`).
+  /// The stable test id (`TrustIds.*`).
   final String? semanticsId;
 
   /// A ghost at the 48 touch size instead of the frames' 44: a ghost alone at a page's foot

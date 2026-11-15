@@ -2170,7 +2170,7 @@ class BusyButton extends StatelessWidget {
   /// The phone's button: 52 tall, the kit's 16 px label (`.btn`).
   final bool kit;
 
-  /// The button's id for the drivers ([TrustId]).
+  /// The button's stable test id ([TrustId]).
   final String? semanticsId;
 
   @override

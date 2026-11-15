@@ -281,7 +281,7 @@ class DialogButton extends StatelessWidget {
   final IconData? icon;
   final bool busy;
 
-  /// The test drivers' stable name for this button ([TrustIds]).
+  /// The stable test id for this button ([TrustIds]).
   final String? semanticsId;
 
   DialogButton _as(DialogButtonKind k) => DialogButton._(key: key, kind: k, label: label, onPressed: onPressed, icon: icon, busy: busy, semanticsId: semanticsId);

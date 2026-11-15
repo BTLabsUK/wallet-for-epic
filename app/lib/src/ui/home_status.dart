@@ -111,7 +111,7 @@ StatusDot torDot(TorState state) => StatusDot.of(torShownState(state));
   );
 }
 
-/// The test drivers' stable name for a status icon, on Home's strip and in the sheet
+/// The stable test id for a status icon, on Home's strip and in the sheet
 /// (`TrustIds`, lib/src/trust_ids.dart).
 String? _statusId(Key key) => switch (key) {
   nodeStatusKey => TrustIds.statusNode,

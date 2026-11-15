@@ -90,7 +90,7 @@ class RadioRow<T> extends StatelessWidget {
   /// The key of the [ListTile] itself, for tests that read the tile.
   final Key? tileKey;
 
-  /// The test drivers' stable name for this row ([TrustIds]).
+  /// The stable test id for this row ([TrustIds]).
   final String? semanticsId;
 
   @override

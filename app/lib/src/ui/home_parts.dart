@@ -520,7 +520,7 @@ class _DestinationTile extends StatelessWidget {
 }
 
 /// A destination's body under its one semantics node: silent to screen readers (the node says
-/// it all), with [trust] joined to that node when the drivers know the destination.
+/// it all), with [trust] joined to that node when a test id names the destination.
 Widget destinationBody(String? trust, Widget child) {
   final body = ExcludeSemantics(child: child);
   return trust == null ? body : trustId(trust, body);

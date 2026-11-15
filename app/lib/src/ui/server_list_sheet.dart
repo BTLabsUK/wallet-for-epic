@@ -255,7 +255,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
   bool get _node => widget.kind == ServerKind.node;
 
-  /// The test drivers' stable names for this list's controls (`TrustIds`, lib/src/trust_ids.dart).
+  /// The stable test id for this list's controls (`TrustIds`, lib/src/trust_ids.dart).
   TrustServerIds get _ids => _node ? TrustIds.nodeList : TrustIds.epicboxList;
 
   /// The set ticked now in a selection picker; null in the one-server picker.

@@ -97,7 +97,7 @@ class SettingsColumn extends ConsumerWidget {
               decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
               child: TrustId(
                 TrustIds.settingsBack,
-                // Named "Wallet", so a reader and the drivers find it by that.
+                // Named "Wallet", so a reader and a tester find it by that.
                 child: Semantics(
                   button: true,
                   label: l.deskSetFrameBack,
