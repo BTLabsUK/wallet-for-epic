@@ -75,14 +75,17 @@ class Mac:
     # ---- the tunnel
 
     def open_tunnel(self, local=(), remote=(), logf=None):
-        """One `ssh -N` holding [local] (here_port, mac_port) -L forwards and [remote] ports -R forwarded to
-        the same port here. Replaces a tunnel already open."""
+        """One `ssh -N` holding [local] (here_port, mac_port) -L forwards and [remote] -R forwards: a port,
+        forwarded to the same port here, or (mac_port, here_port). Replaces a tunnel already open."""
         self.close_tunnel()
-        args = ["ssh", *self.opts, "-N", "-o", "ExitOnForwardFailure=yes"]
+        # Its own connection (ssh keeps an option's first value): as a client of the shared master,
+        # `ssh -N` with no stdin hands the forwards over and exits.
+        args = ["ssh", "-o", "ControlMaster=no", "-o", "ControlPath=none", *self.opts, "-N",
+                "-o", "ExitOnForwardFailure=yes"]
         for here, there in local:
             args += ["-L", "127.0.0.1:%d:127.0.0.1:%d" % (here, there)]
         for p in remote:
-            args += ["-R", "127.0.0.1:%d:127.0.0.1:%d" % (p, p)]
+            args += ["-R", "127.0.0.1:%d:127.0.0.1:%d" % (p if isinstance(p, tuple) else (p, p))]
         self.tunnel = subprocess.Popen(args + [self.host], stdout=logf or subprocess.DEVNULL, stderr=subprocess.STDOUT,
                                        stdin=subprocess.DEVNULL, start_new_session=True)
         return self.tunnel

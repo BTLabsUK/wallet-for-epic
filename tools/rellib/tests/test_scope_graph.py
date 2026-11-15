@@ -175,7 +175,7 @@ class GraphTest(unittest.TestCase):
     def test_create_steps_warn_only_after_the_flow_lanes(self):
         s, steps = graph(stage="night")
         by = {x.id: x for x in steps}
-        for plat in ("android", "linux", "windows"):
+        for plat in ("android", "linux", "windows", "macos"):
             self.assertNotIn(f"create-{plat}-notor", by)
             c = by[f"create-{plat}-tor"]
             self.assertTrue(c.warn_only)
@@ -185,7 +185,6 @@ class GraphTest(unittest.TestCase):
             self.assertEqual((c.env["REL_TRUST_MODE"], c.env["REL_CHECKS"], c.env["REL_FUNDS"]), ("create", "create_ok", "0"))
             self.assertEqual(c.env["REL_CANDIDATE_DIR"], f"/r/26.10.25/run-1/steps/testbuild-{plat}-tor/out")
             self.assertIn(f"trust-{plat}.sh", c.run)
-        self.assertNotIn("create-macos-tor", by)
 
     def test_night_stage_holds_the_test_builds_and_their_lanes(self):
         # 2026-11-07: the lanes on a test build run every night, after G2; a release has none of them.
@@ -253,7 +252,8 @@ class GraphTest(unittest.TestCase):
                 chain += ["lane-payments-linux-tor", "lane-pairing-linux-tor", "lane-linking-linux-tor"]
             self.assertTrue(all(pol.counts(by[x]) for x in chain), plat)
             self.assertTrue(pol.counts(release[f"trust-{plat}-tor"]), plat)
-        for x in ("testbuild-windows-tor", "flow-windows-tor", "create-windows-tor"):
+        for x in ("testbuild-windows-tor", "flow-windows-tor", "create-windows-tor",
+                  "testbuild-macos-tor", "flow-macos-tor", "create-macos-tor"):
             self.assertFalse(pol.counts(by[x]), x)
         self.assertFalse(pol.counts(release["trust-windows-tor"]))
 
@@ -294,7 +294,7 @@ class GraphTest(unittest.TestCase):
         t = next(x for x in steps if x.id == "trust-windows-tor")
         self.assertIn("trust-windows.sh", t.run)
         t = next(x for x in steps if x.id == "trust-macos-tor")
-        self.assertIn("no update-trust driver for macos", t.run)
+        self.assertIn("trust-macos.sh", t.run)
 
     def test_stores_on(self):
         s, steps = graph(sets=["stores.play=true"])
