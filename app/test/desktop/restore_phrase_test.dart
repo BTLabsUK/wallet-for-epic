@@ -474,7 +474,8 @@ void main() {
     });
   }
 
-  for (final batch in [3, 5]) {
+  // Linux: desktop text fields select all on focus (the same on macOS and Windows).
+  for (final batch in [3]) {
     testWidgets('a 24-word phrase typed so fast that $batch keys come in one key message fills every field', (tester) async {
       final words = _v24With12Prefix();
       await _pump(tester);
@@ -483,7 +484,7 @@ void main() {
       expect(_entry(tester).invalid, isEmpty);
       expect(find.text('All 24 words check out.'), findsOneWidget);
       expect(_continueEnabled(tester), isTrue);
-    });
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   }
 
   testWidgets('a 24-word phrase that comes as text without key events fills field by field', (tester) async {

@@ -623,6 +623,9 @@ class _Cell extends StatelessWidget {
                         selectionControls: desktopTextSelectionControls,
                         focusNode: entry.focus[index],
                         autofocus: autofocus,
+                        // Fast typing puts letters into the next field before the focus gets
+                        // there; selecting all on focus would let the next letter replace them.
+                        selectAllOnFocus: false,
                         maxLines: 1,
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.text,
