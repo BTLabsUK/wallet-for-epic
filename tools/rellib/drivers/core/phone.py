@@ -606,16 +606,22 @@ class Phone:
 
     def tab(self, target):
         """Send or Receive: Home's two buttons open the flow over the tab bar (its own close button
-        marks it). Any other target is a tab of the bar."""
+        marks it); 26.11.3 and older have them as tabs of the bar (Send, Wallet, Receive), selected
+        when open. Any other target is a tab of the bar."""
         d = self.d
         self.home()
+
+        def picked(dd, tree):
+            return any(n.role == "tab" and "selected" in n.states for n in dd.find_in(target, tree))
         if target == TAB_SEND:
             # Send draws its own header: × on its first step, ‹ on a send left half-way.
             d.press(target, step="tab-send", timeout=20,
-                    then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree))))
+                    then=Expect("Send open", lambda dd, tree: bool(dd.find_in(SEND_CLOSE, tree) or dd.find_in(SEND_BACK, tree)
+                                                                   or picked(dd, tree))))
             return
         if target == TAB_RECEIVE:
-            d.press(target, step="tab-receive", timeout=20, then=shows(RECEIVE_CLOSE))
+            d.press(target, step="tab-receive", timeout=20,
+                    then=Expect("Receive open", lambda dd, tree: bool(dd.find_in(RECEIVE_CLOSE, tree) or picked(dd, tree))))
             return
         d.press(target, step="tab-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
                 then=Expect("%s selected" % target, lambda dd, tree: any("selected" in n.states for n in dd.find_in(target, tree))))
