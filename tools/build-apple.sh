@@ -110,6 +110,10 @@
 #   APPLE_TEAM_ID=<id>         the team for mac-release (default: DEVELOPMENT_TEAM in
 #                              app/Signing.xcconfig)
 #   NOTARY_PROFILE=<name>      the notarytool keychain profile (default btlabs-notary)
+#   NOTARY_KEYCHAIN=<path>     the keychain file that holds that profile (notarytool --keychain);
+#                              unset: notarytool's default (the login keychain). Over ssh the
+#                              login keychain is locked: unlock the named one first
+#                              (security unlock-keychain), the script does not
 #   MAC_IDLE_WAIT=<seconds>    how long a step that opens windows waits for the Mac to be left
 #                              alone for 2 min (default 900; 0: never waits)
 #   LIVE_RESTORE_FROM_0=1      live: the restore scans from block 0
@@ -949,6 +953,9 @@ gatekeeper() {
 
 # The notarytool keychain profile (made once: xcrun notarytool store-credentials).
 notary_profile="${NOTARY_PROFILE:-btlabs-notary}"
+# Where the profile lives: --keychain <path> for notarytool when NOTARY_KEYCHAIN is set.
+notary_kc=()
+if [ -n "${NOTARY_KEYCHAIN:-}" ]; then notary_kc=(--keychain "$NOTARY_KEYCHAIN"); fi
 
 # The Team ID: APPLE_TEAM_ID, else DEVELOPMENT_TEAM of app/Signing.xcconfig.
 team_id() {
@@ -1023,11 +1030,11 @@ devid_check() {
 # Notarises $1 (a .zip or .dmg) and waits; Apple's log goes to $2. Dies unless Apple accepts it.
 notarise() {
   local file="$1" log="$2" json id status
-  json="$(xcrun notarytool submit "$file" --keychain-profile "$notary_profile" --wait --output-format json)" || true
+  json="$(xcrun notarytool submit "$file" --keychain-profile "$notary_profile" ${notary_kc[@]+"${notary_kc[@]}"} --wait --output-format json)" || true
   id="$(jq -r '.id // empty' <<< "$json")"
   status="$(jq -r '.status // empty' <<< "$json")"
   if [ -n "$id" ]; then
-    xcrun notarytool log "$id" --keychain-profile "$notary_profile" "$log" || true
+    xcrun notarytool log "$id" --keychain-profile "$notary_profile" ${notary_kc[@]+"${notary_kc[@]}"} "$log" || true
   fi
   echo "notarisation of $(basename "$file"): ${status:-no answer} ${id:+(id $id)}"
   [ "$status" = Accepted ] || die "Apple did not accept $(basename "$file"): ${status:-no answer} (log: $log)"
@@ -1040,7 +1047,7 @@ mac_release_ready() {
   team="$(team_id)"
   id="$(devid_identity "$team")"
   [ -n "$id" ] || die "no \"Developer ID Application: ... ($team)\" identity in the keychain (security find-identity -v -p codesigning)"
-  xcrun notarytool history --keychain-profile "$notary_profile" >/dev/null 2>&1 \
+  xcrun notarytool history --keychain-profile "$notary_profile" ${notary_kc[@]+"${notary_kc[@]}"} >/dev/null 2>&1 \
     || die "no working notarytool profile \"$notary_profile\" (xcrun notarytool store-credentials $notary_profile ...)"
   result PASS mac-release-ready "team $team, Developer ID $id, notary profile $notary_profile"
 }
