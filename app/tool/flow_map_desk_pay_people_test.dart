@@ -137,12 +137,6 @@ void _tapText(BuildContext ctx, String text, {bool last = false}) =>
 /// The root context's strings.
 AppLocalizations _l(BuildContext ctx) => ctx.l10n;
 
-Future<void> _epic1On(ProviderContainer c) async {
-  final e1 = _w(c).epic1Fake;
-  await e1.setStoredOn(true);
-  e1.reopen();
-}
-
 Future<void> _openCoffeeReview(ProviderContainer c, BuildContext _) async {
   final waiting = (await _w(c).invoices()).waiting;
   await c.read(deskInvoicesProvider.notifier).load();
@@ -171,7 +165,7 @@ final List<DeskShot> _shots = [
   _shot('send-link-no-payments', 'Send: a link to a contact that takes no payments', DeskRoute.send, dialog: (ctx) async => showLinkNoPayments(ctx, 'Northwind')),
   _shot('qr-slate-payment', 'Show QR: a payment file', DeskRoute.send, dialog: (ctx) => showDeskSlateQr(ctx, kind: DeskQrKind.payment, json: _slateJson, onScanReply: () {})),
   _shot('qr-slate-request', 'Show QR: an invoice request', DeskRoute.invoiceIssue, dialog: (ctx) => showDeskSlateQr(ctx, kind: DeskQrKind.request, json: _slateJson)),
-  _shot('in-person-send', 'Send in epic1 mode: Pay in person', DeskRoute.send, before: _epic1On, dialog: openDeskPayInPerson),
+  _shot('in-person-send', 'Send: Pay in person', DeskRoute.send, dialog: openDeskPayInPerson),
 
   // ---- Invoices ----
   _shot('invoices-decline', 'Review invoice: Decline asks to confirm', DeskRoute.invoices, prepare: _openCoffeeReview,

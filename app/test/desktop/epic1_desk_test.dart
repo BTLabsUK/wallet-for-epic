@@ -1,20 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
-// epic1 payments on the desktop (spec D1): the switch in Settings › Transactions, applied at
-// the next unlock; Receive's link card; Send's one field with the unknown-server question,
-// review, waiting and Sent; the classic lines in each mode; contacts that are Classic only.
+// epic1 as a payment method on the desktop: its row in Settings › Payments (on by default, applied
+// at once); Receive's epic1 panel beside the classic address; Send and Home taking an epic1 link
+// and a classic address in one session; the off stop; contacts paid by an epic1 link.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show settingsPrefsProvider;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show SendArgs;
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsArgs;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/epic1.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/payment_prefs.dart' show PaymentPrefs;
 import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
+import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
+
+/// The text [s] on stage: plain, or drawn with the epic1 wordmark in place of the word.
+Finder _say(String s) => find.byWidgetPredicate((w) => (w is Text && w.data == s) || (w is Epic1Text && w.text == s));
 
 const _link = 'epic:epic1qtestlink0000000000000000000000000000?amount=150000000';
 
@@ -43,21 +49,26 @@ class _Wallet extends MockDeskWallet {
 late ProviderContainer _container;
 late _Wallet _wallet;
 
-Future<void> _open(WidgetTester tester, DeskRoute route, {Object? arg, bool epic1 = false}) async {
+/// Opens [route]; epic1 is on as it is by default, unless [epic1] is false (switched off in the
+/// payment settings).
+Future<void> _open(WidgetTester tester, DeskRoute route, {Object? arg, bool epic1 = true, Contact? select}) async {
   tester.view.physicalSize = const Size(1280, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   _wallet = _Wallet();
-  if (epic1) {
-    await _wallet.epic1Fake.setStoredOn(true);
-    _wallet.epic1Fake.reopen();
-  }
   _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_wallet)], retry: (_, _) => null);
   addTearDown(_container.dispose);
   await tester.runAsync(() async {
     final n = _container.read(deskProvider.notifier);
     await n.refresh();
-    await n.saveSettings(_container.read(deskProvider).settings.copyWith(tourSeen: true));
+    final st = _container.read(deskProvider).settings;
+    await n.saveSettings(st.copyWith(tourSeen: true, payments: st.payments.copyWith(epic1: epic1)));
+    // A contact to open on its page.
+    if (select != null) {
+      await n.saveContact(select);
+      await n.refresh();
+      arg = ContactsArgs(selectedId: _container.read(deskProvider).contacts!.firstWhere((c) => c.name == select.name).id);
+    }
   });
   _container.read(deskNavProvider.notifier).reset(route, arg);
   await tester.pumpWidget(UncontrolledProviderScope(container: _container, child: const DeskApp()));
@@ -70,17 +81,6 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
-/// Lock, unlock (the fake applies the stored setting) and back on [route].
-Future<void> _relock(WidgetTester tester, DeskRoute route) async {
-  await tester.runAsync(() async {
-    await _container.read(deskProvider.notifier).lock();
-    expect(await _wallet.unlock('right password'), isTrue);
-    await _container.read(deskProvider.notifier).refresh();
-  });
-  _container.read(deskNavProvider.notifier).reset(route);
-  await _settle(tester);
-}
-
 Future<void> _tap(WidgetTester tester, String key) async {
   final f = find.byKey(ValueKey(key));
   await tester.ensureVisible(f);
@@ -89,79 +89,61 @@ Future<void> _tap(WidgetTester tester, String key) async {
   await _settle(tester);
 }
 
-Finder _field(String key) => find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(EditableText));
-
-Future<void> _enter(WidgetTester tester, String key, String text) async {
-  await tester.enterText(_field(key), text);
+/// Pastes the epic1 link into the classic Send form's To field (one change of 8 or more
+/// characters is a paste).
+Future<void> _pasteLink(WidgetTester tester) async {
+  await tester.enterText(find.byType(EditableText).first, _link);
   await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
   await _settle(tester);
 }
 
-bool _switchOn(WidgetTester tester) => tester.widget<ESwitch>(find.byKey(const ValueKey('e1-switch'))).value;
+Finder _field(String key) => find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(EditableText));
+
+bool _switchOn(WidgetTester tester) => tester.widget<ESwitch>(find.byKey(const ValueKey('st-offer-epic1'))).value;
+
+bool _saved(bool Function(PaymentPrefs p) read) => read(_container.read(deskProvider).settings.payments);
 
 void main() {
-  group('Settings › Transactions', () {
-    testWidgets('classic: Experimental last; turning on asks first, then applies at the next unlock', (tester) async {
+  group('Settings › Payments', () {
+    testWidgets('the epic1 row follows Epicbox, is on by default and shows the printed links row', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
-      expect(find.byKey(const ValueKey('e1-experimental')), findsOneWidget);
-      expect(find.text(_l.deskSetTxMethods), findsOneWidget);
-      expect(find.byKey(const ValueKey('e1-group')), findsNothing);
-      expect(_switchOn(tester), isFalse);
-      expect(find.byKey(const ValueKey('e1-applies')), findsNothing);
-
-      // Cancel in the confirm keeps it off.
-      await _tap(tester, 'e1-switch');
-      expect(find.byKey(const ValueKey('e1-turn-on-dialog')), findsOneWidget);
-      expect(find.text(_l.deskE1TurnOnBody), findsOneWidget);
-      await tester.tap(find.text(_l.commonCancel));
-      await _settle(tester);
-      expect(_wallet.epic1Fake.storedOn, isFalse);
-
-      await _tap(tester, 'e1-switch');
-      await _tap(tester, 'e1-turn-on');
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-      await _settle(tester);
-      expect(_wallet.epic1Fake.storedOn, isTrue);
+      expect(find.byKey(const ValueKey('st-method-epic1')), findsOneWidget);
+      expect(_say(_l.deskE1SetSwitch), findsWidgets);
       expect(_switchOn(tester), isTrue);
-      expect(find.text(_l.deskE1AppliesNext), findsOneWidget);
-      expect(find.byKey(const ValueKey('e1-lock-now')), findsOneWidget);
-      // Still classic until the unlock.
-      expect(find.text(_l.deskSetTxMethods), findsOneWidget);
-
-      // Lock now locks.
-      await _tap(tester, 'e1-lock-now');
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-      await _settle(tester);
-      expect(_container.read(deskNavProvider).route, DeskRoute.unlock);
-
-      await _relock(tester, DeskRoute.settingsReceiving);
-      expect(_container.read(deskPaymentModeProvider), PaymentMode.epic1);
-      expect(find.byKey(const ValueKey('e1-group')), findsOneWidget);
-      expect(find.text(_l.deskSetTxMethods), findsNothing);
-      expect(find.text(_l.deskE1PrintedCount(0)), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-printed-open')), findsOneWidget);
+      // The old exclusive mode is gone.
+      expect(find.byKey(const ValueKey('e1-experimental')), findsNothing);
       expect(find.byKey(const ValueKey('e1-applies')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-lock-now')), findsNothing);
     });
 
-    testWidgets('epic1: turning off has no confirm and applies at the next unlock', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, epic1: true);
-      expect(_switchOn(tester), isTrue);
-      await _tap(tester, 'e1-switch');
+    testWidgets('turning it off needs no confirm and no relock; the printed row goes', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving);
+      await _tap(tester, 'st-offer-epic1');
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
       expect(find.byKey(const ValueKey('e1-turn-on-dialog')), findsNothing);
-      expect(_wallet.epic1Fake.storedOn, isFalse);
-      expect(find.text(_l.deskE1AppliesNext), findsOneWidget);
-      expect(find.byKey(const ValueKey('e1-group')), findsOneWidget);
+      expect(_saved((p) => p.epic1), isFalse);
+      expect(_container.read(deskEpic1OnProvider), isFalse);
+      expect(_switchOn(tester), isFalse);
+      expect(find.byKey(const ValueKey('e1-printed-open')), findsNothing);
 
-      await _relock(tester, DeskRoute.settingsReceiving);
-      expect(_container.read(deskPaymentModeProvider), PaymentMode.classic);
-      expect(find.byKey(const ValueKey('e1-group')), findsNothing);
-      expect(find.text(_l.deskSetTxMethods), findsOneWidget);
-      expect(find.byKey(const ValueKey('e1-applies')), findsNothing);
+      await _tap(tester, 'st-offer-epic1');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+      expect(_saved((p) => p.epic1), isTrue);
+      expect(_container.read(deskEpic1OnProvider), isTrue);
+      expect(find.byKey(const ValueKey('e1-printed-open')), findsOneWidget);
     });
 
-    testWidgets('epic1: Printed links opens the panel', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, epic1: true);
+    testWidgets('off: the row shows the switch off', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, epic1: false);
+      expect(_switchOn(tester), isFalse);
+      expect(find.byKey(const ValueKey('e1-printed-open')), findsNothing);
+    });
+
+    testWidgets('Printed links opens the panel', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving);
       await _tap(tester, 'e1-printed-open');
       expect(find.byKey(const ValueKey('e1-printed-panel')), findsOneWidget);
       expect(find.text(_l.deskE1PrintedNone), findsOneWidget);
@@ -169,48 +151,58 @@ void main() {
   });
 
   group('Receive', () {
-    testWidgets('epic1: the link card with its QR shown, Copy link, Ask an amount, In person', (tester) async {
-      await _open(tester, DeskRoute.receive, epic1: true);
+    testWidgets('the classic address stays first; the epic1 panel is closed and makes no link', (tester) async {
+      await _open(tester, DeskRoute.receive);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('rx-ask-open')), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-receive-panel')), findsOneWidget);
+      expect(find.text(_l.deskE1LinkTitle), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-link-card')), findsNothing);
+      expect(_wallet.epic1Fake.calls, isNot(contains('makeLink')), reason: 'no link before the press');
+    });
+
+    testWidgets('Make link shows the link card with Copy link, Ask an amount and In person', (tester) async {
+      await _open(tester, DeskRoute.receive);
+      await _tap(tester, 'e1-open-link');
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await _settle(tester);
       expect(find.byKey(const ValueKey('e1-link-card')), findsOneWidget);
       expect(_wallet.epic1Fake.calls, contains('makeLink'));
       expect(find.byKey(const ValueKey('e1-copy-link')), findsOneWidget);
-      expect(find.byKey(const ValueKey('rx-qr-image-epic1')), findsOneWidget, reason: 'shown from the start');
-      expect(find.text(_l.deskKitQrShow), findsNothing, reason: 'no cover, no Show QR step');
       expect(find.byKey(const ValueKey('e1-ask-amount')), findsOneWidget);
       expect(find.byKey(const ValueKey('e1-request-in-person')), findsOneWidget);
-      // No classic receiving rows.
-      expect(find.byKey(const ValueKey('rx-files-drop')), findsNothing);
-      expect(find.text(_l.deskTfPickTitle), findsNothing);
+      // The classic address is still there.
+      expect(find.byKey(const ValueKey('rx-ask-open')), findsOneWidget);
     });
 
-    testWidgets('epic1 turned off in Settings: Receive shows the Epicbox address at once', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, epic1: true);
-      await _tap(tester, 'e1-switch');
+    testWidgets('off: no epic1 panel, the classic page as it was', (tester) async {
+      await _open(tester, DeskRoute.receive, epic1: false);
+      expect(find.byKey(const ValueKey('e1-receive-panel')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-link-card')), findsNothing);
+      expect(find.byKey(const ValueKey('rx-ask-open')), findsOneWidget);
+    });
+
+    testWidgets('switched off in Settings: the panel is gone at once', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving);
+      await _tap(tester, 'st-offer-epic1');
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
-      expect(_wallet.epic1Fake.storedOn, isFalse);
-      expect(_container.read(deskPaymentModeProvider), PaymentMode.epic1);
-      expect(_container.read(deskReceiveModeProvider), PaymentMode.classic);
-
       _container.read(deskNavProvider.notifier).reset(DeskRoute.receive);
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await _settle(tester);
-      expect(find.byKey(const ValueKey('e1-link-card')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-receive-panel')), findsNothing);
       expect(find.byKey(const ValueKey('rx-ask-open')), findsOneWidget);
     });
   });
 
   group('Send', () {
-    testWidgets('epic1: a link through an unknown server asks first, then review, waiting, Sent', (tester) async {
-      await _open(tester, DeskRoute.send, epic1: true);
+    testWidgets('an epic1 link pasted into the classic form asks first, then review, waiting, Sent', (tester) async {
+      await _open(tester, DeskRoute.send);
       _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
+      // The classic form is the start.
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      await _pasteLink(tester);
       expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
-      // Send's form: To, with what it takes in the line under it.
-      expect(find.text(_l.deskE1SendField), findsOneWidget);
-
-      await _enter(tester, 'e1-send-to', _link);
       expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);
       expect(find.text(_l.deskE1UnknownServerTitle), findsOneWidget);
       await _tap(tester, 'e1-use-server');
@@ -238,9 +230,9 @@ void main() {
       expect(find.byKey(const ValueKey('e1-sent')), findsOneWidget);
     });
 
-    testWidgets('epic1: a link on a listed server reviews with no question and pays', (tester) async {
-      await _open(tester, DeskRoute.send, epic1: true);
-      await _enter(tester, 'e1-send-to', _link);
+    testWidgets('a link on a listed server reviews with no question and pays', (tester) async {
+      await _open(tester, DeskRoute.send);
+      await _pasteLink(tester);
       expect(find.byKey(const ValueKey('e1-unknown-server')), findsNothing);
       await _tap(tester, 'e1-review');
       expect(find.byKey(const ValueKey('e1-review-server')), findsOneWidget);
@@ -253,18 +245,18 @@ void main() {
       expect(find.byKey(const ValueKey('e1-waiting')), findsOneWidget);
     });
 
-    testWidgets('epic1: Cancel in the server question leaves the form', (tester) async {
-      await _open(tester, DeskRoute.send, epic1: true);
+    testWidgets('Cancel in the server question leaves the form', (tester) async {
+      await _open(tester, DeskRoute.send);
       _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
-      await _enter(tester, 'e1-send-to', _link);
+      await _pasteLink(tester);
       await tester.tap(find.text(_l.commonCancel));
       await _settle(tester);
       expect(find.byKey(const ValueKey('e1-review')), findsOneWidget);
       expect(find.byKey(const ValueKey('e1-amount-fixed')), findsNothing);
     });
 
-    testWidgets('epic1: Send opened with a link shows it in the field, ready to review', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(code: _link), epic1: true);
+    testWidgets('Send opened with a link shows it in the field, ready to review', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(code: _link));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
       expect(tester.widget<EditableText>(_field('e1-send-to')).controller.text, _link);
@@ -273,52 +265,79 @@ void main() {
       expect(find.byKey(const ValueKey('e1-review-panel')), findsOneWidget);
     });
 
-    testWidgets('epic1: an amount from Home opens Send with it', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(amount: '12,5'), epic1: true);
-      expect(tester.widget<EditableText>(_field('e1-amount')).controller.text, '12,5');
-    });
-
-    testWidgets('epic1: a classic address gets the mode line with Settings', (tester) async {
-      await _open(tester, DeskRoute.send, epic1: true);
-      final anna = _container.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c1');
-      await _enter(tester, 'e1-send-to', anna.address);
-      expect(find.text(_l.deskE1ModeClassicAddress), findsOneWidget);
-      expect(find.byKey(const ValueKey('e1-send-settings')), findsOneWidget);
-    });
-
-    testWidgets('classic: an epic1 link gets the mode line with Settings', (tester) async {
-      await _open(tester, DeskRoute.send);
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
-      await tester.enterText(find.byType(EditableText).first, _link);
+    testWidgets('a link behind https:// is the link', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'https://$_link'));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
-      expect(find.text(_l.deskE1ModeEpic1Link), findsOneWidget);
-      expect(find.byKey(const ValueKey('e1-classic-settings')), findsOneWidget);
+      expect(tester.widget<EditableText>(_field('e1-send-to')).controller.text, _link);
+    });
+
+    testWidgets('an amount from Home opens the classic Send with it', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(amount: '12,5'));
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is EditableText && w.controller.text == '12,5'), findsOneWidget);
+    });
+
+    testWidgets('a classic address and an epic1 link in one session: each opens its own flow', (tester) async {
+      await _open(tester, DeskRoute.send);
+      final anna = _container.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c1');
+      await tester.enterText(find.byType(EditableText).first, anna.address);
+      await _settle(tester);
+      // The classic address stays in the classic form, with no mode line.
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-mode-dialog')), findsNothing);
+
+      _container.read(deskNavProvider.notifier).reset(DeskRoute.send, const SendArgs(code: _link));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
+    });
+
+    testWidgets('epic1 off: a link stops with the off line and its Settings action', (tester) async {
+      await _open(tester, DeskRoute.send, epic1: false);
+      await _pasteLink(tester);
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-mode-dialog')), findsOneWidget);
+      expect(_say(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('e1-mode-settings')));
+      await _settle(tester);
+      expect(_container.read(deskNavProvider).route, DeskRoute.settingsReceiving);
+      expect(_container.read(settingsPrefsProvider).jump, isNotNull);
+    });
+
+    testWidgets('epic1 off: a classic address is not stopped by it', (tester) async {
+      await _open(tester, DeskRoute.send, epic1: false);
+      final anna = _container.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c1');
+      await tester.enterText(find.byType(EditableText).first, anna.address);
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('e1-mode-dialog')), findsNothing);
     });
   });
 
   group('Contacts', () {
-    testWidgets('epic1: the picker shows Classic only and does not pick it', (tester) async {
-      await _open(tester, DeskRoute.send, epic1: true);
-      await _tap(tester, 'e1-contacts');
-      expect(find.byKey(const ValueKey('e1-classic-only')), findsWidgets);
-      await tester.tap(find.text('Anna Kowalska').last, warnIfMissed: false);
-      await _settle(tester);
-      expect(find.byKey(const ValueKey('e1-classic-only')), findsWidgets, reason: 'the picker stays open');
-      expect(find.byType(ETip), findsWidgets);
-    });
-
-    testWidgets('epic1: the contact page says Classic only and Send is off', (tester) async {
-      await _open(tester, DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'), epic1: true);
-      expect(find.byKey(const ValueKey('e1-contact-classic-only')), findsOneWidget);
-      final send = tester.widget<EButton>(find.byKey(const ValueKey('contact-send')));
-      expect(send.onPressed, isNull);
-      expect(find.ancestor(of: find.byKey(const ValueKey('contact-send')), matching: find.byType(ETip)), findsOneWidget);
-    });
-
-    testWidgets('classic: no Classic only and Send works', (tester) async {
+    testWidgets('the picker and the contact page carry no Classic only mark; Send works', (tester) async {
       await _open(tester, DeskRoute.contacts, arg: const ContactsArgs(selectedId: 'c1'));
       expect(find.byKey(const ValueKey('e1-contact-classic-only')), findsNothing);
       expect(tester.widget<EButton>(find.byKey(const ValueKey('contact-send'))).onPressed, isNotNull);
+    });
+
+    testWidgets('a contact with only an epic1 link is paid through it; off, it has no way to pay', (tester) async {
+      await _open(tester, DeskRoute.contacts, select: Contact(id: '', name: 'Link Only', epic1: _link));
+      final id = (_container.read(deskNavProvider).arg as ContactsArgs).selectedId;
+      expect(find.byKey(const ValueKey('contact-no-address')), findsNothing);
+      expect(tester.widget<EButton>(find.byKey(const ValueKey('contact-send'))).onPressed, isNotNull);
+      await _tap(tester, 'contact-send');
+      expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
+      expect(tester.widget<EditableText>(_field('e1-send-to')).controller.text, _link);
+
+      await tester.runAsync(() async {
+        final n = _container.read(deskProvider.notifier);
+        final st = _container.read(deskProvider).settings;
+        await n.saveSettings(st.copyWith(payments: st.payments.copyWith(epic1: false)));
+      });
+      _container.read(deskNavProvider.notifier).reset(DeskRoute.contacts, ContactsArgs(selectedId: id));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('contact-no-address')), findsOneWidget);
+      expect(tester.widget<EButton>(find.byKey(const ValueKey('contact-send'))).onPressed, isNull);
     });
   });
 
@@ -330,35 +349,32 @@ void main() {
       _wallet = _Wallet()
         ..e1State = TxState.confirmed
         ..e1Sealed = sealed;
-      if (epic1) {
-        await _wallet.epic1Fake.setStoredOn(true);
-        _wallet.epic1Fake.reopen();
-      }
       _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_wallet)], retry: (_, _) => null);
       addTearDown(_container.dispose);
       await tester.runAsync(() async {
         final n = _container.read(deskProvider.notifier);
         await n.refresh();
-        await n.saveSettings(_container.read(deskProvider).settings.copyWith(tourSeen: true));
+        final st = _container.read(deskProvider).settings;
+        await n.saveSettings(st.copyWith(tourSeen: true, payments: st.payments.copyWith(epic1: epic1)));
       });
       _container.read(deskNavProvider.notifier).reset(DeskRoute.activity);
       await tester.pumpWidget(UncontrolledProviderScope(container: _container, child: const DeskApp()));
       await _settle(tester);
     }
 
-    testWidgets('epic1: a sealed payment shows the lock on its row', (tester) async {
+    testWidgets('a sealed payment shows the lock on its row', (tester) async {
       await activity(tester, epic1: true, sealed: true);
       expect(find.byKey(epic1SealedKey), findsWidgets);
     });
 
-    testWidgets('epic1: an unsealed payment shows none', (tester) async {
+    testWidgets('an unsealed payment shows none', (tester) async {
       await activity(tester, epic1: true, sealed: false);
       expect(find.byKey(epic1SealedKey), findsNothing);
     });
 
-    testWidgets('classic: a sealed payment shows none', (tester) async {
+    testWidgets('epic1 off: a sealed payment still shows the lock', (tester) async {
       await activity(tester, epic1: false, sealed: true);
-      expect(find.byKey(epic1SealedKey), findsNothing);
+      expect(find.byKey(epic1SealedKey), findsWidgets);
     });
   });
 }
