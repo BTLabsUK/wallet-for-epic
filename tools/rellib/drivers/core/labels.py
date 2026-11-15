@@ -73,6 +73,9 @@ class Labels:
             lab = cls(src=os.environ.get("REL_CANDIDATE_SRC"), ref=os.environ.get("REL_CANDIDATE_REF"))
             lab.ids_only = ids and not os.environ.get("REL_TRUST_PAIR")
             return lab
+        if os.environ.get("REL_TRUST_MODE") == "flow" and not os.environ.get("REL_PREVIOUS_SRC"):
+            # a flow lane's previous is the candidate's own test build: its strings, never the tag of the version it carries
+            return cls(src=os.environ.get("REL_CANDIDATE_SRC"), ref=os.environ.get("REL_CANDIDATE_REF"))
         v = (os.environ.get("REL_PREVIOUS_VERSION") or "").strip()
         ref = (os.environ.get("REL_PREVIOUS_REF") or "").strip() or (("v" + v.lstrip("v")) if v else None)
         return cls(src=os.environ.get("REL_PREVIOUS_SRC"), ref=ref)
