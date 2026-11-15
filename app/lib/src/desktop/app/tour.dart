@@ -24,7 +24,6 @@ import '../data/desk_store.dart';
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
 import '../data/pairing_state.dart' show deskInvoicesShownProvider;
-import '../../epic1.dart' show PaymentMode;
 
 /// One step: the page it opens, the [TourTarget] ids it lights (their union when several are on
 /// screen; the card sits in the middle when none is), the page's tab and, on a Settings page,
@@ -70,7 +69,7 @@ List<TourStep> tourStepsFor({required bool invoices, bool epic1 = false}) => [
   TourStep(
     route: DeskRoute.send,
     section: DeskSection.overview,
-    targets: [epic1 ? 'e1-send-form' : 'send-methods'],
+    targets: ['send-methods'],
     titleOf: (l) => l.deskTourSendTitle,
     textOf: (l) => epic1 ? l.deskE1TourSendText : l.deskTourSendText,
   ),
@@ -277,7 +276,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
       debugTourSteps ??
       deskTourStepsFor(
         supportsInvoices: ref.read(deskInvoicesShownProvider),
-        epic1: ref.read(deskPaymentModeProvider) == PaymentMode.epic1,
+        epic1: ref.read(deskEpic1OnProvider),
       );
   late int _i = widget.startAt.clamp(0, _steps.length - 1);
   final _next = FocusNode(debugLabel: 'tour next');

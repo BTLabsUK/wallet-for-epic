@@ -61,7 +61,6 @@ class HomeCase {
     this.recipient,
     this.enters = true,
     this.line,
-    this.epic1 = false,
   });
 
   final String id;
@@ -93,8 +92,6 @@ class HomeCase {
   /// The line under the field, when the case names it.
   final String? line;
 
-  /// The row is for epic1 payment mode (Settings: epic1 payments on); the others for classic.
-  final bool epic1;
 }
 
 const homeCases = <HomeCase>[
@@ -163,21 +160,20 @@ const homeCases = <HomeCase>[
   HomeCase('D16', 'address', 'esMASi45ub7Qe4ZE', HomeKind.address, 'Nothing opens · line says the address is incomplete', to: 'esMASi45ub7Qe4ZE', recipient: RecipientInputKind.invalid, enters: false),
   HomeCase('D17', 'address', 'http://192.168.1.', HomeKind.address, 'Nothing opens · line says the address is incomplete', to: 'http://192.168.1.', recipient: RecipientInputKind.invalid, enters: false),
   HomeCase('D18', 'address', 'ftp://files.example.net', HomeKind.address, 'Nothing opens · line says only http, https and epicbox are paid', to: 'ftp://files.example.net', recipient: RecipientInputKind.invalid, enters: false),
-  // An epic1 code with an amount, any order (epic1 mode opens Send's epic1 page with both; classic mode says what Send says)
-  HomeCase('E01', 'epic1', '10000 $hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
-  HomeCase('E02', 'epic1', '$hfEpic1Link 10000', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
-  HomeCase('E03', 'epic1', 'send 5 to $hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 5 · classic mode: nothing opens', to: hfEpic1Link, amount: '5', recipient: RecipientInputKind.text),
+  // An epic1 code with an amount, any order (epic1 on opens Send's epic1 page with both; epic1 off opens Send, which stops with the off line)
+  HomeCase('E01', 'epic1', '10000 $hfEpic1Link', HomeKind.address, 'epic1 on: Send · epic1 page, code and Amount 10000 · epic1 off: Send stops with the off line', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
+  HomeCase('E02', 'epic1', '$hfEpic1Link 10000', HomeKind.address, 'epic1 on: Send · epic1 page, code and Amount 10000 · epic1 off: Send stops with the off line', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
+  HomeCase('E03', 'epic1', 'send 5 to $hfEpic1Link', HomeKind.address, 'epic1 on: Send · epic1 page, code and Amount 5 · epic1 off: Send stops with the off line', to: hfEpic1Link, amount: '5', recipient: RecipientInputKind.text),
   // A chat or web page put https:// before the link: the link itself is read
-  HomeCase('E06', 'epic1', '10000 https://$hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 10000 · classic mode: nothing opens', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
-  HomeCase('E07', 'epic1', 'send 5 to HTTPS://$hfEpic1Link', HomeKind.address, 'epic1 mode: Send · epic1 page, code and Amount 5 · classic mode: nothing opens', to: hfEpic1Link, amount: '5', recipient: RecipientInputKind.text),
-  // A bare epic1 address (with or without an amount) is refused in both modes, as Send refuses it
+  HomeCase('E06', 'epic1', '10000 https://$hfEpic1Link', HomeKind.address, 'epic1 on: Send · epic1 page, code and Amount 10000 · epic1 off: Send stops with the off line', to: hfEpic1Link, amount: '10000', recipient: RecipientInputKind.text),
+  HomeCase('E07', 'epic1', 'send 5 to HTTPS://$hfEpic1Link', HomeKind.address, 'epic1 on: Send · epic1 page, code and Amount 5 · epic1 off: Send stops with the off line', to: hfEpic1Link, amount: '5', recipient: RecipientInputKind.text),
+  // A bare epic1 address (with or without an amount) is refused with epic1 on or off, as Send refuses it
   HomeCase('E04', 'epic1', '10000 $hfEpic1', HomeKind.address, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', to: hfEpic1, amount: '10000', recipient: RecipientInputKind.text, enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),
   HomeCase('E05', 'epic1', '$hfEpic1 10', HomeKind.address, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', to: hfEpic1, amount: '10', recipient: RecipientInputKind.text, enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),
   // Codes
   HomeCase('C01', 'code', hfRequest, HomeKind.code, 'Send · filled from the payment request (To, Amount 3, Message "coffee")'),
   HomeCase('C02', 'code', hfEpic1, HomeKind.code, 'Nothing opens · "An epic1 address alone cannot be paid. Paste the epic1 link."', enters: false, line: 'An epic1 address alone cannot be paid. Paste the epic1 link.'),
   HomeCase('C03', 'code', hfEpic1Link, HomeKind.code, 'Send · the epic1 link goes through Send\'s paste'),
-  HomeCase('C05', 'code', hfRequest, HomeKind.code, 'epic1 mode: nothing opens · "Classic address. Turn off epic1 payments to pay it."', enters: false, epic1: true, line: 'Classic address. Turn off epic1 payments to pay it.'),
   HomeCase('C04', 'code', hfPhrase, HomeKind.none, 'Nothing opens · the phrase is not echoed', enters: false),
   // Nothing
   HomeCase('X01', 'none', 'xyz', HomeKind.none, 'Nothing opens · "No contact or address matches \'xyz\'"', enters: false),

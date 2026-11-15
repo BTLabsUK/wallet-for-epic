@@ -28,7 +28,6 @@ import 'prefs.dart';
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 import '../epic1/epic1_settings.dart';
-import '../../../epic1.dart' show PaymentMode;
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
 import '../../../settings_file/status_site.dart' show statusSiteHost;
@@ -399,6 +398,10 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       rows: [
         // Epicbox stands alone; Link (HTTP, Tor in a Tor build) and Direct get their subhead.
         row(MethodKind.epicbox, anchor: SetId.epicbox),
+        // epic1 is no route of a classic payment: its switch is no MethodKind, does not count for
+        // the last method on and is not offered in Send starts on. Applies at once.
+        Epic1MethodRow(on: p.epic1, onChanged: (v) => _savePayments((x) => x.copyWith(epic1: v))),
+        const Epic1PrintedRow(),
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(MethodFamily.link), row(MethodKind.linkHttp, anchor: SetId.http)]),
         if (DeskFeatures.tor) row(MethodKind.linkTor, anchor: SetId.torPay),
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(MethodFamily.direct), row(MethodKind.directFile, anchor: SetId.file)]),
@@ -512,7 +515,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final httpLine = methodStateLine(l, TxMethod.http, status, s, reachClosed: ref.watch(deskHttpReachClosedProvider));
     final torPay = _torPay(s);
 
-    // Today's Epicbox server picker: under the Epicbox method, or the epic1 group's server.
+    // Today's Epicbox server picker, under the Epicbox method.
     final serverPanel = EpicboxServerPicker(
       status: status,
       openInitially: widget.arg == ReceivingShot.comboOpen,
@@ -577,22 +580,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // epic1 mode: the epic1 group (its server and printed codes) in place of the methods
-          // and the default send method.
-          if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1)
-            Epic1SettingsGroup(
-              server: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [serverPanel, SizedBox(height: Sp.x2), EStateLine(ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state, brand: ebLine.brand) : ebLine)],
-              ),
-              serverHint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
-            )
-          else ...[
-            _methodsGroup(s.payments, s, details, torPay),
-            _sendGroup(s.payments),
-          ],
+          _methodsGroup(s.payments, s, details, torPay),
+          _sendGroup(s.payments),
           const JumpSection(section: SettingsJump.confirmations, child: ReceivingGroup()),
-          const Epic1ExperimentalGroup(),
         ],
       ),
     );
@@ -711,7 +701,7 @@ class ReceivingGroup extends ConsumerWidget {
   }
 }
 
-/// The Epicbox server picker: the Epicbox row's of Transactions and the epic1 group's server.
+/// The Epicbox server picker: the Epicbox row's of Transactions.
 /// [status] is the one shown (the tour lays its states over the real one); null takes
 /// the wallet's. Nothing while the server list or the status loads.
 class EpicboxServerPicker extends ConsumerStatefulWidget {

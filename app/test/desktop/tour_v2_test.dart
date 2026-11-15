@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskInvoicesShownProvider;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -152,7 +153,8 @@ void main() {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
-    final steps = deskTourSteps;
+    // epic1 is on by default, so the tour says so on Send and Receive.
+    final steps = deskTourStepsFor(supportsInvoices: container.read(deskInvoicesShownProvider), epic1: true);
     for (final (i, step) in steps.indexed) {
       expect(container.read(deskNavProvider).route, step.route, reason: 'step ${i + 1}');
       expect(_inCard('${i + 1} of ${steps.length}'), findsOneWidget);
@@ -171,11 +173,11 @@ void main() {
     expect(container.read(deskNavProvider).route, DeskRoute.overview, reason: 'Done leaves the person on Overview');
   });
 
-  test('epic1 mode: Send and Receive light the link pages and say so, at Shallow too', () {
+  test('epic1 on: Send and Receive light the link pages and say so, at Shallow too', () {
     final steps = deskTourStepsFor(supportsInvoices: false, epic1: true);
     final send = steps.firstWhere((s) => s.route == DeskRoute.send);
     final receive = steps.firstWhere((s) => s.route == DeskRoute.receive);
-    expect(send.targets, ['e1-send-form']);
+    expect(send.targets, ['send-methods']);
     expect(send.text, englishStrings.deskE1TourSendText);
     expect(receive.targets, ['e1-receive-link']);
     expect(receive.text, englishStrings.deskE1TourReceiveText);

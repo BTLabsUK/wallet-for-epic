@@ -6,7 +6,6 @@ import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../devices/device_ending.dart' show deviceEndingLabel;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
-import '../../../epic1.dart' show PaymentMode;
 import '../../../models.dart' show DeviceEnding, Epic1Via;
 import '../../../ui/via.dart';
 import '../../../ui/epic1/epic1_sealed.dart' show Epic1SealedBadge;
@@ -519,8 +518,8 @@ class TxStateWord extends StatelessWidget {
 
 /// One transaction row. [compact] (Overview) puts the state under the name and the time
 /// under the amount; the full row (Activity) has state, time and amount columns.
-/// Whether the desktop shows [t] as sealed ([Tx.sealed]): only in epic1 mode.
-bool deskShowsSealed(WidgetRef ref, Tx t) => t.sealed && ref.watch(deskPaymentModeProvider) == PaymentMode.epic1;
+/// Whether the desktop shows [t] as sealed ([Tx.sealed]): whenever it is.
+bool deskShowsSealed(WidgetRef ref, Tx t) => t.sealed;
 
 class TxRow extends ConsumerStatefulWidget {
   const TxRow({super.key, required this.tx, required this.onTap, this.compact = false, this.selected = false, this.onFinalize, this.title, this.labelEditable = false});

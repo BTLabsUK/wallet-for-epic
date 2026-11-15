@@ -70,9 +70,9 @@ import '../wallet/tx_display.dart' show statusOf, viaOf;
 import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
-import '../../../epic1.dart' show PaymentMode, looksLikeEpic1Link, looksLikeEpictx;
-import '../../../recipient.dart' show epic1AddressOnly;
-import '../epic1/epic1_files.dart' show jumpToEpic1Switch, showEpic1ModeDialog;
+import '../../../epic1.dart' show looksLikeEpic1Link, looksLikeEpictx;
+import '../../../recipient.dart' show epic1Shaped, epic1Unwrap;
+import '../epic1/epic1_files.dart' show showEpic1OffStop;
 import '../epic1/send_link.dart' show Epic1SendPage;
 import 'send_summary_rows.dart';
 import '../../../ui/theme/protocol.dart' show CornerTicksPainter;
@@ -271,9 +271,9 @@ final _sendKeeperProvider = Provider<_SendKeeper>((ref) {
   return _SendKeeper();
 });
 
-/// Send: in epic1 mode the epic1 page, unless a contact was picked (the paired send goes
-/// native by itself; a contact with only an epic1 link pays that on the epic1 page);
-/// otherwise today's form.
+/// Send: the classic form is the start. An epic1 link (a desktop link, [SendArgs.code], a link
+/// typed in To) opens the epic1 page while epic1 is on; a contact with only an epic1 link pays
+/// that link there. The paired send goes native by itself.
 class SendScreen extends ConsumerWidget {
   const SendScreen({super.key, this.arg});
 
@@ -282,11 +282,13 @@ class SendScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final a = arg;
-    final contact = a is Contact || (a is SendArgs && (a.contact != null || a.pairingTo != null));
-    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) {
-      if (!contact) return Epic1SendPage(code: a is SendArgs ? a.code ?? a.recipient : null, amount: a is SendArgs ? a.amount : null);
-      final picked = a is Contact ? a : (a as SendArgs).contact;
-      if (picked != null) {
+    if (ref.watch(deskEpic1OnProvider)) {
+      final text = a is SendArgs ? a.code ?? a.recipient : null;
+      if (text != null && epic1Shaped(text)) {
+        return Epic1SendPage(key: ValueKey(text), code: epic1Unwrap(text.trim()), amount: a is SendArgs ? a.amount : null);
+      }
+      final picked = a is Contact ? a : (a is SendArgs ? a.contact : null);
+      if (picked != null && !(a is SendArgs && a.pairingTo != null)) {
         if (contactEpic1Link(ref, picked) case final link?) return Epic1SendPage(key: ValueKey(link), code: link, amount: a is SendArgs ? a.amount : null);
       }
     }
@@ -1143,15 +1145,21 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     });
     void dialog(IconData icon, String title, String body, String shown) =>
         showCodeDialog(context, icon: icon, title: title, text: body, code: shown);
-    // epic1 payments are off: their links and files say how to turn them on.
-    // An epic1 address alone is paid in neither mode.
+    // An epic1 link goes to the epic1 page while epic1 is on; off, it stops with the off line.
+    // A link only arrives here pasted or typed in To: the page reads it, and brings the form
+    // back for anything it cannot pay.
     if (looksLikeEpic1Link(text)) {
-      fieldError((l) => epic1AddressOnly(text) ? l.epic1AddressAlone : l.deskE1ModeEpic1Link);
+      setState(() => _to.text = _lastTo);
+      if (ref.read(deskEpic1OnProvider)) {
+        ref.read(deskNavProvider.notifier).go(DeskRoute.send, SendArgs(code: epic1Unwrap(text.trim()), amount: _amount.text.trim().isEmpty ? null : _amount.text.trim()));
+      } else {
+        unawaited(showEpic1OffStop(context, ref));
+      }
       return true;
     }
     if (looksLikeEpictx(text)) {
       setState(() => _to.text = _lastTo);
-      unawaited(showEpic1ModeDialog(context, ref, l.deskE1ModeEpic1File));
+      unawaited(showEpic1OffStop(context, ref));
       return true;
     }
     switch (code) {
@@ -2427,19 +2435,6 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
             _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => _bestAddress(x, st), pairingOf: (x) => contactPairingOnly(ref, x)),
           ],
           ..._underTo(st, picked),
-          if (_codeError != null && looksLikeEpic1Link(_to.text) && !epic1AddressOnly(_to.text)) ...[
-            SizedBox(height: Sp.x2),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: EButton.ghost(
-                key: const ValueKey('e1-classic-settings'),
-                label: l.deskRecvSettings,
-                icon: EIcons.settings,
-                size: EBtnSize.inline,
-                onPressed: () => jumpToEpic1Switch(ref),
-              ),
-            ),
-          ],
           // A payment request's banner: it keeps the last code's words while it closes.
           ExpandFade(
             open: code != null && code.problems.isNotEmpty && _codeBanner,

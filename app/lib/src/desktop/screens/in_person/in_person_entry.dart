@@ -20,7 +20,9 @@ import '../../widgets/kit.dart';
 import '../scan/desk_scan.dart';
 import 'in_person_reader.dart';
 import 'in_person_dialogs.dart';
-import '../epic1/epic1_files.dart' show showEpic1ModeDialogIn;
+import '../epic1/epic1_files.dart' show jumpToEpic1SwitchIn, showEpic1OffStopIn;
+import '../transfer/finalize_screen.dart' show FinalizeArgs;
+import '../transfer/import_tx_screen.dart' show ImportArgs;
 
 /// Receive › "Request in person": amount and message, then the code and the check.
 Future<void> openDeskRequestInPerson(BuildContext context) => showEDialog<void>(
@@ -36,6 +38,15 @@ Future<void> openDeskPayInPerson(BuildContext context) => showEDialog<void>(
   builder: (_) => const DeskInPersonCodeDialog(stage: InPersonStage.send),
 );
 
+/// A whole in-person code's [bytes] read by a classic scan: its review, or the answer's check.
+Future<void> openDeskInPersonBytes(BuildContext context, Uint8List bytes) async {
+  final container = ProviderScope.containerOf(context, listen: false);
+  final api = container.read(deskApiProvider);
+  final wallet = api.epic1;
+  if (wallet == null) return;
+  await _openBytes(context, api, wallet, bytes, true);
+}
+
 /// Pasted or opened [text] that may be an in-person code or answer. Handles it and returns
 /// true, or returns false when it is neither.
 Future<bool> openDeskInPersonText(BuildContext context, String text) async {
@@ -43,9 +54,16 @@ Future<bool> openDeskInPersonText(BuildContext context, String text) async {
   final api = container.read(deskApiProvider);
   final wallet = api.epic1;
   if (wallet == null) return false;
-  switch (readInPersonText(wallet, text)) {
-    case null:
-      return false;
+  final read = readInPersonText(wallet, text);
+  if (read == null) return false;
+  // epic1 is off: a whole in-person code or answer stops with the off line. One part of an
+  // animated code may be a classic payment's: the classic scan takes it.
+  if (!container.read(deskEpic1OnProvider)) {
+    if (read is InPersonPart) return false;
+    await showEpic1OffStopIn(context, () => jumpToEpic1SwitchIn(container));
+    return true;
+  }
+  switch (read) {
     case InPersonArmored(:final bytes):
       return _openAnswer(context, wallet, bytes);
     case InPersonBytes(:final bytes, :final fromQr):
@@ -57,9 +75,14 @@ Future<bool> openDeskInPersonText(BuildContext context, String text) async {
       final reader = DeskInPersonReader(wallet, first: part, classic: api.decodeQrSlate);
       final got = await deskScanParts(context, title: context.l10n.scanQrTitle, hint: context.l10n.deskIpScanAim, reader: reader);
       if (got is! DeskScanned<InPersonScanned> || !context.mounted) return got is DeskScanned;
-      // A classic payment's code in epic1 mode: the mode dialog, as for a pasted one.
-      if (got.value.classic) {
-        await showEpic1ModeDialogIn(context, context.l10n.deskE1ModeClassicCode);
+      // A classic payment's animated code: Finalize for an answer, else Import transaction.
+      if (got.value case DeskClassicScanned(:final json)) {
+        final nav = container.read(deskNavProvider.notifier);
+        if (await api.isResponseText(json)) {
+          nav.go(DeskRoute.finalize, FinalizeArgs(text: json));
+        } else {
+          nav.go(DeskRoute.importTx, ImportArgs(text: json));
+        }
         return true;
       }
       final bytes = got.value.bytes;

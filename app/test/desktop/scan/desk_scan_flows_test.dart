@@ -49,7 +49,7 @@ final _codePart = 'ur:epic1/${base64Url.encode(_codeBytes)}';
 
 /// A fake whose animated code needs two parts.
 class _TwoParts extends FakeEpic1 {
-  _TwoParts({super.on});
+  _TwoParts();
 
   @override
   InPersonQrProgress qrRead(List<String> parts) {
@@ -80,7 +80,7 @@ Future<void> _settle(WidgetTester tester, {int n = 8}) async {
   }
 }
 
-Future<void> _show(WidgetTester tester, Widget screen, {MockDeskWallet? api, CameraPresence presence = CameraPresence.present}) async {
+Future<void> _show(WidgetTester tester, Widget screen, {MockDeskWallet? api, CameraPresence presence = CameraPresence.present, bool epic1 = true}) async {
   tester.view.physicalSize = const Size(1280, 1000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -101,7 +101,14 @@ Future<void> _show(WidgetTester tester, Widget screen, {MockDeskWallet? api, Cam
     cameraProbeProvider.overrideWithValue(FakeCameraProbe(presence)),
   ]);
   addTearDown(_c.dispose);
-  await tester.runAsync(() => _c.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() async {
+    final n = _c.read(deskProvider.notifier);
+    await n.refresh();
+    if (!epic1) {
+      final st = _c.read(deskProvider).settings;
+      await n.saveSettings(st.copyWith(payments: st.payments.copyWith(epic1: false)));
+    }
+  });
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: _c,
@@ -169,7 +176,7 @@ void main() {
 
   group('in person', () {
     Future<_TwoParts> waiting(WidgetTester tester) async {
-      final fake = _TwoParts(on: true)..inPersonNoMailbox = true;
+      final fake = _TwoParts()..inPersonNoMailbox = true;
       await _show(tester, Builder(builder: (c) => TextButton(onPressed: () => openDeskPayInPerson(c), child: const Text('pay'))), api: _Mock(fake));
       await tester.tap(find.text('pay'));
       await _settle(tester);
@@ -202,17 +209,17 @@ void main() {
     });
 
     test('the reader keeps parts, ignores a repeat and finishes on the last', () {
-      final r = DeskInPersonReader(_TwoParts(on: true));
+      final r = DeskInPersonReader(_TwoParts());
       expect(r.read(_codePart), isA<DeskPartWaiting<InPersonScanned>>());
       expect(r.read(_codePart), isA<DeskPartWaiting<InPersonScanned>>());
       final done = r.read('ur:epic1/second');
       expect(done, isA<DeskPartDone<InPersonScanned>>());
       expect((done as DeskPartDone<InPersonScanned>).value.bytes, _codeBytes);
-      expect((DeskInPersonReader(_TwoParts(on: true)).read('BEGINEPICTX. a. ENDEPICTX.') as DeskPartDone<InPersonScanned>).value.text, 'BEGINEPICTX. a. ENDEPICTX.');
+      expect((DeskInPersonReader(_TwoParts()).read('BEGINEPICTX. a. ENDEPICTX.') as DeskPartDone<InPersonScanned>).value.text, 'BEGINEPICTX. a. ENDEPICTX.');
     });
 
     Future<Future<bool>> partOpened(WidgetTester tester, CameraPresence presence) async {
-      await _show(tester, Builder(builder: (c) => TextButton(onPressed: () {}, child: const Text('page'))), api: _Mock(_TwoParts(on: true)), presence: presence);
+      await _show(tester, Builder(builder: (c) => TextButton(onPressed: () {}, child: const Text('page'))), api: _Mock(_TwoParts()), presence: presence);
       final ctx = tester.element(find.text('page'));
       return openDeskInPersonText(ctx, _codePart);
     }
@@ -237,7 +244,7 @@ void main() {
     });
 
     testWidgets('a whole code the camera read for another network: a dialog says so', (tester) async {
-      final fake = _TwoParts(on: true)..failNext = const WalletError(kind: WalletErrorKind.epic1WrongNetwork, message: 'floonet');
+      final fake = _TwoParts()..failNext = const WalletError(kind: WalletErrorKind.epic1WrongNetwork, message: 'floonet');
       await _show(tester, Builder(builder: (c) => TextButton(onPressed: () {}, child: const Text('page'))), api: _Mock(fake), presence: CameraPresence.present);
       unawaited(openDeskInPersonText(tester.element(find.text('page')), _codePart));
       await _settle(tester, n: 6);
@@ -254,7 +261,7 @@ void main() {
   });
 
   testWidgets('epic1 link send: the To field takes a scanned text and reads it', (tester) async {
-    final fake = FakeEpic1(on: true);
+    final fake = FakeEpic1();
     await _show(tester, const Epic1SendPage(), api: _Mock(fake));
     await _scanWith(tester, find.byKey(const ValueKey('e1-scan')), _e);
     expect(find.byKey(const ValueKey('e1-clear')), findsOneWidget, reason: 'To is filled, so Scan gives way to Clear');
@@ -300,14 +307,14 @@ void main() {
       expect(nav().route, isNot(DeskRoute.send));
     });
 
-    testWidgets('an in-person code in epic1 mode opens its dialog', (tester) async {
-      await _show(tester, _home(), api: _Mock(FakeEpic1(on: true)));
+    testWidgets('an in-person code with epic1 on opens its dialog', (tester) async {
+      await _show(tester, _home(), api: _Mock(FakeEpic1()));
       await _scanWith(tester, find.text('scan'), _codePart);
       expect(find.text(_l.deskIpReceiveTitle), findsOneWidget);
     });
 
-    testWidgets('an in-person code in classic mode gets the mode refusal, not "not an Epic code"', (tester) async {
-      await _show(tester, _home(), api: _Mock(FakeEpic1()));
+    testWidgets('an in-person code with epic1 off gets the off stop, not "not an Epic code"', (tester) async {
+      await _show(tester, _home(), api: _Mock(FakeEpic1()), epic1: false);
       await _scanWith(tester, find.text('scan'), _codePart);
       await _settle(tester);
       expect(find.byKey(const ValueKey('e1-mode-dialog')), findsOneWidget);

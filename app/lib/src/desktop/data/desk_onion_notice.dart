@@ -3,7 +3,6 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../epic1.dart' show PaymentMode;
 import '../../log.dart';
 import '../../onion_notice.dart' show markOnionNoticeSeen, onionNoticeDue;
 import '../../providers.dart' show secretStoreProvider;
@@ -20,8 +19,6 @@ class DeskOnionNotice extends AsyncNotifier<bool> {
   Future<bool> build() async {
     final account = ref.watch(deskProvider.select((s) => s.account));
     if (account == null) return false;
-    // epic1 mode takes no Tor address payments: the notice waits for the classic mode.
-    if (ref.watch(deskPaymentModeProvider) == PaymentMode.epic1) return false;
     return onionNoticeDue(ref.read(secretStoreProvider), chain: account.network, walletId: _walletIdOf(account.id));
   }
 

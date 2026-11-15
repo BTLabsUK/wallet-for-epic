@@ -957,7 +957,7 @@ double get setRowMinWords => 240.u;
 /// or a large interface scale); [stacked] always puts the control under the text (wide
 /// controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.hintHelp, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge, this.anchor, this.advancedBy});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.hintHelp, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.leadingWidget, this.badge, this.anchor, this.advancedBy});
 
   /// The row's id in the settings registry (`settings_registry.dart`): search jumps here.
   final String? anchor;
@@ -995,6 +995,9 @@ class ESetRow extends StatelessWidget {
 
   /// A glyph before the words (a payment method's icon), 18 u, in the dim colour.
   final IconData? leading;
+
+  /// [leading] for a glyph that is no [IconData] (the epic1 blocks): the same 18 u slot.
+  final Widget? leadingWidget;
 
   /// A badge before [text] (a trust state, as the contact shows it).
   final Widget? badge;
@@ -1039,12 +1042,12 @@ class ESetRow extends StatelessWidget {
         ],
       ],
     );
-    final words = leading == null
+    final words = leading == null && leadingWidget == null
         ? text
         : Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(padding: EdgeInsets.only(top: 1.u), child: Icon(leading, size: 18.u, color: c.dim)),
+              Padding(padding: EdgeInsets.only(top: 1.u), child: leadingWidget ?? Icon(leading, size: 18.u, color: c.dim)),
               SizedBox(width: Sp.x3),
               Expanded(child: text),
             ],

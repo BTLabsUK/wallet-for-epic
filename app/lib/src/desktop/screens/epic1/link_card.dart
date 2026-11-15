@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Receive in epic1 mode (spec D2): the epic1 link card and "Other ways to receive" (In person).
-/// The desktop has no share action: Copy link is the one way out, beside the QR code.
+/// Receive with epic1 on (spec D2): the epic1 panel, first of "Other ways", closed until Make
+/// link is pressed; then the link card and In person. The desktop has no share action: Copy
+/// link is the one way out, beside the QR code.
 library;
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../../models.dart' show WalletError, WalletErrorKind;
 import '../../../net/local_address.dart' show isLoopbackIp;
 import '../../../trust_ids.dart';
+import '../../../ui/theme/epic1_mark.dart' show Epic1Glyph;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -25,6 +27,73 @@ bool _onLan(String relay) {
   final host = relay.split(':').first;
   if (host == 'localhost' || isLoopbackIp(host)) return false;
   return isPrivateHost(host);
+}
+
+/// The epic1 panel of Receive's "Other ways": the title, a line and Make link. No link is made
+/// before Make link is pressed; then the panel shows [Epic1LinkCard] and [Epic1OtherWays].
+class Epic1ReceivePanel extends StatefulWidget {
+  const Epic1ReceivePanel({super.key, required this.relay, this.open = false, this.showQr = false});
+
+  /// The wallet's Epicbox server, `host[:port]`; null while it is not known yet.
+  final String? relay;
+
+  /// Starts with the link made (the tour's and the shots').
+  final bool open;
+
+  /// The tour's uncovered QR code; the app never sets it.
+  final bool showQr;
+
+  @override
+  State<Epic1ReceivePanel> createState() => _Epic1ReceivePanelState();
+}
+
+class _Epic1ReceivePanelState extends State<Epic1ReceivePanel> {
+  late bool _open = widget.open;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    if (_open) {
+      return Column(
+        key: const ValueKey('e1-receive-open'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Epic1LinkCard(relay: widget.relay, showQr: widget.showQr),
+          SizedBox(height: Sp.x3),
+          const Epic1OtherWays(head: false),
+        ],
+      );
+    }
+    return EPanel(
+      key: const ValueKey('e1-receive-panel'),
+      padding: EdgeInsets.all(Sp.panel),
+      child: Row(
+        children: [
+          Epic1Glyph(size: 20.u, columns: 5, color: c.dim),
+          SizedBox(width: Sp.x2p5),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(header: true, child: Text(l.deskE1LinkTitle, style: ts.h3)),
+                SizedBox(height: Sp.x1),
+                Text(l.deskE1LinkSub, style: ts.small),
+              ],
+            ),
+          ),
+          SizedBox(width: Sp.x3),
+          EButton(
+            key: const ValueKey('e1-open-link'),
+            label: l.deskE1MakeLink,
+            size: EBtnSize.sm,
+            onPressed: () => setState(() => _open = true),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// The epic1 link card: the link on [relay] (the wallet's Epicbox server, `host[:port]`) with
@@ -347,9 +416,12 @@ class _AskAmountDialogState extends State<_AskAmountDialog> {
   }
 }
 
-/// "Other ways to receive" in epic1 mode: In person only.
+/// In person, for the epic1 panel of Receive. [head] adds the "Other ways to receive" heading
+/// (off in the panel: Receive's own column has one).
 class Epic1OtherWays extends StatelessWidget {
-  const Epic1OtherWays({super.key});
+  const Epic1OtherWays({super.key, this.head = true});
+
+  final bool head;
 
   @override
   Widget build(BuildContext context) {
@@ -361,7 +433,7 @@ class Epic1OtherWays extends StatelessWidget {
       key: const ValueKey('e1-other-ways'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ESectionHead(l.deskE1OtherWays, top: 0),
+        if (head) ESectionHead(l.deskE1OtherWays, top: 0),
         EPanel(
           padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3p5),
           child: Row(

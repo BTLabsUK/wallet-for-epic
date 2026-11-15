@@ -17,19 +17,23 @@ const _e1Addr = 'epic1qw508d6qejxtdg4y5r3zarvary0c5xw7kxw5r4tm8q9';
 const _e1Link = 'epic:epic1qw508d6qejxtdg4y5r3zarvary0c5xw7kxw5r4tm8q9?server=https://pay.example.net';
 const _classicRequest = 'epic:esMASi45ub7Qe4ZE36UT5G6cU4ud8Fhhe4deS4F3cw9KTAb8dLcu@epicbox.example.org?amount=3&message=coffee';
 
-Future<ProviderContainer> _open(WidgetTester tester, {bool epic1 = false, Contact? extra}) async {
+/// Home with epic1 on, as it is by default, or switched off in the payment settings.
+Future<ProviderContainer> _open(WidgetTester tester, {bool epic1 = true, Contact? extra}) async {
   tester.view.physicalSize = const Size(1280, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final wallet = MockDeskWallet(delay: Duration.zero);
   if (extra != null) await wallet.saveContact(extra);
-  if (epic1) {
-    await wallet.epic1Fake.setStoredOn(true);
-    wallet.epic1Fake.reopen();
-  }
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)], retry: (_, _) => null);
   addTearDown(container.dispose);
-  await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.runAsync(() async {
+    final n = container.read(deskProvider.notifier);
+    await n.refresh();
+    if (!epic1) {
+      final st = container.read(deskProvider).settings;
+      await n.saveSettings(st.copyWith(payments: st.payments.copyWith(epic1: false)));
+    }
+  });
   container.read(deskNavProvider.notifier).reset(DeskRoute.overview);
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
   for (var i = 0; i < 10; i++) {
@@ -182,18 +186,20 @@ void main() {
     });
   });
 
-  group('epic1 codes in classic mode', () {
-    testWidgets('an amount and an epic1 code: the line says to turn epic1 on, Enter does nothing', (tester) async {
-      final container = await _open(tester);
+  group('epic1 off', () {
+    testWidgets('an amount and an epic1 code: the line says epic1 is off; Enter opens Send, which stops', (tester) async {
+      final container = await _open(tester, epic1: false);
       await _type(tester, '10 $_e1Link');
-      expect(_line(tester), contains(_l.deskE1ModeEpic1Link));
+      expect(_line(tester), contains(_l.netBlockMethodOff(_l.deskE1SetSwitch)));
       await _enter(tester);
-      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      final nav = container.read(deskNavProvider);
+      expect(nav.route, DeskRoute.send);
+      expect((nav.arg as SendArgs).code, _e1Link);
       await _end(tester);
     });
 
     testWidgets('a classic payment request code opens Send with the code', (tester) async {
-      final container = await _open(tester);
+      final container = await _open(tester, epic1: false);
       await _type(tester, _classicRequest);
       expect(_line(tester), contains(_l.deskHomeOpenCode));
       await _enter(tester);
@@ -202,9 +208,16 @@ void main() {
       expect((nav.arg as SendArgs).code, _classicRequest);
       await _end(tester);
     });
+
+    testWidgets('a contact with only an epic1 link has no epic1 line', (tester) async {
+      await _open(tester, epic1: false, extra: Contact(id: '', name: 'Epic One', epic1: _e1Link));
+      await _type(tester, '4 epic one');
+      expect(_line(tester), isNot(contains(_l.deskE1LinkTitle)));
+      await _end(tester);
+    });
   });
 
-  group('epic1', () {
+  group('epic1 on beside the classic methods', () {
     const link = 'epic:epic1qw508d6qejxtdg4y5r3zarvary0c5xw7kxw5r4tm8q9?server=https://pay.example.net';
     Future<ProviderContainer> openWithE1Contact(WidgetTester tester) => _open(tester, epic1: true, extra: Contact(id: '', name: 'Epic One', epic1: link));
 
@@ -230,21 +243,29 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('a contact with no epic1 link is classic only: the line says so, Enter does nothing', (tester) async {
-      final container = await _open(tester, epic1: true);
+    testWidgets('a contact with a classic address is paid through it, epic1 on', (tester) async {
+      final container = await _open(tester);
       await _type(tester, '4 anna');
-      expect(_line(tester), contains(_l.deskE1ClassicTip));
+      expect(_line(tester), isNot(contains(_l.deskE1LinkTitle)));
       await _enter(tester);
-      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      final a = container.read(deskNavProvider).arg as SendArgs;
+      expect(container.read(deskNavProvider).route, DeskRoute.send);
+      expect(a.contact?.name, startsWith('Anna'));
       await _end(tester);
     });
 
-    testWidgets('a classic address is not paid in epic1 mode: the line says so, Enter does nothing', (tester) async {
-      final container = await _open(tester, epic1: true);
+    testWidgets('a classic address and an epic1 link are both taken in one session', (tester) async {
+      final container = await _open(tester);
       await _type(tester, '3 esMASi45ub7Qe4ZE36UT5G6cU4ud8Fhhe4deS4F3cw9KTAb8dLcu@epicbox.example.org');
-      expect(_line(tester), contains(_l.deskE1ModeClassicAddress));
+      expect(_line(tester), isNot(contains(_l.netBlockMethodOff(_l.deskE1SetSwitch))));
       await _enter(tester);
-      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      expect(container.read(deskNavProvider).route, DeskRoute.send);
+      container.read(deskNavProvider.notifier).reset(DeskRoute.overview);
+      await tester.pump(const Duration(milliseconds: 100));
+      await _type(tester, '10 $_e1Link');
+      await _enter(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.send);
+      expect((container.read(deskNavProvider).arg as SendArgs).recipient, _e1Link);
       await _end(tester);
     });
 
@@ -275,21 +296,12 @@ void main() {
       });
     }
 
-    testWidgets('a classic payment request code is not paid in epic1 mode: the line says so, Enter does nothing', (tester) async {
-      final container = await _open(tester, epic1: true);
-      await _type(tester, _classicRequest);
-      expect(_line(tester), contains(_l.deskE1ModeClassicAddress));
-      await _enter(tester);
-      expect(container.read(deskNavProvider).route, DeskRoute.overview);
-      await _end(tester);
-    });
-
-    testWidgets('the same contact and address still go through in classic mode', (tester) async {
+    testWidgets('a classic payment request code opens Send with the code, epic1 on', (tester) async {
       final container = await _open(tester);
-      await _type(tester, '4 anna');
-      expect(_line(tester), isNot(contains(_l.deskE1ClassicTip)));
+      await _type(tester, _classicRequest);
+      expect(_line(tester), contains(_l.deskHomeOpenCode));
       await _enter(tester);
-      expect(container.read(deskNavProvider).route, DeskRoute.send);
+      expect((container.read(deskNavProvider).arg as SendArgs).code, _classicRequest);
       await _end(tester);
     });
   });

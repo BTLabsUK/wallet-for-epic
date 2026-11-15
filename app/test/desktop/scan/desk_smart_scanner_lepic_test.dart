@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // The desktop's scan readers on the real LEPIC codec: an epic1 in-person code and a classic
 // payment share the `ur:epic-slate` code type and tell themselves apart only once whole. The
-// payment reader of classic mode refuses a whole in-person code with the mode line; the
-// in-person reader of epic1 mode ends on a whole classic payment as `classic`.
+// payment reader ends on a whole in-person code with its bytes (the caller opens it, or stops
+// with epic1 off); the in-person reader ends on a whole classic payment as `classic`.
 //
 //   WFE_LEPIC_LIB=<path to liblepic_ffi.so> flutter test test/desktop/scan/desk_smart_scanner_lepic_test.dart
 //
@@ -60,20 +60,20 @@ void main() {
     service = LepicWalletService(secrets: MemorySecretStore());
   });
 
-  test('classic mode: a whole in-person code is refused with the epic1 mode line', () async {
+  test('a whole in-person code ends the payment scan with its bytes', () async {
     final reader = DeskSlateQrReader(_Api(service), notSlate: (l) => l.deskQrNotTx, epic1: _LepicQr());
     final steps = [for (final p in _inPersonParts(321)) await reader.read(p)];
     expect(steps.take(3), everyElement(isA<DeskPartWaiting<String>>()));
-    final last = steps.last;
-    expect(last, isA<DeskPartRefused<String>>());
-    expect((last as DeskPartRefused<String>).message(englishStrings), englishStrings.deskE1ModeEpic1Code);
+    expect(steps.last, isA<DeskPartDone<String>>());
+    expect(reader.inPerson, isNotNull);
     // Without the epic1 calls it is "not a transaction code", what the desktop said before.
     final before = DeskSlateQrReader(_Api(service), notSlate: (l) => l.deskQrNotTx);
     final old = [for (final p in _inPersonParts(321)) await before.read(p)].last;
     expect((old as DeskPartRefused<String>).message(englishStrings), englishStrings.deskQrNotTx);
+    expect(before.inPerson, isNull);
   }, skip: _skip);
 
-  test('epic1 mode: a whole classic payment ends the in-person scan as classic', () async {
+  test('a whole classic payment ends the in-person scan as classic', () async {
     final json = File('test/fixtures/qr_slates/s1.json').readAsStringSync();
     final parts = await lepic.encodeUrSlate(json: json, maxFragmentLen: qrFragmentLen, singleCodeMaxLen: qrSingleCodeMaxLen);
     final reader = DeskInPersonReader(_LepicQr(), classic: _Api(service).decodeQrSlate);

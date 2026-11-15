@@ -133,6 +133,10 @@ class _Wallet with NoBoosts implements lepic.EpicWallet {
   Future<lepic.OutboxReport> contactsOutboxDeliver({required lepic.ContactRelayMode relayMode}) async =>
       const lepic.OutboxReport(delivered: 0, failed: 0, stuck: 0);
 
+  // epic1 is on by default, so the collect looks for answers to post: there are none.
+  @override
+  Future<List<lepic.Epic1AnswerView>> epic1Answers({required lepic.ContactRelayMode relayMode}) async => const [];
+
   @override
   Future<bool> restoreScanRequired() async => false;
   @override

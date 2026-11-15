@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Files and pasted texts across the two payment modes (spec D1, Files): the mode line with
-/// [Settings] [Close] for what this mode cannot open, and the way a `.epictx` opens in epic1
-/// mode.
+/// What epic1 does with files and pasted texts: the stop for an epic1 thing while the
+/// payment settings have epic1 off (with [Settings] to the switch), and the way a `.epictx`
+/// opens when it is on.
 library;
 
 import 'package:flutter/material.dart';
@@ -16,21 +16,24 @@ import '../settings/setting_ids.dart';
 import '../transfer/finalize_screen.dart' show FinalizeArgs;
 import '../transfer/import_tx_screen.dart' show ImportArgs;
 
-/// Opens Settings › Transactions with the epic1 payments switch in view.
+/// Opens Settings › Payments with the epic1 switch in view.
 void jumpToEpic1Switch(WidgetRef ref) => ref.read(settingsPrefsProvider.notifier).jumpToRow(SetId.epic1Payments);
 
-/// [text], a mode line ("epic1 file. Turn on epic1 payments to open it."), with [Settings]
-/// (the switch) and [Close].
-Future<void> showEpic1ModeDialog(BuildContext context, WidgetRef ref, String text) =>
-    showEpic1ModeDialogIn(context, text, () => jumpToEpic1Switch(ref));
+/// [jumpToEpic1Switch] where only a container is at hand.
+void jumpToEpic1SwitchIn(ProviderContainer c) => c.read(settingsPrefsProvider.notifier).jumpToRow(SetId.epic1Payments);
 
-/// [showEpic1ModeDialog] where no [WidgetRef] is at hand: [jump] opens the switch.
-Future<void> showEpic1ModeDialogIn(BuildContext context, String text, [void Function()? jump]) async {
+/// The stop for an epic1 link, in-person code or file while epic1 is off: "epic1 is off in
+/// the payment settings." with [Settings] (the switch) and [Close].
+Future<void> showEpic1OffStop(BuildContext context, WidgetRef ref) =>
+    showEpic1OffStopIn(context, () => jumpToEpic1Switch(ref));
+
+/// [showEpic1OffStop] where no [WidgetRef] is at hand: [jump] opens the switch.
+Future<void> showEpic1OffStopIn(BuildContext context, [void Function()? jump]) async {
   final settings = await showEDialog<bool>(
     context,
     builder: (ctx) => EDialog(
       key: const ValueKey('e1-mode-dialog'),
-      title: text,
+      title: ctx.l10n.netBlockMethodOff(ctx.l10n.deskE1SetSwitch),
       icon: EIcons.file,
       actions: [
         EButton(key: const ValueKey('e1-mode-settings'), label: ctx.l10n.deskRecvSettings, icon: EIcons.settings, onPressed: () => Navigator.pop(ctx, true)),
@@ -46,23 +49,29 @@ Future<void> showEpic1ModeDialogIn(BuildContext context, String text, [void Func
   }
 }
 
-/// epic1 mode: a `.epictx` file's text or pasted `BEGINEPICTX.` text. An in-person code or
-/// answer goes to its flow; any other payment to Import transaction or Finalize.
-Future<void> openDeskEpictx(BuildContext context, WidgetRef ref, String text) async {
+/// A `.epictx` file's text or pasted `BEGINEPICTX.` text. An in-person code or
+/// answer goes to its flow; any other payment to Import transaction or Finalize. With epic1
+/// off it stops with the off line. True when the text was opened.
+Future<bool> openDeskEpictx(BuildContext context, WidgetRef ref, String text) async {
   final api = ref.read(deskApiProvider);
   final e1 = api.epic1;
-  if (e1 == null) return;
+  if (e1 == null || !ref.read(deskEpic1OnProvider)) {
+    await showEpic1OffStop(context, ref);
+    return false;
+  }
   final nav = ref.read(deskNavProvider.notifier);
   try {
     final opened = await e1.openEpictx(text);
-    if (!context.mounted) return;
-    if (await openDeskInPersonText(context, text)) return;
+    if (!context.mounted) return false;
+    if (await openDeskInPersonText(context, text)) return true;
     if (await api.isResponseText(opened.slateJson)) {
       nav.go(DeskRoute.finalize, FinalizeArgs(text: opened.slateJson));
     } else {
       nav.go(DeskRoute.importTx, ImportArgs(text: opened.slateJson));
     }
+    return true;
   } on Object catch (e) {
     if (context.mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
+    return false;
   }
 }

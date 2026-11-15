@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/recipient.dart' show RecipientKind;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/models.dart' show WalletError, WalletErrorKind;
 import 'package:epic_wallet/src/tor_build.dart';
+import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -125,14 +126,12 @@ void main() {
     });
   });
 
-  group('Send in epic1 mode', () {
+  group('Send with epic1 on', () {
     Future<_Wallet> open(WidgetTester tester, Object arg) async {
       tester.view.physicalSize = const Size(1280, 1600);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final api = _Wallet();
-      await api.epic1Fake.setStoredOn(true);
-      api.epic1Fake.reopen();
       final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)], retry: (_, _) => null);
       addTearDown(container.dispose);
       await tester.runAsync(() async {
@@ -156,10 +155,12 @@ void main() {
     });
 
     testWidgets('a pasted bare epic1 address gets its line', (tester) async {
-      await open(tester, const SendArgs());
+      await open(tester, SendArgs(contact: Contact(id: 'eve', name: 'Eve', epic1: _link)));
+      await tester.enterText(to(), '');
+      await _settle(tester);
       await tester.enterText(to(), _bare);
       await _settle(tester);
-      expect(find.text(_l.epic1AddressAlone), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => (w is Text && w.data == _l.epic1AddressAlone) || (w is Epic1Text && w.text == _l.epic1AddressAlone)), findsOneWidget);
     });
   });
 }
