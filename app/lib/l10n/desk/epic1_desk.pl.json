@@ -1,8 +1,8 @@
 {
   "deskE1SetGroup": "epic1",
-  "deskE1SetSwitch": "Płatności epic1",
-  "deskE1SetInfo": "Płatności idą tylko przez epic1: linki epic1, kody do płatności osobistych i kontakty z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby płacić innym portfelom Epic. Dla każdego portfela osobno. Eksperymentalne: może się jeszcze zmienić.",
-  "deskE1SetSyn": "epic1, zapieczętowane, eksperymentalne, linki, osobiście, kody",
+  "deskE1SetSwitch": "epic1",
+  "deskE1SetInfo": "Płać i dostawaj zapłatę przez linki epic1, kody do płatności osobistych i pliki epic1. Link jest w Odbierz, wśród innych sposobów odbierania. Wyłączone: żadne z nich się nie otwiera. Wszystkie portfele.",
+  "deskE1SetSyn": "epic1, zapieczętowane, linki, osobiście, kody",
   "deskE1TurnOnTitle": "Używać płatności epic1?",
   "deskE1TurnOnBody": "Płatności idą wtedy tylko do portfeli z epic1. Płatności klasyczne nadal przychodzą. Wyłącz, aby zapłacić innemu portfelowi Epic.",
   "deskE1TurnOn": "Włącz",

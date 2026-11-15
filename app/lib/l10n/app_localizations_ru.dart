@@ -19942,15 +19942,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskE1SetGroup => 'epic1';
 
   @override
-  String get deskE1SetSwitch => 'Платежи epic1';
+  String get deskE1SetSwitch => 'epic1';
 
   @override
   String get deskE1SetInfo =>
-      'Платежи идут только через epic1: ссылки epic1, коды для личной оплаты и контакты с epic1. Классические платежи по-прежнему приходят. Выключите, чтобы платить другим кошелькам Epic. Для каждого кошелька отдельно. Экспериментально: ещё может измениться.';
+      'Платите и получайте платежи по ссылкам epic1, кодам для личной оплаты и файлам epic1. Ссылка находится в «Получить», среди других способов приёма. Выключено: ничего из этого не открывается. Все кошельки.';
 
   @override
-  String get deskE1SetSyn =>
-      'epic1, запечатанные, экспериментальные, ссылки, лично, коды';
+  String get deskE1SetSyn => 'epic1, запечатанные, ссылки, лично, коды';
 
   @override
   String get deskE1TurnOnTitle => 'Использовать платежи epic1?';

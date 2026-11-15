@@ -1,8 +1,8 @@
 {
   "deskE1SetGroup": "epic1",
-  "deskE1SetSwitch": "epic1-Zahlungen",
-  "deskE1SetInfo": "Zahlungen laufen nur über epic1: epic1-Links, Codes für persönliche Zahlungen und Kontakte mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um andere Epic-Wallets zu bezahlen. Pro Wallet. Experimentell: Es kann sich noch ändern.",
-  "deskE1SetSyn": "epic1, versiegelt, experimentell, Links, persönlich, Codes",
+  "deskE1SetSwitch": "epic1",
+  "deskE1SetInfo": "Zahlen und bezahlt werden mit epic1-Links, Codes für persönliche Zahlungen und epic1-Dateien. Den Link finden Sie unter Empfangen bei den weiteren Empfangswegen. Aus: Nichts davon wird geöffnet. Alle Wallets.",
+  "deskE1SetSyn": "epic1, versiegelt, Links, persönlich, Codes",
   "deskE1TurnOnTitle": "epic1-Zahlungen verwenden?",
   "deskE1TurnOnBody": "Zahlungen gehen dann nur an Wallets mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um eine andere Epic-Wallet zu bezahlen.",
   "deskE1TurnOn": "Einschalten",

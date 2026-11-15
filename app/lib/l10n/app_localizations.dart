@@ -30061,22 +30061,22 @@ abstract class AppLocalizations {
   /// **'epic1'**
   String get deskE1SetGroup;
 
-  /// Settings › Transactions › Experimental: the switch that turns epic1 payments on for this wallet.
+  /// Settings › Payments: the name of the epic1 payment method, on the row with its switch and in the line that says a method is off (a payment format name, kept lowercase).
   ///
   /// In en, this message translates to:
-  /// **'epic1 payments'**
+  /// **'epic1'**
   String get deskE1SetSwitch;
 
-  /// The ⓘ text of the epic1 payments switch.
+  /// The ⓘ text of the epic1 payment method in Settings › Payments.
   ///
   /// In en, this message translates to:
-  /// **'Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.'**
+  /// **'Pay and get paid with epic1 links, in-person codes and epic1 files. Receive has the link among its other ways. When off, none of them open. All wallets.'**
   String get deskE1SetInfo;
 
-  /// Settings search: other words that find the epic1 payments switch, comma-separated.
+  /// Settings search: other words that find the epic1 payment method, comma-separated.
   ///
   /// In en, this message translates to:
-  /// **'epic1, sealed, experimental, links, in person, codes'**
+  /// **'epic1, sealed, links, in person, codes'**
   String get deskE1SetSyn;
 
   /// Confirm dialog title when turning epic1 payments on.

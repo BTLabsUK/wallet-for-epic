@@ -19565,15 +19565,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskE1SetGroup => 'epic1';
 
   @override
-  String get deskE1SetSwitch => 'epic1-Zahlungen';
+  String get deskE1SetSwitch => 'epic1';
 
   @override
   String get deskE1SetInfo =>
-      'Zahlungen laufen nur über epic1: epic1-Links, Codes für persönliche Zahlungen und Kontakte mit epic1. Klassische Zahlungen kommen weiter an. Schalten Sie es aus, um andere Epic-Wallets zu bezahlen. Pro Wallet. Experimentell: Es kann sich noch ändern.';
+      'Zahlen und bezahlt werden mit epic1-Links, Codes für persönliche Zahlungen und epic1-Dateien. Den Link finden Sie unter Empfangen bei den weiteren Empfangswegen. Aus: Nichts davon wird geöffnet. Alle Wallets.';
 
   @override
-  String get deskE1SetSyn =>
-      'epic1, versiegelt, experimentell, Links, persönlich, Codes';
+  String get deskE1SetSyn => 'epic1, versiegelt, Links, persönlich, Codes';
 
   @override
   String get deskE1TurnOnTitle => 'epic1-Zahlungen verwenden?';

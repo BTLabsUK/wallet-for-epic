@@ -3,17 +3,17 @@
   "@deskE1SetGroup": {
     "description": "Settings › Transactions: title of the section for epic1 payments (a payment format name, kept lowercase)."
   },
-  "deskE1SetSwitch": "epic1 payments",
+  "deskE1SetSwitch": "epic1",
   "@deskE1SetSwitch": {
-    "description": "Settings › Transactions › Experimental: the switch that turns epic1 payments on for this wallet."
+    "description": "Settings › Payments: the name of the epic1 payment method, on the row with its switch and in the line that says a method is off (a payment format name, kept lowercase)."
   },
-  "deskE1SetInfo": "Payments go through epic1 only: epic1 links, in-person codes and contacts with epic1. Classic payments still arrive. Turn it off to pay other Epic wallets. Per wallet. Experimental: it can still change.",
+  "deskE1SetInfo": "Pay and get paid with epic1 links, in-person codes and epic1 files. Receive has the link among its other ways. When off, none of them open. All wallets.",
   "@deskE1SetInfo": {
-    "description": "The ⓘ text of the epic1 payments switch."
+    "description": "The ⓘ text of the epic1 payment method in Settings › Payments."
   },
-  "deskE1SetSyn": "epic1, sealed, experimental, links, in person, codes",
+  "deskE1SetSyn": "epic1, sealed, links, in person, codes",
   "@deskE1SetSyn": {
-    "description": "Settings search: other words that find the epic1 payments switch, comma-separated."
+    "description": "Settings search: other words that find the epic1 payment method, comma-separated."
   },
   "deskE1TurnOnTitle": "Use epic1 payments?",
   "@deskE1TurnOnTitle": {

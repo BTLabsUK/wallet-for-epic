@@ -18280,14 +18280,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1SetGroup => 'epic1';
 
   @override
-  String get deskE1SetSwitch => 'epic1 付款';
+  String get deskE1SetSwitch => 'epic1';
 
   @override
   String get deskE1SetInfo =>
-      '付款只通过 epic1：epic1 链接、面对面付款码和支持 epic1 的联系人。经典付款仍会到达。关闭后可向其他 Epic 钱包付款。按钱包设置。实验性：仍可能变化。';
+      '通过 epic1 链接、面对面付款码和 epic1 文件付款和收款。链接在“接收”的其他收款方式中。关闭后，这些都不会打开。所有钱包。';
 
   @override
-  String get deskE1SetSyn => 'epic1, 密封, 实验, 链接, 面对面, 码';
+  String get deskE1SetSyn => 'epic1, 密封, 链接, 面对面, 码';
 
   @override
   String get deskE1TurnOnTitle => '使用 epic1 付款？';

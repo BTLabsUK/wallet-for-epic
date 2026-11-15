@@ -18954,14 +18954,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskE1SetGroup => 'epic1';
 
   @override
-  String get deskE1SetSwitch => 'การชำระเงิน epic1';
+  String get deskE1SetSwitch => 'epic1';
 
   @override
   String get deskE1SetInfo =>
-      'การชำระเงินใช้ epic1 เท่านั้น: ลิงก์ epic1 รหัสชำระแบบพบหน้า และผู้ติดต่อที่มี epic1 การชำระเงินแบบดั้งเดิมยังเข้ามาได้ ปิดเพื่อจ่ายให้กระเป๋า Epic อื่น ตั้งค่าแยกตามกระเป๋า ทดลอง: อาจยังเปลี่ยนแปลงได้';
+      'จ่ายและรับเงินด้วยลิงก์ epic1 รหัสชำระแบบพบหน้า และไฟล์ epic1 ลิงก์อยู่ใน รับ ในวิธีรับเงินอื่น เมื่อปิด จะไม่เปิดสิ่งเหล่านี้ ทุกกระเป๋า';
 
   @override
-  String get deskE1SetSyn => 'epic1, ปิดผนึก, ทดลอง, ลิงก์, พบหน้า, รหัส';
+  String get deskE1SetSyn => 'epic1, ปิดผนึก, ลิงก์, พบหน้า, รหัส';
 
   @override
   String get deskE1TurnOnTitle => 'ใช้การชำระเงิน epic1 หรือไม่';
