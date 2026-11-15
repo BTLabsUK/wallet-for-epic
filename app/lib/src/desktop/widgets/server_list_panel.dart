@@ -480,25 +480,19 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       unawaited(widget.onChoose(value));
       return;
     }
+    // A Node pick switches at once: the list closes and the field names the node picked.
+    if (_node) {
+      collapse();
+      unawaited(widget.onChoose(value));
+      return;
+    }
     setState(() => _fieldError = null);
-    unawaited(_node ? _switchNow(value) : _confirmSwitch(value));
+    unawaited(_confirmSwitch(value));
   }
 
   void _pickLocal(PanelLocalRow local) {
     collapse();
     if (widget.value != local.value || _overtaking) unawaited(widget.onChoose(local.value));
-  }
-
-  /// A Node pick: switches at once, the panel stays open and the foot says so once the switch
-  /// took (the wallet's value follows).
-  Future<void> _switchNow(String value) async {
-    await widget.onChoose(value);
-    if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !isOpen || !_same(widget.value, value)) return;
-      _text.clear();
-      _say(context.l10n.serverSwitched(panelHost(widget.kind, value)));
-    });
   }
 
   /// A plain-http node at a shared (CGNAT) address may be the user's tailnet or the provider's

@@ -292,14 +292,29 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('a Node row switches at once, with no dialog; the foot says so and the field stays empty', (tester) async {
+  testWidgets('a Node row switches at once, with no dialog; the list closes and the field has the focus', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
+    final state = tester.state<ServerListPanelState>(find.byType(ServerListPanel));
+    expect(state.isOpen, isTrue);
     await tap(tester, row(_epicnet));
     await settle(tester, 10);
     expect(find.byType(Dialog), findsNothing);
+    expect(state.isOpen, isFalse, reason: 'a pick closes the list');
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'server list button');
     expect(container.read(deskProvider).status!.node.url, _epicnet);
-    expect(find.text('Switched to node.net.invalid:3413'), findsOneWidget);
-    expect(tester.widget<EditableText>(field).controller.text, '');
+    expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).fieldText, 'node.net.invalid:3413');
+    await end(tester);
+  });
+
+  testWidgets('Enter on a filter that names one listed Node picks it and closes the list', (tester) async {
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
+    final state = tester.state<ServerListPanelState>(find.byType(ServerListPanel));
+    await type(tester, 'node.net.invalid:3413');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle(tester, 10);
+    expect(state.isOpen, isFalse);
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'server list button');
+    expect(container.read(deskProvider).status!.node.url, _epicnet);
     await end(tester);
   });
 
