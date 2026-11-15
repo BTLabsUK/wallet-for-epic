@@ -263,6 +263,9 @@ class SecretRig:
         self.calls.append((op, kw))
         if op == "type":
             return {"ok": True, "dropped": self.dropped and kw.get("drop", False)}
+        if op == "uia_tree":   # the click reached the field: it holds the focus
+            return {"ok": True, "nodes": [VIEW, {"ct": "Edit", "name": "Słowo 5", "pat": ["value"], "focus": True,
+                                                 "rect": [300, 300, 100, 30]}]}
         if op == "setup":
             return {"ok": True, "entry": {"version": "26.10.26", "location": "C:\\Users\\epicrig\\Apps\\BT",
                                           "exe": "C:\\Users\\epicrig\\Apps\\BT\\btwallet.exe"}}
@@ -296,7 +299,7 @@ class WinSecretTest(unittest.TestCase):
         s, node = self.surface(rig, [300, 300, 100, 30])
         s.set_text(node, "zqcx", secret=True)
         self.assertEqual(rig.put, ["zqcx"])
-        self.assertEqual([op for op, _ in rig.calls], ["click_rect", "erase", "type"])
+        self.assertEqual([op for op, _ in rig.calls], ["click_rect", "uia_tree", "erase", "type"])
         self.assertEqual(rig.calls[-1][1], {"file": "C:\\rig\\run\\secret\\typed", "drop": True})
         self.assertEqual(rig.ps, [])
         self.assertEqual(os.listdir(self.tmp.name), [])   # the local copy went too

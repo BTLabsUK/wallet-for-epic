@@ -5,6 +5,7 @@
 // redacted in logs, not in the saved prefs); and Settings › Node at 1280 and 2474 wide.
 import 'dart:convert';
 
+import 'package:epic_wallet/src/desktop/app/desk_failover.dart' show nodeBlipWindowProvider;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/own_node.dart';
@@ -15,10 +16,11 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show Ctl, ESegmented;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart' show ServerListPanel;
-import 'package:epic_wallet/src/desktop/widgets/status.dart' show EState, EStateDot, EStatusGlyph;
+import 'package:epic_wallet/src/desktop/widgets/status.dart' show EState, EStatusGlyph;
 import 'package:epic_wallet/src/redact.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/ui/server_tile.dart' show ServerTileView;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -220,7 +222,7 @@ void main() {
 
     setUp(() {
       node = MockDeskNode();
-      container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero)), deskNodeProvider.overrideWithValue(node)]);
+      container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero)), deskNodeProvider.overrideWithValue(node), nodeBlipWindowProvider.overrideWithValue(Duration.zero)]);
     });
 
     tearDown(() => container.dispose());
@@ -316,10 +318,11 @@ void main() {
       expect(find.text('Keep node.lab.invalid'), findsOneWidget);
       // #76: the Node field's dot and the panel's line read one state, never Synced next to
       // Not answering while a public node stands in.
-      final dot = tester.widget<EStateDot>(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(EStateDot)).first);
-      expect(dot.state, EState.risk);
+      // The closed field shows the server's tile (9a4806ad5): its dot reads down.
+      final tile = tester.widget<ServerTileView>(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(ServerTileView)).first);
+      expect(tile.state, NodeHealthState.down);
       final glyph = tester.widget<EStatusGlyph>(find.byType(EStatusGlyph).first);
-      expect(glyph.state, dot.state);
+      expect(glyph.state, EState.risk);
       expect(find.textContaining(_l.deskNodeNotAnswering, findRichText: true), findsWidgets);
       await end(tester);
     });

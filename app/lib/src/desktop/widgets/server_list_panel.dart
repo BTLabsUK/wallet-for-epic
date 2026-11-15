@@ -799,7 +799,15 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                         operator: current.listedAs ?? current.operator,
                         host: current.host,
                         icon: serverIconFor(current.icon, current.listedAs ?? current.operator, [for (final s in widget.servers) (operator: s.listedAs ?? s.operator, icon: s.icon)]),
-                        state: current.state,
+                        // The wallet's own reading of the server in use when it has one, so the
+                        // field never shows healthy beside the page's Not answering (#76).
+                        state: switch (widget.state) {
+                          null => current.state,
+                          EState.ok => NodeHealthState.healthy,
+                          EState.warn => NodeHealthState.degraded,
+                          EState.risk => NodeHealthState.down,
+                          EState.active || EState.off => null,
+                        },
                         colors: deskTileColors(c),
                         size: 24.u,
                         radius: 5.u,
