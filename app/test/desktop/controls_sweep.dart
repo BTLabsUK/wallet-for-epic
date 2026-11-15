@@ -119,6 +119,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   }
 
   @override
+  Future<bool> joinContactsBook(String walletId, String password) => _r('joinContactsBook', () => _m.joinContactsBook(walletId, password));
+  @override
   Future<List<WalletEntry>> wallets() => _r('wallets', _m.wallets);
   @override
   Future<bool> setupPending(String id) => _m.setupPending(id);

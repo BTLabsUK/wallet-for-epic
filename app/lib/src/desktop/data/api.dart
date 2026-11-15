@@ -78,6 +78,12 @@ abstract interface class DeskWalletApi {
   /// Whether [password] is the open wallet's password.
   Future<bool> checkPassword(String password);
 
+  /// Opens the shared address book for the open wallet when it is closed to it: the wallet
+  /// [walletId] (another one on this network) is opened for a moment with [password], which
+  /// adds the open wallet's key to the book, and closed again. True when the book is open for
+  /// the open wallet afterwards; false for a wrong password. The password is not kept.
+  Future<bool> joinContactsBook(String walletId, String password);
+
   /// A payment link's checks against the open wallet's network, pins and paid requests
   /// ([openLink]): the refusal, or the link opened with its standing.
   Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds});

@@ -354,6 +354,27 @@ void main() {
       expect(wrap(_idB).existsSync(), isTrue);
     });
 
+    test('a wallet open on a closed book joins it through another wallet opened and closed again', () async {
+      at(contactsFileName).writeAsStringSync(plainBook);
+      await (await openAs(_idA, seedA)).detach(_idA, seedA);
+      ContactStore.forgetAll();
+      final s = await openAs(_idB, seedB);
+      expect(s.available, isFalse);
+      // A is opened for a moment and closed again; B stays attached the whole time.
+      await openAs(_idA, seedA);
+      await s.detach(_idA, seedA);
+      expect(s.available, isTrue);
+      expect(s.list().single.name, 'Anna');
+      expect(wrap(_idB).existsSync(), isTrue);
+      // The book is still open for B alone, and opens for B alone after a restart.
+      await s.save(const ContactFields(name: 'Ben', epicbox: _b));
+      await s.detach(_idB, seedB);
+      ContactStore.forgetAll();
+      final again = await openAs(_idB, seedB);
+      expect(again.available, isTrue);
+      expect([for (final c in again.list()) c.name], ['Anna', 'Ben']);
+    });
+
     test('a deleted wallet loses only its wrap; the last one takes the book with it', () async {
       at(contactsFileName).writeAsStringSync(plainBook);
       final s = await openAs(_idA, seedA);

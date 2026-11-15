@@ -59,5 +59,10 @@
   "deskConLabelCurrent": "Label: {name}",
   "deskPairNameTitle": "Der Name, der beim Koppeln angezeigt wird",
   "deskPairNameDesc": "Die gekoppelte Wallet zeigt diesen Namen neben versiegelten Zahlungen und Rechnungen. Leer lassen, um ohne Namen zu koppeln.",
-  "deskPairNameField": "Angezeigter Name"
+  "deskPairNameField": "Angezeigter Name",
+  "deskConJoinButton": "Adressbuch öffnen",
+  "deskConJoinDesc": "Geben Sie das Passwort einer anderen Wallet ein, die das Adressbuch nutzt.",
+  "deskConJoinWallet": "Wallet",
+  "deskConJoinPassword": "Passwort",
+  "deskConJoinDone": "Adressbuch geöffnet"
 }

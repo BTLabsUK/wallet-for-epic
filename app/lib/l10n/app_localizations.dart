@@ -33558,6 +33558,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'QR code'**
   String get deskKitQrCode;
+
+  /// Contacts, address book closed: button that opens the dialog to open it with another wallet's password; also the dialog title and its confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Open address book'**
+  String get deskConJoinButton;
+
+  /// Open address book dialog: one line under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password of another wallet that uses the address book.'**
+  String get deskConJoinDesc;
+
+  /// Open address book dialog: label and screen reader name of the wallet choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get deskConJoinWallet;
+
+  /// Open address book dialog: label and screen reader name of the password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get deskConJoinPassword;
+
+  /// Toast after the address book was opened with another wallet's password.
+  ///
+  /// In en, this message translates to:
+  /// **'Address book open'**
+  String get deskConJoinDone;
 }
 
 class _AppLocalizationsDelegate

@@ -5580,5 +5580,10 @@
   "deskInvIssuerFailed": "ไม่ได้ส่งใบแจ้งหนี้ ไม่มีสิ่งใดเปลี่ยนแปลง ลองอีกครั้ง",
   "errorCancelledOnRelay": "อีกฝ่ายยกเลิกรายการนี้แล้ว จึงถูกยกเลิกที่นี่ด้วย",
   "deskKitQrEnlarge": "ขยายคิวอาร์โค้ด",
-  "deskKitQrCode": "คิวอาร์โค้ด"
+  "deskKitQrCode": "คิวอาร์โค้ด",
+  "deskConJoinButton": "เปิดสมุดที่อยู่",
+  "deskConJoinDesc": "ใส่รหัสผ่านของกระเป๋าอื่นที่ใช้สมุดที่อยู่นี้",
+  "deskConJoinWallet": "กระเป๋า",
+  "deskConJoinPassword": "รหัสผ่าน",
+  "deskConJoinDone": "เปิดสมุดที่อยู่แล้ว"
 }

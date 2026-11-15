@@ -5580,5 +5580,10 @@
   "deskInvIssuerFailed": "账单未发送。没有任何更改；请重试。",
   "errorCancelledOnRelay": "对方已取消这笔付款，所以这里也已取消。",
   "deskKitQrEnlarge": "放大二维码",
-  "deskKitQrCode": "二维码"
+  "deskKitQrCode": "二维码",
+  "deskConJoinButton": "打开通讯录",
+  "deskConJoinDesc": "输入使用该通讯录的其他钱包的密码。",
+  "deskConJoinWallet": "钱包",
+  "deskConJoinPassword": "密码",
+  "deskConJoinDone": "通讯录已打开"
 }

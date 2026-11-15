@@ -36,6 +36,7 @@ import '../pairing/pair_screens.dart';
 import '../pairing/relay_move_dialog.dart' show deskAcceptRelayMove, deskRefuseRelayMove;
 import '../transfer/contact_picker.dart' show contactClassicOnly;
 import 'contact_label_menu.dart';
+import 'contacts_join_dialog.dart';
 import 'contact_trust_line.dart';
 import 'contacts_transfer.dart';
 import 'tx_display.dart';
@@ -399,14 +400,27 @@ class _Idle extends StatelessWidget {
   );
 }
 
-/// The shared address book is closed to the open wallet: nothing to list, nothing to add.
-class _Closed extends StatelessWidget {
+/// The shared address book is closed to the open wallet: nothing to list, nothing to add. With
+/// another wallet on this computer, its password opens the book.
+class _Closed extends ConsumerStatefulWidget {
   const _Closed();
+
+  @override
+  ConsumerState<_Closed> createState() => _ClosedState();
+}
+
+class _ClosedState extends ConsumerState<_Closed> {
+  @override
+  void initState() {
+    super.initState();
+    if (ref.read(deskProvider).wallets == null) unawaited(ref.read(deskProvider.notifier).loadWallets().then((_) {}, onError: (Object _) {}));
+  }
 
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
     final l = context.l10n;
+    final others = contactsJoinCandidates(ref.watch(deskProvider.select((s) => s.wallets)), ref.watch(deskProvider.select((s) => s.account?.id)));
     return Padding(
       key: const ValueKey('contacts-closed'),
       padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x10),
@@ -417,6 +431,10 @@ class _Closed extends StatelessWidget {
           Semantics(header: true, child: Text(l.contactsClosedTitle, style: ts.h3, textAlign: TextAlign.center)),
           SizedBox(height: Sp.x2),
           Text(l.contactsClosedText, style: ts.bodyDim, textAlign: TextAlign.center),
+          if (others.isNotEmpty) ...[
+            SizedBox(height: Sp.x5),
+            EButton.primary(label: l.deskConJoinButton, onPressed: () => showContactsJoinDialog(context, others)),
+          ],
         ],
       ),
     );

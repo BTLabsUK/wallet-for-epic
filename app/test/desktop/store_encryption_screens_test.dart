@@ -100,4 +100,32 @@ void main() {
     expect(find.text(_l.contactsClosedTitle), findsOneWidget);
     await done(tester);
   });
+
+  testWidgets('a closed address book opens with another wallet\'s password: wrong says so, right shows the list', (tester) async {
+    final api = MockDeskWallet(delay: Duration.zero)..contactsClosed = true;
+    await pump(tester, api);
+    await typeAndUnlock(tester);
+    await run(tester);
+    containers.last.read(deskNavProvider.notifier).go(DeskRoute.contacts);
+    await run(tester);
+    expect(find.byKey(const ValueKey('contacts-closed')), findsOneWidget);
+    await tester.tap(find.text(_l.deskConJoinButton));
+    await run(tester);
+    expect(find.text(_l.deskConJoinDesc), findsOneWidget);
+    final field = find.descendant(of: find.byType(EPasswordInput), matching: find.byType(EditableText));
+    await tester.enterText(field, 'wrong');
+    await run(tester, 5);
+    await tester.tap(find.widgetWithText(EButton, _l.deskConJoinButton).last);
+    await run(tester);
+    expect(find.text(_l.deskErrWrongPassword), findsOneWidget);
+    expect(find.byKey(const ValueKey('contacts-closed')), findsOneWidget);
+    await tester.enterText(field, 'other-pass');
+    await run(tester, 5);
+    await tester.tap(find.widgetWithText(EButton, _l.deskConJoinButton).last);
+    await run(tester);
+    expect(find.text(_l.deskConJoinDesc), findsNothing, reason: 'the dialog closed');
+    expect(find.byKey(const ValueKey('contacts-closed')), findsNothing);
+    expect(find.text(_l.contactsClosedTitle), findsNothing);
+    await done(tester);
+  });
 }

@@ -21676,4 +21676,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitQrCode => 'QR-Code';
+
+  @override
+  String get deskConJoinButton => 'Adressbuch öffnen';
+
+  @override
+  String get deskConJoinDesc =>
+      'Geben Sie das Passwort einer anderen Wallet ein, die das Adressbuch nutzt.';
+
+  @override
+  String get deskConJoinWallet => 'Wallet';
+
+  @override
+  String get deskConJoinPassword => 'Passwort';
+
+  @override
+  String get deskConJoinDone => 'Adressbuch geöffnet';
 }

@@ -1006,6 +1006,28 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<bool> joinContactsBook(String walletId, String password) async {
+    final open = _session;
+    final own = _openEntry;
+    if (open == null || own == null) throw DeskError.l10n((l) => l.deskErrWalletLocked);
+    if (open.contactsAvailable) return true;
+    final entry = await _entry(walletId);
+    if (entry.id == own.id) throw DeskError.l10n((l) => l.deskErrWalletNotListed);
+    // The other wallet is only opened and closed again, as a wallet being made is: opening it
+    // attaches it to the book, which finds its key and adds one for the open wallet. The open
+    // session stays the one in use, and the password is not kept.
+    try {
+      final other = await _service.open(config: await _configOf(entry), password: password);
+      other.dispose();
+    } on core.WalletError catch (e) {
+      if (e.kind == core.WalletErrorKind.wrongPassword) return false;
+      throw _deskError(e);
+    }
+    _changed();
+    return _session?.contactsAvailable ?? false;
+  }
+
+  @override
   Future<void> forgetRemembered(String id) => _remember.forget(id);
 
   @override

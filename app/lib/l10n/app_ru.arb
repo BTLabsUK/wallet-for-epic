@@ -5580,5 +5580,10 @@
   "deskInvIssuerFailed": "Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.",
   "errorCancelledOnRelay": "Вторая сторона отменила этот платёж, поэтому он отменён и здесь.",
   "deskKitQrEnlarge": "Увеличить QR-код",
-  "deskKitQrCode": "QR-код"
+  "deskKitQrCode": "QR-код",
+  "deskConJoinButton": "Открыть адресную книгу",
+  "deskConJoinDesc": "Введите пароль другого кошелька, который использует адресную книгу.",
+  "deskConJoinWallet": "Кошелёк",
+  "deskConJoinPassword": "Пароль",
+  "deskConJoinDone": "Адресная книга открыта"
 }

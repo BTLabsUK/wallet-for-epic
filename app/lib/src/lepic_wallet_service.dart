@@ -1499,10 +1499,13 @@ class LepicWalletService implements WalletService {
         ..nodeUrl = config.nodeUrl
         ..nodeApiSecret = config.nodeApiSecret;
       await session.readStoreOpen();
-      // The open wallet, for [peerCompat]; forgotten when the session goes.
+      // The open wallet, for [peerCompat]; forgotten when the session goes. A session opened
+      // beside one still alive (another wallet opened for a moment) hands it back on dispose.
+      final previous = _open;
       _open = session;
       session.onDispose = () {
-        if (identical(_open, session)) _open = null;
+        if (!identical(_open, session)) return;
+        _open = previous != null && previous.onDispose != null ? previous : null;
       };
       return session;
     } catch (_) {

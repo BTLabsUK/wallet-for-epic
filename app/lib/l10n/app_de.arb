@@ -5580,5 +5580,10 @@
   "deskInvIssuerFailed": "Die Rechnung wurde nicht gesendet. Nichts wurde geändert; versuchen Sie es erneut.",
   "errorCancelledOnRelay": "Die Gegenseite hat diese Zahlung storniert, daher ist sie auch hier storniert.",
   "deskKitQrEnlarge": "QR-Code vergrößern",
-  "deskKitQrCode": "QR-Code"
+  "deskKitQrCode": "QR-Code",
+  "deskConJoinButton": "Adressbuch öffnen",
+  "deskConJoinDesc": "Geben Sie das Passwort einer anderen Wallet ein, die das Adressbuch nutzt.",
+  "deskConJoinWallet": "Wallet",
+  "deskConJoinPassword": "Passwort",
+  "deskConJoinDone": "Adressbuch geöffnet"
 }

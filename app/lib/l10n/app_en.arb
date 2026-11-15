@@ -29143,5 +29143,25 @@
   "deskKitQrCode": "QR code",
   "@deskKitQrCode": {
     "description": "Name of an enlarged QR code, shown under it when the caller gives no label."
+  },
+  "deskConJoinButton": "Open address book",
+  "@deskConJoinButton": {
+    "description": "Contacts, address book closed: button that opens the dialog to open it with another wallet's password; also the dialog title and its confirm button."
+  },
+  "deskConJoinDesc": "Enter the password of another wallet that uses the address book.",
+  "@deskConJoinDesc": {
+    "description": "Open address book dialog: one line under the title."
+  },
+  "deskConJoinWallet": "Wallet",
+  "@deskConJoinWallet": {
+    "description": "Open address book dialog: label and screen reader name of the wallet choice."
+  },
+  "deskConJoinPassword": "Password",
+  "@deskConJoinPassword": {
+    "description": "Open address book dialog: label and screen reader name of the password field."
+  },
+  "deskConJoinDone": "Address book open",
+  "@deskConJoinDone": {
+    "description": "Toast after the address book was opened with another wallet's password."
   }
 }

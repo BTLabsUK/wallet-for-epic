@@ -21443,4 +21443,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitQrCode => 'QR code';
+
+  @override
+  String get deskConJoinButton => 'Open address book';
+
+  @override
+  String get deskConJoinDesc =>
+      'Enter the password of another wallet that uses the address book.';
+
+  @override
+  String get deskConJoinWallet => 'Wallet';
+
+  @override
+  String get deskConJoinPassword => 'Password';
+
+  @override
+  String get deskConJoinDone => 'Address book open';
 }

@@ -59,5 +59,10 @@
   "deskConLabelCurrent": "标签：{name}",
   "deskPairNameTitle": "配对时显示的名称",
   "deskPairNameDesc": "已配对的钱包会在密封付款和发票旁显示此名称。留空则不带名称配对。",
-  "deskPairNameField": "显示的名称"
+  "deskPairNameField": "显示的名称",
+  "deskConJoinButton": "打开通讯录",
+  "deskConJoinDesc": "输入使用该通讯录的其他钱包的密码。",
+  "deskConJoinWallet": "钱包",
+  "deskConJoinPassword": "密码",
+  "deskConJoinDone": "通讯录已打开"
 }

@@ -20245,4 +20245,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitQrCode => '二维码';
+
+  @override
+  String get deskConJoinButton => '打开通讯录';
+
+  @override
+  String get deskConJoinDesc => '输入使用该通讯录的其他钱包的密码。';
+
+  @override
+  String get deskConJoinWallet => '钱包';
+
+  @override
+  String get deskConJoinPassword => '密码';
+
+  @override
+  String get deskConJoinDone => '通讯录已打开';
 }

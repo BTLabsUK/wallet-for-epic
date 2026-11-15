@@ -5580,5 +5580,10 @@
   "deskInvIssuerFailed": "Faktura nie została wysłana. Nic się nie zmieniło; spróbuj ponownie.",
   "errorCancelledOnRelay": "Druga strona anulowała tę płatność, więc jest anulowana także tutaj.",
   "deskKitQrEnlarge": "Powiększ kod QR",
-  "deskKitQrCode": "Kod QR"
+  "deskKitQrCode": "Kod QR",
+  "deskConJoinButton": "Otwórz książkę adresową",
+  "deskConJoinDesc": "Wpisz hasło innego portfela, który korzysta z książki adresowej.",
+  "deskConJoinWallet": "Portfel",
+  "deskConJoinPassword": "Hasło",
+  "deskConJoinDone": "Książka adresowa otwarta"
 }

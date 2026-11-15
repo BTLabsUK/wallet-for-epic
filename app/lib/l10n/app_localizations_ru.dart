@@ -22048,4 +22048,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitQrCode => 'QR-код';
+
+  @override
+  String get deskConJoinButton => 'Открыть адресную книгу';
+
+  @override
+  String get deskConJoinDesc =>
+      'Введите пароль другого кошелька, который использует адресную книгу.';
+
+  @override
+  String get deskConJoinWallet => 'Кошелёк';
+
+  @override
+  String get deskConJoinPassword => 'Пароль';
+
+  @override
+  String get deskConJoinDone => 'Адресная книга открыта';
 }

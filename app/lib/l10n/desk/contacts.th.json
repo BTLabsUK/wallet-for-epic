@@ -59,5 +59,10 @@
   "deskConLabelCurrent": "ป้ายกำกับ: {name}",
   "deskPairNameTitle": "ชื่อที่แสดงเมื่อจับคู่",
   "deskPairNameDesc": "กระเป๋าที่จับคู่จะแสดงชื่อนี้ข้างการชำระเงินแบบปิดผนึกและใบแจ้งหนี้ เว้นว่างไว้เพื่อจับคู่โดยไม่มีชื่อ",
-  "deskPairNameField": "ชื่อที่แสดง"
+  "deskPairNameField": "ชื่อที่แสดง",
+  "deskConJoinButton": "เปิดสมุดที่อยู่",
+  "deskConJoinDesc": "ใส่รหัสผ่านของกระเป๋าอื่นที่ใช้สมุดที่อยู่นี้",
+  "deskConJoinWallet": "กระเป๋า",
+  "deskConJoinPassword": "รหัสผ่าน",
+  "deskConJoinDone": "เปิดสมุดที่อยู่แล้ว"
 }

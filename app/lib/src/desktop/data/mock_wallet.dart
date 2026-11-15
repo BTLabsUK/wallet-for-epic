@@ -494,6 +494,15 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<bool> joinContactsBook(String walletId, String password) async {
+    await _wait(1);
+    if (password.isEmpty || password == 'wrong') return false;
+    contactsClosed = false;
+    _changes.add(null);
+    return true;
+  }
+
+  @override
   Future<bool> isRemembered(String id) async => _remembered.contains(id.isEmpty ? _current : id);
 
   @override

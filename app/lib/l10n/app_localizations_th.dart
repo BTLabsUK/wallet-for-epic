@@ -21016,4 +21016,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitQrCode => 'คิวอาร์โค้ด';
+
+  @override
+  String get deskConJoinButton => 'เปิดสมุดที่อยู่';
+
+  @override
+  String get deskConJoinDesc => 'ใส่รหัสผ่านของกระเป๋าอื่นที่ใช้สมุดที่อยู่นี้';
+
+  @override
+  String get deskConJoinWallet => 'กระเป๋า';
+
+  @override
+  String get deskConJoinPassword => 'รหัสผ่าน';
+
+  @override
+  String get deskConJoinDone => 'เปิดสมุดที่อยู่แล้ว';
 }

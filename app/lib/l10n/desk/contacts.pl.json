@@ -59,5 +59,10 @@
   "deskConLabelCurrent": "Etykieta: {name}",
   "deskPairNameTitle": "Nazwa pokazywana po sparowaniu",
   "deskPairNameDesc": "Sparowany portfel pokazuje tę nazwę przy zapieczętowanych płatnościach i fakturach. Zostaw puste, aby sparować bez nazwy.",
-  "deskPairNameField": "Pokazywana nazwa"
+  "deskPairNameField": "Pokazywana nazwa",
+  "deskConJoinButton": "Otwórz książkę adresową",
+  "deskConJoinDesc": "Wpisz hasło innego portfela, który korzysta z książki adresowej.",
+  "deskConJoinWallet": "Portfel",
+  "deskConJoinPassword": "Hasło",
+  "deskConJoinDone": "Książka adresowa otwarta"
 }

@@ -22053,4 +22053,20 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitQrCode => 'Kod QR';
+
+  @override
+  String get deskConJoinButton => 'Otwórz książkę adresową';
+
+  @override
+  String get deskConJoinDesc =>
+      'Wpisz hasło innego portfela, który korzysta z książki adresowej.';
+
+  @override
+  String get deskConJoinWallet => 'Portfel';
+
+  @override
+  String get deskConJoinPassword => 'Hasło';
+
+  @override
+  String get deskConJoinDone => 'Książka adresowa otwarta';
 }
