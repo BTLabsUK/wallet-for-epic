@@ -979,6 +979,8 @@ def gate_summary(engine):
     lines = [f"{'TEST ' if info.get('test') else ''}Epic Wallet {info['version']} — publish?",
              f"commit {info['commit'][:12]} · run {info['run_id']} · target {s['publish']['target']}",
              f"scope: {scope_summary(s)}", ""]
+    if s["publish"].get("gate_note"):
+        lines[-1:-1] = [f"Note: {s['publish']['gate_note']}"]
     fu = info.get("follow_up") or {}
     if fu:
         lines[-1:-1] = [f"Follow-up of {fu['run_id']} ({fu.get('tag') or 'v' + info['version']}): its "
