@@ -5335,15 +5335,16 @@ class _FlowBody extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
-          child: bottom == null
-              ? list
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: list),
-                    Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), child: bottom),
-                  ],
-                ),
+          // One Column whether or not a footer follows: the list keeps its place in the tree, so
+          // a text field in it keeps its focus and the keyboard when the footer appears (an
+          // address typed by hand turns valid and the way on shows).
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: list),
+              if (bottom != null) Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), child: bottom),
+            ],
+          ),
         ),
       ),
     );

@@ -472,6 +472,56 @@ void main() {
     });
   });
 
+  group('typing an address by hand', () {
+    // The keys of the phone's keyboard, one character at a time, through the open input
+    // connection: a rebuilt field loses the connection and the keyboard goes down.
+    Future<void> typeByKey(WidgetTester tester, String address) async {
+      await tester.showKeyboard(sendTo());
+      final field = find.descendant(
+        of: sendTo(),
+        matching: find.byType(EditableText),
+      );
+      for (var i = 1; i <= address.length; i++) {
+        tester.testTextInput.enterText(address.substring(0, i));
+        await tester.pump();
+        final reason = 'after "${address.substring(0, i)}"';
+        expect(tester.testTextInput.hasAnyClients, isTrue, reason: reason);
+        expect(
+          tester.widget<EditableText>(field).focusNode.hasFocus,
+          isTrue,
+          reason: reason,
+        );
+      }
+      await tester.pumpAndSettle();
+    }
+
+    for (final (name, address) in [
+      ('Epicbox', _bob),
+      ('Tor onion', 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion'),
+      ('http', 'http://192.168.1.20:3415'),
+      ('https', 'https://wallet.example.com'),
+    ]) {
+      testWidgets('keeps the keyboard and the caret: $name', (tester) async {
+        final h = _Harness();
+        await h.pump(tester);
+        await typeByKey(tester, address);
+        final field = tester.widget<EditableText>(
+          find.descendant(of: sendTo(), matching: find.byType(EditableText)),
+        );
+        expect(field.controller.text, address);
+        expect(field.controller.selection.baseOffset, address.length);
+        expect(field.focusNode.hasFocus, isTrue);
+        expect(tester.testTextInput.hasAnyClients, isTrue);
+        // The address is taken: the way on shows, and typing goes on in the same field.
+        expect(continueButton(), findsOneWidget);
+        tester.testTextInput.enterText('$address/');
+        await tester.pump();
+        expect(tester.testTextInput.hasAnyClients, isTrue);
+        expect(field.focusNode.hasFocus, isTrue);
+      });
+    }
+  });
+
   group('the amount page takes the hardware keyboard', () {
     String shown(WidgetTester tester) => tester.widget<TextField>(sendAmount()).controller!.text;
 
