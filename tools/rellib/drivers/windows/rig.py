@@ -299,7 +299,6 @@ class Rig:
         try:
             fcntl.flock(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            self.log("rig session %d runs as %s, whose other run is still on the rig: waiting for it" % (self.session, self.user))
             self._wait_lock()
         self.log("rig session %d (%s, %s) as %s" % (self.session, task_name(self.session), work_dir(self.session), self.user))
 
@@ -320,7 +319,8 @@ class Rig:
                 old[sig] = signal.signal(sig, stop)
         except ValueError:  # not the main thread: the default handlers stay
             pass
-        try:
+        try:  # logged once the handlers are in: a stop that follows the line is always handled
+            self.log("rig session %d runs as %s, whose other run is still on the rig: waiting for it" % (self.session, self.user))
             fcntl.flock(self._lock, fcntl.LOCK_EX)
         except BaseException as e:
             self._lock.close()

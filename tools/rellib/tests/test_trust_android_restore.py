@@ -331,7 +331,9 @@ class SecretTypingTest(unittest.TestCase):
         self.assertEqual(shells[-1], "rm -f %s" % f)
 
     def test_a_retype_is_secret_too_and_the_file_goes_on_failure(self):
-        fresh = iter([Node(i=0, role="text_field", name="Recovery phrase", value=PHRASE[:-3])] * 2)
+        # The field drops the keyboard with three letters to go: it is focused again and they go in secret too.
+        fresh = iter([Node(i=0, role="text_field", name="Recovery phrase", value=v, ref={"bounds": (0, 0, 100, 100)})
+                      for v in (PHRASE[:-3], PHRASE)])
         with mock.patch.object(self.u, "_fresh", side_effect=lambda n: next(fresh)):
             self.u.set_text(self.node, PHRASE, secret=True)
         argv = " ".join(" ".join(a) for a, _ in self.dev.calls)
