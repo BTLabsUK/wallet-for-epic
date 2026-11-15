@@ -21,7 +21,6 @@ import '../../../scan/scan_router.dart' show classifyScan;
 import '../../../send_route.dart';
 import '../../../settings_file/host_settings.dart' show appConfig;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
-import '../../../send_summary.dart' show SendSummary;
 import '../../../smart_outputs.dart';
 import '../../../ui/send_route_text.dart' show sendContactedText, sendMethodName, sendProblemText;
 import '../../data/pairing_state.dart' show deskContactPairingProvider, deskInvoicesShownProvider, deskPairsProvider;

@@ -2,7 +2,6 @@
 // Home's field: what Enter opens, and the contacts a typed name brings up under it.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/models.dart' show Contact;
 import 'package:epic_wallet/src/desktop/screens/invoices/issue_invoice_screen.dart' show RequestArgs;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show SendArgs;
 import 'package:epic_wallet/src/desktop/screens/wallet/home_field.dart';
