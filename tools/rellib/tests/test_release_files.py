@@ -181,7 +181,7 @@ class GitHubReleaseTest(unittest.TestCase):
         self.ring = os.path.join(self.tmp, "ring.json")
         subprocess.run(["python3", SIGN, "keyring", "--out", self.ring, os.path.join(BP, "testdata/keys/test-a.pub.json")],
                        check=True, capture_output=True)
-        self.env = {k: v for k, v in os.environ.items() if k not in ("GH_CONFIG_DIR", "GITHUB_USER", "GH_TOKEN", "GITHUB_TOKEN")}
+        self.env = {k: v for k, v in os.environ.items() if k not in ("GH_CONFIG_DIR", "GITHUB_USER", "GH_TOKEN", "GITHUB_TOKEN", "REL_RUN")}
         self.env.update(PATH=f"{bin_}:{os.environ['PATH']}", FAKE_DIR=self.tmp, GITHUB_RELEASE_API=self.gh.base,
                         GITHUB_RELEASE_WEB=f"{self.gh.base}/web")
         self.files = os.path.join(self.tmp, "files")
@@ -249,29 +249,51 @@ class GitHubReleaseTest(unittest.TestCase):
 
     def test_the_pipeline_step_publishes_a_copy_of_the_run_files(self):
         self.gh.tags.add("v26.10.25")
-        sums = subprocess.run(["sha256sum", *sorted(os.listdir(self.files))], cwd=self.files, capture_output=True,
-                              text=True, check=True).stdout
-        with open(os.path.join(self.files, "SHA256SUMS"), "w") as f:
-            f.write(sums)
-        with open(os.path.join(self.files, "provenance.json"), "w") as f:
-            f.write("{}")
-        bp = os.path.join(self.tmp, "bp")
-        os.makedirs(os.path.join(bp, "keys"))
-        shutil.copy(self.ring, os.path.join(bp, "keys/btlabs-keyring.json"))
-        stage = os.path.join(self.tmp, "stage")
-        os.makedirs(stage)
-        p = subprocess.run(["bash", os.path.join(REPO, "tools/rellib/steps/publish-github-release.sh"), "26.10.25",
-                            self.files, stage], capture_output=True, text=True, timeout=120,
-                           env=dict(self.env, REL_SRC=REPO, REL_SIGNER_SIGNING_KEY=self.key,
-                                    REL_SIGNER_BTLABS_PUBLIC=bp, REL_NOTES_FILE=self.notes))
+        p, sums = self.run_step()
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         rel = next(iter(self.gh.releases.values()))
+        self.assertEqual(rel["tag_name"], "v26.10.25")
         self.assertEqual(sorted(a["name"] for a in rel["assets"]),
                          ["SHA256SUMS", "SHA256SUMS.sig", "bt-wallet-android-arm64-v8a.apk", "bt-wallet-linux-x86_64.AppImage"])
         self.assertEqual(rel["body"].splitlines()[0], "Epic Cash 26.10.25.")
         with open(os.path.join(self.files, "SHA256SUMS")) as f:
             self.assertEqual(f.read(), sums)  # the run's SHA256SUMS is left as G6 reads it
         self.assertFalse(os.path.exists(os.path.join(self.files, "SHA256SUMS.sig")))
+
+    def test_the_pipeline_step_uses_the_tag_the_run_made(self):
+        # A version published before on another commit is tagged v<version>-r2 by step `tag`: its
+        # GitHub release goes on that tag, never a second release on the old v<version>.
+        self.gh.tags.update({"v26.10.25", "v26.10.25-r2"})
+        run = os.path.join(self.tmp, "run")
+        os.makedirs(os.path.join(run, "steps/tag/out"))
+        with open(os.path.join(run, "steps/tag/out/tag.txt"), "w") as f:
+            f.write("v26.10.25-r2\n")
+        p, _ = self.run_step(REL_RUN=run)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertEqual([r["tag_name"] for r in self.gh.releases.values()], ["v26.10.25-r2"])
+        with open(os.path.join(run, "steps/tag/out/tag.txt"), "w") as f:
+            f.write("v26.10.2\n")
+        p, _ = self.run_step(REL_RUN=run)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("not a tag of 26.10.25", p.stderr)
+
+    def run_step(self, **env):
+        sums = subprocess.run(["sha256sum", *sorted(n for n in os.listdir(self.files) if n != "SHA256SUMS")], cwd=self.files, capture_output=True,
+                              text=True, check=True).stdout
+        with open(os.path.join(self.files, "SHA256SUMS"), "w") as f:
+            f.write(sums)
+        with open(os.path.join(self.files, "provenance.json"), "w") as f:
+            f.write("{}")
+        bp = os.path.join(self.tmp, "bp")
+        os.makedirs(os.path.join(bp, "keys"), exist_ok=True)
+        shutil.copy(self.ring, os.path.join(bp, "keys/btlabs-keyring.json"))
+        stage = os.path.join(self.tmp, "stage")
+        os.makedirs(stage, exist_ok=True)
+        p = subprocess.run(["bash", os.path.join(REPO, "tools/rellib/steps/publish-github-release.sh"), "26.10.25",
+                            self.files, stage], capture_output=True, text=True, timeout=120,
+                           env=dict(self.env, REL_SRC=REPO, REL_SIGNER_SIGNING_KEY=self.key,
+                                    REL_SIGNER_BTLABS_PUBLIC=bp, REL_NOTES_FILE=self.notes, **env))
+        return p, sums
 
     def test_replace_listing_swaps_only_the_listing(self):
         # A follow-up run adds files: SHA256SUMS, its signature and provenance.json change, the

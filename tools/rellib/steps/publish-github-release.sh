@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # Step `publish-github-release` of tools/rel (release.toml publish.github): the GitHub Release of
-# tag v<version> on BTLabsUK/wallet-for-epic, with the files publish-downloads put on the server
+# the run's tag (step `tag` writes it: v<version>, or v<version>-r2 for a version tagged before
+# on another commit; v<version> when no tag step ran) on BTLabsUK/wallet-for-epic, with the files publish-downloads put on the server
 # (the run's SHA256SUMS lists them) as assets, through tools/release-files.py. It works on a
 # copy in the stage folder: release-files.py writes its own SHA256SUMS and SHA256SUMS.sig there,
 # and the run's SHA256SUMS stays as G6 reads it. The tag is on GitHub from publish-source.
@@ -43,5 +44,9 @@ fi
 # (SHA256SUMS, its signature, provenance.json, the SBOM) change, every other asset keeps its bytes.
 listing=()
 [[ "${REL_FOLLOW_UP:-0}" == 1 ]] && listing=(--replace-listing)
+tag="v$v" tagfile="${REL_RUN:-}/steps/tag/out/tag.txt"
+[[ -n "${REL_RUN:-}" && -s "$tagfile" ]] && tag="$(<"$tagfile")"
+[[ "$tag" == "v$v" || "$tag" == "v$v"-r* ]] || { echo "$tagfile names $tag, not a tag of $v" >&2; exit 1; }
+echo "GitHub release of tag $tag"
 python3 "$(cd "$(dirname "$0")/../.." && pwd)/release-files.py" publish "$v" "$out" --github-repo "$repo" \
-  --key "$key" --keyring "$keyring" "${notes[@]}" "${listing[@]}"
+  --tag "$tag" --key "$key" --keyring "$keyring" "${notes[@]}" "${listing[@]}"
