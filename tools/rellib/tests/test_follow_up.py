@@ -67,7 +67,7 @@ class FollowUpCliTest(Base):
         code, out, err = self.plan("--only", "macos")
         self.assertEqual(code, 0, err)
         self.assertIn(f"follow-up of {base.info['run_id']}", out + err)
-        self.assertIn("previous release (G4): 26.1.0", out)
+        self.assertIn("previous release: 26.1.0", out)
         screens = [ln for ln in out.splitlines() if ln.split()[:1] == ["screens"]]
         self.assertTrue(screens and "SKIP" in screens[0], out)
         self.assertNotIn("manifests need", out + err)

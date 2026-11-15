@@ -2,17 +2,15 @@
 """How one tools/rel drive shares the machine (release/pipeline.toml [concurrency]).
 
 - A cap on heavy steps at once (`max_heavy`, default 2): a step counts when it is heavy (wrapped
-  in build-slot), a proof (G4 trust driver) or marked `capped` (the screens render). Remote
-  builds and builtins never count.
-- Steps kept apart: `apart` pairs never run at the same time (the full suite and the Android and
-  Windows trust lanes), `apart_shared` pairs only while the machine is shared with agents
-  (`shared`, default true; none by default: the Windows lanes run on the rigs).
+  in build-slot) or marked `capped` (the screens render). Remote builds and builtins never count.
+- Steps kept apart: `apart` pairs never run at the same time, `apart_shared` pairs only while the
+  machine is shared with agents (`shared`, default true). None by default.
 - A full suite outside the run: a step kept apart from source-check also waits (up to
   `external_wait`) while a build-slot slot runs one (`external_suites`, matched against
   `build-slot --status`), then starts anyway and says so.
-- Infrastructure retries: a failure whose cause is the machine, not the product or the driver (a signal, a
-  missing proof.json, an ssh drop, no build slot), runs once more (`infra_retries`, default 1).
-  Product and harness failures, timeouts, checks and publish steps never retry by themselves.
+- Infrastructure retries: a failure whose cause is the machine, not the product (a signal, an ssh
+  drop, no build slot), runs once more (`infra_retries`, default 1). Step failures, timeouts,
+  checks and publish steps never retry by themselves.
 - The release window: while a run drives, a marker file (default
   $XDG_RUNTIME_DIR/wfe-release-window, i.e. /run/user/$UID/wfe-release-window) says so, for
   build-slot and the scheduler to give the release priority. Contract: docs/RELEASING.md, "The release
@@ -33,7 +31,7 @@ from .run import now_iso
 DEFAULTS = {
     "max_heavy": 2,
     "shared": True,
-    "apart": [["source-check", "trust-android"], ["source-check", "trust-windows"]],
+    "apart": [],
     "apart_shared": [],
     "external_suites": ["check.sh --full", "flutter-test-all", "source-check.sh"],
     "external_wait": "60m",
@@ -65,15 +63,12 @@ class Policy:
 
     @staticmethod
     def counts(step):
-        if getattr(step, "remote", False):
-            return False
-        return bool(step.heavy or step.proof or getattr(step, "capped", False))
+        return bool(step.heavy or getattr(step, "capped", False))
 
-    def why_not(self, step, running, idle=()):
-        """None when step may start beside the steps in `running`, else why it waits. idle: those parked
-        at a fault, which hold their rig but take no cap slot."""
+    def why_not(self, step, running):
+        """None when step may start beside the steps in `running`, else why it waits."""
         if self.counts(step):
-            n = sum(1 for s in running if self.counts(s) and s not in idle)
+            n = sum(1 for s in running if self.counts(s))
             if n >= self.max_heavy:
                 return f"heavy-step cap ({self.max_heavy}) reached"
         for s in running:
@@ -121,42 +116,11 @@ def _tail(path, n=50):
         return []
 
 
-HARNESS_LINE = re.compile(r"^\s*(?:\S+:\s+)?HARNESS\b", re.MULTILINE)
-TRACEBACK = re.compile(r"^Traceback \(most recent call last\)", re.MULTILINE)
-
-
-def proof_cause(result, log):
-    """Why a G4 driver failed, from what it left: proof.fault.kind, its exit code, its log tail.
-    "harness" (the rig or the setup could not run the test: exit 2, a fault of kind harness or a
-    `HARNESS ...` line), "harness:crash" (the driver raised: a Python traceback and no proof fault),
-    "infra:driver-<sub>" (the driver named the machine: a fault of kind infra, its sub e.g. node, ssh, rig),
-    "product" (a required check is false, or the driver said PRODUCT) or "step"."""
-    proof = result.get("proof") if isinstance(result.get("proof"), dict) else {}
-    fault = proof.get("fault") if isinstance(proof.get("fault"), dict) else {}
-    if fault.get("kind") == "infra":
-        return "infra:driver-%s" % (re.sub(r"[^\w-]+", "-", str(fault.get("sub") or "rig")) or "rig")
-    if fault.get("kind") == "harness":
-        return "harness"
-    if fault.get("kind") == "refused":
-        return "check: refused"
-    if fault.get("kind") == "product":
-        return "product"
-    text = "".join(_tail(log, 120))
-    if TRACEBACK.search(text):
-        return "harness:crash"
-    if result.get("rc") == 2 or HARNESS_LINE.search(text):
-        return "harness"
-    if result.get("failed_checks"):
-        return "product"
-    return "step"
-
-
 def cause_of(step, result, log):
     """Why a step failed, for metrics.jsonl and the retry rule: "infra:<what>" (the machine: a
-    signal, a missing proof.json, an ssh drop, no build slot), "timeout" (its own hard limit),
-    "error" (tools/rel itself), "check" (a builtin or gate said no), for a proof step what
-    proof_cause says ("product", "harness", "harness:crash"), else "step" (a build or script
-    that exited non-zero). Only "infra:*" retries by itself (a proof's infra:driver-* too)."""
+    signal, an ssh drop, no build slot), "timeout" (its own hard limit), "error" (tools/rel
+    itself), "check" (a builtin or gate said no), else "step" (a build or script that exited
+    non-zero). Only "infra:*" retries by itself."""
     if result.get("timed_out"):
         return "timeout"
     if result.get("exception"):
@@ -174,10 +138,6 @@ def cause_of(step, result, log):
         return "infra:no-slot"
     if rc == 255 or any(SSH_DROP.search(l) for l in _tail(log)):
         return "infra:ssh"
-    if step.driven and result.get("proof_missing"):
-        return "infra:no-proof"
-    if step.driven:
-        return proof_cause(result, log)
     return "step"
 
 

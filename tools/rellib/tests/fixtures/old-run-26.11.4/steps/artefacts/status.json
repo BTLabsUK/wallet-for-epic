@@ -1,0 +1,28 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:35:36Z",
+ "ended": "2026-11-15T13:35:38Z",
+ "note": "8 files, 305 MB, SHA256SUMS + provenance.json + sbom.cdx.json; rc-manifest c1030584e0fe",
+ "hint": null,
+ "rc": null,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "bytes": 304606807,
+ "rc_manifest": "c1030584e0fe60e4babd8c0e852cd782514095b41868b927561db806259c3de5",
+ "duration_s": 1.7,
+ "attempt_seconds": [
+  1.7
+ ],
+ "warned": null,
+ "input_hash": "f3f575bec312b274",
+ "inputs_digest": "36ea3c351d09d7967b368160"
+}

@@ -75,6 +75,15 @@ run = "echo $REL_RUN_ID $BUILD_SLOT_PRIORITY > {{src}}/env-{name}; cat \\"$REL_W
 """
 
 
+# A source-check step for `apart` to name. It starts after a1, so only a full suite outside the run
+# can hold a1.
+LANE_G2 = """
+[step.source-check]
+needs = ["a1"]
+run = "true"
+"""
+
+
 def spans(run):
     """{step: (start t, end t)} from events.jsonl."""
     out = {}
@@ -109,54 +118,40 @@ class ConcurrencyTest(Base):
         self.assertEqual(line["max_heavy"], 2)
         self.assertGreater(line.get("waited_s", 0), 0)
 
-    def test_android_and_windows_trust_side_by_side_but_never_beside_the_suite(self):
-        names = ["source-check", "trust-android", "trust-windows", "trust-linux"]
-        run, eng = self.lanes_run(names, '\n[concurrency]\nmax_heavy = 4\n')
+    def test_apart_pairs_never_overlap_and_apart_shared_only_on_a_shared_machine(self):
+        names = ["source-check", "a1", "a2"]
+        conc = '\n[concurrency]\nmax_heavy = 4\napart_shared = [["source-check", "a1"]]\n'
+        run, eng = self.lanes_run(names, conc)
         eng.drive([s.id for s in run.steps])
         sp = spans(run)
-        self.assertTrue(overlap(sp["trust-android"], sp["trust-windows"]), sp)
-        self.assertFalse(overlap(sp["source-check"], sp["trust-android"]))
-        self.assertFalse(overlap(sp["source-check"], sp["trust-windows"]))
-        self.assertTrue(overlap(sp["source-check"], sp["trust-linux"]))
-        # --exclusive-machine: the same; never beside the suite.
-        run, eng = self.lanes_run(names, '\n[concurrency]\nmax_heavy = 4\n')
+        self.assertFalse(overlap(sp["source-check"], sp["a1"]), sp)
+        self.assertTrue(overlap(sp["source-check"], sp["a2"]), sp)
+        # --exclusive-machine: apart_shared no longer applies.
+        run, eng = self.lanes_run(names, conc)
         run.info["concurrency"] = {"shared": False}
         eng = Engine(run, self.pipeline, self.hosts, REPO)
         eng.drive([s.id for s in run.steps])
         sp = spans(run)
-        self.assertTrue(overlap(sp["trust-android"], sp["trust-windows"]), sp)
-        self.assertFalse(overlap(sp["source-check"], sp["trust-android"]))
+        self.assertTrue(overlap(sp["source-check"], sp["a1"]), sp)
 
-    def test_a_full_suite_outside_the_run_holds_android_and_windows_trust(self):
-        run, eng = self.lanes_run(["trust-android"], '\n[concurrency]\npoll = "0.2s"\n')
+    def test_a_full_suite_outside_the_run_holds_a_step_kept_apart_from_source_check(self):
+        conc = '\n[concurrency]\napart = [["source-check", "a1"]]\npoll = "0.2s"\n'
+        run, eng = self.lanes_run(["a1"], LANE_G2 + conc)
         answers = ["slot 1: agent-x since 10:00:00: tools/check.sh --full"] * 3 + ["slot 1: free"]
         eng.heavy_status = lambda: answers.pop(0) if len(answers) > 1 else answers[0]
         self.assertEqual(eng.drive([s.id for s in run.steps]), 0)
-        ev = [e for e in run.events() if e["step"] == "trust-android" and e["event"] == "deferred"]
+        ev = [e for e in run.events() if e["step"] == "a1" and e["event"] == "deferred"]
         self.assertIn("full test suite runs outside this run", ev[0]["reason"])
-        self.assertEqual(run.status("trust-android")["status"], "done")
+        self.assertEqual(run.status("a1")["status"], "done")
         # After external_wait it starts anyway and says so.
-        run, eng = self.lanes_run(["trust-android"], '\n[concurrency]\npoll = "0.1s"\nexternal_wait = "0.3s"\n')
+        conc = '\n[concurrency]\napart = [["source-check", "a1"]]\npoll = "0.1s"\nexternal_wait = "0.3s"\n'
+        run, eng = self.lanes_run(["a1"], LANE_G2 + conc)
         eng.heavy_status = lambda: "slot 2: agent-y since 10:00:00: tools/flutter-test-all.sh"
         self.assertEqual(eng.drive([s.id for s in run.steps]), 0)
         self.assertTrue(any(e["event"] == "external-suite" for e in run.events()))
 
-    def test_a_remote_lane_takes_no_heavy_slot_and_runs_beside_android(self):
-        """Windows trust runs its app on a rig: with both slots held by local lanes it still starts,
-        and beside Android too."""
-        from types import SimpleNamespace as NS
-        pol = window.Policy()
-        lin = [NS(base="trust-linux", id="trust-linux-%s" % v, heavy=False, proof=True) for v in ("tor", "notor")]
-        win = NS(base="trust-windows", id="trust-windows-tor", heavy=False, proof=True, remote=True)
-        self.assertIsNone(pol.why_not(win, lin))
-        self.assertIn("cap (2)", pol.why_not(NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True), lin))
-        self.assertIsNone(pol.why_not(win, [NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True)]))
-        kept = window.Policy({"apart_shared": [["trust-android", "trust-windows"]]})
-        self.assertIn("kept apart", kept.why_not(win, [NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True)]))
-        self.assertIsNone(pol.why_not(lin[0], [lin[1], win]), "a running remote lane holds no slot")
-
     def test_concurrency_config_is_checked(self):
-        for bad in ('max_heavy = 0', 'infra_retries = 9', 'apart = [["trust-android"]]', 'apart = [["nope", "scope"]]'):
+        for bad in ('max_heavy = 0', 'infra_retries = 9', 'apart = [["a1"]]', 'apart = [["nope", "scope"]]'):
             with self.subTest(bad=bad), self.assertRaises(ConfigError):
                 Pipeline(tomllib.loads(LANES % lane("a1") + f"\n[concurrency]\n{bad}\n"))
         with self.assertRaises(ConfigError):
@@ -204,56 +199,34 @@ class WindowTest(Base):
 
 
 class InfraRetryTest(Base):
-    def driver(self, script):
-        with open(os.path.join(self.src, "driver.sh"), "w") as f:
+    def check(self, script):
+        """Step check of the fake pipeline runs `script` (a file in the source folder) instead."""
+        with open(os.path.join(self.src, "check.sh"), "w") as f:
             f.write(script)
-
-    def trust(self):
         run = self.make_run(only="android", sets=["publish.manifests=false"])
+        run.step("check").run = f"bash {self.src}/check.sh"
         eng = self.engine(run)
         eng.drive(self.build_ids(run))
-        return run, run.status("trust-android-tor")
+        return run, run.status("check")
 
     def metric_lines(self, step):
         return [json.loads(x) for x in rtext(os.path.join(self.root, "metrics.jsonl")).splitlines() if f'"step": "{step}"' in x]
 
-    def test_a_driver_killed_by_the_machine_runs_once_more(self):
-        self.driver('n=$(cat "$REL_SRC/n" 2>/dev/null || echo 0); echo $((n+1)) > "$REL_SRC/n"\n'
-                    'if [ "$n" = 0 ]; then kill -TERM $$; fi\n'
-                    'printf \'{"checks":{"wallet_opens":true,"history_kept":true,"send_ok":true}}\' > "$REL_OUT/proof.json"\n')
-        run, st = self.trust()
+    def test_a_step_killed_by_the_machine_runs_once_more(self):
+        run, st = self.check('n=$(cat "$REL_SRC/n" 2>/dev/null || echo 0); echo $((n+1)) > "$REL_SRC/n"\n'
+                             'if [ "$n" = 0 ]; then kill -TERM $$; fi\n')
         self.assertEqual((st["status"], st["attempts"]), ("done", 2), st)
-        lines = self.metric_lines("trust-android-tor")
+        lines = self.metric_lines("check")
         self.assertEqual([(l["status"], l.get("cause"), l.get("infra_try")) for l in lines],
                          [("failed", "infra:sigterm", None), ("done", None, 1)])
-        self.assertNotIn("alert trust-android-tor failed", self.relmsg_calls())
+        self.assertNotIn("alert check failed", self.relmsg_calls())
         self.assertTrue(any(e["event"] == "retry" and e.get("automatic") for e in run.events()))
 
-    def test_a_missing_proof_retries_once_then_fails_with_its_cause(self):
-        self.driver('echo run >> "$REL_SRC/n"; exit 0\n')
-        run, st = self.trust()
-        self.assertEqual((st["status"], st["attempts"], st["cause"]), ("failed", 2, "infra:no-proof"))
-        self.assertEqual(rtext(os.path.join(self.src, "n")).count("run"), 2)
-        self.assertEqual(self.relmsg_calls().count("alert trust-android-tor failed"), 1)
-
-    def test_a_product_failure_never_retries(self):
-        with open(os.path.join(self.src, "proof-mode"), "w") as f:
-            f.write("bad")
-        run, st = self.trust()
-        self.assertEqual((st["status"], st["attempts"], st["cause"]), ("failed", 1, "product"))
-
-    def test_a_stale_proof_never_counts_for_a_new_attempt(self):
-        with open(os.path.join(self.src, "proof-mode"), "w") as f:
-            f.write("good")
-        run, st = self.trust()
-        self.assertEqual(st["status"], "done")
-        self.driver("exit 0\n")
-        s = run.step("trust-android-tor")
-        st = self.engine(run).execute(s)
-        self.assertEqual((st["status"], st["cause"]), ("failed", "infra:no-proof"))
-        out = os.listdir(os.path.join(run.step_dir(s.id), "out"))
-        self.assertNotIn("proof.json", out)
-        self.assertTrue(any(n.startswith("proof.before-") for n in out))
+    def test_a_step_failure_never_retries(self):
+        run, st = self.check('echo run >> "$REL_SRC/n"; exit 1\n')
+        self.assertEqual((st["status"], st["attempts"], st["cause"]), ("failed", 1, "step"))
+        self.assertEqual(rtext(os.path.join(self.src, "n")).count("run"), 1)
+        self.assertEqual(self.relmsg_calls().count("alert check failed"), 1)
 
     def test_its_own_timeout_is_not_retried(self):
         run = self.make_run(only="android", sets=["publish.manifests=false"])
@@ -275,14 +248,12 @@ class InfraRetryTest(Base):
         log = os.path.join(self.tmp, "log")
         cmd = Step(id="b", base="b", kind="command", title="b", host="build", lane="b", platforms=[])
         heavy = Step(id="h", base="h", kind="command", title="h", host="build", lane="h", platforms=[], heavy=True)
-        proof = Step(id="p", base="p", kind="command", title="p", host="build", lane="p", platforms=[], proof=True)
         wtext(log, "building\nerror: tests failed\n")
         self.assertEqual(window.cause_of(cmd, {"rc": 1}, log), "step")
         self.assertEqual(window.cause_of(cmd, {"rc": 137}, log), "infra:sigkill")
         self.assertEqual(window.cause_of(cmd, {"rc": 255}, log), "infra:ssh")
         self.assertEqual(window.cause_of(heavy, {"rc": 75}, log), "infra:no-slot")
         self.assertEqual(window.cause_of(cmd, {"rc": 75}, log), "step")
-        self.assertEqual(window.cause_of(proof, {"rc": 2, "proof_missing": True}, log), "infra:no-proof")
         self.assertEqual(window.cause_of(cmd, {"rc": None, "timed_out": True}, log), "timeout")
         wtext(log, rtext(log) + "client_loop: send disconnect: Broken pipe\n")
         self.assertEqual(window.cause_of(cmd, {"rc": 1}, log), "infra:ssh")
@@ -303,11 +274,11 @@ class SignOnDemandTest(Base):
         super().tearDown()
 
     def write_pipeline(self):
-        text = FAKE_PIPELINE.replace('needs = ["build-android", "build-linux"]\nproof = true\n\n[step.trust-linux]',
-                                     'needs = ["build-android", "build-linux", "sign-android"]\nproof = true\n\n'
-                                     '[step.trust-linux]')
+        text = FAKE_PIPELINE.replace('[step.check]\nhost = "local"\nneeds = ["build-android", "build-linux"]',
+                                     '[step.check]\nhost = "local"\nneeds = ["build-android", "build-linux", "sign-android"]')
         text += ('\n[step.sign-android]\nkind = "builtin"\nhost = "local"\nplatform = "android"\nlane = "sign"\n'
-                 'needs = ["build-android", "build-linux"]\n\n[sign]\nwhen = "on-demand"\n')
+                 'needs = ["build-android", "build-linux"]\n\n[step.later]\nneeds = ["build-linux"]\n'
+                 'run = "echo later >> {src}/calls"\n\n[sign]\nwhen = "on-demand"\n')
         path = os.path.join(self.tmp, "pipeline.toml")
         wtext(path, text)
         hosts = os.path.join(self.tmp, "hosts.toml")
@@ -324,8 +295,8 @@ class SignOnDemandTest(Base):
         self.assertEqual(st["status"], "waiting")
         self.assertIn("tools/rel sign --run", st["note"])
         self.assertEqual(self.fake.requests, [], "no request, so no code is asked yet")
-        self.assertEqual(run.status("trust-linux-tor")["status"], "done", "the other lanes went on")
-        self.assertEqual(run.status("trust-android-tor")["status"], "pending")
+        self.assertEqual(run.status("later")["status"], "done", "the other lanes went on")
+        self.assertEqual(run.status("check")["status"], "pending")
         self.assertEqual(self.relmsg_calls().count("Android files of"), 1)
         # A resume asks nobody again.
         Engine(run, self.pipeline, self.hosts, REPO, relmsg=eng.relmsg).drive(self.build_ids(run))
@@ -334,7 +305,7 @@ class SignOnDemandTest(Base):
         self.assertEqual(code, EXIT_WAITING, out + err)  # on to the publish gate
         self.assertEqual(len(self.fake.requests), 1)
         self.assertEqual(run.status("sign-android")["status"], "done")
-        self.assertEqual(run.status("trust-android-tor")["status"], "done")
+        self.assertEqual(run.status("check")["status"], "done")
         self.assertTrue(jload(os.path.join(run.path, "run.json"))["sign_requested"])
 
     def test_inline_asks_at_once(self):
@@ -405,16 +376,16 @@ class GreenTest(Base):
         step = self.g2_step()
         spec = self.pipeline.steps["source-check"]
         info = {"commit": HEAD, "version": V}
-        k, _, src = reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))
+        k, _, src = reuse.find_source(REPO, self.root, info, step, spec["reuse"], reuse.green_dir(spec))
         self.assertIsNone(src)
         self.record(clean=False)
-        self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))[2])
+        self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], reuse.green_dir(spec))[2])
         self.record(command="tools/check.sh")
-        self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))[2])
+        self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], reuse.green_dir(spec))[2])
         self.record(suites=None)  # a record from before full-notor counted
-        self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))[2])
+        self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], reuse.green_dir(spec))[2])
         self.record()
-        k2, _, src = reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))
+        k2, _, src = reuse.find_source(REPO, self.root, info, step, spec["reuse"], reuse.green_dir(spec))
         self.assertEqual((k2, src["kind"], src["commit"]), (k, "green", HEAD))
         self.assertIn("tools/check.sh --full", src["label"])
 
@@ -447,53 +418,29 @@ class GreenTest(Base):
 
 class EvidenceTest(Base):
     def built(self):
-        with open(os.path.join(self.src, "proof-mode"), "w") as f:
-            f.write("good")
         run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
         eng = self.engine(run)
         eng.drive(self.build_ids(run))
         return run, eng
 
-    def test_rc_manifest_proofs_and_publish_are_tied_to_the_bytes(self):
+    def test_rc_manifest_and_publish_are_tied_to_the_bytes(self):
         run, eng = self.built()
-        self.assertTrue(run.status("trust-android-tor")["tested"])
         h, missing = evidence.write_manifest(eng)
         self.assertEqual(missing, [])
         m = evidence.read_manifest(run)
         self.assertEqual(m["hash"], h)
         self.assertIn("emulator/x.apk", m["files"])
-        self.assertEqual(evidence.stale_proofs(eng, m), [])
-        d = evidence.keep(eng, m, {"android": {"state": "proven"}})
-        self.assertTrue(os.path.isfile(os.path.join(d, "proofs", "trust-android-tor.json")))
-        self.assertEqual(os.path.basename(d), h)
         run.info["gates"] = {"publish": {"gate_id": 3, "rc_manifest": h}}
         run.save_info()
         self.assertIsNone(evidence.publish_refusal(run))
-        # The bytes change (a rebuild, or anything else): the proof is about other bytes, the
-        # approval too, and nothing is published.
+        # The bytes change (a rebuild, or anything else): the approval is about other bytes, and
+        # nothing is published.
         apk = os.path.join(run.files, "bt-wallet-26.10.25-android-arm64-v8a.apk")
         with open(apk, "ab") as f:
             f.write(b"x")
         self.assertIn("no longer match", evidence.publish_refusal(run))
         evidence.write_manifest(eng)
         self.assertIn("approved rc-manifest", evidence.publish_refusal(run))
-        self.assertEqual([sid for sid, _ in evidence.stale_proofs(eng, evidence.read_manifest(run))], ["trust-android-tor"])
-
-    def test_a_proof_is_about_the_builds_it_waited_for(self):
-        run, eng = self.built()
-        evidence.write_manifest(eng)
-        m = evidence.read_manifest(run)
-        notor = list(run.status("build-linux-notor")["outputs"])
-        self.assertTrue(notor)
-        st = run.status("trust-linux-tor")
-        # As trust-windows-notor beside build-windows-tor: started before the other variant's build ended.
-        run.set_status("trust-linux-tor", tested={**st["tested"], **{n: None for n in notor}})
-        self.assertEqual([sid for sid, _ in evidence.stale_proofs(eng, m)], ["trust-linux-tor"])
-        step = run.step("trust-linux-tor")
-        step.needs = [n for n in step.needs if n != "build-linux-notor"]
-        self.assertFalse(set(notor) & set(eng.platform_files(step)))
-        self.assertIn("bt-wallet-26.10.25-linux-x86_64.AppImage", eng.platform_files(step))
-        self.assertEqual(evidence.stale_proofs(eng, m), [])
 
     def test_a_run_never_published_lists_only_the_builds_that_ran(self):
         run, eng = self.built()
@@ -504,7 +451,7 @@ class EvidenceTest(Base):
         run.set_status("build-linux-notor", status="pending")
         h, missing = evidence.write_manifest(eng)
         self.assertEqual(missing, list(st["outputs"]))  # a run that may publish needs every build
-        run.taint("trust-linux-tor run with unmet needs: build-linux-notor")
+        run.taint("check run with unmet needs: build-linux-notor")
         h, missing = evidence.write_manifest(eng)
         self.assertEqual(missing, [])
         files = evidence.read_manifest(run)["files"]
@@ -513,7 +460,7 @@ class EvidenceTest(Base):
 
     def test_a_build_that_ran_again_resets_what_depended_on_its_bytes(self):
         run, eng = self.built()
-        before = run.status("trust-linux-tor")
+        before = run.status("check")
         self.assertTrue(before["inputs_digest"])
         self.assertIsNone(run.status("build-android-tor").get("inputs_digest"))
         # build-android-tor ran again and made other bytes.
@@ -527,8 +474,8 @@ class EvidenceTest(Base):
                              "resume", "--run", run.path)
         self.assertEqual(code, EXIT_WAITING, out + err)
         inval = {e["step"] for e in run.events() if e["event"] == "invalidated"}
-        self.assertEqual(inval, {"trust-android-tor", "trust-linux-tor", "update-trust"})
-        self.assertEqual(run.status("trust-linux-tor")["attempts"], 2)
+        self.assertEqual(inval, {"check"})
+        self.assertEqual(run.status("check")["attempts"], 2)
         self.assertEqual(run.status("build-linux-tor")["attempts"], 1, "a build is never reset by this")
 
 

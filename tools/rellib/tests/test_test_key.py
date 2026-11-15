@@ -28,7 +28,7 @@ class TestKeyTest(unittest.TestCase):
         self.assertEqual(builtins.keyring_for(eng)[0], "/bp/keys/btlabs-keyring.json")
 
     def test_tainted_run_signs_with_the_test_key_but_stays_a_release_run(self):
-        eng = engine({"tainted": [{"at": "t", "reason": "trust-linux-tor ran with unmet needs"}]})
+        eng = engine({"tainted": [{"at": "t", "reason": "check ran with unmet needs"}]})
         env = Engine.base_env(eng, self.step)
         self.assertEqual((env["REL_TEST"], env["REL_TEST_KEY"], env["REL_RUN_KIND"]), ("0", "1", "release"))
         self.assertEqual(builtins.keyring_for(eng)[0], "/r/manifests/test-keyring.json")

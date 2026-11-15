@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// The test drivers' control ids (tools/rellib/drivers/trust_ids.json, generated into
-// lib/src/trust_ids.g.dart by tools/ui-targets): on the screens that carry them each id is one
-// node with the role, the tap action and the label the registry states.
+// The control ids (the registry test/fixtures/trust_ids.json, and lib/src/trust_ids.g.dart, edited
+// by hand with it): on the screens that carry them each id is one node with the role, the tap action
+// and the label the registry states.
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show CheckedState, Tristate;
@@ -23,7 +23,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-final _registry = (jsonDecode(File('../tools/rellib/drivers/trust_ids.json').readAsStringSync()) as Map)['controls'] as List;
+final _registry = (jsonDecode(File('test/fixtures/trust_ids.json').readAsStringSync()) as Map)['controls'] as List;
 final _arb = jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync()) as Map<String, dynamic>;
 
 Map<String, dynamic> _control(String id) => _registry.cast<Map<String, dynamic>>().firstWhere((c) => c['id'] == id);
@@ -226,11 +226,6 @@ void main() {
     await close(tester);
     handle.dispose();
   });
-
-  test('tools/ui-targets check: nothing missing, unused or duplicated, the generated file current', () {
-    final check = Process.runSync('python3', ['../tools/ui-targets', 'check']);
-    expect(check.exitCode, 0, reason: '${check.stdout}${check.stderr}');
-  }, skip: Platform.isLinux ? false : 'Linux only: the merge path runs it there');
 
   testWidgets('an id reaches the label only under the Linux lanes\u2019 hook', (tester) async {
     final handle = tester.ensureSemantics();

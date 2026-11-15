@@ -1,0 +1,137 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:27:27Z",
+ "ended": "2026-11-15T13:38:39Z",
+ "note": "proven 26.11.3 \u2192 26.11.4 (appimage-swap: the previous release's AppImage, then the candidate's on the same sandbox HOME (data folder and keyring kept, as the in-app update leaves them); both run extracted; node http://127.0.0.1:43413, epicbox epicbox.btlabs.uk)",
+ "hint": null,
+ "rc": 0,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver": {
+  "commit": "f08dc53748d86b728e5fc057c8bf18adc7a44b0f",
+  "dirty": null
+ },
+ "drivers": [
+  {
+   "commit": "f08dc53748d86b728e5fc057c8bf18adc7a44b0f",
+   "dirty": null,
+   "attempt": 1
+  }
+ ],
+ "driver_changed": null,
+ "proof": {
+  "platform": "linux",
+  "variant": "tor",
+  "previous": "26.11.3",
+  "candidate": "26.11.4",
+  "update_method": "appimage-swap: the previous release's AppImage, then the candidate's on the same sandbox HOME (data folder and keyring kept, as the in-app update leaves them); both run extracted",
+  "start": "seed",
+  "trust_mode": null,
+  "node": "http://127.0.0.1:43413",
+  "epicbox": "epicbox.btlabs.uk",
+  "checks": {
+   "wallet_opens": true,
+   "balance_kept": true,
+   "history_kept": true,
+   "custom_nodes_kept": true,
+   "custom_relays_kept": true,
+   "settings_kept": true,
+   "store_encrypted": true,
+   "app_files_kept": true,
+   "lan_nodes_kept": true,
+   "contact_note_kept": true,
+   "restore_ok": true
+  },
+  "details": {
+   "resume": {
+    "resumed": false,
+    "why": "the first attempt"
+   },
+   "hermetic": {
+    "on": false,
+    "reason": "local node http://127.0.0.1:43413 in use; P (the funder) posts through epicbox.stackwallet.com, not the local relay 127.0.0.1:43423: the relay stays public",
+    "node": "http://127.0.0.1:43413",
+    "relay": "epicbox.btlabs.uk"
+   },
+   "birth": {
+    "height": 3782025,
+    "date": "2026-11-03",
+    "method": "tip at creation"
+   },
+   "restore_ok": "the restored wallet's spendable 0.062 EPIC reached the 0.062 EPIC on record (run 26.11.4-run14) after 42 s (wallet data)",
+   "address": "esYuqTFg\u2026EwPb39",
+   "fund": "P -> esYuqT\u2026EwPb39 0.01 EPIC: incoming confirmed, spendable 0.072 (wallet data)",
+   "wallet_opens": "wallet legacy-mainnet ('Trust 1115 1327') opened with the candidate; its store was read (cli)",
+   "balance_kept": "total 0.072 EPIC before and after (the encrypted store read through the LEPIC CLI at the candidate's pin; outputs by commitment and counterparties are not in its reports)",
+   "history_kept": "3 transactions kept by slate, direction, state and amounts (incoming 0.05 EPIC confirmed, no counterparty; incoming 0.012 EPIC confirmed, no counterparty; incoming 0.01 EPIC confirmed, no counterparty); who paid or was paid NOT compared (the LEPIC CLI does not report counterparties); 2 of them from the restore's scan, without slate or counterparty (the encrypted store read through the LEPIC CLI at the candidate's pin; outputs by commitment and counterparties are not in its reports)",
+   "custom_nodes_kept": "127.0.0.1:43413 in use and 127.0.0.1:43413 kept; list 127.0.0.1:43413, node.epiccash.com:3413, node.btlabs.uk, node.epicnet.us:3413, epic.stackwallet.com:3413 (settings.toml (first entry in use))",
+   "custom_relays_kept": "epicbox.btlabs.uk in use and 127.0.0.1:59613 kept; list epicbox.btlabs.uk, epicbox.epiccash.com, epicbox.stackwallet.com, epicbox.epicnet.us, 127.0.0.1:59613 (settings.toml (first entry in use)); the candidate's listener subscribed to nothing (wfe.log)",
+   "level": "level 3, as the previous release stored it (desk store app.level, wfe.log)",
+   "settings_kept": "theme light, label 'Trust 1115 1327', Technical details on (desk store desk.settings, wallets.json label, the wallet database's minimum confirmations); NOT read: confirmations (before: the encrypted store's settings are not in the LEPIC CLI's reports)",
+   "data_folder": "all 10 files of the previous data folder still there; 0 new",
+   "store_encrypted": "wallets/mainnet/lepic: wallet.enc.sqlite3 and wallet.enc.sqlite3.check present, no plain database",
+   "app_files_kept": "not applicable: the previous release already encrypts (nothing plain to carry over)",
+   "lan_nodes_kept": "not applicable: the previous release already encrypts (nothing plain to carry over)",
+   "contact_note_kept": "not applicable: the previous release already encrypts (nothing plain to carry over)",
+   "non_local": {
+    "before": [
+     "epicbox.btlabs.uk",
+     "epicbox.stackwallet.com",
+     "epicbox.epiccash.com",
+     "node.epiccash.com"
+    ],
+    "after": [],
+    "app_log": true
+   }
+  },
+  "recovered": [],
+  "phases": {
+   "done": [
+    "prepare",
+    "install",
+    "previous",
+    "restore-ok",
+    "previous-setup",
+    "address",
+    "contacts",
+    "fund",
+    "digest-before",
+    "stop-previous",
+    "seed",
+    "snapshot",
+    "resume-point",
+    "update",
+    "candidate",
+    "digest-after",
+    "funds"
+   ],
+   "failed": null,
+   "kept": []
+  },
+  "driver": {
+   "commit": "f08dc53748d86b728e5fc057c8bf18adc7a44b0f",
+   "dirty": null
+  }
+ },
+ "proven": true,
+ "failed_checks": null,
+ "duration_s": 671.7,
+ "attempt_seconds": [
+  671.7
+ ],
+ "warned": null,
+ "input_hash": "973961c2242ff7c5",
+ "inputs_digest": "af3c2e0713081ae355254e50",
+ "tested": {
+  "bt-wallet-26.11.4-linux-x86_64.AppImage": "96f503dea1cc95405a3536142cb69fc2fc277f2c1b28f9f103b8e5b31f35c2c8",
+  "bt-wallet-26.11.4-notor-linux-x86_64.AppImage": "0c407048d1bd2f614ff32ea0afdd358366f2746eb63fb1a889c4147aad8720b4"
+ }
+}

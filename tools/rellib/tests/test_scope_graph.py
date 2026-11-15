@@ -22,13 +22,13 @@ def ctx(scope):
             "files": f"{run}/files", "extra": f"{run}/extra", "manifests": f"{run}/manifests", "src": "/src", "rel": "/rel",
             "target": scope["publish"]["target"], "scratch": f"{run}/scratch", "notes_file": f"{run}/notes.txt",
             "previous_dir": "/prev", "previous_version": "26.10.24", "previous_ref": "v26.10.24",
-            "node": "$REL_NODE", "epicbox": "$REL_EPICBOX", "host": host, "path": path}
+            "host": host, "path": path}
 
 
-def graph(stage="release", **kw):
+def graph(**kw):
     s = load_scope(None, "26.10.25", **kw)
     validate_scope(s, PIPE)
-    return s, build_graph(PIPE, s, ctx(s), stage=stage)
+    return s, build_graph(PIPE, s, ctx(s))
 
 
 class ScopeTest(unittest.TestCase):
@@ -60,10 +60,9 @@ class ScopeTest(unittest.TestCase):
         msg = self.refused("cannot be skipped", skips=["build-windows=PC off"])
         self.assertIn("[platforms]", msg)
         self.refused("gates never skip", skips=["publish-gate=hurry"])
-        self.refused("waive it in [proof.waive]", skips=["trust-linux=slow"])
+        self.refused("cannot be skipped", skips=["trust-manifest=slow"])
         self.refused("no such step", skips=["build-toaster=x"])
         self.refused("give a reason", skips=["publish-source="])
-        self.refused("not in scope, nothing to waive", only="android", waive=["macos=no test"])
         self.refused("publish.manifests needs android", only="linux")
         self.refused("needs both variants", no_variant="notor")
         self.refused("the one unsigned ipa is the build without Tor", sets=["apple.signed=false", "publish.manifests=false"],
@@ -119,8 +118,8 @@ class GraphTest(unittest.TestCase):
         ids = [x.id for x in steps]
         pos = {x: i for i, x in enumerate(ids)}
         for a, b in (("scope", "preflight"), ("preflight", "source-check"), ("source-check", "build-android-tor"),
-                     ("build-windows-notor", "artefacts"), ("artefacts", "update-trust"), ("trust-linux-tor", "update-trust"),
-                     ("update-trust", "publish-gate"), ("publish-gate", "publish-downloads"),
+                     ("build-windows-notor", "artefacts"), ("artefacts", "manifests"), ("manifests", "trust-manifest"),
+                     ("trust-manifest", "publish-gate"), ("publish-gate", "publish-downloads"),
                      ("publish-downloads", "publish-page"), ("publish-source", "publish-manifests"),
                      ("publish-manifests", "verify-live")):
             self.assertLess(pos[a], pos[b], f"{a} before {b}")
@@ -129,95 +128,30 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(next(x for x in steps if x.id == "verify-live").publish)
         self.assertNotIn("store-play-tor", ids)
 
-    def test_only_the_tor_builds_are_tested(self):
-        # The owner 2026-11-05: both variants are built, verified and shipped; rigs and devices test Tor only.
-        s, steps = graph(skip_platform="macos,ios")
-        ids = [x.id for x in steps]
-        for p in ("android", "linux", "windows"):
-            self.assertIn(f"build-{p}-notor", ids)
-            self.assertIn(f"trust-{p}-tor", ids)
-            self.assertNotIn(f"trust-{p}-notor", ids)
-        self.assertIn("screens", ids)
-        # The notor files still go through G3 and the manifests.
-        by = {x.id: x for x in steps}
-        self.assertIn("build-linux-notor", by["artefacts"].needs)
-        # iOS has only a notor build: its trust step names that variant itself.
-        s, steps = graph(sets=["apple.signed=false"])
-        ids = [x.id for x in steps]
-        self.assertIn("trust-ios-notor", ids)
-        self.assertNotIn("trust-macos-notor", ids)
-
-    def test_update_trust_runs_per_platform_after_the_local_builds(self):
+    def test_no_step_tests_a_built_binary(self):
+        # The owner 2026-11-15: the pipeline builds, signs, checks signatures and hashes, and publishes.
         s, steps = graph()
         by = {x.id: x for x in steps}
-        # sign-android: every Android file the trust drivers install is the signed one.
-        local = ["build-android-tor", "build-android-notor", "sign-android", "build-linux-tor", "build-linux-notor"]
-        # The desktop runs need no signature: they start without waiting for the release's code.
-        desk = [x for x in local if x != "sign-android"]
-        self.assertEqual(by["trust-android-tor"].needs, local)
-        self.assertEqual(by["trust-linux-tor"].needs, desk)
-        self.assertEqual(by["trust-windows-tor"].needs, desk + ["build-windows-tor"])
-        self.assertEqual(by["trust-macos-tor"].needs, local + ["apple-mac-check-tor"])
-        # Each lane has its own emulator, sandbox or rig.
-        self.assertEqual([by[f"trust-{p}-tor"].lane for p in ("android", "linux")], ["trust-android-tor", "trust-linux-tor"])
-        lanes = [x.lane for x in steps if x.proof]
-        self.assertNotIn("local", lanes)
-        self.assertNotIn("heavy", lanes)
-        # G3 and every trust step still come before the publish gate.
-        self.assertTrue({"artefacts", *(x.id for x in steps if x.proof)} <= set(by["update-trust"].needs))
+        self.assertFalse([x for x in by if x.startswith(("trust-android", "trust-linux", "trust-windows", "trust-macos",
+                                                         "trust-ios", "trust-pair", "update-trust", "screens-check",
+                                                         "testbuild-", "flow-", "create-", "lane-"))])
+        self.assertEqual(by["trust-manifest"].title, "G4 manifest signature checks")
+        self.assertEqual(by["trust-manifest"].needs, ["manifests"])
+        self.assertEqual(by["publish-gate"].needs, ["artefacts", "trust-manifest"])
+        # Without manifests G4 is out of the graph and the gate waits for G3 alone.
+        s, steps = graph(no_variant="notor", sets=["publish.manifests=false"])
+        by = {x.id: x for x in steps}
+        self.assertNotIn("trust-manifest", by)
+        self.assertEqual(by["publish-gate"].needs, ["artefacts"])
+
+    def test_heavy_lanes(self):
+        s, steps = graph()
         # G2 and the Android builds one at a time; the Linux builds in their own lane beside them,
         # still heavy (each under build-slot).
         self.assertEqual([x.id for x in steps if x.lane == "heavy"],
                          ["source-check", "build-android-tor", "build-android-notor"])
         self.assertEqual([x.id for x in steps if x.lane == "build-linux"], ["build-linux-tor", "build-linux-notor"])
         self.assertTrue(all(x.heavy for x in steps if x.lane == "build-linux"))
-
-    def test_create_steps_warn_only_after_the_flow_lanes(self):
-        s, steps = graph(stage="night")
-        by = {x.id: x for x in steps}
-        for plat in ("android", "linux", "windows", "macos"):
-            self.assertNotIn(f"create-{plat}-notor", by)
-            c = by[f"create-{plat}-tor"]
-            self.assertTrue(c.warn_only)
-            self.assertFalse(c.proof)
-            self.assertEqual(c.lane, f"trust-{plat}-tor")
-            self.assertEqual(c.needs, [f"flow-{plat}-tor"])
-            self.assertEqual((c.env["REL_TRUST_MODE"], c.env["REL_CHECKS"], c.env["REL_FUNDS"]), ("create", "create_ok", "0"))
-            self.assertEqual(c.env["REL_CANDIDATE_DIR"], f"/r/26.10.25/run-1/steps/testbuild-{plat}-tor/out")
-            self.assertIn(f"trust-{plat}.sh", c.run)
-
-    def test_night_stage_holds_the_test_builds_and_their_lanes(self):
-        # 2026-11-07: the lanes on a test build run every night, after G2; a release has none of them.
-        # The send and receive legs run in the flow lanes.
-        self.assertEqual(PIPE.proof["funds_in"], "flow")
-        s, steps = graph(stage="night")
-        by = {x.id: x for x in steps}
-        self.assertFalse([x.id for x in steps if x.publish or x.base.startswith(("build-", "apple-"))
-                          or (x.base.startswith("trust-") and not x.base.startswith("trust-pair-"))])
-        # a night's trust pair resumes from its last proof: a refused start must not write over it
-        self.assertTrue(all(x.proof_kept for x in steps if x.base.startswith("trust-pair-")))
-        for plat in ("android", "linux", "windows"):
-            t, f = by[f"testbuild-{plat}-tor"], by[f"flow-{plat}-tor"]
-            self.assertNotIn(f"testbuild-{plat}-notor", by)
-            self.assertEqual(t.needs, ["source", "source-check"])
-            self.assertFalse(t.outputs or t.extras, "a test build is never shipped")
-            self.assertEqual(f.needs, [t.id])
-            self.assertFalse(f.proof or f.warn_only)
-            self.assertTrue(f.driven)
-            self.assertEqual(f.env["REL_TRUST_MODE"], "flow")
-            d = f"/r/26.10.25/run-1/steps/{t.id}/out"
-            self.assertEqual({f.env[k] for k in ("REL_PREVIOUS_DIR", "REL_PREVIOUS_EXTRA", "REL_CANDIDATE_DIR",
-                                                 "REL_CANDIDATE_EXTRA")}, {d})
-            self.assertEqual(f.run, PIPE.proof["drivers"][plat].replace("{rel}", "/rel"))
-            # One chain per platform, in its trust lane.
-            self.assertEqual({t.lane, f.lane, by[f"create-{plat}-tor"].lane}, {f"trust-{plat}-tor"})
-        for part in ("payments", "pairing", "linking"):
-            lane = by[f"lane-{part}-linux-tor"]
-            self.assertEqual(lane.needs, ["testbuild-linux-tor"], "each starts alone from saved state")
-            self.assertEqual(lane.env["REL_TX_PART"], part)
-            self.assertTrue(lane.warn_only)
-            self.assertIn("testbuild-linux-tor", lane.env["REL_CANDIDATE_DIR"])
-            self.assertIn("trust-tx-linux.sh", lane.run)
 
     def test_release_stage_runs_g2_then_the_builds(self):
         for builds in (False, True):
@@ -226,7 +160,6 @@ class GraphTest(unittest.TestCase):
             if builds:
                 s["builds"] = {"hosted": True}  # as `tools/rel start --builds hosted`
             by = {x.id: x for x in build_graph(PIPE, s, ctx(s))}
-            self.assertFalse([x for x in by if x.startswith(("testbuild-", "flow-", "create-", "lane-"))])
             for p in ("android", "linux", "windows"):
                 for v in ("tor", "notor"):
                     self.assertIn("source-check", by[f"build-{p}-{v}"].needs, (builds, p, v))
@@ -238,24 +171,6 @@ class GraphTest(unittest.TestCase):
                 self.assertIn("(hosted)", by["build-android-tor"].title)
             else:
                 self.assertNotIn("hosted-dispatch", by)
-
-    def test_android_and_linux_chains_take_one_slot_each_and_windows_none(self):
-        from rellib.window import Policy
-        pol = Policy(PIPE.concurrency, None)
-        self.assertEqual(pol.max_heavy, 2)
-        s, steps = graph(stage="night")
-        by = {x.id: x for x in steps}
-        release = {x.id: x for x in graph()[1]}
-        for plat in ("android", "linux"):
-            chain = [f"testbuild-{plat}-tor", f"flow-{plat}-tor", f"create-{plat}-tor"]
-            if plat == "linux":
-                chain += ["lane-payments-linux-tor", "lane-pairing-linux-tor", "lane-linking-linux-tor"]
-            self.assertTrue(all(pol.counts(by[x]) for x in chain), plat)
-            self.assertTrue(pol.counts(release[f"trust-{plat}-tor"]), plat)
-        for x in ("testbuild-windows-tor", "flow-windows-tor", "create-windows-tor",
-                  "testbuild-macos-tor", "flow-macos-tor", "create-macos-tor"):
-            self.assertFalse(pol.counts(by[x]), x)
-        self.assertFalse(pol.counts(release["trust-windows-tor"]))
 
     def test_only_android_drops_the_rest_and_their_needs(self):
         s, steps = graph(only="android")
@@ -286,15 +201,9 @@ class GraphTest(unittest.TestCase):
         self.assertEqual(a.outputs, ["bt-wallet-26.10.25-notor-android-arm64-v8a.apk"])
         w = next(x for x in steps if x.id == "build-windows-tor")
         self.assertIn("C:/w/26.10.25-run1", w.run)
-        t = next(x for x in steps if x.id == "trust-linux-tor")
-        self.assertIn("trust-linux.sh", t.run)
         m = next(x for x in steps if x.id == "apple-mac-check-notor")
         self.assertIn("bt-wallet-26.10.25-notor-macos.dmg " + "a" * 40 + ' "TEAM123456"', m.run)
         self.assertEqual(m.outputs, ["bt-wallet-26.10.25-notor-macos.dmg"])
-        t = next(x for x in steps if x.id == "trust-windows-tor")
-        self.assertIn("trust-windows.sh", t.run)
-        t = next(x for x in steps if x.id == "trust-macos-tor")
-        self.assertIn("trust-macos.sh", t.run)
 
     def test_stores_on(self):
         s, steps = graph(sets=["stores.play=true"])
@@ -324,17 +233,14 @@ class GraphTest(unittest.TestCase):
         self.assertIn("tag", by["publish-downloads"].needs)
         self.assertTrue(by["tag"].publish and not by["tag"].skippable and not by["tag"].warn_only)
         self.assertIn("tag.sh 26.10.25 " + "a" * 40, by["tag"].run)
-        # The gallery and the Telegram draft after the read-back, never holding the release.
-        for sid, script in (("screens-publish", "screens-publish.sh 26.10.25 /r/26.10.25/run-1/steps/screens-publish/out"),
-                            ("announce", "announce.py 26.10.25")):
-            x = by[sid]
-            self.assertEqual(x.needs, ["verify-live"])
-            self.assertTrue(x.publish and x.warn_only and x.skippable)
-            self.assertIn(script, x.run)
-            self.assertLess(ids.index("verify-live"), ids.index(sid))
-            self.assertIn(sid, by["cleanup"].needs)
-        # The catalogue renders before the gate, beside the builds: from G2 on, in its own lane; a
-        # failed render holds nothing by itself, screens-check (after G4) judges it before the gate.
+        # The Telegram draft after the read-back, never holding the release.
+        x = by["announce"]
+        self.assertEqual(x.needs, ["verify-live"])
+        self.assertTrue(x.publish and x.warn_only and x.skippable)
+        self.assertIn("announce.py 26.10.25", x.run)
+        self.assertIn("announce", by["cleanup"].needs)
+        # The catalogue renders before the gate, beside the builds: from G2 on, in its own lane. A
+        # failed render holds nothing: the gate never waits for it.
         sc = by["screens"]
         self.assertEqual((sc.lane, sc.publish, sc.warn_only, sc.skippable), ("screens", False, True, True))
         # It renders in the release checkout, so it waits for the builds made there (a tour's
@@ -343,13 +249,15 @@ class GraphTest(unittest.TestCase):
             self.assertIn(need, sc.needs)
         self.assertIn("screens.sh 26.10.25 /r/26.10.25/run-1/steps/screens/out", sc.run)
         self.assertFalse(sc.heavy)  # tools/screens.sh takes its own build-slot slots
-        ck = by["screens-check"]
-        self.assertEqual(sorted(ck.needs), ["screens", "update-trust"])
-        self.assertFalse(ck.publish or ck.warn_only)
-        self.assertTrue(ck.skippable)
-        self.assertIn("screens_check.py 26.10.25", ck.run)
-        self.assertIn("screens-check", by["publish-gate"].needs)
-        self.assertLess(ids.index("screens-check"), ids.index("publish-gate"))
+        self.assertNotIn("screens", by["publish-gate"].needs)
+        # The gallery after the read-back and after the render; skipped when the render failed.
+        sp = by["screens-publish"]
+        self.assertEqual(sorted(sp.needs), ["screens", "verify-live"])
+        self.assertEqual(sp.needs_ok, ["screens"])
+        self.assertTrue(sp.publish and sp.warn_only and sp.skippable)
+        self.assertIn("screens-publish.sh 26.10.25 /r/26.10.25/run-1/steps/screens-publish/out", sp.run)
+        self.assertLess(ids.index("verify-live"), ids.index("screens-publish"))
+        self.assertIn("screens-publish", by["cleanup"].needs)
         self.assertNotIn("screens", by["cleanup"].needs)
 
     def test_github_mirror_on_by_default_and_switchable_off(self):
@@ -420,15 +328,12 @@ class ScriptsTest(unittest.TestCase):
         # One iOS file: the ipa of the build without Tor. The Mac's hand-off with Tor builds the dmg only.
         self.assertEqual(by["apple-adhoc-ios-notor"].outputs, ["bt-wallet-26.10.25-notor-ios-unsigned.ipa"])
         self.assertNotIn("apple-adhoc-ios-tor", by)
-        self.assertNotIn("trust-ios-tor", by)
         self.assertIn("WFE_TOR=1", by["apple-adhoc-tor"].run)
         self.assertIn("macos dmg  #", by["apple-adhoc-tor"].run)
         self.assertEqual(by["apple-adhoc-tor"].results, ["bt-wallet-26.10.25-macos.dmg", "results.txt", "SHA256SUMS"])
         for gate in ("artefacts", "sign-android"):
             self.assertIn("apple-adhoc-mac-tor", by[gate].needs)
             self.assertIn("apple-adhoc-ios-notor", by[gate].needs)
-        self.assertIn("apple-adhoc-mac-tor", by["trust-macos-tor"].needs)
-        self.assertIn("apple-adhoc-ios-notor", by["trust-ios-notor"].needs)
         self.assertIn("Apple ad hoc", scope_summary(s))
         # iOS out: the Mac still builds per variant for macOS, and no ipa check is in the graph.
         s, steps = graph(sets=["apple.signed=false"], skip_platform="ios")
@@ -439,7 +344,7 @@ class ScriptsTest(unittest.TestCase):
     def test_every_script_the_pipeline_runs_is_executable(self):
         # A step whose script lost its exec bit fails with exit 126 mid-release (26.10.24 run 2).
         raw = tomllib.loads(pathlib.Path(os.path.join(REPO, "release/pipeline.toml")).read_text(encoding="utf-8"))
-        cmds = [s.get("run", "") for s in raw["step"].values()] + list(raw["proof"]["drivers"].values())
+        cmds = [s.get("run", "") for s in raw["step"].values()]
         paths = sorted({m for c in cmds for m in re.findall(r"\{rel\}/(\S+\.(?:sh|py))", c)})
         self.assertTrue(paths)
         for p in paths:

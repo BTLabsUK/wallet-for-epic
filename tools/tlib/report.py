@@ -4,8 +4,7 @@ passed, and each failure's name, file:line and the first lines of its message.
 
 The summary printed on stdout stays short. Each failure's head line uses flutter's own progress
 format (`MM:SS +passed ~skipped -failed: <file>: <name> [E]`) and so does the last line
-(`All tests passed!` / `Some tests failed.`), which tools/nightly/nightly.py reads from
-tools/check.sh's log.
+(`All tests passed!` / `Some tests failed.`), which readers of tools/check.sh's log rely on.
 """
 import os
 import re
@@ -296,8 +295,7 @@ def clock(seconds):
 
 
 def summary(title, status, counts, failures, seconds, extra=(), list_all=False):
-    """The lines printed on stdout: at most about 20 unless `list_all` (tools/t full, read by the
-    nightly), which names every failing test, still with messages only for the first ones."""
+    """The lines printed on stdout: at most about 20 unless `list_all` (tools/t full), which names every failing test, still with messages only for the first ones."""
     lines = [title]
     lines.extend(extra)
     prog = f"{clock(seconds)} +{counts['passed']}" + (f" ~{counts['skipped']}" if counts["skipped"] else "")

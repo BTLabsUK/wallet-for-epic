@@ -31,23 +31,9 @@ FAKE_PIPELINE = """
 [defaults]
 heavy_wrap = []
 min_free_gb = 0
-nodes = ["https://node.example"]
-epicboxes = ["box.example"]
 
 [relmsg]
 bin = "relmsg"
-
-[proof]
-checks = ["wallet_opens", "history_kept"]
-funds_checks = ["send_ok"]
-beside_pairs = [["old.app", "new.app"]]
-beside_not_applicable = ["history_kept"]
-funds_variant = "tor"
-variants = ["tor"]
-
-[proof.drivers]
-android = "bash {src}/driver.sh"
-linux = "bash {src}/driver.sh"
 
 [step.scope]
 kind = "builtin"
@@ -69,27 +55,15 @@ run = "echo linux {variant} >> {src}/calls; head -c 2000000 /dev/zero > {stage}/
 outputs = ["bt-wallet-{version}{notor}-linux-x86_64.AppImage"]
 reuse = ["app", "!app/test", "tools/lepic.rev"]
 
-[step.trust-android]
-platform = "android"
-for_each = "proof_variant"
-needs = ["build-android", "build-linux"]
-proof = true
-
-[step.trust-linux]
-platform = "linux"
-for_each = "proof_variant"
-needs = ["build-android", "build-linux"]
-proof = true
-
-[step.update-trust]
-kind = "builtin"
+[step.check]
 host = "local"
-needs = ["trust-android", "trust-linux"]
+needs = ["build-android", "build-linux"]
+run = "echo check >> {src}/calls; test ! -e {src}/fail-check"
 
 [step.publish-gate]
 kind = "gate"
 host = "local"
-needs = ["update-trust"]
+needs = ["check"]
 
 [step.publish-downloads]
 kind = "publish"
@@ -136,20 +110,6 @@ case "${args[0]}" in
 esac
 """
 
-DRIVER = r"""#!/usr/bin/env bash
-# A fake update-trust driver: $REL_SRC/proof-mode says what to write.
-mode="$(cat "$REL_SRC/proof-mode" 2>/dev/null || echo good)"
-echo "driver $REL_VARIANT checks=$REL_CHECKS funds=$REL_FUNDS" >> "$REL_SRC/calls"
-case "$mode" in
-  good) printf '{"platform":"x","previous":"a","candidate":"b","checks":{"wallet_opens":true,"history_kept":true,"send_ok":true}}' > "$REL_OUT/proof.json" ;;
-  bad) printf '{"checks":{"wallet_opens":true,"history_kept":false,"send_ok":true},"details":{"history_kept":"0 of 3 txs"}}' > "$REL_OUT/proof.json"; exit 1 ;;
-  beside) printf '{"previous":"a","candidate":"b","packages":{"previous":"old.app","candidate":"new.app","beside":true},"checks":{"wallet_opens":true,"history_kept":false,"send_ok":true}}' > "$REL_OUT/proof.json" ;;
-  beside-other) printf '{"previous":"a","candidate":"b","packages":{"previous":"other.app","candidate":"new.app","beside":true},"checks":{"wallet_opens":true,"history_kept":false,"send_ok":true}}' > "$REL_OUT/proof.json" ;;
-  liar) printf '{"checks":{"wallet_opens":true}}' > "$REL_OUT/proof.json" ;;
-  none) exit 0 ;;
-esac
-"""
-
 
 def _no_outside_network(connect):
     """socket.connect that refuses any address but loopback and unix sockets, with the error an
@@ -171,8 +131,6 @@ class Base(unittest.TestCase):
         self.root = os.path.join(self.tmp, "state")
         self.src = os.path.join(self.tmp, "src")
         os.makedirs(self.src)
-        with open(os.path.join(self.src, "driver.sh"), "w") as f:
-            f.write(DRIVER)
         self.fake = os.path.join(self.tmp, "relmsg")
         with open(self.fake, "w") as f:
             f.write(FAKE_RELMSG)
@@ -185,11 +143,6 @@ class Base(unittest.TestCase):
         os.environ["REL_WINDOW_MARKER"] = os.path.join(self.tmp, "release-window")
         os.environ["REL_HEAVY_STATUS_CMD"] = ""
         os.environ["WFE_GREEN_DIR"] = os.path.join(self.tmp, "green")
-        os.environ["REL_NIGHT_ROOT"] = os.path.join(self.tmp, "nightly", "rel")
-        # Never the machine's shared P service (p.sock, its funds): with no p.py a step that
-        # needs P reports it missing at once instead of asking the real wallet.
-        os.environ["REL_P_TOOL"] = os.path.join(self.tmp, "no-p.py")
-        os.environ["REL_P_SERVICE_DIR"] = os.path.join(self.tmp, "p-service")
         # Never the machine's signer credential: with it every signing test would auto-approve.
         os.environ["REL_SIGNER_APPROVE_TOKEN"] = os.path.join(self.tmp, "no-approve.token")
         # Never a real detached gate watcher (test_gate_watch replaces the start where it tests it).
@@ -201,8 +154,7 @@ class Base(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
         for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE", "REL_RELMSG_BACKOFF", "REL_FAKE_BUSY", "REL_FAKE_DOWN",
-                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR", "REL_NIGHT_ROOT", "REL_P_TOOL", "REL_P_SERVICE_DIR",
-                  "REL_GATEWATCH", "REL_SIGNER_APPROVE_TOKEN"):
+                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR", "REL_GATEWATCH", "REL_SIGNER_APPROVE_TOKEN"):
             os.environ.pop(k, None)
 
     def make_run(self, version="26.10.25", **scope_kw):
@@ -212,7 +164,7 @@ class Base(unittest.TestCase):
         ctx = {"version": version, "commit": "c" * 40, "short": "c" * 7, "run_id": run_id, "run": path,
                "files": f"{path}/files", "extra": f"{path}/extra", "manifests": f"{path}/manifests", "src": self.src,
                "target": scope["publish"]["target"], "scratch": f"{path}/scratch/target", "notes_file": "",
-               "previous_dir": "", "previous_version": "", "previous_ref": "", "node": "$REL_NODE", "epicbox": "$REL_EPICBOX",
+               "previous_dir": "", "previous_version": "", "previous_ref": "",
                "host": {}, "path": {}}
         steps = build_graph(self.pipeline, scope, ctx)
         info = {"version": version, "commit": "c" * 40, "scope": scope, "test": scope["test"], "src": self.src,
@@ -221,10 +173,6 @@ class Base(unittest.TestCase):
         for s in run.steps:
             if s.base in scope["skip"]:
                 run.set_status(s.id, status="skipped", reason=scope["skip"][s.base])
-            # As tools/rel start: a waived platform without a driver is skipped; with one it runs.
-            if (s.proof and s.platforms[0] in scope["proof"]["waive"]
-                    and not self.pipeline.proof.get("drivers", {}).get(s.platforms[0])):
-                run.set_status(s.id, status="skipped", reason="waived")
         return run
 
     def engine(self, run, relmsg=True):

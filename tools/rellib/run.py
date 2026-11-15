@@ -126,9 +126,9 @@ class Run:
         return sorted(out, key=lambda r: r[3])
 
     # ---- locking: one whole-run drive per run, one tools/rel per lane ----
-    # A lane is one rig (trust-windows-tor runs on the Windows rig, trust-linux-tor on this machine),
-    # so a retry, a probe or a start on one lane never waits for another lane. A process holds a
-    # lane while it runs a step there; [concurrency] still reads across processes (elsewhere()).
+    # A lane is one machine (the Windows builds run on the Windows builder, the Linux builds here),
+    # so a retry or a start on one lane never waits for another lane. A process holds a lane while
+    # it runs a step there; [concurrency] still reads across processes (elsewhere()).
 
     def lock(self):
         f = open(os.path.join(self.path, ".lock"), "w")
@@ -305,9 +305,5 @@ class Run:
                          "status": "warned" if st.get("warned") else st.get("status"), "attempts": st.get("attempts", 0),
                          "duration_s": st.get("duration_s"), "note": st.get("note"), "reason": st.get("reason"),
                          "hint": st.get("hint"), "bytes": st.get("bytes"),
-                         "flaky": bool(st.get("flaky")), "failed_before": st.get("failed_before"),
-                         "driver_changed": bool(st.get("driver_changed")), "stopped": st.get("stopped"),
-                         "repeats": st.get("repeats") or 0, "seconds_repeated": st.get("seconds_repeated") or 0,
-                         "repeats_forced": len(st.get("forced") or []), "failures": st.get("failures") or [],
-                         "parked": st.get("parked"), "continues": len(st.get("continues") or [])})
+                         "flaky": bool(st.get("flaky")), "failed_before": st.get("failed_before")})
         return rows

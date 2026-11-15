@@ -52,13 +52,13 @@ class CliTest(Base):
     def test_previous_must_be_a_version(self):
         code, out, err = rel(*self.common(), "plan", V, "--test", "--previous", self.tmp)
         self.assertEqual(code, 64)
-        self.assertIn("previous_version", err)
+        self.assertIn("[previous] version", err)
 
     def test_dry_run_start_status_publish(self):
         prev = os.path.join(self.tmp, "26.1.0")
         os.makedirs(prev)
         code, out, err = rel("--json", *self.common(), "start", V, "--test", "--dry-run", "--only", "android",
-                             "--no-relmsg", "--previous", prev, "--waive", "android=fake")
+                             "--no-relmsg", "--previous", prev)
         obj = json.loads(out.strip().splitlines()[-1])
         self.assertTrue(obj["dry"])
         self.assertIn(obj["exit"], (0, 30), obj["message"])  # 30 on a machine without the Android tools
@@ -73,7 +73,7 @@ class CliTest(Base):
         prev = os.path.join(self.tmp, "26.1.0")
         os.makedirs(prev)
         rel(*self.common(), "start", V, "--test", "--dry-run", "--only", "android", "--no-relmsg",
-            "--previous", prev, "--waive", "android=fake")
+            "--previous", prev)
         return os.path.join(self.root, V, "run-1")
 
     def test_add_step_puts_a_new_step_into_a_planned_run(self):
@@ -104,25 +104,6 @@ class CliTest(Base):
         with open(os.path.join(run, "events.jsonl")) as f:
             self.assertEqual([e["state"] for e in map(json.loads, f) if e["event"] == "doing"], ["fixing", "none"])
 
-    def test_adopt_takes_the_result_from_the_proof_alone(self):
-        run = self.planned_run()
-        out = os.path.join(self.tmp, "outside")
-        os.makedirs(out)
-        with open(os.path.join(out, "trust.log"), "w") as f:
-            f.write("a line\n")
-        self.assertEqual(rel(*self.common(), "adopt", "trust-manifest", "--out", out, "--run", V)[0], 20)
-        with open(os.path.join(run, "steps", "trust-manifest", "status.json")) as f:
-            st = json.load(f)
-        self.assertEqual((st["status"], st["rc"]), ("failed", 1))
-        self.assertIn("no proof.json", st["note"])
-        with open(os.path.join(out, "proof.json"), "w") as f:
-            json.dump({"checks": {"a": True}}, f)
-        self.assertEqual(rel(*self.common(), "adopt", "trust-manifest", "--out", out, "--run", V)[0], 0)
-        with open(os.path.join(run, "steps", "trust-manifest", "status.json")) as f:
-            self.assertEqual(json.load(f)["status"], "done")
-        with open(os.path.join(run, "steps", "trust-manifest", "log.txt")) as f:
-            self.assertEqual(f.read(), "a line\n")
-
     def test_run_several_steps_keep_going(self):
         pipe = os.path.join(self.tmp, "pipeline.toml")
         with open(pipe, "w") as f:
@@ -134,21 +115,21 @@ class CliTest(Base):
         self.assertIn("needs scope", out + err)
         run.set_status("scope", status="done")
         pathlib.Path(os.path.join(self.src, "fail-notor")).touch()
-        lanes = ["build-android-notor", "build-android-tor", "build-linux-tor", "trust-linux-tor"]
+        lanes = ["build-android-notor", "build-android-tor", "build-linux-tor", "check"]
         code, out, err = rel(*args, *lanes, "--keep-going")
-        self.assertEqual(code, 64)  # trust-linux-tor also needs build-linux-notor, outside the selection
+        self.assertEqual(code, 64)  # check also needs build-linux-notor, outside the selection
         self.assertIn("build-linux-notor", out + err)
         code, out, err = rel(*args, *lanes, "--keep-going", "--ignore-needs")
         self.assertEqual(code, 20, out + err)
         run = type(run).find(self.root, run.info["version"])
         st = {s: run.status(s)["status"] for s in lanes}
         self.assertEqual(st, {"build-android-notor": "failed", "build-android-tor": "done", "build-linux-tor": "done",
-                              "trust-linux-tor": "pending"})  # a need in the selection failed: it never started
+                              "check": "pending"})  # a need in the selection failed: it never started
         self.assertIn("linux tor", self.calls())
         self.assertNotIn("linux notor", self.calls())
-        self.assertTrue(any("trust-linux-tor" in t["reason"] for t in run.info.get("tainted", [])))
-        self.assertEqual(run.step("trust-linux-tor").needs, ["build-android-tor", "build-android-notor", "build-linux-tor",
-                                                             "build-linux-notor"])
+        self.assertTrue(any("check" in t["reason"] for t in run.info.get("tainted", [])))
+        self.assertEqual(run.step("check").needs, ["build-android-tor", "build-android-notor", "build-linux-tor",
+                                                   "build-linux-notor"])
 
     def test_resume_keep_going(self):
         pipe = os.path.join(self.tmp, "pipeline.toml")
@@ -161,9 +142,9 @@ class CliTest(Base):
         self.assertEqual(code, 20, out + err)
         run = type(run).find(self.root, run.info["version"])
         st = {s: run.status(s)["status"] for s in ("build-android-notor", "build-android-tor", "build-linux-tor",
-                                                   "build-linux-notor", "trust-linux-tor")}
+                                                   "build-linux-notor", "check")}
         self.assertEqual(st, {"build-android-notor": "failed", "build-android-tor": "done", "build-linux-tor": "done",
-                              "build-linux-notor": "done", "trust-linux-tor": "pending"})
+                              "build-linux-notor": "done", "check": "pending"})
         self.assertFalse(run.info.get("tainted"))
 
 

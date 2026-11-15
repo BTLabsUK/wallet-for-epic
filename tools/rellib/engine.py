@@ -13,14 +13,11 @@ import threading
 import time
 import queue
 
-from . import evidence
 from . import failures as known
 from . import guards
-from . import repeats
-from . import serverlogs
 from . import window as win
 from .load import LoadSampler
-from .run import SETTLED, Busy, now_iso, read_json, write_json
+from .run import SETTLED, Busy, now_iso, read_json
 
 # Exit codes (stable; agents read them).
 EXIT_OK, EXIT_WAITING, EXIT_FAILED, EXIT_PREFLIGHT, EXIT_DENIED, EXIT_USAGE, EXIT_BUSY = 0, 10, 20, 30, 40, 64, 75
@@ -49,7 +46,7 @@ def place(src, dst):
         shutil.copy2(os.path.realpath(src), dst)
 
 
-# The checkout tools/rel runs from: its step scripts and G4 drivers ({rel} in pipeline.toml).
+# The checkout tools/rel runs from: its step scripts ({rel} in pipeline.toml).
 RUNNER = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Runs a hand-off step on the Apple builder over ssh ([host.apple] ssh + auto); its time limit.
 APPLE_REMOTE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "steps", "apple-remote.sh")
@@ -65,20 +62,10 @@ def relmsg_state(st):
 
 
 
-def recovered_note(proof):
-    """`; RECOVERED by AI: <steps>` when the driver needed the model to find a control or get past a
-    screen (the owner 2026-11-03: such a lane may pass, marked, with a selector fix drafted next to its proof)."""
-    rec = proof.get("recovered") or []
-    if not rec:
-        return ""
-    steps = sorted({str(r.get("step")) for r in rec})
-    return f"; RECOVERED by AI ({len(rec)}): {', '.join(steps)[:120]} (selector-fixes.md)"
-
 class Engine:
     def __init__(self, run, pipeline, hosts, repo, *, relmsg=None, dry=False, echo=None, failures=None, runner=None):
         self.run = run
         self.runner = runner or RUNNER
-        self._repeated = {}  # step id -> seconds of an attempt that repeated a failed one, for its metrics line
         self.pipeline = pipeline
         self.hosts = hosts
         self.repo = repo
@@ -89,7 +76,7 @@ class Engine:
         self._q = queue.Queue()
         self.load = LoadSampler()
         # Machine sharing: the heavy cap, steps kept apart, infra retries (tools/rellib/window.py).
-        # run.json "concurrency" holds a run's own overrides (tools/rel --max-heavy, --exclusive-machine).
+        # run.json "concurrency" holds a run's own overrides (tools/rel --max-heavy).
         self.policy = win.Policy(getattr(pipeline, "concurrency", {}), run.info.get("concurrency"))
         self.heavy_status = win.heavy_status
         self._deferred = {}
@@ -106,10 +93,6 @@ class Engine:
     def base_env(self, step):
         i = self.info
         prev = i.get("previous", {})
-        if step.platforms and (step.proof or step.env.get("REL_TRUST_MODE")):
-            # A platform's G4 steps (trust-*, create-*) update from that platform's own previous release.
-            prev = (i.get("previous_by_platform") or {}).get(step.platforms[0]) or prev
-        net = i.get("net", {})
         env = {
             "REL_RUN": self.run.path, "REL_RUN_ID": i["run_id"], "REL_VERSION": i["version"],
             "REL_COMMIT": i["commit"], "REL_FILES": self.run.files, "REL_EXTRA": self.run.extra,
@@ -119,8 +102,7 @@ class Engine:
             "REL_TEST_KEY": "1" if guards.test_key(i) else "0", "REL_RUN_KIND": guards.run_kind(i), "REL_TARGET": i.get("target", "live"),
             "REL_VARIANT": step.variant or "", "REL_NOTES_FILE": os.path.join(self.run.path, "notes.txt"),
             "REL_PREVIOUS_DIR": prev.get("dir", ""), "REL_PREVIOUS_VERSION": prev.get("version", ""),
-            "REL_PREVIOUS_REF": prev.get("ref", ""), "REL_PREVIOUS_EXTRA": prev.get("extra", ""),
-            "REL_NODE": net.get("node", ""), "REL_EPICBOX": net.get("epicbox", ""),
+            "REL_PREVIOUS_REF": prev.get("ref", ""),
             "REL_DRY_RUN": "1" if self.dry else "0",
             "REL_FOLLOW_UP": "1" if i.get("follow_up") else "0",
             "REL_MANIFEST_DAYS": str(self.pipeline.manifest_days()),
@@ -129,20 +111,6 @@ class Engine:
         for k in ("signing_key", "btlabs_public", "android_key_properties"):
             if signer.get(k):
                 env[f"REL_SIGNER_{k.upper()}"] = signer[k]
-        # A flow lane (REL_TRUST_MODE=flow) runs the update lane's checks on the run's test build; its
-        # step env names that build as previous and candidate.
-        flow = step.env.get("REL_TRUST_MODE") == "flow"
-        if step.proof or flow:
-            proof = self.pipeline.proof
-            checks = list(proof.get("checks", []))
-            # [proof] funds_in: the lanes that run the send and receive legs, "flow" (the flow lanes, once
-            # per platform before the hosted builds) or "proof" (the update lanes on the release files).
-            funds = step.variant == proof.get("funds_variant", "tor") and flow == (proof.get("funds_in", "proof") == "flow")
-            if funds:
-                checks += proof.get("funds_checks", [])
-            env.update({"REL_OUT": env["REL_STAGE"], "REL_CHECKS": ",".join(checks), "REL_FUNDS": "1" if funds else "0",
-                        "REL_CANDIDATE_DIR": self.run.files, "REL_CANDIDATE_EXTRA": self.run.extra,
-                        "REL_CANDIDATE_SRC": i.get("src", ""), "REL_CANDIDATE_VERSION": i["version"]})
         return env
 
     def stale_why(self, step, st):
@@ -154,7 +122,7 @@ class Engine:
             return STALE_INPUTS
         if st.get("inputs_digest") and st["inputs_digest"] != self.inputs_digest(step):
             # Evidence tied to the artefacts: a build it depends on ran again, so what this step
-            # proved (G3, a trust proof, signing, the gate) is about other bytes.
+            # checked (G3, signing, the gate) is about other bytes.
             return STALE_BYTES
         return None
 
@@ -168,7 +136,7 @@ class Engine:
 
     @staticmethod
     def is_build(step):
-        return bool(step.outputs or step.extras) and not step.publish and not step.proof
+        return bool(step.outputs or step.extras) and not step.publish
 
     def build_closure(self, step):
         """The build steps step (transitively) needs."""
@@ -188,7 +156,7 @@ class Engine:
     def inputs_digest(self, step):
         """A digest of the bytes every build step needs recorded (name and SHA-256 of each output),
         or None for a step that needs no build. A build that ran again changes it, so evidence
-        made against the old bytes (a proof, G3, the gate) stops applying."""
+        made against the old bytes (G3, the gate) stops applying."""
         if self.is_build(step) or step.publish:
             return None
         builds = self.build_closure(step)
@@ -200,22 +168,6 @@ class Engine:
             parts[b.id] = {n: o.get("sha256") for n, o in sorted(outs.items())}
         return hashlib.sha256(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:24]
 
-    def platform_files(self, step):
-        """{name: path} of the release files a proof step tests: what its platform's builds made, of
-        the builds it waits for (trust-windows-notor never waits for, nor tests, the tor Setup)."""
-        out = {}
-        for s in self.build_closure(step):
-            if set(s.platforms) & set(step.platforms):
-                for o in s.outputs:
-                    out[os.path.basename(o)] = os.path.join(self.run.files, os.path.basename(o))
-                for e in s.extras:
-                    out[e] = os.path.join(self.run.extra, e)
-        return out
-
-    def snapshot(self, step):
-        """{name: sha256} of the files a proof step is about to test (None for a missing file)."""
-        return {n: (sha256_file(p) if os.path.isfile(p) else None) for n, p in sorted(self.platform_files(step).items())}
-
     # ---- one step ----
 
     def refusal(self, step):
@@ -223,27 +175,6 @@ class Engine:
         if step.base == "source" or step.kind in ("gate",) or step.publish or step.base.startswith("publish"):
             return guards.never_ship_refusal(self.info, self.repo)
         return None
-
-    def pin_driver(self, step, st, attempt):
-        """-> (status fields, the earlier driver record this attempt differs from or None) for a proof
-        step: which driver code this attempt runs (evidence.driver_record of the checkout tools/rel
-        runs from), kept per attempt in status `drivers`. Others -> (None, None)."""
-        if not step.driven:
-            return None, None
-        rec = evidence.driver_record(self.runner)
-        earlier = list(st.get("drivers") or [])
-        differs = [e for e in earlier if (e.get("commit"), e.get("dirty")) != (rec["commit"], rec["dirty"])]
-        return ({"driver": rec, "drivers": earlier + [dict(rec, attempt=attempt)]},
-                {"commit": differs[-1]["commit"], "dirty": differs[-1]["dirty"]} if differs else None)
-
-    def stamp_driver(self, step, stage):
-        """Writes this attempt's driver record into proof.json, before the proof is read, hashed or kept."""
-        rec = self.run.status(step.id).get("driver")
-        path = os.path.join(stage, "proof.json")
-        proof = read_json(path)
-        if rec and isinstance(proof, dict):
-            proof["driver"] = rec
-            write_json(path, proof)
 
     def attempt_log(self, step, attempt):
         d = self.run.step_dir(step.id)
@@ -272,9 +203,8 @@ class Engine:
 
     def execute(self, step, infra_try=0):
         """Runs one step to an end state; returns its status dict. A failure whose cause is the
-        machine (window.cause_of: a signal, no proof.json, an ssh drop, no build slot) runs once
-        more by itself ([concurrency] infra_retries), unless it is the same failure as the last
-        one (repeats.py); a product or harness failure never does."""
+        machine (window.cause_of: a signal, an ssh drop, no build slot) runs once more by itself
+        ([concurrency] infra_retries); any other failure never does."""
         from . import builtins
         st = self.run.status(step.id)
         attempt = st.get("attempts", 0) + 1
@@ -294,21 +224,17 @@ class Engine:
             return st
         started = time.time()
         log = self.attempt_log(step, attempt)
-        driver, changed_from = self.pin_driver(step, st, attempt)
-        carry = repeats.attempt_env(self, step, st)
         self.run.set_status(step.id, status="running", attempts=attempt, started=now_iso(), ended=None,
-                            note=None, hint=None, rc=None, cause=None, infra_try=infra_try or None, flaky=None, failed_before=None, recovered=None,
-                            stopped=None, fresh=None, **repeats.forced(st, attempt),
-                            **(driver or {}), driver_changed=True if changed_from else None)
+                            note=None, hint=None, rc=None, cause=None, infra_try=infra_try or None, flaky=None,
+                            failed_before=None)
         self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None,
-                       infra_try=infra_try or None, forced=st.get("fresh"))
+                       infra_try=infra_try or None)
         self.load.step_started(step.id)
         self.tdb("attempt.start", **lane)
         if self.relmsg:
             self.relmsg.step(step.id, "running", label=step.title, platform=(step.platforms[0] if len(step.platforms) == 1 else None))
         self.echo(f"▶ {step.id}  [{step.host}]{'  (dry run)' if self.dry else ''}"
                   + (f"  (automatic retry {infra_try})" if infra_try else ""))
-        tested = self.snapshot(step) if step.proof and not self.dry else None
         tries = 1 + (0 if self.dry else step.retries)
         result = None
         rkey, result = self.try_reuse(step, log)
@@ -319,7 +245,7 @@ class Engine:
                 elif step.kind == "handoff":
                     result = self.exec_handoff(step, log)
                 else:
-                    result = self.exec_command(step, log, carry)
+                    result = self.exec_command(step, log)
             except Exception as e:  # a bug or an environment problem: the step failed, the run is kept
                 with open(log, "a", encoding="utf-8") as f:
                     f.write(f"\ntools/rel: {type(e).__name__}: {e}\n")
@@ -334,15 +260,10 @@ class Engine:
         if result["status"] == "failed":
             result["cause"] = win.cause_of(step, dict(result, exception=exception), log)
             result["attempt_causes"] = (st.get("attempt_causes") or []) + [result["cause"]]
-            fail = repeats.failure(self, step, attempt, result, dur, started,
-                                   (driver or {}).get("driver") or evidence.driver_record(self.runner))
-            fails = (st.get("failures") or []) + ([fail] if fail else [])
-            if fail:
-                result["failures"] = fails
             # Never a publish step: what reaches the outside world retries only where pipeline.toml
             # says so (`retries`), after a person looked.
             will_retry = (result["cause"].startswith("infra:") and infra_try < self.policy.infra_retries
-                          and not self.dry and not step.publish and not repeats.same_twice(fails))
+                          and not self.dry and not step.publish)
             hits = known.match(self.failures, step.base, log)
             if hits:
                 result["hint"] = " | ".join(h for _, h in hits)
@@ -355,13 +276,6 @@ class Engine:
         if result["status"] in ("done", "failed", "skipped"):
             result["ended"] = now_iso()
             result["duration_s"] = dur
-            counted, repeat = repeats.tally(st, result, dur)
-            result.update(counted)
-            if repeat:
-                self._repeated[step.id] = dur
-        if changed_from:
-            result["note"] = ((result.get("note") or "").rstrip() + "; drivers changed between attempts ("
-                              f"{evidence.driver_label(changed_from)} → {evidence.driver_label(driver['driver'])})").lstrip("; ")
         if result["status"] == "done":
             earlier = st.get("attempt_causes") or []
             # Passed after a failed attempt in this run (a warn_only failure is not a pass).
@@ -370,8 +284,6 @@ class Engine:
             result["failed_before"] = list(earlier) if result["flaky"] else None
             result["input_hash"] = self.input_hash(step)
             result["inputs_digest"] = None if self.dry else self.inputs_digest(step)
-            if tested is not None:
-                result["tested"] = tested  # the bytes the proof is about (update-trust checks them)
             if rkey:
                 result["reuse_key"] = rkey
         st = self.run.set_status(step.id, **result)
@@ -394,9 +306,8 @@ class Engine:
             if st["status"] == "done" and not st.get("warned") and not self.dry:
                 self.forward_messages(step)
             if st["status"] == "failed":
-                no = repeats.verdict(self, step, st, manual=True)
-                self.relmsg.alert(f"{step.id} failed", step=step.id, log=log, detail=self.server_logs(step, st, log),
-                                  expects=st.get("hint") or (no and no["line"]) or "retry, skip or abort? (tools/rel retry|skip|debug)",
+                self.relmsg.alert(f"{step.id} failed", step=step.id, log=log,
+                                  expects=st.get("hint") or "retry, skip or abort? (tools/rel retry|skip|debug)",
                                   key=f"{self.info['run_id']}/{step.id}/{attempt}")
         return st
 
@@ -407,15 +318,11 @@ class Engine:
 
     def close_attempt(self, step, lane, st, log, dur, load=None, infra_try=0):
         """Every attempt of every run ends here: the journal, metrics.jsonl and tests.db get the same
-        record, and a failed attempt (a warned one too) one bug with its class."""
+        record."""
         self.tdb_end(step, lane, st, log)
         self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
                        note=st.get("note"), hint=st.get("hint"), cause=st.get("cause"), warned=st.get("warned") or None,
-                       failed_at=(st.get("failures") or [{}])[-1].get("step") if st["status"] == "failed" else None,
-                       attempts=st.get("attempts"), repeats=st.get("repeats"), seconds_repeated=st.get("seconds_repeated"),
-                       repeats_forced=len(st.get("forced") or []) or None)
-        if st["status"] == "failed" or st.get("warned"):
-            self.record_bug(step, lane, st, log)
+                       attempts=st.get("attempts"))
         self.metric(step, st, dur, load, infra_try=infra_try)
 
     def record_skip(self, step, reason):
@@ -441,48 +348,6 @@ class Engine:
         except Exception:  # noqa: BLE001
             pass
 
-    def record_bug(self, step, lane, st, log):
-        """One line per failed attempt: the journal, tests.db's bugs table and the ledger file ([ledger]
-        path in pipeline.toml, under the repo's private docs). Never raises."""
-        from .testdb import client
-        rec = dict(step=step.id, cause_class=client.attempt_class(st.get("cause")), cause=st.get("cause"),
-                   note=st.get("note"), warned=bool(st.get("warned")), log_path=log, commit=self.info.get("commit"),
-                   version=self.info.get("version"))
-        self.run.event(step.id, "bug", n=lane["n"], **{k: rec[k] for k in ("cause_class", "cause", "warned")})
-        self.tdb("bug", **rec, **lane)
-        rel = self.pipeline.ledger.get("path")
-        if self.dry or not rel:
-            return
-        path = os.path.join(self.repo, rel)
-        try:
-            if os.path.isdir(os.path.dirname(path)):
-                with open(path, "a", encoding="utf-8") as f:
-                    f.write(json.dumps(dict(rec, ts=now_iso(), run=self.info["run_id"], n=lane["n"])) + "\n")
-        except OSError:
-            pass
-
-    def server_logs(self, step, st, log):
-        """A failed G4 lane: the server-side log lines for its window (tools/rellib/serverlogs.py) go
-        to the step's out folder, and quoted above the log's tail into the alert, so a harness fault
-        reads apart from a server or product fault. Best effort: None leaves the alert as it was."""
-        conf, local = self.pipeline.serverlogs, self.hosts.get("serverlogs")
-        if self.dry or not serverlogs.is_lane_step(step) or not serverlogs.settings(conf, local)["enabled"]:
-            return None
-        try:
-            summary = serverlogs.collect(step, st, os.path.join(self.run.step_dir(step.id), "out"), conf,
-                                         local=local)
-        except Exception as e:  # never in the way of the alert
-            self.echo(f"   server logs: {type(e).__name__}: {e}")
-            return None
-        quoted = "\n".join(serverlogs.quote_lines(summary))[:1400]
-        self.echo("   server logs:\n   " + quoted.replace("\n", "\n   "))
-        tail = ""
-        if os.path.exists(log):
-            with open(log, encoding="utf-8", errors="replace") as f:
-                tail = "\n".join(f.read().splitlines()[-40:])
-        head = f"Server logs {'–'.join(summary['window'])} UTC (out/server-logs.txt):\n{quoted}\n--- step log ---\n"
-        return head + tail[-max(0, 2990 - len(head)):]
-
     def forward_messages(self, step):
         """A step may leave, in its stage folder, links.json ([{label, url}]: links on the live
         message, e.g. the screen catalogue) and notice.json ({title, detail, expects}: one message
@@ -505,7 +370,7 @@ class Engine:
             return None, None
         from . import reuse
         try:
-            k, parts, src = reuse.find(self, step, spec["reuse"], reuse.nightly_dir(spec), reuse.green_dir(spec))
+            k, parts, src = reuse.find(self, step, spec["reuse"], reuse.green_dir(spec))
         except Exception as e:  # the check never fails a step: it runs instead
             with open(log, "a", encoding="utf-8") as f:
                 f.write(f"tools/rel: reuse check failed ({type(e).__name__}: {e}); the step runs\n")
@@ -523,15 +388,11 @@ class Engine:
         return k, result
 
     def metric(self, step, st, dur, load=None, infra_try=0):
-        """One line per step end in <state_root>/metrics.jsonl: time, when it started and ended, the
-        machine's load meanwhile and the steps beside it (load.py), and the emulator's health when a
-        driver wrote {stage}/emulator.json. These are the data for when trust may start (RELEASING.md).
-        A failure carries its cause (window.cause_of: infra:<what>, timeout, product, harness,
-        harness:crash, step, check, error); flaky marks a pass after a failed attempt in the run,
-        driver_changed a proof step whose driver code differed from an earlier attempt's, recovered the
-        number of AI recoveries in the proof (tools/rellib/health.py reads these);
-        infra_try counts the automatic retries before this attempt; waited_s is the time the step
-        waited for the heavy cap or a step kept apart."""
+        """One line per step end in <state_root>/metrics.jsonl: time, when it started and ended, and
+        the machine's load meanwhile and the steps beside it (load.py). A failure carries its cause
+        (window.cause_of: infra:<what>, timeout, step, check, error); flaky marks a pass after a
+        failed attempt in the run (tools/rel stats reads these); infra_try counts the automatic
+        retries before this attempt; waited_s is the time the step waited for the heavy cap."""
         line = {"ts": now_iso(), "run": self.info["run_id"], "version": self.info["version"], "step": step.id,
                 "base": step.base, "host": step.host, "lane": step.lane, "status": st["status"], "duration_s": dur,
                 "started": st.get("started"), "ended": st.get("ended"), "reused": bool(st.get("reused_from")) or None,
@@ -539,14 +400,8 @@ class Engine:
                 "test": self.info.get("test") or None, "cause": st.get("cause"), "infra_try": infra_try or None,
                 "commit": self.info.get("commit"), "warned": st.get("warned") or None,
                 "waited_s": st.get("waited_s"), "max_heavy": self.policy.max_heavy,
-                "flaky": st.get("flaky") or None, "driver_changed": st.get("driver_changed") or None,
-                "recovered": len(st["recovered"]) if st.get("recovered") else None,
-                "repeated_s": self._repeated.pop(step.id, None),
-                "forced": 1 if (st.get("forced") or [{}])[-1].get("attempt") == st.get("attempts") else None}
+                "flaky": st.get("flaky") or None}
         line.update(load or {})
-        emu = read_json(os.path.join(self.run.step_dir(step.id), "out", "emulator.json"))
-        if isinstance(emu, dict):
-            line["emulator"] = emu
         self._metrics_line(line)
 
     def _metrics_line(self, line):
@@ -563,12 +418,10 @@ class Engine:
 
     # ---- executors ----
 
-    def command_line(self, step, overlay=None):
-        """-> (argv, cwd, env) exactly as the step runs (also what `rel debug` prints). overlay: what
-        this one attempt or probe adds (repeats.py)."""
+    def command_line(self, step):
+        """-> (argv, cwd, env) exactly as the step runs (also what `rel debug` prints)."""
         env = dict(self.base_env(step))
         env.update(step.env)
-        env.update(overlay or {})
         script = "set -euo pipefail\n" + step.run
         argv = ["bash", "-c", script]
         if step.heavy:
@@ -600,30 +453,20 @@ class Engine:
 
     @staticmethod
     def spawn_env(env):
-        """The process environment of a step: this one's, less what only tools/rel may ask of a lane."""
-        full = {k: v for k, v in os.environ.items() if k not in repeats.PRIVATE}
+        """The process environment of a step: this one's, with the step's own on top."""
+        full = dict(os.environ)
         full.update(env)
         full["LEPIC_NO_CACHE"] = "1"  # release builds come from source, never the prebuilt cache
         return full
 
     @staticmethod
-    def spawn(argv, cwd, env, log, timeout, held=None):
-        """Runs argv with its output in log. -> its exit code, None when it hit timeout. held() says the
-        step is parked for a person: that time does not count against timeout."""
+    def spawn(argv, cwd, env, log, timeout):
+        """Runs argv with its output in log. -> its exit code, None when it hit timeout."""
         with open(log, "ab") as f:
             p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=f, stderr=subprocess.STDOUT,
                                  stdin=subprocess.DEVNULL, start_new_session=True)
-            left = timeout
             try:
-                while held is not None:
-                    try:
-                        return p.wait(timeout=2 if left is None else min(2, left))
-                    except subprocess.TimeoutExpired:
-                        if not held() and left is not None:
-                            left -= 2
-                            if left <= 0:
-                                raise
-                return p.wait(timeout=left)
+                return p.wait(timeout=timeout)
             except subprocess.TimeoutExpired:
                 os.killpg(p.pid, signal.SIGTERM)
                 try:
@@ -633,8 +476,8 @@ class Engine:
                     p.wait()
                 return None
 
-    def exec_command(self, step, log, carry=None):
-        argv, cwd, env = self.command_line(step, carry)
+    def exec_command(self, step, log):
+        argv, cwd, env = self.command_line(step)
         stage = os.path.join(self.run.step_dir(step.id), "out")
         os.makedirs(stage, exist_ok=True)
         with open(log, "a", encoding="utf-8") as f:
@@ -645,202 +488,16 @@ class Engine:
         if self.dry:
             with open(log, "a", encoding="utf-8") as f:
                 f.write("# dry run: not run\n")
-            if step.driven:
-                return self._dry_proof(step, cwd, env, log)
             return {"status": "done", "note": "dry run", "dry": True}
         if not os.path.isdir(cwd):
             return {"status": "failed", "note": f"working dir {cwd} does not exist"}
-        gated = repeats.gated(step)
-        if gated:
-            left = repeats.end_park(stage)
-            if left:
-                self.run.event(step.id, "park-ended", name=left.get("step"), phase=left.get("phase"))
-                self.echo(f"{step.id}: the lane still parked at {left.get('step')} is ended: this attempt takes its rig")
-        if step.proof_kept:
-            # A proof from an earlier attempt never counts for this one.
-            old = os.path.join(stage, "proof.json")
-            if os.path.exists(old):
-                os.replace(old, os.path.join(stage, f"proof.before-{os.path.basename(log)[:-4]}.json"))
-        kw = {}
-        if gated:
-            repeats.clear_park(stage)
-            kw["held"] = self.park_watch(step, stage)
-        rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout, **kw)
-        if kw:
-            kw["held"]()  # an answer the lane gave just before it ended goes on the record too
-            self.after_park(step, stage)
+        rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout)
         if rc is None:
             return {"status": "failed", "rc": None, "timed_out": True,
                     "note": f"timed out after {step.timeout:.0f}s (its hard limit)"}
-        if step.driven:
-            self.stamp_driver(step, stage)
-            return self._check_proof(step, rc)
-        if step.env.get("REL_TRUST_PAIR"):
-            return self.pair_result(step, stage, rc)
         if rc != 0:
             return {"status": "failed", "rc": rc, "note": f"exit {rc}"}
         return self.collect(step, stage)
-
-    def park_watch(self, step, stage):
-        """What spawn asks while a lane runs: is it parked at a fault? Tells the run when that changes. A
-        parked lane goes on by itself on the fix: once a newer clean commit changes the drivers, the
-        runner asks it to continue (repeats.fix_landed), as tools/rel go would. Nobody has to say so."""
-        start = evidence.driver_record(self.runner)
-        seen = {"start": start, "base": start, "look": 0.0, "asked": None}
-
-        def held():
-            park = repeats.parked(stage)
-            at = (park or {}).get("n")
-            if at != seen.get("n"):
-                seen["n"] = at
-                if park:
-                    seen["asked"] = None  # a new park: an ask left over from the last one is answered or void
-                went = [c["driver"] for c in repeats.continues(stage) if c.get("driver")]
-                seen["base"] = went[-1] if went else seen["start"]  # the drivers the lane runs now
-                if park:
-                    line = (f"PARKED {step.id} at {park['step']}: {park['what']}. The app is up. Commit the fix to the "
-                            f"drivers: the lane goes on by itself (or tools/rel go {step.id}; --stop ends it)")
-                    self.run.set_status(step.id, parked={k: park.get(k) for k in ("step", "what", "phase", "at", "n")})
-                    self.run.event(step.id, "parked", name=park["step"], what=park["what"], phase=park.get("phase"))
-                    self.park_doing(step, "waits", f"parked at {park['step']} since {now_iso()}: the fix's commit "
-                                                   "continues it", seen["base"].get("commit"))
-                    self.echo(f"⏸ {line}")
-                    if self.relmsg:
-                        self.relmsg.step(step.id, "failed", note=line)
-                else:
-                    self.run.set_status(step.id, parked=None)
-                    self.run.event(step.id, "unparked")
-            if park or seen["asked"]:
-                self.auto_continue(step, stage, park, seen)
-            return bool(park)
-        return held
-
-    AUTO_LOOK_S = 10  # how often a parked lane's runner looks for the fix's commit
-
-    def auto_continue(self, step, stage, park, seen):
-        """A parked lane, once the fix is committed: asked to go on, its answer put on the record."""
-        if seen["asked"]:
-            token, now, park = seen["asked"]
-            answer = repeats.park_answer(stage, token)
-            if answer is None:
-                return
-            seen["asked"] = None
-            if not answer.get("ok"):
-                self.run.event(step.id, "auto-continue-failed", name=park["step"], note=answer.get("note"),
-                               driver=evidence.driver_label(now))
-                self.echo(f"⏸ {step.id}: the drivers on {evidence.driver_label(now)} do not load "
-                          f"({answer.get('note')}); still parked at {park['step']}")
-                return
-            seen["base"] = now
-            self.run.event(step.id, "continue", name=park["step"], driver=evidence.driver_label(now),
-                           acts=answer.get("acts"), automatic=True, parked_at=park.get("at"))
-            self.park_doing(step, "continuing", f"going on from {park['step']} on the fix", now.get("commit"))
-            self.echo(f"▶ {step.id}: continued at {park['step']} on {evidence.driver_label(now)} "
-                      f"({answer.get('acts')} actions replayed), parked {repeats.since(park.get('at'))}")
-            return
-        t = time.monotonic()
-        if t - seen["look"] < self.AUTO_LOOK_S:
-            return
-        seen["look"] = t
-        if os.path.exists(os.path.join(stage, repeats.ASK)):
-            return  # tools/rel go asked already: its answer is its own
-        now = repeats.fix_landed(self.runner, seen["base"])
-        if now is None:
-            return
-        seen["base"] = now  # this commit is asked once; a fix that does not load waits for the next one
-        seen["asked"] = (repeats.ask_park(stage, now), now, park)
-        self.run.event(step.id, "auto-continue", name=park["step"], driver=evidence.driver_label(now),
-                       parked_at=park.get("at"))
-        self.echo(f"↻ {step.id}: the fix {evidence.driver_label(now)} is committed: continuing at {park['step']}")
-
-    def park_doing(self, step, state, note, commit):
-        mark = {"state": state, "note": note, "commit": commit, "at": now_iso(), "by": "rel"}
-        self.run.set_status(step.id, doing=mark)
-        self.run.event(step.id, "doing", state=state, note=note, commit=commit, by="rel")
-
-    def after_park(self, step, stage):
-        """The driver a continued lane ended on is the driver its proof names."""
-        done = repeats.continues(stage)
-        st = self.run.status(step.id)
-        fields = {"parked": None} if st.get("parked") else {}
-        if done:
-            fields["continues"] = (st.get("continues") or []) + done
-            for rec in done:
-                self.run.event(step.id, "continued", name=rec.get("step"), phase=rec.get("phase"), acts=rec.get("acts"),
-                               parked_s=rec.get("parked_s"), driver=evidence.driver_label(rec.get("driver") or {}))
-            last = done[-1].get("driver")
-            if last:
-                fields["driver"] = last
-                fields["drivers"] = (st.get("drivers") or []) + [dict(last, attempt=st.get("attempts"))]
-        if fields:
-            self.run.set_status(step.id, **fields)
-
-    def _dry_proof(self, step, cwd, env, log):
-        full_env = self.spawn_env(env)
-        argv = ["bash", "-c", "set -euo pipefail\n" + step.run]
-        if not os.path.isdir(cwd):
-            cwd = self.repo  # no release worktree in a dry run: the driver from this checkout
-        with open(log, "ab") as f:
-            rc = subprocess.call(argv, cwd=cwd, env=full_env, stdout=f, stderr=subprocess.STDOUT, timeout=120)
-        return {"status": "done" if rc == 0 else "failed", "rc": rc,
-                "note": "dry run of the driver" if rc == 0 else f"driver dry run exit {rc}", "dry": True}
-
-    def _check_proof(self, step, rc):
-        """Fail closed: the step passes only when proof.json has every required check true."""
-        env = self.base_env(step)
-        required = [c for c in env["REL_CHECKS"].split(",") if c]
-        proof = read_json(os.path.join(env["REL_STAGE"], "proof.json"))
-        if proof is None:
-            reason = self.info["scope"]["proof"]["waive"].get(step.platforms[0]) if step.platforms else None
-            if reason is not None:
-                return {"status": "done", "waived": True, "rc": rc, "proven": False,
-                        "note": f"NOT PROVEN (waived: {reason}): no proof.json (driver exit {rc})"}
-            return {"status": "failed", "rc": rc, "note": f"no proof.json (driver exit {rc})", "proven": False,
-                    "proof_missing": True}
-        checks = proof.get("checks", {})
-        # A new app installed beside the previous one (another package, authorised in pipeline.toml
-        # [proof] beside_pairs) carries no data over: the checks on carried data do not apply.
-        pkgs = proof.get("packages") or {}
-        pairs = [list(p) for p in self.pipeline.proof.get("beside_pairs", [])]
-        if pkgs.get("beside") is True and [pkgs.get("previous"), pkgs.get("candidate")] in pairs:
-            skip = set(self.pipeline.proof.get("beside_not_applicable", []))
-            required = [c for c in required if c not in skip]
-        bad = [c for c in required if checks.get(c) is not True]
-        res = {"rc": rc, "proof": proof, "proven": not bad and rc == 0, "failed_checks": bad or None}
-        if bad or rc != 0:
-            det = proof.get("details", {})
-            note = "not proven: " + ", ".join(
-                f"{c} ({det.get(c, 'false')})"[:80] for c in bad) if bad else f"driver exit {rc}"
-            # the driver's one line (core/faults.py): PRODUCT or HARNESS, the step, what broke, the screenshot
-            if (proof.get("fault") or {}).get("line"):
-                note = proof["fault"]["line"][:200] + "; " + note
-            # A waived platform (release.toml [proof.waive]) still runs its driver so the gate shows
-            # what it found; its result is reported, never counted as proven, and blocks nothing.
-            reason = self.info["scope"]["proof"]["waive"].get(step.platforms[0]) if step.platforms else None
-            if reason is not None:
-                res.update(status="done", waived=True, note=f"NOT PROVEN (waived: {reason}): {note}")
-            else:
-                res.update(status="failed", note=note)
-        elif not step.proof:
-            res.update(status="done", note=f"flow passed on the test build {proof.get('candidate')} "
-                                           f"(node {proof.get('node')}, epicbox {proof.get('epicbox')})" + recovered_note(proof))
-        else:
-            res.update(status="done", note=f"proven {proof.get('previous')} → {proof.get('candidate')} "
-                                           f"({proof.get('update_method', '?')}; node {proof.get('node')}, epicbox {proof.get('epicbox')}"
-                                           + (f"; from saved state" if proof.get("start") == "state" else "") + ")"
-                                           + recovered_note(proof))
-            res["recovered"] = [r.get("step") for r in proof["recovered"]] if proof.get("recovered") else None
-        return res
-
-    def pair_result(self, step, stage, rc):
-        """A night's trust pair runs two published releases: it proves the update kit, never this run's
-        version. Its note says which pair, so no record reads it as the candidate's update proof."""
-        proof = read_json(os.path.join(stage, "proof.json")) or {}
-        pair = f"{proof.get('previous') or '?'} → {proof.get('candidate') or '?'}"
-        what = f"published pair {pair}: checks the update kit, not proof for {self.info['version']}"
-        res = {"status": "done" if rc == 0 else "failed", "rc": rc, "proven": False, "release_proof": False}
-        res["note"] = what if rc == 0 else f"exit {rc}; {what}"
-        return res
 
     def collect(self, step, stage):
         outs, total, missing = {}, 0, []
@@ -1021,7 +678,7 @@ class Engine:
         """None when s may start now, else why it waits ([concurrency], tools/rellib/window.py).
         elsewhere: what other tools/rel processes run, which the cap and `apart` count too."""
         others = [r[2] for r in running.values()] + list(elsewhere)
-        why = self.policy.why_not(s, others, [x for x in others if self.run.status(x.id).get("parked")])
+        why = self.policy.why_not(s, others)
         if why is None and self.policy.guards_external(s) and not self.dry:
             ext = self.external_suite()
             if ext:
@@ -1035,15 +692,17 @@ class Engine:
         while True:
             statuses = {s.id: self.run.status(s.id)["status"] for s in self.run.steps}
             deferred_external = False  # something outside this drive holds a step: look again by the clock
+            skipped = False  # a step skipped for its needs frees what comes after it: look again at once
             if not stop:
                 for s in steps:
                     if s.id in running or statuses[s.id] not in ("pending", "failed", "waiting", "held", "closed"):
                         continue
                     if statuses[s.id] == "failed" and not self.run.status(s.id).get("retry"):
                         continue
-                    if statuses[s.id] == "failed" and self.repeat_stopped(s):
-                        continue
                     if not self.ready(s, statuses) or s.lane in lanes_busy:
+                        continue
+                    if statuses[s.id] == "pending" and self.skip_for_need(s):
+                        skipped = True
                         continue
                     if self.run.status(s.id).get("polled") == id(self):
                         continue  # a waiting step is asked once per drive
@@ -1076,6 +735,8 @@ class Engine:
             if not deferred_external and not stop:
                 deferred_external = self.running_elsewhere(steps, statuses)
             if not running:
+                if skipped:
+                    continue
                 if deferred_external:
                     time.sleep(self.policy.poll)  # only something outside this drive holds it: look again
                     continue
@@ -1107,42 +768,22 @@ class Engine:
         with self.run.short("admit"):
             return any(self.run.lane_user(s.lane) == s.id for s in waiting)
 
-    def repeat_stopped(self, step):
-        """True when repeats.py refuses this failed step an automatic attempt. Only it stays behind."""
-        no = repeats.verdict(self, step)
-        if not no:
+    def skip_for_need(self, step):
+        """pipeline.toml needs_ok: a step with nothing to work on when one of these needs failed as a
+        warning or was skipped (screens-publish after a failed screens render) is skipped, not run.
+        -> True when it was skipped."""
+        bad = [n for n in step.needs_ok if self.run.status(n).get("warned") or self.run.status(n)["status"] == "skipped"]
+        if not bad:
             return False
-        self.run.set_status(step.id, retry=False, stopped=no["line"])
-        self.run.event(step.id, "repeat-refused", rule=no["rule"], line=no["line"])
-        self.echo(f"✋ {step.id}  {no['line']}")
+        reason = f"skipped: {', '.join(bad)} " + ("failed (warn_only)" if any(self.run.status(n).get("warned") for n in bad)
+                                                   else "was skipped") + ", so there is nothing to work on"
+        st = self.run.set_status(step.id, status="skipped", note=reason, ended=now_iso())
+        self.run.event(step.id, "skipped", reason=reason, automatic=True)
+        self.record_skip(step, reason)
+        self.echo(f"⏭ {step.id}  {reason}")
         if self.relmsg:
-            self.relmsg.step(step.id, "failed", note=no["line"])
+            self.relmsg.step(step.id, relmsg_state(st), note=reason)
         return True
-
-    def probe(self, step, fail):
-        """tools/rel probe: step's lane in a folder of its own, up to fail's step and no further. Its
-        status changes only by the record in `probes`; its proof.json and attempts stay."""
-        probes = self.run.status(step.id).get("probes") or []
-        n = len(probes) + 1
-        folder = os.path.join(self.run.step_dir(step.id), f"probe-{n}")
-        stage = os.path.join(folder, "out")
-        os.makedirs(stage, exist_ok=True)
-        log = os.path.join(folder, "probe.log")
-        argv, cwd, env = self.command_line(step, repeats.probe_env(self.run, step, fail, stage))
-        driver = evidence.driver_record(self.runner)
-        self.run.event(step.id, "probe-start", n=n, name=fail["step"], phase=fail.get("phase"),
-                       driver=evidence.driver_label(driver))
-        self.echo(f"▶ {step.id}  probe {n}: {fail['step']} on {evidence.driver_label(driver)}; log {log}")
-        started = time.time()
-        rc = self.spawn(argv, cwd, self.spawn_env(env), log, step.timeout)
-        proof = read_json(os.path.join(stage, "proof.json"))
-        rec = repeats.probe_record(self, step, fail, n, rc, round(time.time() - started, 1), driver,
-                                   proof if isinstance(proof, dict) else {}, log)
-        self.run.set_status(step.id, probes=probes + [rec])
-        self.run.event(step.id, "probe", **{("name" if k == "step" else k): v for k, v in rec.items()
-                                            if k not in ("log", "driver", "target")},
-                       driver=evidence.driver_label(driver))
-        return rec
 
     def _worker(self, step):
         try:

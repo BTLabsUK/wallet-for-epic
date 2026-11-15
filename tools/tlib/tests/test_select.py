@@ -119,7 +119,7 @@ class SelectTest(unittest.TestCase):
         sel = s.select(self.root, names)
         self.assertEqual(len(sel.tests), s.MAX_TESTS)
         self.assertEqual(len(sel.left), 21)  # the sentinel takes one place
-        self.assertTrue(any("left to the nightly" in n for n in sel.notes))
+        self.assertTrue(any("left to the candidate" in n for n in sel.notes))
 
     def test_each_changed_file_gets_a_turn_under_the_cap(self):
         names = [f"app/test/m{i:03}_test.dart" for i in range(s.MAX_TESTS + 20)]

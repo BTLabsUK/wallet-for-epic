@@ -1,0 +1,18 @@
+{"ts": "2026-11-15T13:23:48Z", "t": 1794749028.065, "run": "26.11.4-run16", "step": "scope", "event": "start", "host": "local", "attempt": 1}
+{"ts": "2026-11-15T13:23:48Z", "t": 1794749028.396, "run": "26.11.4-run16", "step": "scope", "event": "end", "status": "done", "duration_s": 0.3, "note": "android, linux, windows, macos (tor+notor) \u00b7 out of scope: ios \u00b7 GitHub release mirror \u00b7 target: live", "attempts": 1}
+{"ts": "2026-11-15T13:23:48Z", "t": 1794749028.542, "run": "26.11.4-run16", "step": "preflight", "event": "start", "host": "local", "attempt": 1}
+{"ts": "2026-11-15T13:24:05Z", "t": 1794749045.475, "run": "26.11.4-run16", "step": "preflight", "event": "end", "status": "done", "duration_s": 16.9, "note": "ok; node https://node.btlabs.uk, epicbox epicbox.btlabs.uk; 1 warning(s)", "attempts": 1}
+{"ts": "2026-11-15T13:24:05Z", "t": 1794749045.662, "run": "26.11.4-run16", "step": "source", "event": "start", "host": "build", "attempt": 1}
+{"ts": "2026-11-15T13:24:06Z", "t": 1794749046.049, "run": "26.11.4-run16", "step": "source", "event": "end", "status": "done", "duration_s": 0.4, "note": "commit f1ffd8a8022c; LEPIC 1bcbe6f31e", "attempts": 1}
+{"ts": "2026-11-15T13:24:06Z", "t": 1794749046.203, "run": "26.11.4-run16", "step": "source-check", "event": "start", "host": "build", "attempt": 1}
+{"ts": "2026-11-15T13:24:09Z", "t": 1794749049.556, "run": "26.11.4-run16", "step": "source-check", "event": "end", "status": "done", "duration_s": 3.3, "rc": 0, "note": "reused from tools/check.sh --full 2026-11-15T13:19:00Z (rel-desktop-new-66676d) (f1ffd8a8022c): nothing it depends on changed", "attempts": 1}
+{"ts": "2026-11-15T13:24:09Z", "t": 1794749049.729, "run": "26.11.4-run16", "step": "build-linux-tor", "event": "start", "host": "build", "attempt": 1}
+{"ts": "2026-11-15T13:24:32Z", "t": 1794749072.197, "run": "26.11.4-run16", "step": "build-linux-tor", "event": "end", "status": "done", "duration_s": 22.5, "rc": 0, "bytes": 42301944, "attempts": 1}
+{"ts": "2026-11-15T13:27:27Z", "t": 1794749247.405, "run": "26.11.4-run16", "step": "screens", "event": "start", "host": "build", "attempt": 1}
+{"ts": "2026-11-15T13:27:27Z", "t": 1794749247.423, "run": "26.11.4-run16", "step": "trust-linux-tor", "event": "start", "host": "build", "attempt": 1}
+{"ts": "2026-11-15T13:35:36Z", "t": 1794749736.379, "run": "26.11.4-run16", "step": "artefacts", "event": "start", "host": "local", "attempt": 1}
+{"ts": "2026-11-15T13:35:38Z", "t": 1794749738.054, "run": "26.11.4-run16", "step": "artefacts", "event": "end", "status": "done", "duration_s": 1.7, "bytes": 304606807, "note": "8 files, 305 MB, SHA256SUMS + provenance.json + sbom.cdx.json; rc-manifest c1030584e0fe", "attempts": 1}
+{"ts": "2026-11-15T13:35:44Z", "t": 1794749744.237, "run": "26.11.4-run16", "step": "trust-manifest", "event": "start", "host": "local", "attempt": 1}
+{"ts": "2026-11-15T13:35:45Z", "t": 1794749745.78, "run": "26.11.4-run16", "step": "trust-manifest", "event": "end", "status": "done", "duration_s": 1.5, "note": "both manifests verify; serial 1794749740", "attempts": 1}
+{"ts": "2026-11-15T13:38:39Z", "t": 1794749919.097, "run": "26.11.4-run16", "step": "trust-linux-tor", "event": "end", "status": "done", "duration_s": 671.7, "rc": 0, "note": "proven 26.11.3 \u2192 26.11.4 (appimage-swap: the previous release's AppImage, then the candidate's on the same sandbox HOME (data folder and keyring kept, as the in-app update leaves them); both run extracted; node http://127.0.0.1:43413, epicbox epicbox.btlabs.uk)", "attempts": 1}
+{"ts": "2026-11-15T13:42:59Z", "t": 1794750179.578, "run": "26.11.4-run16", "step": "screens", "event": "end", "status": "done", "duration_s": 932.2, "rc": 0, "attempts": 1}

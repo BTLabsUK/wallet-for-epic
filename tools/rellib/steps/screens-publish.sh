@@ -5,8 +5,8 @@
 # https://epiccash.btlabs.uk/screens/ (docs/RELEASING.md, "Screens"):
 #   1. tools/screens.sh <version> --promote   points `latest` at it, keeps the two newest versions;
 #   2. tools/screens-publish.sh <version>     builds the public copy (manifest.json's images only:
-#      the real/ screens of the trust drivers and the tours' logs never leave this machine) and
-#      deploys it; one the site already serves is not deployed again.
+#      the tours' logs never leave this machine) and deploys it; one the site already serves is not
+#      deployed again.
 # A TEST run or the scratch target builds the public copy only (--build-only) and leaves `latest`
 # alone: nothing was published. Never holds the release: warn_only in release/pipeline.toml.
 # Leaves <stage>/links.json (the gallery link for the live message) after a live deploy.

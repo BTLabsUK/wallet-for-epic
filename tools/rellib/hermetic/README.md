@@ -1,8 +1,7 @@
-# Hermetic services for the G4 trust lanes
+# Hermetic services for testing the app
 
-A local mainnet node and a loopback Epicbox relay, so the update-trust checks touch no outside server
-except the one live-funds send and receive per platform per release. Test-only infrastructure. The app is
-mainnet-only, so the node is a mainnet node: no usernet, no floonet.
+A local mainnet node and a loopback Epicbox relay, so a test of the app touches no outside server.
+Test-only infrastructure. The app is mainnet-only, so the node is a mainnet node: no usernet, no floonet.
 
 ```
 tools/rellib/hermetic/

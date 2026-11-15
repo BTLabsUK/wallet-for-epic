@@ -10,11 +10,10 @@ checks the installed Flutter against that pin.
 
 When an earlier run (any version folder under the state root) has the same step done with the
 same key, and its output files are still there with their recorded checksums, the step is not
-run: its files are copied in and it is marked "reused from <run> (<commit>)". For G2 a green
-nightly full check (`reuse_nightly`) of a commit with the same key counts too, and so does any
-green `tools/check.sh --full` on a clean tree (`reuse_green`: the <sha>.json records check.sh
-writes in /tmp/epic-build/green/ after tools/t's full and full-notor passes, the nightly's own run
-included). A commit that differs from a green one only by its version (`tools/version.sh set`, within
+run: its files are copied in and it is marked "reused from <run> (<commit>)". For G2 any green
+`tools/check.sh --full` on a clean tree of a commit with the same key counts too (`reuse_green`:
+the <sha>.json records check.sh writes in /tmp/epic-build/green/ after tools/t's full and full-notor
+passes). A commit that differs from a green one only by its version (`tools/version.sh set`, within
 the step's paths) counts as that green commit, for a step that leaves no files. A candidate none of
 these covers runs G2 first in its run. A changed key runs the step. Dry runs never reuse.
 """
@@ -113,11 +112,6 @@ def _outputs_intact(run_dir, outs):
 GREEN_DIR = "/tmp/epic-build/green"
 
 
-def nightly_dir(spec):
-    n = spec.get("reuse_nightly")
-    return os.path.expanduser("/tmp/epic-build/nightly") if n is True else n
-
-
 def green_dir(spec):
     """Where `tools/check.sh --full` records green runs (<sha>.json); WFE_GREEN_DIR wins, as for check.sh."""
     g = spec.get("reuse_green")
@@ -146,14 +140,14 @@ def green_records(gdir):
     return [(s, r) for _, s, r in sorted(out, key=lambda x: x[0], reverse=True)]
 
 
-def find(engine, step, paths, nightly=None, green=None):
-    """-> (key, parts, source or None). source: {"kind": "run"|"nightly"|"green", "label", "commit",
+def find(engine, step, paths, green=None):
+    """-> (key, parts, source or None). source: {"kind": "run"|"green", "label", "commit",
     "run_dir"?, "status"?}."""
     root = os.path.dirname(os.path.dirname(engine.run.path))
-    return find_source(engine.repo, root, engine.info, step, paths, nightly, green, this_run=engine.run.path)
+    return find_source(engine.repo, root, engine.info, step, paths, green, this_run=engine.run.path)
 
 
-def find_source(repo, root, info, step, paths, nightly=None, green=None, this_run=None):
+def find_source(repo, root, info, step, paths, green=None, this_run=None):
     """find() without a run: also what `tools/rel start` asks before it makes one (G2's green check)."""
     k, parts = key(repo, info["commit"], info["version"], step, paths)
     keys = {}  # commit → key, computed once
@@ -187,20 +181,6 @@ def find_source(repo, root, info, step, paths, nightly=None, green=None, this_ru
         if ok and _outputs_intact(run_dir, st.get("outputs")):
             label = other.get("run_id") or os.path.basename(run_dir)
             return k, parts, {"kind": "run", "label": label, "commit": c, "run_dir": run_dir, "status": st}
-    if nightly:
-        for lj in sorted(glob.glob(os.path.join(os.path.expanduser(nightly), "runs", "*", "result.json")), reverse=True) + \
-                [os.path.join(os.path.expanduser(nightly), "latest.json")]:
-            try:
-                n = json.loads(pathlib.Path(lj).read_text())
-            except (OSError, ValueError):
-                continue
-            source = n.get("source_status", n.get("status"))   # an incomplete night's check still passed
-            if source != "green" or n.get("exit") != 0 or "--full" not in n.get("command", ""):
-                continue
-            c = n.get("sha")
-            if c and _git(repo, "cat-file", "-e", f"{c}^{{commit}}") is not None:
-                if same(c):
-                    return k, parts, {"kind": "nightly", "label": f"nightly {n.get('ended', '')}".strip(), "commit": c}
     if green and os.path.isdir(green):
         for c, r in green_records(green):
             if _git(repo, "cat-file", "-e", f"{c}^{{commit}}") is None:

@@ -88,7 +88,7 @@ def plan(state_root, keep_run=None):
         if len(seen_versions) == 2:
             break
     # A follow-up run (tools/rel start --follow-up) carries the files of the run it follows: that run
-    # holds their proofs, so it stays while the follow-up does.
+    # built them, so it stays while the follow-up does.
     for p in pubs:
         if p["run"] in keep:
             base = (read_json(os.path.join(p["run"], "run.json"), {}).get("follow_up") or {}).get("run")

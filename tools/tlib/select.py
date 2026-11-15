@@ -18,8 +18,8 @@ staged, unstaged and untracked (not ignored). The rule holds for any change of a
   6. always the SENTINELS below;
   7. the whole selection stops at MAX_TESTS, taking in turn from each changed file.
 
-What steps 4 and 7 drop is in Selection.left and printed by --list: the nightly and the candidate's
-full run cover it. `--closure` is the old rule (every test the import graph reaches, every test on
+What steps 4 and 7 drop is in Selection.left and printed by --list: the candidate's full run
+covers it. `--closure` is the old rule (every test the import graph reaches, every test on
 pubspec), without limits. Nothing routine uses it; the guard treats it as a full run.
 """
 import json
@@ -228,7 +228,7 @@ def _take_turns(sel, wanted, room):
 class Selection:
     def __init__(self):
         self.tests = {}  # test -> reason
-        self.left = []  # tests the change touches that this run leaves to the nightly
+        self.left = []  # tests the change touches that this run leaves to the candidate's full run
         self.notes = []
         self.full = False
 
@@ -297,8 +297,8 @@ def select(root, changed, base=None, graph=None, sentinels=True, closure=False):
         sel.notes.append(f"no test imports {len(silent)} changed file(s) directly ({', '.join(silent[:3])}"
                          f"{', …' if len(silent) > 3 else ''}): name the tests yourself if they matter")
     if sel.left:
-        sel.notes.append(f"{len(sel.left)} more tests touch this change: left to the nightly and the "
-                         "candidate's full run")
+        sel.notes.append(f"{len(sel.left)} more tests touch this change: left to the candidate's "
+                         "full run")
     return sel
 
 

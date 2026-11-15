@@ -1,0 +1,26 @@
+{
+ "status": "done",
+ "attempts": 1,
+ "retry": false,
+ "waited_s": null,
+ "started": "2026-11-15T13:23:48Z",
+ "ended": "2026-11-15T13:23:48Z",
+ "note": "android, linux, windows, macos (tor+notor) \u00b7 out of scope: ios \u00b7 GitHub release mirror \u00b7 target: live",
+ "hint": null,
+ "rc": null,
+ "cause": null,
+ "infra_try": null,
+ "flaky": null,
+ "failed_before": null,
+ "recovered": null,
+ "stopped": null,
+ "fresh": null,
+ "driver_changed": null,
+ "duration_s": 0.3,
+ "attempt_seconds": [
+  0.3
+ ],
+ "warned": null,
+ "input_hash": "f3f575bec312b274",
+ "inputs_digest": null
+}
