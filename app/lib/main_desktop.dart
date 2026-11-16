@@ -27,6 +27,7 @@ import 'src/data_folder.dart';
 import 'src/desktop/app/close_guard.dart' show deskHideToTray, deskHoldExit;
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/desk_window.dart';
+import 'src/desktop/app/mock_shots.dart';
 import 'src/desktop/app/system_notice.dart';
 import 'src/desktop/app/window_placement.dart';
 import 'src/desktop/app/tray/tray_host.dart';
@@ -108,9 +109,9 @@ Future<void> main(List<String> args) async {
     // The mock wallet shows the shipped servers; it reads and writes no file.
     await loadShippedSettings();
     await startServices();
-    final window = await SystemDeskWindow.init();
+    final DeskWindow? window = await SystemDeskWindow.init() ?? await MacDeskWindow.init();
     await placeDeskWindow(null);
-    runApp(ProviderScope(overrides: [launch, announcementsPlatformProvider.overrideWithValue('desktop'), announcementsFeedProvider.overrideWithValue(null), nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (deskSystemNoticesSupported) deskSystemNotifierProvider.overrideWithValue(PluginSystemNotifier()), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
+    runApp(ProviderScope(overrides: [launch, announcementsPlatformProvider.overrideWithValue('desktop'), announcementsFeedProvider.overrideWithValue(null), nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (deskSystemNoticesSupported) deskSystemNotifierProvider.overrideWithValue(PluginSystemNotifier()), if (window != null) deskWindowProvider.overrideWithValue(window)], child: mockShots(const DeskApp())));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
   }
@@ -148,7 +149,7 @@ Future<void> main(List<String> args) async {
     }
     final overrides = await deskOverrides();
     // The app's own title bar from here on (the keyring screen above keeps the system's).
-    final window = await SystemDeskWindow.init();
+    final DeskWindow? window = await SystemDeskWindow.init() ?? await MacDeskWindow.init();
     if (window != null) overrides.add(deskWindowProvider.overrideWithValue(window));
     overrides.add(launch);
     if (deskSystemNoticesSupported) overrides.add(deskSystemNotifierProvider.overrideWithValue(PluginSystemNotifier()));

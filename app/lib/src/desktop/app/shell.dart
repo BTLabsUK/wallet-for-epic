@@ -54,6 +54,7 @@ import 'service_rows.dart';
 import 'screens.dart';
 import 'close_guard.dart';
 import 'desk_window.dart' show deskWindowProvider;
+import 'mock_shots.dart' show mockLaneLog;
 import 'system_notice.dart';
 import 'last_session_offer.dart';
 import 'update_strip.dart' show DeskUpdateStrip;
@@ -465,6 +466,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 
   /// A click on a system notification: the window comes forward, the payment opens.
   void _systemNoticeTapped(String? payload) {
+    mockLaneLog('system notice tapped, payload $payload'); // l10n-ok: test lane log
     if (!mounted) return;
     unawaited(ref.read(deskWindowProvider).show());
     _openIncoming(int.tryParse(payload ?? ''));
@@ -505,6 +507,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     );
     final window = ref.read(deskWindowProvider);
     final inFront = window.state.value.focused && window.visible.value;
+    mockLaneLog('payment notice: in front $inFront, system notices ${s.settings.systemNotices}'); // l10n-ok: test lane log
     if (s.settings.systemNotices && !inFront) {
       unawaited(ref.read(deskSystemNotifierProvider).show(title: l.deskSysNoticeTitle, body: text, payload: '${txId ?? ''}', openLabel: l.deskSysNoticeOpen));
     }
