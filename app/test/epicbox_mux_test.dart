@@ -162,7 +162,7 @@ void main() {
   });
 
   group('mail', () {
-    test('mail in the contacts\' group gives one event a second after the last of a burst', () {
+    test('mail in the contacts\' group gives an event at once, one per push', () {
       fakeAsync((async) {
         final s = FakeWalletSession();
         final mux = EpicboxMux.of(s, _on)!;
@@ -171,15 +171,14 @@ void main() {
         var events = 0;
         mux.mail.listen((_) => events++);
         s.queueMail(_relay, 'contacts');
-        async.elapse(const Duration(milliseconds: 500));
+        async.flushMicrotasks();
+        expect(events, 1);
         s.queueMail(_relay, 'contacts');
         s.queueMail(_other, 'contacts');
-        async.elapse(const Duration(milliseconds: 900));
-        expect(events, 0);
-        async.elapse(const Duration(milliseconds: 200));
-        expect(events, 1);
+        async.flushMicrotasks();
+        expect(events, 3);
         async.elapse(const Duration(seconds: 5));
-        expect(events, 1);
+        expect(events, 3);
         mux.close();
       });
     });
@@ -223,8 +222,7 @@ void main() {
         unawaited(mux.startContacts());
         async.flushMicrotasks();
         s.queueMail(_relay, 'contacts');
-        s.queueMail(_relay, 'contacts');
-        async.elapse(const Duration(seconds: 2));
+        async.flushMicrotasks();
         expect(triggers, [PairingCollectTrigger.push]);
         expect(check.pushChecks, 1);
         live.dispose();

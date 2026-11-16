@@ -219,12 +219,26 @@ void main() {
       time.elapse(const Duration(seconds: 46));
       expect((rig.calls.last.at - openAt).inSeconds, 45);
 
-      // A pairing event or a payment: reset, the next one 45 s on.
+      // A payment: reset, the next one 45 s on.
       time.elapse(const Duration(minutes: 10));
       final eventAt = time.elapsed;
       rig.check.reset();
       time.elapse(const Duration(seconds: 46));
       expect((rig.calls.last.at - eventAt).inSeconds, 45);
+      rig.check.stop();
+    });
+  });
+
+  test('a pairing event with no push session runs the check of every contact at once', () {
+    fakeAsync((time) {
+      final rig = _Rig(time);
+      rig.check.start();
+      time.elapse(const Duration(seconds: 20));
+      expect(rig.calls, isEmpty);
+      rig.check.pairingEvent();
+      time.elapse(const Duration(seconds: 2));
+      expect(rig.calls.map((c) => c.only), [null]);
+      expect(rig.listingDrains, 1);
       rig.check.stop();
     });
   });
@@ -278,6 +292,46 @@ void main() {
         time.elapse(const Duration(minutes: 9, seconds: 1));
         expect(rig.calls, hasLength(2));
         expect(rig.calls.last.trigger, isNot(PairingCollectTrigger.push));
+        rig.check.stop();
+      });
+    });
+
+    test('a push collect that took a message reads the payloads and keeps a pairing event due', () {
+      fakeAsync((time) {
+        final rig = _Rig(time)..live = true;
+        rig.check.start();
+        time.elapse(const Duration(minutes: 1));
+        // The pushed confirm completes a pairing while the push collect runs: its event comes
+        // before the collect returns.
+        rig.messages = 1;
+        unawaited(rig.check.pushCollect());
+        rig.check.pairingEvent();
+        time.flushMicrotasks();
+        expect(rig.listingDrains, 1);
+        // The pass that claims the new contact's mailbox runs at once, not a reconcile later.
+        time.elapse(const Duration(seconds: 2));
+        expect(rig.calls.map((c) => (c.trigger, c.only)), [
+          (PairingCollectTrigger.push, null),
+          (PairingCollectTrigger.foreground, null),
+        ]);
+        rig.check.stop();
+      });
+    });
+
+    test('a pairing event just before the sessions count as live still runs at once', () {
+      fakeAsync((time) {
+        final rig = _Rig(time);
+        rig.check.start();
+        time.elapse(const Duration(seconds: 20));
+        // The answer to a code comes in; the new pairing's relay is in use a moment later.
+        rig.check.pairingEvent();
+        rig.live = true;
+        rig.check.liveChanged();
+        time.elapse(const Duration(seconds: 2));
+        expect(rig.calls.map((c) => c.only), [null]);
+        // Then the reconcile: nothing more for 10 minutes.
+        time.elapse(const Duration(minutes: 9));
+        expect(rig.calls, hasLength(1));
         rig.check.stop();
       });
     });

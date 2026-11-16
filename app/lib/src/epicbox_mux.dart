@@ -72,28 +72,20 @@ Set<String> muxRelaysOf(Iterable<PairingRecord> pairings) => {
 /// them, and says when the contacts check may rest ([liveFor]). Made by [EpicboxMux.of], null
 /// when the setting is off or the session cannot.
 class EpicboxMux {
-  EpicboxMux._(this.session, this._push, this.policy, this.debounce);
+  EpicboxMux._(this.session, this._push, this.policy);
 
   /// The mux of [session], or null when [policy] is off or the session has no push sessions.
-  static EpicboxMux? of(
-    WalletSession? session,
-    MuxPolicy policy, {
-    Duration debounce = const Duration(seconds: 1),
-  }) {
+  static EpicboxMux? of(WalletSession? session, MuxPolicy policy) {
     final push = session?.push;
     if (session == null || push == null || !policy.enabled) return null;
-    return EpicboxMux._(session, push, policy, debounce);
+    return EpicboxMux._(session, push, policy);
   }
 
   final WalletSession session;
   final EpicboxPush _push;
   final MuxPolicy policy;
 
-  /// Mail that comes in a burst gives one [mail] event this long after the last.
-  final Duration debounce;
-
   StreamSubscription<PushEvent>? _watch;
-  Timer? _debounce;
   final StreamController<void> _mail = StreamController<void>.broadcast();
   final StreamController<void> _changes = StreamController<void>.broadcast();
 
@@ -101,7 +93,8 @@ class EpicboxMux {
   String? _contactsGroup;
   bool _closed = false;
 
-  /// The relay pushed mail for the contacts collect: debounced, one event per burst.
+  /// The relay pushed mail for the contacts collect: one event per push, at once. The collect it
+  /// starts runs one at a time and merges a burst, so mail is never held back to wait for more.
   Stream<void> get mail => _mail.stream;
 
   /// A session changed state: [liveFor] may answer otherwise.
@@ -152,8 +145,6 @@ class EpicboxMux {
   /// lock; the listener's own stop ends its session.
   Future<void> stopContacts() async {
     _contactsGroup = null;
-    _debounce?.cancel();
-    _debounce = null;
     try {
       await _push.contactsPushStop();
     } on Object catch (error) {
@@ -169,11 +160,7 @@ class EpicboxMux {
         if (e.kind == PushEventKind.mailQueued) {
           // The listener's group is read by the listener; only the contacts' mail asks a collect.
           if (e.group != _contactsGroup) return;
-          _debounce?.cancel();
-          _debounce = Timer(debounce, () {
-            _debounce = null;
-            if (!_closed && !_mail.isClosed) _mail.add(null);
-          });
+          if (!_closed && !_mail.isClosed) _mail.add(null);
         } else if (!_changes.isClosed) {
           _changes.add(null);
         }
@@ -207,8 +194,6 @@ class EpicboxMux {
   /// Ends the watch. After this nothing is called on the session.
   void close() {
     _closed = true;
-    _debounce?.cancel();
-    _debounce = null;
     unawaited(_watch?.cancel());
     _watch = null;
     _contactsGroup = null;

@@ -13,7 +13,8 @@
 /// While push sessions are live ([ContactCheck.live]: a session of the Epicbox relay is attached
 /// on every relay a contact or a pairing in flight uses), the relay says when mail comes: the
 /// reads of the contacts in flight stop, and the check of every contact is a reconcile every
-/// 10 minutes plus one right after a pairing event ([pairingEvent]).
+/// 10 minutes. A pairing event ([pairingEvent]) runs the check of every contact at once, live or
+/// not.
 /// A push collect ([pushCollect]) reads when the relay says mail was queued. With no session
 /// attached, or a relay that does not offer them, the checks above run unchanged.
 ///
@@ -162,10 +163,11 @@ class ContactCheck {
     _retime(shorten: true);
   }
 
-  /// A pairing moved: while [live] the check of every contact runs at once, as the in-flight
-  /// reads that would follow it are off; otherwise as [reset].
+  /// A pairing moved: the check of every contact runs at once. A pairing that completed claims
+  /// its contact mailbox only on the pass after it (on a live session that pass attaches it, and
+  /// the relay pushes what waits there), so the first message of the new contact waits for this
+  /// check and nothing longer.
   void pairingEvent() {
-    if (!_isLive) return reset();
     _step = 0;
     _nextFull = _now();
     _retime(shorten: true);
@@ -174,33 +176,38 @@ class ContactCheck {
   bool get _isLive => live?.call() ?? false;
 
   /// What [live] reads may have changed. Going live puts the next check of every contact one
-  /// reconcile after the last; leaving it starts the adaptive wait again at its first step.
+  /// reconcile after the last, unless one is due now (a [pairingEvent] just before the new
+  /// pairing's relay came in use); leaving it starts the adaptive wait again at its first step.
   void liveChanged() {
     final now = _isLive;
     if (now == _wasLive) return;
     _wasLive = now;
     _step = 0;
     if (now) {
-      _nextFull = (_lastFull ?? _now()).add(reconcileEvery);
+      if (_nextFull.isAfter(_now())) _nextFull = (_lastFull ?? _now()).add(reconcileEvery);
     } else {
       _nextFull = _now().add(idleChecks.first);
     }
     _retime();
   }
 
-  /// The relay said mail was queued: reads every contact's mailbox with the push trigger. A
-  /// message taken starts the waits again, like a message the tick read.
+  /// The relay said mail was queued: reads every contact's mailbox with the push trigger, and
+  /// when a message came, what the full check reads besides ([sync]: a name service's hello is
+  /// a payload). A message taken starts the waits again, like a message the tick read; a check
+  /// already due (a [pairingEvent] during the collect) stays due.
   Future<void> pushCollect() async {
     if (paused?.call() ?? false) return;
     var messages = 0;
     try {
       messages = await collect(PairingCollectTrigger.push);
+      if (messages > 0) await sync(PairingCollectTrigger.push);
     } finally {
       pushChecks++;
       if (messages > 0) {
         _step = 0;
-        _nextFull = _now().add(_isLive ? reconcileEvery : idleChecks.first);
-        _retime();
+        final next = _now().add(_isLive ? reconcileEvery : idleChecks.first);
+        if (next.isBefore(_nextFull)) _nextFull = next;
+        _retime(shorten: true);
       }
     }
   }

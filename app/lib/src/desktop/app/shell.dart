@@ -539,7 +539,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskPairingEventsProvider, (_, next) {
       final e = next.value;
       if (e == null) return;
-      // A pairing moved: the next check of every contact is the first wait away.
+      // A pairing moved: the check of every contact runs at once (it claims a new contact's
+      // mailbox).
       _contactCheck?.pairingEvent();
       // A mailbox payment's answer was finalized: Activity shows it posted.
       if (e.kind == PairingEventKind.paymentFinalized) unawaited(ref.read(deskProvider.notifier).refresh());
