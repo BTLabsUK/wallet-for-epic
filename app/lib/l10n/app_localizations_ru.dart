@@ -1132,10 +1132,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeNoticeDelayed => 'Нет связи с узлом. Платёж ждёт.';
 
   @override
-  String get homeNoticeRelayProblem =>
-      'Сервер epicbox сообщил о проблеме. Пробуем снова.';
-
-  @override
   String get homeNoticePaymentFailed => 'Платёж не удался.';
 
   @override
@@ -12960,10 +12956,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get noticeEventsMissed =>
-      'Часть обновлений пропущена. Списки прочитаны заново.';
-
-  @override
   String get msgChecking => 'Проверка сообщений';
 
   @override
@@ -13985,11 +13977,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String noticeKeyCheckRefused(String name) {
-    return '$name: пара с новыми ключами. Старые ключи проверить не удалось: проверка одна в сутки, и она уже была.';
-  }
-
-  @override
   String noticeRelayDown(String name) {
     return 'Сервер Epicbox $name не отвечает.';
   }
@@ -14136,11 +14123,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqFileTitle => 'Счёт на оплату';
-
-  @override
-  String noticeOutboxStuck(String name) {
-    return '$name пока недоступен. Пробуем снова.';
-  }
 
   @override
   String noticeTooMany(String name) {

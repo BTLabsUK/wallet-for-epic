@@ -188,7 +188,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       }
       await ref.read(sessionProvider.notifier).open(session);
       if (session.storeOpen == StoreOpenOutcome.plainFallback) {
-        ref.read(noticeProvider.notifier).show(l.storeRecordsPlain, level: NoticeLevel.info, persistent: true);
+        // Nothing to do about it and the wallet works the same: the log has it.
+        logWarn('unlock', 'records are stored without the extra encryption layer');
       }
       if (rebuilt) {
         ref

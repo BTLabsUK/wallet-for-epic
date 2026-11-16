@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/recent_activity.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/kit/kit_button.dart' show KitButton, KitButtonKind;
 import 'package:epic_wallet/src/ui/kit/kit_icons.dart' show KitIcons;
@@ -1708,17 +1709,6 @@ void main() {
         paymentNotice(englishStrings, finalized, null),
         'Payment finished. Confirming.',
       );
-      expect(
-        paymentNotice(
-          englishStrings,
-          const ListenerEvent(
-            kind: ListenerEventKind.error,
-            message: 'relay error: Unauthorized x',
-          ),
-          null,
-        ),
-        'The Epicbox server reported a problem. Retrying.',
-      );
     });
 
     testWidgets('a received payment opens its details from the notice', (
@@ -2129,6 +2119,7 @@ void main() {
       final h = _Harness(transactions: _backlog(), fromBeforeOnionKey: true);
       _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
+      h.store.values['app.payment_prefs'] = PaymentPrefs.phoneDefaults.copyWith(linkTor: true).encode();
       await h.pump(tester);
       final notice = find.byKey(noticeKey);
       expect(find.descendant(of: notice, matching: find.text(_l.torAddressChangedTitle)), findsOneWidget);
@@ -2149,9 +2140,18 @@ void main() {
     testWidgets('a wallet with epic1 sees it too: it is not held back', (tester) async {
       final session = FakeWalletSession(summary: _summary(), transactions: _backlog())..epic1Fake = FakeEpic1();
       final h = _Harness(session: session, fromBeforeOnionKey: true);
+      h.store.values['app.payment_prefs'] = PaymentPrefs.phoneDefaults.copyWith(linkTor: true).encode();
       await h.pump(tester);
       expect(find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.torAddressChangedTitle)), findsOneWidget);
       expect(h.store.values[onionNoticeKey('mainnet', null)], onionNoticeSeen);
+    });
+
+    testWidgets('with Tor receiving off it does not show, and waits', (tester) async {
+      final h = _Harness(transactions: _backlog(), fromBeforeOnionKey: true);
+      h.store.values['app.payment_prefs'] = PaymentPrefs.phoneDefaults.copyWith(linkTor: false).encode();
+      await h.pump(tester);
+      expect(find.text(_l.torAddressChangedTitle), findsNothing);
+      expect(h.store.values[onionNoticeKey('mainnet', null)], isNull);
     });
   });
 

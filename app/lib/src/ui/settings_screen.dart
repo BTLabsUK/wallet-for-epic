@@ -104,7 +104,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final biometrics = ref.watch(biometricsProvider).value;
     final mode = ref.watch(networkModeProvider);
     final status = watchWalletStatus(ref);
-    final linkedOn = walletOpen && ref.watch(linkedDevicesOnProvider);
+    // A build that cannot link has nothing to open here (the view is null while it loads).
+    final linkedOn = walletOpen && ref.watch(linkedDevicesOnProvider) && (ref.watch(phoneDevices.view)?.supported ?? true);
     final deviceLinked = ref.watch(phoneDevices.view)?.book.linked != null;
     final pushed = Navigator.of(context).canPop();
     final query = _search.text.trim();

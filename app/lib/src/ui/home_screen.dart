@@ -45,8 +45,10 @@ import 'kit/kit_ground.dart' show KitGround;
 import 'tour/phone_tour.dart';
 import 'relay_down.dart' show RelayDownNotices;
 import '../settings_file/host_settings.dart' show appConfig;
-import '../log.dart' show logWarn;
+import '../log.dart' show logInfo, logWarn;
+import '../payment_prefs.dart' show PaymentPrefs;
 import '../onion_notice.dart' show markOnionNoticeSeen, onionNoticeDue;
+import 'home_status.dart' show directIconShown;
 import '../pairing_providers.dart' show pairingCall;
 import '../stale_open.dart';
 import 'invite_link_gate.dart';
@@ -164,9 +166,7 @@ String paymentNotice(
       // Shown once per payment by home; the core retries and the payment is unchanged.
       return l.homeNoticeDelayed;
     case ListenerEventKind.error:
-      return event.slateId == null
-          ? l.homeNoticeRelayProblem
-          : l.homeNoticePaymentFailed;
+      return l.homeNoticePaymentFailed;
     case ListenerEventKind.connected ||
         ListenerEventKind.disconnected ||
         ListenerEventKind.repeated ||
@@ -283,7 +283,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (!mounted) return;
     final days = ref.read(staleOpenShownProvider.notifier).take(ref.read(clockProvider)());
     if (days == null) return;
-    ref.read(noticeProvider.notifier).show(context.l10n.contactsStaleOpened(days), level: NoticeLevel.info);
+    logInfo('home', 'wallet not opened for $days days; checking paired contacts');
     // The check runs in the background; a contact it gets no answer from shows "Not answering".
     unawaited(pairingCall(ref, (api) => api.checkContacts()).then<void>((_) {}, onError: (Object _) {}));
   }
@@ -295,6 +295,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final store = ref.read(secretStoreProvider);
+    // The old address matters only to a wallet receiving over Tor now; otherwise it waits.
+    final prefs = await ref.read(appSettingsProvider.future).then<PaymentPrefs?>((s) => s.payments, onError: (Object _) => null);
+    if (!mounted) return;
+    final linkOn = (prefs?.linkTor ?? false) || directIconShown(ref.read(phoneTorProvider));
+    if (!linkOn) {
+      logInfo('home', 'onion notice held: Tor receiving is off');
+      return;
+    }
     if (!await onionNoticeDue(store, chain: config.chain.name, walletId: config.walletId)) return;
     // Never over another notice (a payment, the records' copy): the next opening shows it.
     if (!mounted || ref.read(noticeProvider) != null) return;
@@ -445,6 +453,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _notify(ListenerEvent event) async {
     TxEntry? tx;
     final slateId = event.slateId;
+    if (event.kind == ListenerEventKind.error && slateId == null) {
+      // A server problem the core retries on its own: nothing for the user to do.
+      logWarn('home', 'listener error: ${event.message}');
+      return;
+    }
     if (event.kind == ListenerEventKind.delayed) {
       // Once per payment for as long as home is open, however often the answer is retried.
       if (slateId != null && !_delayedShown.add(slateId)) return;

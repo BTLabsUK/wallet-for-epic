@@ -13,6 +13,8 @@ import 'cancel_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../log.dart' show logInfo;
+import '../network_gate.dart' show NetGate;
 import '../contacts.dart';
 import '../cancel_final.dart';
 import '../errors.dart';
@@ -217,7 +219,9 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       case InvoiceEventKind.unknownSendAnswer:
         view(l.deskInvNoticeUnknownAnswer, NoticeLevel.warning, null);
       case InvoiceEventKind.receiveSuperseded:
-        view(l.deskInvNoticeReceiveSuperseded, NoticeLevel.info, null);
+        // The balance may be stale: check it again by itself instead of telling the user to.
+        logInfo('invoices', 'a receive was superseded: rechecking the balance');
+        if (!NetGate.killSwitch) unawaited(ref.read(scanProvider.notifier).run());
       // Not an invoice: home words it (paymentPostedProvider, paymentCancelledProvider).
       case InvoiceEventKind.paymentPosted:
         break;

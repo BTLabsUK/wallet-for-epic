@@ -1085,10 +1085,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeNoticeDelayed => 'เชื่อมต่อโหนดไม่ได้ รายการรออยู่';
 
   @override
-  String get homeNoticeRelayProblem =>
-      'เซิร์ฟเวอร์ Epicbox แจ้งว่ามีปัญหา กำลังลองใหม่';
-
-  @override
   String get homeNoticePaymentFailed => 'รายการหนึ่งไม่สำเร็จ';
 
   @override
@@ -12239,9 +12235,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get noticeEventsMissed => 'พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว';
-
-  @override
   String get msgChecking => 'กำลังตรวจสอบข้อความ';
 
   @override
@@ -13221,11 +13214,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String noticeKeyCheckRefused(String name) {
-    return '$name จับคู่ด้วยคีย์ใหม่แล้ว ตรวจคีย์เก่าไม่ได้ เพราะตรวจได้วันละครั้งและตรวจไปแล้ว';
-  }
-
-  @override
   String noticeRelayDown(String name) {
     return 'เซิร์ฟเวอร์ Epicbox ของ $name ไม่ตอบสนอง';
   }
@@ -13364,11 +13352,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqFileTitle => 'ใบแจ้งหนี้';
-
-  @override
-  String noticeOutboxStuck(String name) {
-    return 'ยังติดต่อ $name ไม่ได้ กำลังลองใหม่';
-  }
 
   @override
   String noticeTooMany(String name) {

@@ -428,20 +428,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
   void dispose() {
     _busyNote.dispose();
     pairingNewsOnScreen.remove(_shows);
-    _notices.dismissTag(_pausedTag);
     super.dispose();
   }
-
-  /// The Epicbox-off notice of this page.
-  static const _pausedTag = 'contact-paused-epicbox-off';
-
-  /// Read in [initState]: [dispose] closes the page's notice and may not read providers.
-  late final NoticeNotifier _notices;
 
   @override
   void initState() {
     super.initState();
-    _notices = ref.read(noticeProvider.notifier);
     pairingNewsOnScreen.add(_shows);
     // The contact's claimed domain is checked when it is due; the lists read again if it moved.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -449,19 +441,11 @@ class _ContactPageState extends ConsumerState<ContactPage> {
       final pairing = ref.read(contactPairingProvider(widget.contactId));
       if (pairing?.peerDomain != null) unawaited(ref.read(pairingApiProvider).checkDomain(pairing!.id));
     });
-    // Epicbox off pauses the contact's pairing; say so once on the way in.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // The page shows the contact's relay and keys: their notices have done their job.
       final pairing = ref.read(contactPairingProvider(widget.contactId));
       if (pairing != null) ref.read(noticeProvider.notifier).dismissTag(pairingContactNoticeTag(pairing.id));
-      final paired = pairing != null;
-      if (paired && ref.read(pairNetProvider) == PairNet.epicboxOff) {
-        final l = context.l10n;
-        // Persistent, so it pushes the page down instead of covering its header; it goes with
-        // the page.
-        _notices.show('${l.contactPausedEpicboxOff}. ${l.contactPausedEpicboxOffBody}', level: NoticeLevel.info, persistent: true, tag: _pausedTag);
-      }
     });
   }
 

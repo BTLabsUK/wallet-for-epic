@@ -21,6 +21,7 @@ import '../../notice_digest.dart';
 import '../../notice_digest_text.dart';
 import '../../name_service/phone_name_service.dart' show nameServiceProvider;
 import '../../l10n.dart';
+import '../../log.dart' show logInfo;
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../relay_moves.dart' show relayMoveToAsk;
@@ -33,6 +34,7 @@ import '../common.dart';
 import '../contact_page.dart';
 import '../history_screen.dart';
 import '../invoices_screen.dart';
+import '../kept_messages_sheet.dart' show showKeptMessagesSheet;
 import '../scan_route.dart' show showPairingSheet;
 import '../tx_details_screen.dart';
 import 'invite_links.dart';
@@ -75,6 +77,12 @@ bool pairingEventOnScreen(PairingEvent e) =>
 /// Invites whose "No answer from" was said this session.
 final Set<String> _noAnswerSaid = {};
 
+/// A notice that is only logged: null, so none shows.
+({String text, NoticeLevel level})? _logged(String what) {
+  logInfo('pairing', what);
+  return null;
+}
+
 /// The text and level of [e]'s notice, or null for an event that shows none.
 ({String text, NoticeLevel level})? pairingNoticeOf(AppLocalizations l, PairingEvent e) {
   final name = e.name;
@@ -97,12 +105,12 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.failed => (text: pairingFailureText(l, e.failure ?? PairingFailure.invalid, name: name), level: NoticeLevel.warning),
     PairingEventKind.keysRestored => (text: '${l.contactKeysBack(name)} ${l.contactKeysBackBody}', level: NoticeLevel.success),
     PairingEventKind.keysChanged => (text: l.noticeKeysChanged(name), level: NoticeLevel.warning),
-    // A warning, so the "Saved as" that follows the attach queues behind it.
-    PairingEventKind.keyCheckRefused => (text: l.noticeKeyCheckRefused(name), level: NoticeLevel.warning),
+    // Nothing the user can do now, and nothing the app cannot do: the log keeps it.
+    PairingEventKind.keyCheckRefused => _logged('old keys of a contact not checked (one check a day)'),
     PairingEventKind.invoiceFromContact => (text: l.noticeRequest(name, epic(e.amount)), level: NoticeLevel.info),
     PairingEventKind.withdrawalFromContact => (text: l.noticeWithdrawal(epic(e.amount), name), level: NoticeLevel.success),
     PairingEventKind.homeRelayUnreachable => (text: l.noticeRelayDown(name), level: NoticeLevel.warning),
-    PairingEventKind.outboxStuck => (text: l.noticeOutboxStuck(name), level: NoticeLevel.warning),
+    PairingEventKind.outboxStuck => _logged('a message to a contact is retrying'),
     // Named when the contact is known; the general line when it is not.
     PairingEventKind.sealedUnopenable => (text: name.trim().isEmpty ? l.openSealedOtherTitle : l.noticeSealedUnopenable(name), level: NoticeLevel.warning),
     PairingEventKind.secondReply => (text: l.pairSecondReplyTitle(name), level: NoticeLevel.warning),
@@ -110,7 +118,7 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.tooManyRequests => (text: l.noticeTooMany(name), level: NoticeLevel.warning),
     PairingEventKind.requestWithdrawn => (text: l.noticeWithdrew(name), level: NoticeLevel.info),
     PairingEventKind.unpaired => (text: l.noticeUnpaired(name), level: NoticeLevel.warning),
-    PairingEventKind.eventsMissed => (text: l.noticeEventsMissed, level: NoticeLevel.info),
+    PairingEventKind.eventsMissed => _logged('some updates were missed; the lists were read again'),
     // The payment's row, the contact page and the tracker move on by themselves.
     PairingEventKind.contactUpdated ||
     PairingEventKind.addressUpdated ||
@@ -321,6 +329,21 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
         (ref.read(walletStatusProvider).epicbox != EpicboxState.online || ref.read(rawWalletStatusProvider).epicbox != EpicboxState.online)) {
       return;
     }
+    // A message that could not be opened is news only when it is kept and can be opened from
+    // the kept messages: otherwise nothing can be done, and the log has it.
+    if (event.kind == PairingEventKind.sealedUnopenable) {
+      var kept = false;
+      try {
+        kept = (await ref.read(pairingApiProvider).keptMessages()).isNotEmpty;
+      } on Object {
+        // Unknown: not shown.
+      }
+      if (!mounted) return;
+      if (!kept) {
+        logInfo('pairing', 'a message could not be opened and is not kept');
+        return;
+      }
+    }
     final id = event.pairingId;
     // An answer or a confirm gives the record its words: the list read before the event does
     // not have them yet, and the action would be missing.
@@ -340,6 +363,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       PairingEventKind.replied || PairingEventKind.confirmed when id != null && (ref.read(pairingByIdProvider(id))?.sas.isNotEmpty ?? false) =>
         NoticeAction(l.noticeCheckWords, () => push(CheckWordsScreen(pairingId: id))),
       PairingEventKind.requested => NoticeAction(l.noticeOpen, () => push(const PairRequestsScreen())),
+      PairingEventKind.sealedUnopenable => NoticeAction(l.noticeOpen, () => unawaited(showKeptMessagesSheet(nav.context))),
       PairingEventKind.keysChanged ||
       PairingEventKind.keysRestored ||
       PairingEventKind.homeRelayUnreachable ||
@@ -372,7 +396,6 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       level: notice.level,
       action: action,
       tag: tag,
-      persistent: event.kind == PairingEventKind.keyCheckRefused,
     );
     final held = heldKindOf(event.kind);
     if (held == null) return show();

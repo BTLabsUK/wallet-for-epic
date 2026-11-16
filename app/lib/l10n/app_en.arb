@@ -1319,10 +1319,6 @@
   "@homeNoticeDelayed": {
     "description": "Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries."
   },
-  "homeNoticeRelayProblem": "The Epicbox server reported a problem. Retrying.",
-  "@homeNoticeRelayProblem": {
-    "description": "Notice: the epicbox relay (a proper name; it carries payments) reported an error not tied to a payment."
-  },
   "homeNoticePaymentFailed": "A payment failed.",
   "@homeNoticePaymentFailed": {
     "description": "Notice: something went wrong with one payment."
@@ -16689,10 +16685,6 @@
       }
     }
   },
-  "noticeEventsMissed": "Some updates were missed. The lists were read again.",
-  "@noticeEventsMissed": {
-    "description": "Notice when the wallet's event stream dropped some events: payments and requests were read again from the wallet."
-  },
   "msgChecking": "Checking messages",
   "@msgChecking": {
     "description": "Status line while the wallet reads its messages (payments address and contacts) and the check takes a moment."
@@ -18192,16 +18184,6 @@
       }
     }
   },
-  "noticeKeyCheckRefused": "{name} is paired with new keys. The old keys could not be checked: there is one check a day, and it already ran.",
-  "@noticeKeyCheckRefused": {
-    "description": "Docked notice when a re-pair is added to a contact but LEPIC refuses the key check (RFC 0002 7.8: one check per slot a day); the new pairing is used.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
   "noticeRelayDown": "Cannot reach {name}’s Epicbox server.",
   "@noticeRelayDown": {
     "description": "Docked notice for HomeRelayUnreachable.",
@@ -18407,16 +18389,6 @@
   "reqFileTitle": "Invoice",
   "@reqFileTitle": {
     "description": "Title of the request file screen."
-  },
-  "noticeOutboxStuck": "Cannot reach {name} yet. Retrying.",
-  "@noticeOutboxStuck": {
-    "description": "Docked warning for OutboxStuck.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
   },
   "noticeTooMany": "{name} sent too many invoices.",
   "@noticeTooMany": {

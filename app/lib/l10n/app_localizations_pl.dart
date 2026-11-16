@@ -1138,10 +1138,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeNoticeDelayed => 'Brak połączenia z węzłem. Płatność czeka.';
 
   @override
-  String get homeNoticeRelayProblem =>
-      'Serwer epicbox zgłosił problem. Ponawianie próby.';
-
-  @override
   String get homeNoticePaymentFailed => 'Płatność nie powiodła się.';
 
   @override
@@ -12986,10 +12982,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get noticeEventsMissed =>
-      'Pominięto część aktualizacji. Listy zostały odczytane ponownie.';
-
-  @override
   String get msgChecking => 'Sprawdzanie wiadomości';
 
   @override
@@ -14015,11 +14007,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String noticeKeyCheckRefused(String name) {
-    return 'Kontakt $name jest sparowany z nowymi kluczami. Starych kluczy nie dało się sprawdzić: jest jedno sprawdzenie na dobę i już się odbyło.';
-  }
-
-  @override
   String noticeRelayDown(String name) {
     return 'Serwer Epicbox $name nie odpowiada.';
   }
@@ -14165,11 +14152,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqFileTitle => 'Faktura';
-
-  @override
-  String noticeOutboxStuck(String name) {
-    return 'Brak kontaktu z $name. Ponawianie próby.';
-  }
 
   @override
   String noticeTooMany(String name) {

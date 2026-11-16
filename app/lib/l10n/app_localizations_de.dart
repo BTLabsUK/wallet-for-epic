@@ -1109,10 +1109,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Node ist nicht erreichbar. Die Zahlung wartet.';
 
   @override
-  String get homeNoticeRelayProblem =>
-      'Der Epicbox-Server meldet ein Problem. Wird erneut versucht.';
-
-  @override
   String get homeNoticePaymentFailed => 'Eine Zahlung ist fehlgeschlagen.';
 
   @override
@@ -12687,10 +12683,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get noticeEventsMissed =>
-      'Einige Updates wurden verpasst. Die Listen wurden neu geladen.';
-
-  @override
   String get msgChecking => 'Nachrichten werden geprüft';
 
   @override
@@ -13691,11 +13683,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String noticeKeyCheckRefused(String name) {
-    return '$name ist mit neuen Schlüsseln gekoppelt. Die alten Schlüssel ließen sich nicht prüfen: Es gibt eine Prüfung pro Tag, und sie lief schon.';
-  }
-
-  @override
   String noticeRelayDown(String name) {
     return 'Der Epicbox-Server von $name antwortet nicht.';
   }
@@ -13838,11 +13825,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get reqFileTitle => 'Rechnung';
-
-  @override
-  String noticeOutboxStuck(String name) {
-    return '$name ist noch nicht erreichbar. Wird erneut versucht.';
-  }
 
   @override
   String noticeTooMany(String name) {

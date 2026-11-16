@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../log.dart' show logInfo;
 import '../settings_file/settings_notice.dart';
 import '../settings_file/settings_notice_text.dart';
 import '../settings_file/settings_providers.dart';
@@ -20,6 +21,16 @@ NoticeLevel settingsNoticeLevel(SettingsNotice n) => switch (n.kind) {
   SettingsNoticeKind.readFailed ||
   SettingsNoticeKind.writeFailed => NoticeLevel.error,
   _ => NoticeLevel.warning,
+};
+
+/// Notices the phone only logs: nothing the user can act on, and the app works the same. The
+/// desktop shows its own (`desktop/`).
+bool settingsNoticeLogOnly(SettingsNotice n) => switch (n.kind) {
+  SettingsNoticeKind.unknownKey ||
+  SettingsNoticeKind.recreated ||
+  SettingsNoticeKind.brokenSaved ||
+  SettingsNoticeKind.conflict => true,
+  _ => false,
 };
 
 /// Shows the settings notices over [child]; needs the app's localizations above it.
@@ -44,7 +55,11 @@ class _SettingsFileNoticesState extends ConsumerState<SettingsFileNotices> {
         if (!mounted) return;
         final l = context.l10n;
         for (final n in notices) {
-          ref.read(noticeProvider.notifier).show(settingsNoticeText(l, n), level: settingsNoticeLevel(n));
+          if (settingsNoticeLogOnly(n)) {
+            logInfo('settings', 'settings file: ${n.kind.name}');
+          } else {
+            ref.read(noticeProvider.notifier).show(settingsNoticeText(l, n), level: settingsNoticeLevel(n));
+          }
           ref.read(settingsNoticesProvider.notifier).dismiss(n);
         }
       });
