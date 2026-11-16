@@ -209,14 +209,18 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     super.dispose();
   }
 
-  Future<void> _answer(PairingCheck check) async {
+  /// [viaCode]: the answer was given on the name service's code check (the words view answers
+  /// plainly, as when no hello comes): only that one pins or dismisses the service.
+  Future<void> _answer(PairingCheck check, {bool viaCode = false}) async {
     if (_busy) return;
     final l = context.l10n;
     setState(() => _busy = true);
     _answered = true;
     try {
       final record = await pairingCall(ref, (api) => api.checkWords(widget.pairingId, check));
-      final nameService = _nameService != null && _step == HelloStep.check ? _nameService : null;
+      // A plain answer ends the wait for a hello that has not come.
+      if (!viaCode) _nameService?.cancelHello(widget.pairingId);
+      final nameService = viaCode ? _nameService : null;
       if (nameService != null) {
         // The code was compared: the serviceKey is this contact's, or the name service is forgotten.
         if (check == PairingCheck.match && record != null) {
@@ -255,14 +259,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     }
   }
 
-  /// Where the name service step stands, null for the ordinary words step.
-  HelloStep? get _step {
-    final service = _nameService;
-    if (service == null) return null;
-    return ref.read(phoneNameServices.view)?.steps[widget.pairingId] ?? _began;
-  }
-
-  Future<void> _noMatch() async {
+  Future<void> _noMatch({bool viaCode = false}) async {
     final l = context.l10n;
     final stop = await confirmPairSheet(
       context,
@@ -276,7 +273,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       actionId: TrustIds.pairflowCheckStop,
       cancelId: TrustIds.pairflowCheckStopBack,
     );
-    if (stop && mounted && !_left) await _answer(PairingCheck.mismatch);
+    if (stop && mounted && !_left) await _answer(PairingCheck.mismatch, viaCode: viaCode);
   }
 
   @override
@@ -295,30 +292,41 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       return PairFlowPage(title: l.sasTitle, leadingId: TrustIds.pairflowCheckClose, children: const []);
     }
     final name = ref.watch(pairingNameProvider(record.id));
-    if (_nameService != null) {
-      final step = ref.watch(phoneNameServices.view)?.steps[widget.pairingId] ?? _began;
-      final helloEntry = ref.watch(phoneNameServices.view)?.book.byPairing(record.id);
-      final serviceKey = helloEntry?.serviceKey;
-      if (step == HelloStep.check && serviceKey != null) {
-        return NameServiceCodeCheck(
-          label: name,
-          serviceKey: serviceKey,
-          noPayments: ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id),
-          busy: _busy,
-          onMatch: () => _answer(PairingCheck.match),
-          onNoMatch: _noMatch,
-          matchKey: checkMatchKey,
-          noMatchKey: checkNoMatchKey,
-        );
-      }
-      if (step == null || step == HelloStep.waiting) {
-        return NameServiceWaiting(label: name, onCancel: () => _nameService?.cancelHello(widget.pairingId));
-      }
-    }
+    // The words come at once; a name service's hello, when it comes, upgrades the same screen to
+    // its code check.
+    final hello = _nameService == null ? null : ref.watch(phoneNameServices.view);
+    final onCode = _nameService != null && (hello?.steps[widget.pairingId] ?? _began) == HelloStep.check;
+    final serviceKey = onCode ? hello?.book.byPairing(record.id)?.serviceKey : null;
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    return AnimatedSwitcher(
+      duration: reduced ? Duration.zero : PairFlowStage.fade,
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      layoutBuilder: (current, previous) => Stack(fit: StackFit.expand, children: [...previous, ?current]),
+      child: serviceKey != null
+          ? NameServiceCodeCheck(
+              key: const ValueKey('check-view-service'),
+              label: name,
+              serviceKey: serviceKey,
+              noPayments: ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id),
+              busy: _busy,
+              onMatch: () => _answer(PairingCheck.match, viaCode: true),
+              onNoMatch: () => _noMatch(viaCode: true),
+              matchKey: checkMatchKey,
+              noMatchKey: checkNoMatchKey,
+            )
+          : _wordsView(l, t, record, name),
+    );
+  }
+
+  Widget _wordsView(AppLocalizations l, WalletTokens t, PairingRecord record, String name) {
     // A name service confirms by itself once this side matched: nothing to confirm on its page.
     final service = statedAutomated(record.peerProfile) && record.peerFeatures & featureNameService == 0;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
+    // The contact's domain is being asked to prove its wallet: a calm line, nothing waits on it.
+    final domain = record.domainChecking ? record.peerDomain : null;
     return PairFlowPage(
+      key: const ValueKey('check-view-words'),
       title: l.sasTitle,
       leadingId: TrustIds.pairflowCheckClose,
       bottom: Column(
@@ -362,7 +370,32 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
             ),
           ],
         ),
+        if (domain != null) ...[const PairGap(14), _DomainCheckingLine(domain: domain)],
       ],
+    );
+  }
+}
+
+/// "Checking {domain}…" under the words: a small spinner and a muted line that goes when the
+/// proof ends. It announces itself politely once and never takes focus.
+class _DomainCheckingLine extends StatelessWidget {
+  const _DomainCheckingLine({required this.domain});
+
+  final String domain;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Semantics(
+      liveRegion: true,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2, color: t.faint)),
+          const SizedBox(width: 8),
+          Flexible(child: Text(context.l10n.deskPairDomainChecking(domain), style: KitType.rowSub.copyWith(color: t.dim), maxLines: 2, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
     );
   }
 }

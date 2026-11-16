@@ -42,6 +42,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'pair_shot_fonts.dart';
 import 'support/contact_pairing.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -1057,21 +1058,21 @@ void main() {
       expect(find.byType(Scaffold), findsOneWidget, reason: 'one flow screen, one scaffold');
     }
 
-    testWidgets('a proven domain: Checking, then Verified in the same screen, the words never shown', (tester) async {
+    testWidgets('a proven domain: the words at once with the checking line, then Verified in the same screen', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.proven);
       final route = ModalRoute.of(tester.element(find.byType(PairingWaitingScreen)));
       h.api.confirmAnswer(id);
-      await tester.pump();
-      for (var i = 0; i < 10; i++) {
-        await tester.pump(const Duration(milliseconds: 100));
-        expect(find.byType(CheckWordsScreen), findsNothing, reason: 'no flash of the words');
-        expect(find.byKey(checkMatchKey), findsNothing);
-      }
+      await _frames(tester, 3);
+      // Nothing waits up front: the words are there, the line is a quiet note under them.
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.sasLead('Harbor Books')), findsOneWidget);
       expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
-      expect(find.text(_l.deskPairDomainCheckingBody('Harbor Books', domain)), findsOneWidget);
+      expect(find.text(_l.deskPairDomainCheckingBody('Harbor Books', domain)), findsNothing, reason: 'no checking stage');
+      expectOneRoute(tester);
       await tester.pump(const Duration(seconds: 2));
       await _frames(tester);
       expect(find.byType(CheckWordsScreen), findsNothing);
+      expect(find.byKey(checkMatchKey), findsNothing);
       expect(find.text(_l.sasMatchedTitle('Harbor Books')), findsOneWidget);
       expect(find.text(_l.deskPairDomainVerifiedBody('Harbor Books', domain)), findsOneWidget);
       expect(find.byKey(checkDoneKey), findsOneWidget);
@@ -1088,10 +1089,11 @@ void main() {
       expect(find.byType(PairingWaitingScreen), findsNothing);
     });
 
-    testWidgets('an unreachable domain: Checking, then the words in the same screen; a match ends in place', (tester) async {
+    testWidgets('an unreachable domain: the words stay, the line goes; a match ends in place', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.unreachable, after: const Duration(seconds: 1));
       h.api.confirmAnswer(id);
       await _frames(tester, 3);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
       expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
       await tester.pump(const Duration(seconds: 1));
       await _frames(tester);
@@ -1109,22 +1111,26 @@ void main() {
       expectOneRoute(tester);
     });
 
-    testWidgets('a wrong file: the words, as without a domain', (tester) async {
+    testWidgets('a wrong file: the words stay, the line goes', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.refused, after: const Duration(seconds: 1));
       h.api.confirmAnswer(id);
+      await _frames(tester, 3);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
       await tester.pump(const Duration(seconds: 1));
       await _frames(tester);
       expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
       expect(h.api.records.single.state, PairingState.paired);
     });
 
-    testWidgets('a proof later than the wait: the words show, then turn Verified in place', (tester) async {
+    testWidgets('a slow proof: the words wait for the user as long as it takes, then turn Verified in place', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 12));
       h.api.confirmAnswer(id);
-      await tester.pump(domainPairingWait);
+      await tester.pump(const Duration(seconds: 9));
       await _frames(tester);
-      expect(find.byKey(checkMatchKey), findsOneWidget, reason: 'the wait ran out: the words');
-      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
       expectOneRoute(tester);
       await tester.pump(const Duration(seconds: 4));
       await _frames(tester);
@@ -1135,7 +1141,20 @@ void main() {
       expectOneRoute(tester);
     });
 
-    testWidgets('no domain: the words at once, no Checking step', (tester) async {
+    testWidgets('the words answered before the proof: the plain result, the proof does not turn it', (tester) async {
+      final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 3));
+      h.api.confirmAnswer(id);
+      await _frames(tester, 3);
+      await tester.tap(find.byKey(checkMatchKey));
+      await _frames(tester);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
+      await tester.pump(const Duration(seconds: 3));
+      await _frames(tester);
+      expect(find.text(_l.deskPairDomainVerifiedBody('Harbor Books', domain)), findsNothing);
+      expect(find.text(_l.pairNotChecked('Harbor Books')), findsOneWidget);
+    });
+
+    testWidgets('no domain: the words at once, no checking line', (tester) async {
       final (h, id) = await open(tester);
       h.api.confirmAnswer(id);
       await _frames(tester, 3);
@@ -1144,47 +1163,16 @@ void main() {
       expectOneRoute(tester);
     });
 
-    testWidgets('the screenshots: Checking, Verified by the domain, the words', (tester) async {
+    testWidgets('the screenshots: the words with the checking line, Verified by the domain', (tester) async {
       final dir = Platform.environment['PAIR_SHOTS_DIR'];
-      await tester.runAsync(_loadShotFonts);
+      await tester.runAsync(loadShotFonts);
       final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 3));
       h.api.confirmAnswer(id);
       await _frames(tester, 6);
-      await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/checking.png'));
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/words-with-checking-line.png'));
       await tester.pump(const Duration(seconds: 3));
       await _frames(tester);
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/verified-by-domain.png'));
-      await tester.pumpWidget(const SizedBox());
-      final (h2, id2) = await open(tester, proof: FakeDomainProof.unreachable, after: const Duration(seconds: 1));
-      h2.api.confirmAnswer(id2);
-      await tester.pump(const Duration(seconds: 1));
-      await _frames(tester);
-      await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/words-fallback.png'));
     }, skip: Platform.environment['PAIR_SHOTS_DIR'] == null);
   });
-}
-
-/// Roboto, the bundled Inter, Montserrat and JetBrains Mono, and the icon fonts, for the screenshots.
-Future<void> _loadShotFonts() async {
-  final dir = '${Platform.environment['FLUTTER_ROOT'] ?? '${Platform.environment['HOME']}/flutter'}/bin/cache/artifacts/material_fonts';
-  Future<ByteData> read(String path) async => ByteData.sublistView(Uint8List.fromList(await File(path).readAsBytes()));
-  final roboto = FontLoader('Roboto');
-  for (final face in ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Bold.ttf']) {
-    roboto.addFont(read('$dir/$face'));
-  }
-  await roboto.load();
-  final inter = FontLoader('Inter');
-  for (final face in ['Regular', 'Medium', 'SemiBold']) {
-    inter.addFont(read('assets/fonts/Inter-$face.ttf'));
-  }
-  await inter.load();
-  for (final (family, file) in [
-    ('Lucide', 'assets/fonts/Lucide.ttf'),
-    ('EpicStatusIcons', 'assets/fonts/EpicStatusIcons.ttf'),
-    ('Montserrat', 'assets/fonts/Montserrat-SemiBold.ttf'),
-    ('JetBrainsMonoNL', 'assets/fonts/JetBrainsMonoNL-Regular.ttf'),
-    ('MaterialIcons', '$dir/MaterialIcons-Regular.otf'),
-  ]) {
-    await (FontLoader(family)..addFont(read(file))).load();
-  }
 }
