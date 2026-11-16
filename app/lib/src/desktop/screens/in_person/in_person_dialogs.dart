@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../epic1.dart';
+import '../../../epic1_hosts.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
 import '../../../models.dart' show WalletError, WalletErrorKind, slateMessageMaxBytes;
 import '../../../qr_slate.dart' show QrFrames;
@@ -599,7 +600,7 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
       final mailbox = made.mailbox ?? widget.info.mailbox;
       if (mailbox == null) {
         setState(() => _noPost = true);
-      } else if (!mailbox.inRelayList) {
+      } else if (!epic1HostKnown(mailbox)) {
         setState(() => _ask = true);
       } else {
         _start(mailbox);
@@ -642,7 +643,10 @@ class _DeskInPersonReviewDialogState extends ConsumerState<DeskInPersonReviewDia
             _ask = false;
             _noPost = true;
           })),
-          EButton.primary(semanticsId: TrustIds.txIpUseserver, label: l.deskIpUseServer, onPressed: () => _start(host)),
+          EButton.primary(semanticsId: TrustIds.txIpUseserver, label: l.deskIpUseServer, onPressed: () {
+            unawaited(rememberEpic1Hosts([host]));
+            _start(host);
+          }),
         ],
       );
     }

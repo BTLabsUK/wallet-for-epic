@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../epic1_hosts.dart' show writeEpic1Accepted;
 import '../network_gate.dart' show NetGate;
 import '../secret_store_api.dart';
 import 'host_settings.dart';
@@ -149,6 +150,7 @@ Future<SettingsFileController> openAppSettingsOn({
   _installed = c;
   _installedChain = devChain;
   writePlainHttpNodes = writeHostSettings;
+  writeEpic1Accepted = writeHostSettings;
   unawaited(_changesSub?.cancel());
   unawaited(_useSub?.cancel());
   _changesSub = c.changes.listen((e) {
