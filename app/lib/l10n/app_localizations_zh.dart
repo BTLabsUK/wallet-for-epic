@@ -13486,11 +13486,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbSameNewPassword => '设置新密码';
 
   @override
-  String deskSetupMarkNotCleared(String reason) {
-    return '无法将设置标记为已完成：$reason。下次启动时可能会再次显示；“跳过设置”可直接离开。';
-  }
-
-  @override
   String get deskOvRestoredImportTitle => '钱包已恢复';
 
   @override
@@ -14917,9 +14912,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return '无法读取 $file。正在使用内置设置。';
   }
-
-  @override
-  String get deskKitReachTorOff => '此检查需要关闭 Tor。';
 
   @override
   String get deskSetBackupServersTitle => '使用此文件中的服务器？';

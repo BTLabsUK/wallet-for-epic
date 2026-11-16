@@ -256,9 +256,6 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       // The shell's notice; the Epicbox server offer is a toast.
       if (ref.watch(deskShellNoticesShownProvider)) const DeskShellNotices(),
       if (restore != null) RestoreScanPanel(scan: restore),
-      if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
-      // This session runs on the unencrypted records; the next unlock copies them again.
-      if (s.status?.recordsPlain ?? false) ENotice(key: const ValueKey('overview-records-plain'), tone: ETone.info, icon: EIcons.info, title: l.storeRecordsPlain),
       if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
       // The Node list is empty: nothing to reach, so no "Cannot reach the node at …".
       if (nodeDownSaid && ref.watch(hostSettingsProvider.select((h) => h.nodeUrls.isEmpty)))

@@ -14808,11 +14808,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbSameNewPassword => 'Ustaw nowe hasło';
 
   @override
-  String deskSetupMarkNotCleared(String reason) {
-    return 'Nie udało się zapisać, że konfiguracja jest ukończona: $reason. Może otworzyć się ponownie przy następnym uruchomieniu; „Pomiń konfigurację” ją zamyka.';
-  }
-
-  @override
   String get deskOvRestoredImportTitle => 'Portfel przywrócony';
 
   @override
@@ -16357,9 +16352,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return 'Nie udało się odczytać $file. Obowiązują wbudowane ustawienia.';
   }
-
-  @override
-  String get deskKitReachTorOff => 'Sprawdzenie wymaga wyłączenia Tora.';
 
   @override
   String get deskSetBackupServersTitle => 'Użyć serwerów z tego pliku?';

@@ -78,7 +78,7 @@ class _Fake extends DeskUpdateController {
   }
 
   @override
-  Future<void> check() async {}
+  Future<void> check({bool byHand = false}) async {}
 
   @override
   Future<void> detect() async {}

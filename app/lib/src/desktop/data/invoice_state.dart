@@ -96,7 +96,8 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
     if (before != null) state = before.withCheck(InvoiceCheck.checking);
     try {
       state = await _api.checkInvoices();
-    } on Object {
+    } on Object catch (e) {
+      logWarn('invoices', 'check failed: $e');
       final now = state ?? await _api.invoices();
       state = now.withCheck(InvoiceCheck.failed, problem: now.checkProblem ?? 'relay');
       if (!quiet) rethrow;

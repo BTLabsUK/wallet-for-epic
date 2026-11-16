@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../network_gate.dart' show NetGate;
 import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../app/tour.dart' show TourTarget;
@@ -132,9 +133,10 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
               Semantics(liveRegion: true, child: status),
             ],
           ),
-          if (book.check == InvoiceCheck.failed) ...[
+          // Only a lasting Epicbox failure shows; Epicbox off or a failed check alone is logged.
+          if (book.check == InvoiceCheck.failed && !NetGate.epicboxOff && ref.watch(deskProvider.select((s) => s.status?.epicboxHealth)) == ServiceHealth.down) ...[
             SizedBox(height: Sp.x4),
-            ENotice(tone: ETone.risk, icon: EIcons.alert, title: l.deskInvCheckFailedTitle, text: l.deskInvCheckFailedBody),
+            ENotice(tone: ETone.warn, icon: EIcons.alert, title: l.deskInvCheckFailedTitle, text: l.deskInvCheckFailedBody),
           ],
           SizedBox(height: Sp.x4),
           Expanded(

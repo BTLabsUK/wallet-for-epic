@@ -22171,12 +22171,6 @@ abstract class AppLocalizations {
   /// **'Set a new password'**
   String get deskOnbSameNewPassword;
 
-  /// Toast after Skip or Save when neither the store nor the wallet folder could note that Setup was done; {reason} is the error without a trailing stop.
-  ///
-  /// In en, this message translates to:
-  /// **'Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup closes it.'**
-  String deskSetupMarkNotCleared(String reason);
-
   /// Title of the history-backup offer after the first unlock of a restored wallet.
   ///
   /// In en, this message translates to:
@@ -24360,12 +24354,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{file} could not be read. The built-in settings are in use.'**
   String settingsFileReadFailed(String file);
-
-  /// Notice in the Link · HTTP guide when the status server cannot check the port over Tor. Short, impersonal.
-  ///
-  /// In en, this message translates to:
-  /// **'The check needs Tor off.'**
-  String get deskKitReachTorOff;
 
   /// Settings > Backup, after importing a wallet data backup on a computer with other wallets: dialog title when the file's server lists differ from this computer's.
   ///

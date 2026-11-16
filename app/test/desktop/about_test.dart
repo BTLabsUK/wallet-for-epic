@@ -193,8 +193,11 @@ void main() {
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
   }, skip: !inAppUpdates);
 
-  testWidgets("the phone's manifest alone offers nothing to the desktop", (tester) async {
+  testWidgets("the phone's manifest alone offers nothing to the desktop; only Check says it failed", (tester) async {
     await pump(tester, (_) async => (200, phoneOnly));
+    expect(find.text(_l.deskSetAboutCouldNotCheck), findsNothing, reason: 'the automatic check stays quiet');
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetAboutCheckNow));
+    await tester.pumpAndSettle();
     expect(find.text(_l.deskSetAboutCouldNotCheck), findsOneWidget);
     expect(find.text('No desktop update information is published yet. Checked just now.'), findsOneWidget);
     expect(find.textContaining(_l.deskUpdAvailable), findsNothing);

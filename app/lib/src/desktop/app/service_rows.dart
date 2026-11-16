@@ -243,6 +243,10 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   /// When the wallet's node stopped answering; null while it answers.
   DateTime? _downSince;
 
+  /// When the node began to read behind; null while it does not.
+  DateTime? _behindSince;
+  Timer? _behindTimer;
+
   @override
   void initState() {
     super.initState();
@@ -255,6 +259,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   @override
   void dispose() {
     _refresh?.cancel();
+    _behindTimer?.cancel();
     super.dispose();
   }
 
@@ -270,6 +275,24 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     } else {
       _downSince = null;
     }
+  }
+
+  /// Whether a node reading [behind] has done so for [window]; arms a rebuild for when it has.
+  bool _behindSettled(bool behind, Duration window) {
+    if (!behind) {
+      _behindSince = null;
+      _behindTimer?.cancel();
+      _behindTimer = null;
+      return true;
+    }
+    final since = _behindSince ??= serviceClock();
+    final rest = window - serviceClock().difference(since);
+    if (rest <= Duration.zero) return true;
+    _behindTimer ??= Timer(rest, () {
+      _behindTimer = null;
+      if (mounted) setState(() {});
+    });
+    return false;
   }
 
   @override
@@ -300,10 +323,13 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       final health = ref.watch(deskNodeHealthProvider) ?? status.nodeHealth;
       final torState = netTorState(settings, status);
       final info = ref.watch(deskNodeInfoProvider(url)).value;
+      final shownInfo = info?.withNodeHeight(status.nodeHeight);
+      final behindSettled = _behindSettled(nodeReadsBehind(url, shownInfo), ref.watch(nodeBlipWindowProvider));
       final v = remoteNodeView(
         context.l10n,
         url,
-        info?.withNodeHeight(status.nodeHeight),
+        shownInfo,
+        behindSettled: behindSettled,
         health: health,
         downSince: health == ServiceHealth.down ? _downSince : null,
         torOn: torState != TorState.off,

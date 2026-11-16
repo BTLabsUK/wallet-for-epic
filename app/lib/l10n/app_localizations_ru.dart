@@ -14784,11 +14784,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbSameNewPassword => 'Новый пароль';
 
   @override
-  String deskSetupMarkNotCleared(String reason) {
-    return 'Не удалось отметить настройку как завершённую: $reason. Она может открыться снова при следующем запуске; «Пропустить настройку» закрывает её.';
-  }
-
-  @override
   String get deskOvRestoredImportTitle => 'Кошелёк восстановлен';
 
   @override
@@ -16342,10 +16337,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return 'Не удалось прочитать $file. Действуют встроенные настройки.';
   }
-
-  @override
-  String get deskKitReachTorOff =>
-      'Проверка работает только с выключенным Tor.';
 
   @override
   String get deskSetBackupServersTitle =>

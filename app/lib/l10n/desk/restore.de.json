@@ -18,7 +18,6 @@
   "deskOnbForgotOtherWallet": "Diese Phrase gehört zu einer anderen Wallet, nicht zu {name}. Es wurde nichts geändert.",
   "deskOnbSameNewPassword": "Neues Passwort festlegen",
   "deskSetupSkip": "Einrichtung überspringen",
-  "deskSetupMarkNotCleared": "Die Einrichtung konnte nicht als abgeschlossen vermerkt werden: {reason}. Sie kann sich beim nächsten Start erneut öffnen; „Einrichtung überspringen“ schließt sie.",
   "deskOvRestoredImportTitle": "Ihre Wallet ist wiederhergestellt",
   "deskOvRestoredImportBody": "Das Guthaben ist zurück. Eine Wallet-Datendatei dieser Wallet bringt Verlauf, Kontakte, Rechnungen und Einstellungen zurück.",
   "deskOvRestoredImportButton": "Wallet-Daten importieren",

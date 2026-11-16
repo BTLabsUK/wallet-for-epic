@@ -1089,6 +1089,8 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     _session = session;
     _sessionRevision++;
+    // Nothing the user can do about it; the next unlock copies the records again.
+    if (session.storeOpen == core.StoreOpenOutcome.plainFallback) logWarn('wallet', 'session runs on the unencrypted records');
     session.heldOutputs = _deviceHeld;
     // What the wallet learned about keys silent since: dropped on every open.
     unawaited(
@@ -5487,6 +5489,12 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<InvoiceBook> checkInvoices() async {
     final session = _open;
+    // Epicbox off (switch, kill switch, Node only): nothing to collect or drain, not a failure.
+    if (NetGate.epicboxOff) {
+      _invoiceCheck = InvoiceCheck.ok;
+      _invoiceProblem = null;
+      return invoices();
+    }
     _invoiceCheck = InvoiceCheck.checking;
     try {
       await _collectInvoices(session);

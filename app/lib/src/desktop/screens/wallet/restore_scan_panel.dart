@@ -6,6 +6,7 @@ import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../l10n.dart' show localInt;
 import '../../widgets/kit.dart';
+import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 
 /// "Restore not finished" ([ServiceStatus.restoreScan], D3; copy D1): the scan from block 0
 /// runs, waits for the network, or stopped, with Try again. Overview shows it instead of the
@@ -41,10 +42,14 @@ class _RestoreScanPanelState extends ConsumerState<RestoreScanPanel> {
       case RestoreScanState.waiting:
         return ENotice(
           key: const ValueKey('restore-scan-waiting'),
-          tone: ETone.warn,
+          tone: ETone.info,
           icon: EIcons.clock,
           title: l.deskOvRestoreTitle,
           text: scan.offline ? '${l.deskOvRestoreWaiting} ${l.netBlockKillSwitch}' : l.deskOvRestoreWaiting,
+          actionsBelow: scan.offline,
+          actions: [
+            if (scan.offline) EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network)),
+          ],
         );
       case RestoreScanState.failed:
         return ENotice(

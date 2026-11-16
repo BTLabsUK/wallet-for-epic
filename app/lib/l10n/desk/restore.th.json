@@ -18,7 +18,6 @@
   "deskOnbForgotOtherWallet": "วลีนี้เป็นของกระเป๋าเงินอื่น ไม่ใช่ {name} ไม่มีอะไรเปลี่ยน",
   "deskOnbSameNewPassword": "ตั้งรหัสผ่านใหม่",
   "deskSetupSkip": "ข้ามการตั้งค่า",
-  "deskSetupMarkNotCleared": "บันทึกว่าตั้งค่าเสร็จไม่ได้: {reason} ครั้งหน้าอาจแสดงอีก กด ข้ามการตั้งค่า เพื่อออก",
   "deskOvRestoredImportTitle": "กู้คืนกระเป๋าเงินแล้ว",
   "deskOvRestoredImportBody": "ยอดคงเหลือกลับมาแล้ว ไฟล์ข้อมูลกระเป๋าเงินของกระเป๋านี้จะนำประวัติ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา",
   "deskOvRestoredImportButton": "นำเข้าข้อมูลกระเป๋าเงิน",
