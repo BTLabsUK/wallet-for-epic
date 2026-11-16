@@ -4634,6 +4634,7 @@ class _LepicPairing implements PairingApi {
     peerDomainAttestation: c.peerDomainAttestation,
     domainStatus: _domain.statusOf(c.contactId, c.peerDomain),
     domainProvable: _domainProvable(c),
+    domainChecking: _proving.containsKey(c.contactId) && _domainProvable(c),
   ), _moves.book, DateTime.now());
 
   /// The contacts whose code this wallet answered in this run of the app ([acceptInvite]): the
@@ -4653,9 +4654,19 @@ class _LepicPairing implements PairingApi {
       !c.removedByPeer;
 
   @override
-  Future<bool> proveByDomain(String id) => _proving[id] ??= _proveByDomain(id).whenComplete(() {
-    _proving.remove(id);
-  });
+  Future<bool> proveByDomain(String id) {
+    final running = _proving[id];
+    if (running != null) return running;
+    // The screens show the check while it runs ([PairingRecord.domainChecking]), so its start
+    // and its end are both a change, whatever it found.
+    final check = _proveByDomain(id).whenComplete(() {
+      _proving.remove(id);
+      _contactsChanged(id);
+    });
+    _proving[id] = check;
+    _contactsChanged(id);
+    return check;
+  }
 
   Future<bool> _proveByDomain(String id) async {
     try {

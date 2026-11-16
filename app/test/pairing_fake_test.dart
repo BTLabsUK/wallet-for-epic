@@ -522,6 +522,7 @@ void main() {
       expect(rec(id).verifiedAt, isNotNull);
       expect(rec(id).domainStatus, DomainStatus.proven);
       expect(rec(id).domainProvable, isFalse);
+      expect(rec(id).domainChecking, isFalse);
       expect(api.calls.where((c) => c == 'proveByDomain'), hasLength(1));
       expect(api.calls.where((c) => c.startsWith('check:')), isEmpty, reason: 'no words were answered');
     });
@@ -530,7 +531,9 @@ void main() {
       for (final (proof, status) in [(FakeDomainProof.refused, DomainStatus.refused), (FakeDomainProof.unreachable, DomainStatus.claimed)]) {
         final id = await answered(proof: proof);
         api.confirmAnswer(id);
+        expect(rec(id).domainChecking, isTrue, reason: 'the confirm starts the check');
         expect(await api.proveByDomain(id), isFalse);
+        expect(rec(id).domainChecking, isFalse, reason: 'a screen stops showing the check');
         expect(rec(id).state, PairingState.paired);
         expect(rec(id).domainStatus, status);
         expect(rec(id).domainProvable, isTrue, reason: 'a later proof could still end it Verified');

@@ -152,15 +152,25 @@ class FakePairing implements PairingApi {
   @override
   Future<bool> proveByDomain(String id) => _proving[id] ??= _proveByDomain(id);
 
+  /// Marks [id]'s record as checking its domain, or not, and says so.
+  void _checking(String id, bool on) {
+    final r = records.where((r) => r.id == id).firstOrNull;
+    if (r == null || r.domainChecking == on) return;
+    _put(r.copyWith(domainChecking: on));
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+  }
+
   Future<bool> _proveByDomain(String id) async {
     final d = _domains[id];
     final before = records.where((r) => r.id == id).firstOrNull;
     if (d == null || before == null || !before.domainProvable) return false;
     calls.add('proveByDomain');
+    _checking(id, true);
     // A timer the fake's dispose stops: a test ends with none running.
     final wait = Completer<void>();
     _timers.add(Timer(d.after, wait.complete));
     await wait.future;
+    _checking(id, false);
     final r = records.where((r) => r.id == id).firstOrNull;
     // The words were answered meanwhile, or the pairing ended.
     if (r == null || !r.domainProvable) return false;
@@ -173,6 +183,7 @@ class FakePairing implements PairingApi {
           peerHeardAt: r.peerHeardAt ?? now,
           domainStatus: DomainStatus.proven,
           domainProvable: false,
+          domainChecking: false,
         ));
         emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
         return true;
@@ -1090,13 +1101,14 @@ class FakePairing implements PairingApi {
           verifiedAt: clock(),
           peerHeardAt: r.peerHeardAt ?? clock(),
           domainProvable: false,
+          domainChecking: false,
         );
         _put(verified);
         return verified;
       case PairingCheck.mismatch:
         // Ended, not deleted: the verdict goes to the other side, and a sealed send waiting in
         // this mailbox is never finalized (its row offers Cancel).
-        final ended = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.mismatch, endedAt: clock(), allowInvoices: false, domainProvable: false);
+        final ended = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.mismatch, endedAt: clock(), allowInvoices: false, domainProvable: false, domainChecking: false);
         _put(ended);
         _dropInvoicesOf(ended);
         return ended;
