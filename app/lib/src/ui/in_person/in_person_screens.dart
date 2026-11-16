@@ -13,6 +13,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 
 import '../../amount.dart';
 import '../../epic1.dart';
+import '../../epic1_hosts.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../models.dart';
@@ -934,13 +935,13 @@ String inPersonReviewTitle(BuildContext context, InPersonStage stage) =>
 
 /// Whether the answer may go through [mailbox]: a server not in the list is asked about first.
 Future<bool> askInPersonServer(BuildContext context, Epic1Host mailbox) async {
-  if (mailbox.inRelayList) return true;
+  if (epic1HostKnown(mailbox)) return true;
   final l = context.l10n;
   final use = await showAppDialog<bool>(
     context,
     builder: (context) => AppDialog(
       title: l.deskIpUseServerAsk,
-      description: l.deskIpNotInList(mailbox.host),
+      description: l.deskIpNotInList(mailbox.label),
       icon: Icons.dns_outlined,
       actions: [
         TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
@@ -951,6 +952,7 @@ Future<bool> askInPersonServer(BuildContext context, Epic1Host mailbox) async {
       ],
     ),
   );
+  if (use == true) unawaited(rememberEpic1Hosts([mailbox]));
   return use == true;
 }
 

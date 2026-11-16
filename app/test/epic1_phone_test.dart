@@ -5,6 +5,7 @@
 // says epic1 is off for its links, codes and files, and contacts paid through either.
 import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier, walletStatusProvider;
 import 'package:epic_wallet/src/epic1.dart';
+import 'package:epic_wallet/src/epic1_hosts.dart' show acceptedRelaysIn;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -12,6 +13,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show HostSettings, hostSettings;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
 import 'package:epic_wallet/src/ui/common.dart';
@@ -183,6 +185,11 @@ Future<void> _tapFrames(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  // "Use server" writes the settings ([acceptedRelaysIn]): each test starts from the same ones.
+  late HostSettings saved;
+  setUp(() => saved = hostSettings);
+  tearDown(() => hostSettings = saved);
+
   group('Settings › Payments', () {
     testWidgets('the epic1 row follows Epicbox, on by default, with Printed links under it', (tester) async {
       await _pump(tester, _session(), _settings);
@@ -377,6 +384,39 @@ void main() {
       await tester.enterText(_key(sendRecipientFieldKey), _classic);
       await tester.pumpAndSettle();
       expect(find.byType(Epic1LinkSendScreen), findsNothing);
+    });
+
+    testWidgets('epic1 on: a link through a listed server the wallet is not on reviews with no question', (tester) async {
+      // LEPIC knows only the relay in use; the link names another of the Epicbox list, port written.
+      final listed = hostSettings.epicboxServers.last;
+      final session = _session();
+      session.epic1Fake.linkHosts = [Epic1Host(host: listed.host.toUpperCase(), port: listed.port)];
+      await _pump(tester, session, send());
+      await tester.enterText(_key(sendRecipientFieldKey), _link);
+      await _frames(tester);
+      expect(find.text(_l.deskE1PhUnknownTitle), findsNothing);
+      expect(_key(epic1ReviewServerKey), findsOneWidget);
+    });
+
+    testWidgets('epic1 on: "Use server" is kept, the next link through that server asks nothing', (tester) async {
+      const hosts = [Epic1Host(host: 'relay.example.invalid', port: 443)];
+      final session = _session();
+      session.epic1Fake.linkHosts = hosts;
+      await _pump(tester, session, send());
+      await tester.enterText(_key(sendRecipientFieldKey), _link);
+      await _frames(tester);
+      expect(find.text(_l.deskE1PhUnknownTitle), findsOneWidget);
+      await _tapFrames(tester, _key(epic1UseServerKey));
+      expect(acceptedRelaysIn(hostSettings).map((r) => r.label), ['relay.example.invalid']);
+
+      final next = _session();
+      next.epic1Fake.linkHosts = hosts;
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, next, send());
+      await tester.enterText(_key(sendRecipientFieldKey), _link);
+      await _frames(tester);
+      expect(find.text(_l.deskE1PhUnknownTitle), findsNothing);
+      expect(_key(epic1ReviewServerKey), findsOneWidget);
     });
 
     testWidgets('epic1 on: a link on a listed server reviews with no question and pays', (tester) async {

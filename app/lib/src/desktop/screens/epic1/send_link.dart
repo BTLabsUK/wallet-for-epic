@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../contact_epic1.dart';
 import '../../../epic1.dart';
+import '../../../epic1_hosts.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../recipient.dart' show epic1AddressOnly, epic1Unwrap;
@@ -188,7 +189,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       return;
     }
     if (!mounted) return;
-    final unknown = info.hosts.where((h) => !h.inRelayList).firstOrNull;
+    final unknown = epic1UnknownHost(info.hosts);
     if (unknown != null) {
       final ok = await _askServer(unknown.label);
       if (!mounted) return;
@@ -196,6 +197,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
         setState(() => _reading = false);
         return;
       }
+      unawaited(rememberEpic1Hosts([unknown]));
     }
     setState(() {
       _reading = false;

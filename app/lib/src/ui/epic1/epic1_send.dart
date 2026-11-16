@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../amount.dart';
 import '../../devices/phone_devices.dart' show deviceServiceProvider;
 import '../../epic1.dart';
+import '../../epic1_hosts.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../models.dart';
@@ -90,12 +91,12 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
     try {
       final info = await epic1.readLink(widget.link);
       if (!mounted) return;
-      final unknown = info.hosts.where((h) => !h.inRelayList).toList();
-      if (unknown.isNotEmpty) {
+      final unknown = epic1UnknownHost(info.hosts);
+      if (unknown != null) {
         final use = await askEpic1(
           context,
           title: l.deskE1PhUnknownTitle,
-          body: l.deskE1PhUnknownBody(unknown.first.host),
+          body: l.deskE1PhUnknownBody(unknown.label),
           yes: l.deskE1PhUseServer,
           icon: Icons.dns_outlined,
           tone: DialogTone.warn,
@@ -106,6 +107,7 @@ class _Epic1LinkSendScreenState extends ConsumerState<Epic1LinkSendScreen> {
           Navigator.pop(context, false);
           return;
         }
+        unawaited(rememberEpic1Hosts([unknown]));
       }
       setState(() {
         _hostsOk = true;

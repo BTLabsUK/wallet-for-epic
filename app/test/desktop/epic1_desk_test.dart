@@ -9,8 +9,10 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show 
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsArgs;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/epic1.dart';
+import 'package:epic_wallet/src/epic1_hosts.dart' show acceptedRelaysIn;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/payment_prefs.dart' show PaymentPrefs;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show HostSettings, hostSettings;
 import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
 import 'package:epic_wallet/src/ui/theme/epic1_mark.dart' show Epic1Text;
 import 'package:flutter/material.dart';
@@ -104,6 +106,11 @@ bool _switchOn(WidgetTester tester) => tester.widget<ESwitch>(find.byKey(const V
 bool _saved(bool Function(PaymentPrefs p) read) => read(_container.read(deskProvider).settings.payments);
 
 void main() {
+  // "Use server" writes the settings ([acceptedRelaysIn]): each test starts from the same ones.
+  late HostSettings saved;
+  setUp(() => saved = hostSettings);
+  tearDown(() => hostSettings = saved);
+
   group('Settings › Payments', () {
     testWidgets('the epic1 row follows Epicbox, is on by default and shows the printed links row', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
@@ -243,6 +250,47 @@ void main() {
       await _settle(tester);
       expect(_wallet.epic1Fake.calls, contains('payLink'));
       expect(find.byKey(const ValueKey('e1-waiting')), findsOneWidget);
+    });
+
+    testWidgets('a link through a listed server the wallet is not on reviews with no question', (tester) async {
+      // LEPIC knows only the relay in use; the link names another of the Epicbox list, port written.
+      final listed = hostSettings.epicboxServers.last;
+      await _open(tester, DeskRoute.send);
+      _wallet.epic1Fake.linkHosts = [Epic1Host(host: listed.host.toUpperCase(), port: listed.port)];
+      await _pasteLink(tester);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-amount-fixed')), findsOneWidget);
+      await _tap(tester, 'e1-review');
+      _wallet.e1State = TxState.waitingRecipient;
+      await _tap(tester, 'e1-send');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
+      expect(_wallet.epic1Fake.calls, contains('payLink'));
+    });
+
+    testWidgets('"Use server" is kept, the next link through that server asks nothing', (tester) async {
+      await _open(tester, DeskRoute.send);
+      _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
+      await _pasteLink(tester);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);
+      await _tap(tester, 'e1-use-server');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+      expect(acceptedRelaysIn(hostSettings).map((r) => r.label), ['relay.example.invalid']);
+
+      // The next payment, after a restart of the screen: no question.
+      await tester.pumpWidget(const SizedBox());
+      await _open(tester, DeskRoute.send);
+      _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
+      await _pasteLink(tester);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-amount-fixed')), findsOneWidget);
+      // Another server still asks.
+      await tester.pumpWidget(const SizedBox());
+      await _open(tester, DeskRoute.send);
+      _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'other.example.invalid', port: 443)];
+      await _pasteLink(tester);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);
     });
 
     testWidgets('Cancel in the server question leaves the form', (tester) async {
