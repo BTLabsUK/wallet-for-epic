@@ -466,7 +466,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 
   /// A click on a system notification: the window comes forward, the payment opens.
   void _systemNoticeTapped(String? payload) {
-    mockLaneLog('system notice tapped, payload $payload');
+    mockLaneLog('system notice tapped, payload $payload'); // l10n-ok: test lane log
     if (!mounted) return;
     unawaited(ref.read(deskWindowProvider).show());
     _openIncoming(int.tryParse(payload ?? ''));
@@ -507,7 +507,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     );
     final window = ref.read(deskWindowProvider);
     final inFront = window.state.value.focused && window.visible.value;
-    mockLaneLog('payment notice: in front $inFront, system notices ${s.settings.systemNotices}');
+    mockLaneLog('payment notice: in front $inFront, system notices ${s.settings.systemNotices}'); // l10n-ok: test lane log
     if (s.settings.systemNotices && !inFront) {
       unawaited(ref.read(deskSystemNotifierProvider).show(title: l.deskSysNoticeTitle, body: text, payload: '${txId ?? ''}', openLabel: l.deskSysNoticeOpen));
     }

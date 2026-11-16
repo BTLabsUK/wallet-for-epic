@@ -27,7 +27,7 @@ Widget mockShots(Widget app) {
   final dir = Platform.environment['WFE_MOCK_SHOT_DIR'];
   if (dir == null || dir.isEmpty) return app;
   Timer.periodic(const Duration(milliseconds: 300), (_) => unawaited(_take(dir)));
-  stdout.writeln('mock-shots: watching $dir');
+  stdout.writeln('mock-shots: watching $dir'); // l10n-ok: test lane log
   return RepaintBoundary(key: _key, child: app);
 }
 
