@@ -371,6 +371,33 @@ void main() {
       expect(_container.read(settingsPrefsProvider).jump, isNotNull);
     });
 
+    /// Types the link into the classic form's To a few characters at a time, then leaves the field.
+    Future<void> typeAndLeave(WidgetTester tester) async {
+      final to = find.byType(EditableText).first;
+      for (var n = 7; n < _link.length + 7; n += 7) {
+        await tester.enterText(to, _link.substring(0, n > _link.length ? _link.length : n));
+        await tester.pump();
+      }
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+    }
+
+    testWidgets('a link typed into the classic form is read once To is left', (tester) async {
+      await _open(tester, DeskRoute.send);
+      await typeAndLeave(tester);
+      expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
+    });
+
+    testWidgets('epic1 off: a typed link gets the off line under To', (tester) async {
+      await _open(tester, DeskRoute.send, epic1: false);
+      await typeAndLeave(tester);
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-mode-dialog')), findsNothing);
+      expect(_say(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
+    });
+
     testWidgets('epic1 off: a classic address is not stopped by it', (tester) async {
       await _open(tester, DeskRoute.send, epic1: false);
       final anna = _container.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c1');

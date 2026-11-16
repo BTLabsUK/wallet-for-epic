@@ -834,6 +834,16 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
   void _onToFocus() {
     if (_toFocus.hasFocus || !mounted || _file) return;
+    // A typed epic1 link is read once To is left, as a pasted one is at once; with epic1 off
+    // the off line shows under To.
+    if (looksLikeEpic1Link(_to.text)) {
+      if (ref.read(deskEpic1OnProvider)) {
+        openPaymentText(_to.text, origin: CodeOrigin.paste);
+      } else {
+        setState(() => _codeError = (l) => l.netBlockMethodOff(l.deskE1SetSwitch));
+      }
+      return;
+    }
     setState(() => _settleTo(ref.read(deskProvider)));
   }
 
