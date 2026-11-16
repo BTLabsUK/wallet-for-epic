@@ -2,6 +2,9 @@
 // The Settings hub's rows are a glyph, a name and at most one state line. The state is short
 // (the lock, the ways to pay, the look); no server address, no list of what is inside. The
 // recovery phrase shows on the wallet row; Linked devices carries its Experiment tag.
+import 'package:epic_wallet/src/devices/device_model.dart';
+import 'package:epic_wallet/src/devices/device_providers.dart';
+import 'package:epic_wallet/src/devices/phone_devices.dart' show phoneDevices;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -31,6 +34,18 @@ class _Tor extends PhoneTor {
   );
 }
 
+class _Unsupported extends DeviceViewNotifier {
+  _Unsupported() : super(phoneDevices.service);
+
+  @override
+  DeviceView? build() => const DeviceView(
+    book: DeviceBook(deviceId: 'd1', deviceName: 'This phone'),
+    link: null,
+    supported: false,
+    loaded: true,
+  );
+}
+
 class _OpenSession extends SessionNotifier {
   @override
   WalletSession? build() => FakeWalletSession();
@@ -45,6 +60,7 @@ Future<void> _pump(
   WidgetTester tester, {
   bool backedUp = true,
   AdvancedPrefs advanced = AdvancedPrefs.none,
+  bool devicesSupported = true,
 }) async {
   // Tall enough that every page builds all of its rows.
   tester.view.physicalSize = const Size(1080, 7200);
@@ -68,6 +84,7 @@ Future<void> _pump(
         relayDirectoryProvider.overrideWithValue(_NoRelays()),
         sessionProvider.overrideWith(_OpenSession.new),
         phoneTorProvider.overrideWith(_Tor.new),
+        if (!devicesSupported) phoneDevices.view.overrideWith(_Unsupported.new),
         backedUpProvider.overrideWith((ref) async => backedUp),
         biometricsProvider.overrideWith(
           (ref) async => (available: true, enabled: false),
@@ -111,6 +128,11 @@ void main() {
     expect(row, findsOneWidget);
     expect(find.descendant(of: row, matching: find.text(_l.expLinkedDevices)), findsOneWidget);
     expect(find.descendant(of: row, matching: find.text(_l.settingsExperimentTag)), findsOneWidget);
+  });
+
+  testWidgets('Linked devices: no hub row when the wallet core cannot link devices', (tester) async {
+    await _pump(tester, devicesSupported: false);
+    expect(find.byKey(settingsLinkedDevicesKey), findsNothing);
   });
 
   testWidgets('the Transactions row comes right after Security, then Appearance', (tester) async {
