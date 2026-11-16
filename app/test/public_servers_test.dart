@@ -44,6 +44,19 @@ void main() {
       });
     });
 
+    test('a relay is marked Epicmail by its software or the epicmail detail; older data is not', () {
+      final relays = parseRelayStatus(jsonEncode({
+        'epicbox': [
+          {'endpoint': 'wss://named.example:443/', 'software': ' Epicmail '},
+          {'endpoint': 'wss://detail.example:443/', 'software': null, 'epicmail': {'mux': true}},
+          {'endpoint': 'wss://classic.example:443/', 'software': null, 'epicmail': null},
+          {'endpoint': 'wss://other.example:443/', 'software': 'something else'},
+        ],
+      }));
+      expect({for (final r in relays) r.relay.host: r.epicmail}, {'named.example': true, 'detail.example': true, 'classic.example': false, 'other.example': false});
+      expect(parseRelayStatus(_sample).any((r) => r.epicmail), isFalse, reason: 'a status file from before the mark');
+    });
+
     test('drops entries that are not an https node, and cleans operator names', () {
       final nodes = parseNodeStatus(jsonEncode({
         'nodes': [

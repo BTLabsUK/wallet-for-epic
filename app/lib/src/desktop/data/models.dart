@@ -849,7 +849,7 @@ class NodeServer {
 /// One Epicbox relay.
 @immutable
 class EpicboxServer {
-  const EpicboxServer({required this.domain, this.port = 443, this.operator, this.health = ServiceHealth.ok, this.latencyMs, this.icon, this.listedAs});
+  const EpicboxServer({required this.domain, this.port = 443, this.operator, this.health = ServiceHealth.ok, this.latencyMs, this.icon, this.listedAs, this.epicmail = false});
 
   final String domain;
   final int port;
@@ -863,6 +863,9 @@ class EpicboxServer {
   /// The operator's name as the status site lists it (the tile's initials), or null.
   final String? listedAs;
 
+  /// The status site marks it as a relay that runs Epicmail.
+  final bool epicmail;
+
   @override
   bool operator ==(Object other) =>
       other is EpicboxServer &&
@@ -872,10 +875,11 @@ class EpicboxServer {
       health == other.health &&
       latencyMs == other.latencyMs &&
       icon == other.icon &&
-      listedAs == other.listedAs;
+      listedAs == other.listedAs &&
+      epicmail == other.epicmail;
 
   @override
-  int get hashCode => Object.hash(domain, port, operator, health, latencyMs, icon, listedAs);
+  int get hashCode => Object.hash(domain, port, operator, health, latencyMs, icon, listedAs, epicmail);
 }
 
 /// What the status rows and the Overview's status card show.

@@ -40,6 +40,15 @@ class _Wallet extends MockDeskWallet {
   /// That payment was sealed ([Tx.sealed]).
   bool e1Sealed = false;
 
+  /// A relay the status site lists with its Epicmail mark.
+  String? epicmailHost;
+
+  @override
+  Future<List<EpicboxServer>> epicboxes() async => [
+    ...await super.epicboxes(),
+    if (epicmailHost case final host?) EpicboxServer(domain: host, epicmail: true),
+  ];
+
   @override
   Future<List<Tx>> transactions() async {
     final all = await super.transactions();
@@ -57,11 +66,11 @@ late _Wallet _wallet;
 
 /// Opens [route]; epic1 is on as it is by default, unless [epic1] is false (switched off in the
 /// payment settings).
-Future<void> _open(WidgetTester tester, DeskRoute route, {Object? arg, bool epic1 = true, Contact? select}) async {
+Future<void> _open(WidgetTester tester, DeskRoute route, {Object? arg, bool epic1 = true, Contact? select, String? epicmail}) async {
   tester.view.physicalSize = const Size(1280, 1600);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  _wallet = _Wallet();
+  _wallet = _Wallet()..epicmailHost = epicmail;
   _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_wallet)], retry: (_, _) => null);
   addTearDown(_container.dispose);
   await tester.runAsync(() async {
@@ -402,6 +411,15 @@ void main() {
       final via = find.byKey(const ValueKey('send-summary-via'));
       expect(find.descendant(of: via, matching: find.text(_l.methodEpicbox)), findsOneWidget);
       expect(find.descendant(of: via, matching: find.textContaining('relay.example.invalid')), findsNothing);
+    });
+
+    testWidgets('Via says Epicmail when the status site marks the link\'s server', (tester) async {
+      await _open(tester, DeskRoute.send, epicmail: 'relay.example.invalid');
+      await _pasteLink(tester);
+      final via = find.byKey(const ValueKey('send-summary-via'));
+      expect(find.descendant(of: via, matching: find.text(_l.relayNameEpicmail)), findsOneWidget);
+      expect(find.descendant(of: via, matching: find.text(_l.methodEpicbox)), findsNothing);
+      expect(find.descendant(of: via, matching: find.byIcon(EIcons.epicbox)), findsOneWidget);
     });
 
     testWidgets('a link with no amount and no note has no badge and no note block', (tester) async {

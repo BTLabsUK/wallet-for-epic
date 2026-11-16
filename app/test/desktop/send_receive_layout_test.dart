@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 // Send and Receive (desktop): Send has no method strip, the address decides the method line, and
-// Review leads to the password and the send's live card; a declined send ends that card. Receive
+// Review leads to the password and the Payment sent modal, whose line follows the payment (a
+// declined send says so) and whose method is Epicmail for a relay the status site marks. Receive
 // has its switch and the Payment files card with one Open.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/known_relays.dart' show recipientRelay;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/trust_ids.dart';
 import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
@@ -26,6 +28,15 @@ class _Wallet extends MockDeskWallet {
   /// Once set, the send still waiting for its recipient is listed as cancelled, declined by its
   /// receiver: the core's word after a `declined` notice.
   bool declined = false;
+
+  /// Once set, the status site lists the relay of [_to] with its Epicmail mark.
+  bool epicmail = false;
+
+  @override
+  Future<List<EpicboxServer>> epicboxes() async => [
+    ...await super.epicboxes(),
+    if (epicmail) EpicboxServer(domain: recipientRelay(_to)!.host, epicmail: true),
+  ];
 
   @override
   Future<SendResult> send(SendRequest request) {
@@ -116,6 +127,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(_sent, findsNothing);
     expect(find.widgetWithText(EButton, _l.deskSendReview), findsOneWidget);
+  });
+
+  testWidgets('an Epicbox payment through a relay the status site marks is named Epicmail', (tester) async {
+    final wallet = await _pump(tester, _send());
+    final via = find.byKey(const ValueKey('send-summary-via'));
+    expect(find.descendant(of: via, matching: find.text(_l.methodEpicbox)), findsOneWidget);
+    expect(find.descendant(of: via, matching: find.byIcon(EIcons.epicbox)), findsNothing);
+
+    wallet.epicmail = true;
+    await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: via, matching: find.text(_l.relayNameEpicmail)), findsOneWidget);
+    expect(find.descendant(of: via, matching: find.byIcon(EIcons.epicbox)), findsOneWidget);
+
+    await _reviewAndSend(tester);
+    expect(find.descendant(of: _sent, matching: find.text(_l.relayNameEpicmail)), findsOneWidget);
+    expect(find.descendant(of: _sent, matching: find.text(_l.methodEpicbox)), findsNothing);
   });
 
   testWidgets('View in Activity in the modal goes to the payment', (tester) async {

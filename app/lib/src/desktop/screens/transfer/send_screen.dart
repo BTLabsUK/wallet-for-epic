@@ -57,7 +57,7 @@ import 'qr_payment.dart';
 import 'send_advanced.dart';
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, confirmNetworkModeSwitch;
-import '../../data/method_names.dart' show methodKindOf;
+import '../../data/method_names.dart' show methodKindOf, relayListedAsEpicmail;
 import '../../../name_service/name_service.dart' show NameServiceTrust, LinkOpened, LinkOutcome, LinkRefused, nameServiceMembershipProvider, paymentRefusalsProvider;
 import '../../../l10n.dart' show localDay;
 import '../../../scan/incoming_link.dart' show linkClockProvider;
@@ -1793,6 +1793,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
   /// [link] offers its payee as a contact.
   Future<void> _showSent(Tx tx, {String? name, String? to, RecipientInput? route, LinkOpened? link}) {
     final l = context.l10n;
+    final st = ref.read(deskProvider);
+    final epicmail = tx.method == TxMethod.epicbox && relayListedAsEpicmail(st.epicboxes, _relayOf(st, route));
     return showPaymentSent(
       context,
       txId: tx.id,
@@ -1800,11 +1802,19 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       sent: tx,
       name: name,
       address: to,
-      method: route == null ? l.methodEpicbox : sendMethodName(l, route),
+      method: epicmail ? l.relayNameEpicmail : (route == null ? l.methodEpicbox : sendMethodName(l, route)),
       methodIcon: route == null ? EIcons.epicbox : _RouteLine.iconOf(route),
       mark: tx.method == TxMethod.epicbox ? EIcons.epicbox : null,
       more: link == null ? null : (key: const ValueKey('send-link-save-contact'), label: l.sendSaveContact, icon: EIcons.contacts, run: () => _saveContact(link)),
     );
+  }
+
+  /// The relay an Epicbox payment goes through: the one in the address [to], or the wallet's
+  /// own for a pairing's mailbox (no address); null for any other method.
+  EpicboxRelay? _relayOf(DeskState st, RecipientInput? to) {
+    if (to != null) return to.kind == RecipientInputKind.epicbox ? recipientRelay(to.address) : null;
+    final own = st.status?.epicbox;
+    return own == null ? null : EpicboxRelay(host: own.domain, port: own.port);
   }
 
   /// Contacts, adding the payee of the link [paid]: the address and the listed name filled.
@@ -2781,8 +2791,10 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         _ => r.contacted,
       }),
     };
+    final epicmail = !_file && relayListedAsEpicmail(st.epicboxes, _relayOf(st, _viaPairing ? null : r));
     return SendSummaryPanel(
-      via: via,
+      via: epicmail ? l.relayNameEpicmail : via,
+      viaIcon: epicmail ? EIcons.epicbox : null,
       viaSub: viaSub,
       to: _viaPairing ? ref.watch(deskPairingNameProvider(_pairingId!)) : _contactOf(st.contacts)?.name,
       amount: n,

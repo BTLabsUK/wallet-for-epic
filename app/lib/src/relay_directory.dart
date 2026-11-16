@@ -111,6 +111,7 @@ class RelayStatus {
     this.uptime24h,
     this.protocolVersion,
     this.icon,
+    this.epicmail = false,
   });
 
   final EpicboxRelay relay;
@@ -130,6 +131,16 @@ class RelayStatus {
 
   /// The operator's icon the monitor holds, or null: the tile shows initials.
   final ServerIcon? icon;
+
+  /// The monitor marks the relay as one that runs Epicmail; false for data without the mark.
+  final bool epicmail;
+}
+
+/// Whether a monitor entry marks its relay as an Epicmail relay: its `software` names Epicmail,
+/// or it carries the `epicmail` detail.
+bool _marksEpicmail(Map<String, Object?> item) {
+  final software = item['software'];
+  return item['epicmail'] is Map || (software is String && software.trim().toLowerCase() == 'epicmail');
 }
 
 /// An operator's icon on the monitor: square PNGs by pixel size, named by their content hash,
@@ -211,6 +222,7 @@ List<RelayStatus> parseRelayStatus(String json) {
         uptime24h: uptime is Map ? (uptime['24h'] as num?)?.toDouble() : null,
         protocolVersion: item['protocol_version'] as String?,
         icon: parseServerIcon(item['icon']),
+        epicmail: _marksEpicmail(item),
       ),
     );
   }

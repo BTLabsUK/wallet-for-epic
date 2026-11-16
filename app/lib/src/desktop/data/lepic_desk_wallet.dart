@@ -2640,6 +2640,7 @@ class LepicDeskWallet implements DeskWalletApi {
             latencyMs: r.status?.latencyMs,
             icon: r.status?.icon,
             listedAs: r.status?.operator,
+            epicmail: r.status?.epicmail ?? false,
           ),
       ];
       _boxesAt = DateTime.now();

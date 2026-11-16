@@ -17,6 +17,7 @@ import '../../../contact_epic1.dart';
 import '../../../epic1.dart';
 import '../../../epic1_hosts.dart';
 import '../../../l10n.dart' show LocalizedFormatException;
+import '../../../network.dart' show EpicboxRelay;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../recipient.dart' show epic1AddressOnly, epic1Unwrap;
 import '../../../scan/scan_router.dart';
@@ -24,6 +25,7 @@ import '../../../trust_ids.dart';
 import '../../../ui/theme/brand.dart' show GlyphTile;
 import '../../../ui/theme/epic1_mark.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../data/method_names.dart' show relayListedAsEpicmail;
 import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -617,9 +619,12 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
               ),
       ),
     ]);
+    // The link's server, named Epicmail when the status site marks it so.
+    final host = info?.hosts.firstOrNull;
+    final epicmail = host != null && relayListedAsEpicmail(st.epicboxes, EpicboxRelay(host: host.host, port: host.port));
     final summary = SendSummaryPanel(
       titleTrailing: info == null ? null : Epic1Mark(fontSize: Fs.md, color: c.text),
-      via: info == null ? null : l.methodEpicbox,
+      via: info == null ? null : (epicmail ? l.relayNameEpicmail : l.methodEpicbox),
       viaIcon: EIcons.epicbox,
       to: info == null ? null : shortMiddle(info.address, keep: 18),
       amount: n,

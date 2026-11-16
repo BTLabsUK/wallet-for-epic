@@ -47,7 +47,7 @@ class _Sample implements RelayDirectory, NodeDirectory {
     reads++;
     return [
       ...parseRelayStatus(_sample),
-      const RelayStatus(relay: EpicboxRelay(host: 'box.example'), healthy: true, verified: false, operator: 'Box op'),
+      const RelayStatus(relay: EpicboxRelay(host: 'box.example'), healthy: true, verified: false, operator: 'Box op', epicmail: true),
     ];
   }
 
@@ -106,6 +106,13 @@ void main() {
     expect(boxes.map((b) => b.domain), _boxes);
     // A fresh install: the first relay of the settings in use.
     expect((await w.status()).epicbox.domain, hostSettings.epicboxUse);
+  });
+
+  test('the Epicbox list carries the monitor\'s Epicmail mark', () async {
+    final w = make(_Sample());
+    addTearDown(w.dispose);
+    final boxes = await w.epicboxes();
+    expect([for (final b in boxes) if (b.epicmail) b.domain], ['box.example']);
   });
 
   test('the Epicbox server in use is one setting: preset, first relay, status', () {
