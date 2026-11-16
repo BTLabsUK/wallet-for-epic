@@ -1701,6 +1701,18 @@ class LepicWalletSession
     // The record as it was before this session's first refresh replaces it.
     final at = _history.lastActivity?.atUnix;
     _lastActivityAtOpen = at == null ? null : DateTime.fromMillisecondsSinceEpoch(at * 1000, isUtc: true);
+    // Both checks go over Epicbox: once it is off (its switch, Node only, Kill switch), what
+    // they last found or failed is not shown.
+    _gateWatch = [NetGate.epicboxSwitch.listen((_) => _forgetChecksOff()), NetGate.changes.listen((_) => _forgetChecksOff())];
+  }
+
+  late final List<StreamSubscription<Object?>> _gateWatch;
+
+  void _forgetChecksOff() {
+    if (!NetGate.epicboxOff) return;
+    for (final s in CheckSource.values) {
+      checks.forget(s);
+    }
   }
 
   @override
@@ -1867,6 +1879,9 @@ class LepicWalletSession
     onDispose = null;
     _walletEvents?.cancel();
     _walletEvents = null;
+    for (final w in _gateWatch) {
+      unawaited(w.cancel());
+    }
     _pairing.close();
     _invoiceEvents.close();
     _issuerEvents.close();
@@ -5086,8 +5101,8 @@ class _LepicPairing implements PairingApi {
 
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
-  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only, bool? quiet}) => !NetGate.pairing
-      // Pairing off: no pairing or contact mailbox is opened.
+  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only, bool? quiet}) => !NetGate.pairing || NetGate.epicboxOff
+      // Pairing or Epicbox off: no pairing or contact mailbox is opened, and no check runs.
       ? Future.value(0)
       : _s.checks.run(
     CheckSource.collect,

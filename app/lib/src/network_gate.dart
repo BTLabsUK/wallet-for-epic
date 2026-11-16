@@ -228,13 +228,22 @@ abstract final class NetGate {
   /// store set them at launch and on every change, as [set] for the mode.
   static PaymentPrefs get payments => _payments;
 
-  static void setPayments(PaymentPrefs p) => _payments = p;
+  static void setPayments(PaymentPrefs p) {
+    final was = _payments.epicbox;
+    _payments = p;
+    if (p.epicbox != was) _epicboxSwitch.add(p.epicbox);
+  }
+
+  static final StreamController<bool> _epicboxSwitch = StreamController.broadcast(sync: true);
+
+  /// Every change of the Epicbox switch ([epicbox]), after it is set.
+  static Stream<bool> get epicboxSwitch => _epicboxSwitch.stream;
 
   /// The Epicbox switch: on by default.
   static bool get epicbox => _payments.epicbox;
 
   /// The Epicbox switch alone, for code that holds no [PaymentPrefs].
-  static void setEpicbox(bool on) => _payments = _payments.copyWith(epicbox: on);
+  static void setEpicbox(bool on) => setPayments(_payments.copyWith(epicbox: on));
 
   /// [m] is on in Settings › Transactions.
   static bool offers(MethodKind m) => _payments.offers(m);

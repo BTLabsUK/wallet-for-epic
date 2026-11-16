@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/message_checks.dart';
@@ -730,6 +731,52 @@ void main() {
     });
   });
 
+  group('message checks with Epicbox off', () {
+    Future<void> fail(CheckSource source) => expectLater(
+      session.checks.run<int>(source, () async => throw StateError('relay down'), outcomeOf: (_) => const CheckOutcome()),
+      throwsStateError,
+    );
+
+    setUp(() => addTearDown(() {
+      NetGate.setEpicbox(true);
+      NetGate.set(NetworkMode.standard);
+    }));
+
+    test('the drain does not run and is no failed check', () async {
+      NetGate.setEpicbox(false);
+      expect(await session.drainPayments(), const PaymentsDrainReport());
+      expect(wallet.calls, isNot(contains('drainEpicbox')));
+      expect(session.checks.value.failed, isFalse);
+    });
+
+    test('the collect does not run and is no failed check', () async {
+      NetGate.setEpicbox(false);
+      expect(await session.pairing.collect(trigger: PairingCollectTrigger.pull), 0);
+      expect(session.checks.value, const MessageCheck());
+    });
+
+    for (final source in CheckSource.values) {
+      test('a failed ${source.name} from before is forgotten when the switch turns off', () async {
+        await fail(source);
+        expect(session.checks.value.failed, isTrue);
+        NetGate.setEpicbox(false);
+        expect(session.checks.value.failed, isFalse);
+      });
+
+      test('a failed ${source.name} from before is forgotten in Node only', () async {
+        await fail(source);
+        NetGate.set(NetworkMode.nodeOnly);
+        expect(session.checks.value.failed, isFalse);
+      });
+    }
+
+    test('with Epicbox on a failed check stays until the next good one', () async {
+      await fail(CheckSource.collect);
+      NetGate.set(NetworkMode.torOnly);
+      expect(session.checks.value.failed, isTrue);
+    });
+  });
+
   group('payments drain', () {
     test(
       'drains the payments address, then sweeps with the app\'s expiry',
@@ -741,20 +788,6 @@ void main() {
         expect(wallet.calls, ['drainEpicbox', 'sweepInvoices(86400)']);
       },
     );
-
-    test('with Epicbox off it does not run and is not a failed check', () async {
-      // A drain that failed while Epicbox was on is forgotten once it is off.
-      await expectLater(
-        session.checks.run<int>(CheckSource.drain, () async => throw StateError('relay down'), outcomeOf: (_) => const CheckOutcome()),
-        throwsStateError,
-      );
-      expect(session.checks.value.failed, isTrue);
-      NetGate.setEpicbox(false);
-      addTearDown(() => NetGate.setEpicbox(true));
-      expect(await session.drainPayments(), const PaymentsDrainReport(received: 0, finalized: 0));
-      expect(wallet.calls, isNot(contains('drainEpicbox')));
-      expect(session.checks.value.failed, isFalse);
-    });
 
     test('a missed event is caught up from LEPIC\'s store', () async {
       final a = await ask(five);
