@@ -22267,10 +22267,6 @@
       }
     }
   },
-  "payOnItsWay": "On its way",
-  "@payOnItsWay": {
-    "description": "Level 1 Send: heading of the screen shown once a payment is out."
-  },
   "payArrivalFrom": "{amount} from {name}",
   "@payArrivalFrom": {
     "description": "Level 1 Receive: arrival card title, a payment coming in.",
@@ -22446,40 +22442,6 @@
   "deskSendNothingLeaves": "Nothing leaves until you press Send. After that it cannot be taken back.",
   "@deskSendNothingLeaves": {
     "description": "Line under the Send button on Send at the Shallow level, and under the title of the password dialog that follows."
-  },
-  "deskSendLiveTo": "On its way to {name}",
-  "@deskSendLiveTo": {
-    "description": "Heading of Send after a payment went out, at every level. {name} is the contact's name.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskSendLiveAmountTo": "{amount} EPIC to {name}",
-  "@deskSendLiveAmountTo": {
-    "description": "Line under the heading of Send after a payment went out. {amount} is the amount, {name} the contact's name.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      },
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskSendLiveAmount": "{amount} EPIC",
-  "@deskSendLiveAmount": {
-    "description": "Line under the heading of Send after a payment went out, when the recipient has no name. {amount} is the amount.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "12.5000"
-      }
-    }
   },
   "deskPayConfirmingComma": "Confirming, {count} of {target}",
   "@deskPayConfirmingComma": {
@@ -26591,30 +26553,6 @@
       }
     }
   },
-  "deskSendLiveVia": "On its way {via}",
-  "@deskSendLiveVia": {
-    "description": "Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.",
-    "placeholders": {
-      "via": {
-        "type": "String",
-        "example": "via file"
-      }
-    }
-  },
-  "deskSendLiveAmountVia": "{amount} EPIC {via}",
-  "@deskSendLiveAmountVia": {
-    "description": "Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "10 EPIC"
-      },
-      "via": {
-        "type": "String",
-        "example": "via file"
-      }
-    }
-  },
   "deskTxCancelOutgoingViaBody": "{amount} EPIC {via}. Nothing has been paid yet: cancelling is free and certain.",
   "@deskTxCancelOutgoingViaBody": {
     "description": "Cancel dialog body for an outgoing payment that has no contact name or address; via is how it travels.",
@@ -29199,26 +29137,6 @@
   "deskSetSynSystemNotices": "notifications, alerts, toast, banner, desktop notification, payment received, popup",
   "@deskSetSynSystemNotices": {
     "description": "Settings search: other words that find the “System notifications” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
-  "deskSendDoneTo": "Sent to {name}",
-  "@deskSendDoneTo": {
-    "description": "Heading of Send after a payment went out, once it is confirmed. {name} is the contact's name.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "deskSendDoneVia": "Sent {via}",
-  "@deskSendDoneVia": {
-    "description": "Heading of Send after a payment went out, once it is confirmed, when the payment has no contact name; via is how it travelled, e.g. 'via file'.",
-    "placeholders": {
-      "via": {
-        "type": "String",
-        "example": "via file"
-      }
-    }
   },
   "deskE1PhSetLine": "Links, in-person codes and files",
   "@deskE1PhSetLine": {

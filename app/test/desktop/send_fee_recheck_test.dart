@@ -82,7 +82,7 @@ void main() {
     expect(find.textContaining('fee is now ${formatEpic(reviewed - 100000, decimals: 8)}\u00a0EPIC instead of ${formatEpic(reviewed, decimals: 8)}\u00a0EPIC'), findsOneWidget);
     // The user has seen the new fee: Send now sends it.
     await tester.tap(send);
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.sent, hasLength(1));
   });
 
@@ -90,7 +90,7 @@ void main() {
     await pump(tester, const SendArgs(recipient: anna, amount: '25', step: SendStep.review));
     await enterReviewPassword(tester);
     await tester.tap(send);
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(find.text('The fee changed'), findsNothing);
     expect(wallet.sent, hasLength(1));
   });

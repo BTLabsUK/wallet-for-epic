@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/sample_services.dart';
+import 'review_password.dart';
 
 final _l = englishStrings;
 
@@ -183,7 +184,7 @@ void main() {
     await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
     await tester.tap(send);
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.sends, 1);
   });
 
@@ -480,7 +481,7 @@ void main() {
       await tester.pump();
       final before = wallet.sends;
       await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.semanticsId == TrustIds.sendConfirm));
-      await tester.pumpAndSettle();
+      await pumpSent(tester);
       expect(wallet.sends, before + 1);
     });
 

@@ -16690,9 +16690,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get payOnItsWay => 'Unterwegs';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount von $name';
   }
@@ -16802,21 +16799,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSendNothingLeaves =>
       'Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen.';
-
-  @override
-  String deskSendLiveTo(String name) {
-    return 'Unterwegs zu $name';
-  }
-
-  @override
-  String deskSendLiveAmountTo(String amount, String name) {
-    return '$amount EPIC an $name';
-  }
-
-  @override
-  String deskSendLiveAmount(String amount) {
-    return '$amount EPIC';
-  }
 
   @override
   String deskPayConfirmingComma(int count, int target) {
@@ -19784,16 +19766,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String deskSendLiveVia(String via) {
-    return 'Unterwegs $via';
-  }
-
-  @override
-  String deskSendLiveAmountVia(String amount, String via) {
-    return '$amount EPIC $via';
-  }
-
-  @override
   String deskTxCancelOutgoingViaBody(String amount, String via) {
     return '$amount EPIC $via. Noch wurde nichts bezahlt: Stornieren ist kostenlos und sicher.';
   }
@@ -21667,16 +21639,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetSynSystemNotices =>
       'benachrichtigung, mitteilung, hinweis, banner, popup, zahlung erhalten, desktop';
-
-  @override
-  String deskSendDoneTo(String name) {
-    return 'Gesendet an $name';
-  }
-
-  @override
-  String deskSendDoneVia(String via) {
-    return 'Gesendet $via';
-  }
 
   @override
   String get deskE1PhSetLine =>

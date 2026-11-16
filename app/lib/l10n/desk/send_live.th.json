@@ -1,10 +1,3 @@
 {
-  "deskSendNothingLeaves": "จะไม่มีอะไรออกไปจนกว่าจะกดส่ง หลังจากนั้นเรียกคืนไม่ได้",
-  "deskSendLiveTo": "กำลังไปหา {name}",
-  "deskSendLiveAmountTo": "{amount} EPIC ให้ {name}",
-  "deskSendLiveAmount": "{amount} EPIC",
-  "deskSendLiveVia": "กำลังไป {via}",
-  "deskSendLiveAmountVia": "{amount} EPIC {via}",
-  "deskSendDoneTo": "ส่งถึง {name} แล้ว",
-  "deskSendDoneVia": "ส่งแล้ว {via}"
+  "deskSendNothingLeaves": "จะไม่มีอะไรออกไปจนกว่าจะกดส่ง หลังจากนั้นเรียกคืนไม่ได้"
 }

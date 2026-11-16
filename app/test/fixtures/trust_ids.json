@@ -108,7 +108,7 @@
 {"id": "g4.server.refused", "screen": "server", "kind": "copy", "role": "text", "keys": ["deskSlNodeNoAnswer", "slRelayNoAnswer", "deskSlTorWait"], "names": ["re:.*(no answer from this server|nothing added|not a node).*"], "match": "contains", "android": {"names": ["re:.*(no answer from this server|nothing added|not a node|could not reach|did not answer).*"]}},
 {"id": "g4.send.review.title", "screen": "send", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSendReviewTitle"], "names": ["Check and send"], "match": "contains"},
 {"id": "g4.send.failed", "screen": "send", "kind": "copy", "role": "text", "keys": ["deskSendFailedTitle", "deskSendNoAnswer", "deskTxNotSent"], "names": ["re:.*(send failed|not sent).*"], "match": "contains", "android": {"keys": ["deskSendFailedTitle", "deskSendNoAnswer", "sendTorNothingSent", "errorPaymentExpired"], "names": ["re:.*(send failed|not sent|nothing was sent|could not send).*"]}},
-{"id": "g4.send.done", "screen": "send", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSendDoneViaEpicbox", "deskSendHintSent"], "match": "starts"},
+{"id": "g4.send.done", "screen": "send", "kind": "copy", "family": ["desktop"], "role": "text", "keys": ["deskSendDoneViaEpicbox", "deskSendHintSent", "deskPaySentTitle"], "match": "starts"},
 {"id": "g4.privacy.mode.toronly", "screen": "privacy", "role": "checkbox", "keys": ["advModeTorOnly"], "names": ["Tor only"], "match": "starts"},
 {"id": "g4.privacy.mode.standard", "screen": "privacy", "role": "checkbox", "keys": ["advModeStandard"], "names": ["Normal"], "match": "starts"},
 {"id": "g4.settings.section.wallet", "screen": "settings", "family": ["android"], "role": "menu_item", "keys": ["settingsSectionWallet"], "names": ["This wallet"]},

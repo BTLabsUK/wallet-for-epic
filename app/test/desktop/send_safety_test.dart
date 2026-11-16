@@ -99,7 +99,7 @@ void main() {
     expect(find.textContaining('epicbox.stackwalle is not a known Epicbox server'), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.text('Send 1.0\u00a0EPIC'));
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.sends, 1, reason: 'a warning, not a block');
   });
 

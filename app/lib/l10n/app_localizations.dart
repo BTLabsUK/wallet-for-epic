@@ -25435,12 +25435,6 @@ abstract class AppLocalizations {
   /// **'{name} signed'**
   String paySigned(String name);
 
-  /// Level 1 Send: heading of the screen shown once a payment is out.
-  ///
-  /// In en, this message translates to:
-  /// **'On its way'**
-  String get payOnItsWay;
-
   /// Level 1 Receive: arrival card title, a payment coming in.
   ///
   /// In en, this message translates to:
@@ -25620,24 +25614,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing leaves until you press Send. After that it cannot be taken back.'**
   String get deskSendNothingLeaves;
-
-  /// Heading of Send after a payment went out, at every level. {name} is the contact's name.
-  ///
-  /// In en, this message translates to:
-  /// **'On its way to {name}'**
-  String deskSendLiveTo(String name);
-
-  /// Line under the heading of Send after a payment went out. {amount} is the amount, {name} the contact's name.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} EPIC to {name}'**
-  String deskSendLiveAmountTo(String amount, String name);
-
-  /// Line under the heading of Send after a payment went out, when the recipient has no name. {amount} is the amount.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} EPIC'**
-  String deskSendLiveAmount(String amount);
 
   /// Deeper payment steps: confirmations so far of the number the wallet waits for.
   ///
@@ -30391,18 +30367,6 @@ abstract class AppLocalizations {
   /// **'{via, select, file{via file} link{via epic1 link} inPerson{in person} epicbox{via Epicbox} http{via HTTP} tor{via Tor} qr{via QR} other{via another method}}'**
   String txViaPhrase(String via);
 
-  /// Send result title (Deep end) when the payment has no contact name; via is how it travels, e.g. 'via file'.
-  ///
-  /// In en, this message translates to:
-  /// **'On its way {via}'**
-  String deskSendLiveVia(String via);
-
-  /// Send result line when the payment has no contact name; via is how it travels, e.g. 'via file'.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} EPIC {via}'**
-  String deskSendLiveAmountVia(String amount, String via);
-
   /// Cancel dialog body for an outgoing payment that has no contact name or address; via is how it travels.
   ///
   /// In en, this message translates to:
@@ -33522,18 +33486,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'notifications, alerts, toast, banner, desktop notification, payment received, popup'**
   String get deskSetSynSystemNotices;
-
-  /// Heading of Send after a payment went out, once it is confirmed. {name} is the contact's name.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent to {name}'**
-  String deskSendDoneTo(String name);
-
-  /// Heading of Send after a payment went out, once it is confirmed, when the payment has no contact name; via is how it travelled, e.g. 'via file'.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent {via}'**
-  String deskSendDoneVia(String via);
 
   /// Phone Settings › Payments: the one line under the epic1 payment method, what it pays with (no full stop, like the other methods' lines).
   ///

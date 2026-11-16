@@ -112,7 +112,7 @@ void main() {
     expect(find.byWidgetPredicate((w) => w is EButton && w.busy), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     wallet.sendHold!.complete();
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
   });
 
   testWidgets('the review repeats the lock', (tester) async {
@@ -142,7 +142,7 @@ void main() {
     expect(find.text('Check and send'), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.label.startsWith('Send 25')));
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.sent.single.options?.strategy, SelectionStrategy.all);
   });
 }

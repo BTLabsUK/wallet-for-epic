@@ -74,7 +74,7 @@ void main() {
       expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0\u00a0EPIC'));
-      await tester.pumpAndSettle();
+      await pumpSent(tester);
       expect(wallet.sent.single.method, TxMethod.http);
       expect(wallet.sent.single.allowPlainHttp, isTrue);
     });

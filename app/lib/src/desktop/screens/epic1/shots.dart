@@ -39,7 +39,7 @@ final List<DeskShot> epic1Shots = [
     arg: const SendArgs(code: _link),
     before: _epic1(),
     prepare: (_, ctx) async => tapShotKey(ctx, const ValueKey('e1-review')),
-    after: (_, ctx) async => tapShotKey(ctx, const ValueKey('e1-send')),
+    after: (_, ctx) async => tapShotKey(Navigator.of(ctx, rootNavigator: true).overlay!.context, const ValueKey('e1-send')),
   ),
   DeskShot(id: '62d-e1-send-off', title: 'Send an epic1 link with epic1 off: the stop', route: DeskRoute.send, arg: const SendArgs(code: _link), before: _epic1(on: false)),
   DeskShot(id: '63-e1-picker', title: 'Contact picker, epic1 on', route: DeskRoute.send, before: _epic1(), dialog: showContactPickerDialog),

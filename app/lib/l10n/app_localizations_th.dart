@@ -16137,9 +16137,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get payOnItsWay => 'กำลังไป';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount จาก $name';
   }
@@ -16249,21 +16246,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSendNothingLeaves =>
       'จะไม่มีอะไรออกไปจนกว่าจะกดส่ง หลังจากนั้นเรียกคืนไม่ได้';
-
-  @override
-  String deskSendLiveTo(String name) {
-    return 'กำลังไปหา $name';
-  }
-
-  @override
-  String deskSendLiveAmountTo(String amount, String name) {
-    return '$amount EPIC ให้ $name';
-  }
-
-  @override
-  String deskSendLiveAmount(String amount) {
-    return '$amount EPIC';
-  }
 
   @override
   String deskPayConfirmingComma(int count, int target) {
@@ -19172,16 +19154,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String deskSendLiveVia(String via) {
-    return 'กำลังไป $via';
-  }
-
-  @override
-  String deskSendLiveAmountVia(String amount, String via) {
-    return '$amount EPIC $via';
-  }
-
-  @override
   String deskTxCancelOutgoingViaBody(String amount, String via) {
     return '$amount EPIC $via ยังไม่มีการจ่ายใด ๆ การยกเลิกไม่มีค่าธรรมเนียมและแน่นอน';
   }
@@ -21008,16 +20980,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetSynSystemNotices =>
       'แจ้งเตือน, การแจ้งเตือน, แบนเนอร์, ป๊อปอัป, ได้รับการชำระเงิน, เดสก์ท็อป';
-
-  @override
-  String deskSendDoneTo(String name) {
-    return 'ส่งถึง $name แล้ว';
-  }
-
-  @override
-  String deskSendDoneVia(String via) {
-    return 'ส่งแล้ว $via';
-  }
 
   @override
   String get deskE1PhSetLine => 'ลิงก์ รหัสชำระแบบพบหน้า และไฟล์';

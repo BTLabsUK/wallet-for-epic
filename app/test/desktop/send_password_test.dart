@@ -13,6 +13,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'review_password.dart';
+
 final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
@@ -79,7 +81,7 @@ void main() {
     await tester.enterText(password(), 'secret-pass');
     await tester.pump();
     await tester.tap(sendButton());
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.checked, ['secret-pass']);
     expect(wallet.sends, 1);
   });
@@ -107,7 +109,7 @@ void main() {
 
     await tester.enterText(password(), 'secret-pass');
     await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.checked, ['wrong', 'secret-pass']);
     expect(wallet.sends, 1);
     expect(find.text('Check and send'), findsNothing);
@@ -126,7 +128,7 @@ void main() {
     await tester.enterText(password(), 'secret-pass');
     await tester.pump();
     await tester.tap(sendButton());
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.checked, ['secret-pass']);
     expect(wallet.sends, 1);
   });

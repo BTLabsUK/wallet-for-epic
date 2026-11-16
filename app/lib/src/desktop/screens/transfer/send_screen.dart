@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import '../../../ui/via.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -44,7 +43,6 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskContactPairingProvider, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
-import '../../widgets/pay_steps.dart' show DeskPaymentSteps, PayAccentBox;
 import '../scan/desk_scan.dart';
 import '../scan/desk_scan_text.dart';
 import '../pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords;
@@ -66,8 +64,8 @@ import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
 import '../../../ui/link_send.dart' show amountEdited, linkRefusalText;
 import '../wallet/contacts_screen.dart' show ContactsArgs;
-import '../wallet/tx_display.dart' show TxIcon, deskTxMailboxName, statusOf, viaOf;
 import 'link_trust.dart';
+import 'payment_sent.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
 import '../../../epic1.dart' show looksLikeEpic1Link, looksLikeEpictx;
@@ -516,13 +514,13 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         _toTouched = true;
       case SendStep.review || SendStep.sending:
         WidgetsBinding.instance.addPostFrameCallback((_) => _openReview(startBusy: args.step == SendStep.sending));
+      case SendStep.done:
+        WidgetsBinding.instance.addPostFrameCallback((_) => _shotSent());
       // The shot result reads the amount, which needs the language: built in
       // didChangeDependencies, before the first frame.
-      case SendStep.done:
-        _shotStep = SendStep.done;
       case SendStep.fileReady:
         _file = true;
-        _shotStep = SendStep.fileReady;
+        _shotFile = true;
       case SendStep.failed:
         _failure = (l) => l.deskSendNoAnswer;
         _submitted = true;
@@ -531,18 +529,25 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     }
   }
 
-  /// A shot step whose result is still to be built ([didChangeDependencies]).
-  SendStep? _shotStep;
+  /// The file-ready shot's result is still to be built ([didChangeDependencies]).
+  bool _shotFile = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final step = _shotStep;
-    if (step == null) return;
-    _shotStep = null;
-    _result = step == SendStep.done
-        ? SendDone(_shotTx(TxMethod.epicbox, _args.recipient))
-        : SendFileReady(_shotTx(TxMethod.file, null), 'f0e1d2c3.tx');
+    if (!_shotFile) return;
+    _shotFile = false;
+    _result = SendFileReady(_shotTx(TxMethod.file, null), 'f0e1d2c3.tx');
+  }
+
+  /// The shot of the Payment sent modal: the payment the shot names, over the form emptied as
+  /// after a send.
+  void _shotSent() {
+    if (!mounted) return;
+    final tx = _shotTx(TxMethod.epicbox, _args.recipient);
+    final name = _contactOf(ref.read(deskProvider).contacts)?.name;
+    _reset();
+    unawaited(_showSent(tx, name: name, to: tx.counterparty));
   }
 
   Tx _shotTx(TxMethod m, String? to) => Tx(
@@ -1746,6 +1751,8 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       ),
     );
     if (!mounted || res == null) return;
+    // Out now, not waiting in the outbox for Epicbox.
+    final sent = res is SendDone && !draft.queued;
     setState(() {
       switch (res) {
         case final SendFailed failed:
@@ -1756,22 +1763,20 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           _result = null;
         default:
           _failure = null;
-          _result = res;
+          // A payment that went out shows in the modal over the emptied form; a queued one and a
+          // written file keep their page.
+          _result = sent ? null : res;
           _plainFile = null;
           if (res is SendDone) {
-            if (link != null) {
-              _paidLink = link;
-              unawaited(api.recordLinkPayment(link.request, ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000, txId: res.tx.slateId));
-            } else {
-              _paidLink = null;
-            }
-            _queuedFor = draft.queued ? draft.contactName : null;
-            _sentTo = draft.contactName;
+            if (link != null) unawaited(api.recordLinkPayment(link.request, ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000, txId: res.tx.slateId));
+            _paidLink = sent ? null : link;
+            _queuedFor = sent ? null : draft.contactName;
             _to.clear();
             _amount.clear();
             _message.clear();
             _fee = null;
             _submitted = false;
+            _toTouched = false;
             _code = null;
             _pairingTo = null;
             _contactId = null;
@@ -1780,7 +1785,31 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
           }
       }
     });
+    if (res is SendDone && sent) unawaited(_showSent(res.tx, name: draft.contactName, to: draft.to, route: draft.route, link: link));
   }
+
+  /// The Payment sent modal for [tx], which went to [name] or to the address [to], by the
+  /// method of [route] (Epicbox for a pairing's mailbox, which has none). A payment made from a
+  /// [link] offers its payee as a contact.
+  Future<void> _showSent(Tx tx, {String? name, String? to, RecipientInput? route, LinkOpened? link}) {
+    final l = context.l10n;
+    return showPaymentSent(
+      context,
+      txId: tx.id,
+      amount: tx.amount,
+      sent: tx,
+      name: name,
+      address: to,
+      method: route == null ? l.methodEpicbox : sendMethodName(l, route),
+      methodIcon: route == null ? EIcons.epicbox : _RouteLine.iconOf(route),
+      mark: tx.method == TxMethod.epicbox ? EIcons.epicbox : null,
+      more: link == null ? null : (key: const ValueKey('send-link-save-contact'), label: l.sendSaveContact, icon: EIcons.contacts, run: () => _saveContact(link)),
+    );
+  }
+
+  /// Contacts, adding the payee of the link [paid]: the address and the listed name filled.
+  void _saveContact(LinkOpened paid) =>
+      ref.read(deskNavProvider.notifier).go(DeskRoute.contacts, ContactsArgs(adding: true, address: paid.request.card.address, name: paid.payeeLabel));
 
   /// After a failed send through the pairing: the same payment to the contact's public
   /// Epicbox address, through the review again.
@@ -1793,7 +1822,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     await _review();
   }
 
-  /// The link the last send paid, for Save as contact on the page after it.
+  /// The link the last, queued send paid, for Save as contact on its card.
   LinkOpened? _paidLink;
 
   /// The last send was a mailbox payment queued while Epicbox is off: to whom, for its notice.
@@ -1833,6 +1862,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     _message.clear();
     _fee = null;
     _submitted = false;
+    _toTouched = false;
   });
 
   @override
@@ -1869,7 +1899,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
             child: res is SendFileReady
                 ? _fileReady(res, nav)
                 : res is SendDone
-                ? _done(res, nav)
+                ? _queued(res, nav)
                 : LayoutBuilder(
                     builder: (context, box) {
                       final wide = box.maxWidth >= Lay.xl;
@@ -1940,112 +1970,30 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     );
   }
 
-  /// After a send: the payment as Home's In motion card shows it, with its live steps
-  /// ([DeskPaymentSteps]), the way to a new send and to Activity. A mailbox payment queued while Epicbox is off keeps the
-  /// plain result card: nothing has gone out yet. One that ends cancelled meanwhile (its
-  /// receiver declined it) says so in the row's words.
-  Widget _done(SendDone r, DeskNav nav) {
+  /// A mailbox payment queued while Epicbox is off: nothing has gone out yet, so the page keeps
+  /// its result card, with the way to a new send and to Activity.
+  Widget _queued(SendDone r, DeskNav nav) {
     final l = context.l10n;
-    final queued = _queuedFor != null;
     final paid = _paidLink;
-    final actions = [
-      EButton.primary(semanticsId: TrustIds.sendAnother, label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
-      EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
-      // A payment from a link: its payee as a contact, the address and the listed name filled.
-      if (paid != null)
-        EButton(
-          key: const ValueKey('send-link-save-contact'),
-          label: l.sendSaveContact,
-          icon: EIcons.contacts,
-          onPressed: () => nav.go(DeskRoute.contacts, ContactsArgs(adding: true, address: paid.request.card.address, name: paid.payeeLabel)),
-        ),
-    ];
-    if (queued) {
-      return ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: Max.form),
-        child: ResultPanel(
-          key: const ValueKey('send-queued'),
-          // Queued, not sent yet: the waiting tile, never the done check.
-          glyph: const ResultGlyph.waiting(),
-          title: l.sendQueuedHeadline,
-          text: l.sendQueuedBody(_queuedFor!),
-          body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
-          // The one result card (UD-007): gold = this screen's next action, outlined = Activity.
-          actions: actions,
-        ),
-      );
-    }
-    // The payment as the wallet lists it now, so the steps move on their own.
-    final live = ref.watch(deskProvider.select((s) => s.txs))?.where((t) => r.tx.slateId.isNotEmpty ? t.slateId == r.tx.slateId : t.id == r.tx.id).firstOrNull ?? r.tx;
-    final name = _sentTo ?? deskTxMailboxName(ref, live, any: true) ?? live.contactName;
-    // No name: the path it took ("via file"), when that is known.
-    final via = name == null ? viaOf(live) : null;
-    final amount = formatEpicL(l, r.tx.amount);
-    // Over before it finished: its receiver declined it, or it was cancelled under Activity.
-    // The row's words for the title; a declined send says the balance is unchanged.
-    if (live.state == TxState.cancelled) {
-      final (word, _) = statusOf(l, live);
-      return ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: Max.form),
-        child: ResultPanel(
-          key: const ValueKey('send-cancelled'),
-          glyph: const ResultGlyph(icon: EIcons.cancel, tone: ETone.neutral),
-          title: word,
-          text: name != null ? l.deskSendLiveAmountTo(amount, name) : (via != null ? l.deskSendLiveAmountVia(amount, viaPhrase(l, via)) : l.deskSendLiveAmount(amount)),
-          body: live.receiverDeclined ? Text(l.txDetailsReceiverDeclined, style: context.ts.body) : null,
-          actions: actions,
-        ),
-      );
-    }
-    // Home's In motion card, as wide as the page's column: who, how much, the steps across,
-    // what to do next. One name for the title and the steps.
-    final done = live.state == TxState.confirmed;
-    final title = done
-        ? (name != null ? l.deskSendDoneTo(name) : (via != null ? l.deskSendDoneVia(viaPhrase(l, via)) : l.deskTxSent))
-        : (name != null ? l.deskSendLiveTo(name) : (via != null ? l.deskSendLiveVia(viaPhrase(l, via)) : l.payOnItsWay));
-    final ts = context.ts;
-    return PayAccentBox(
-      key: const ValueKey('send-done'),
-      done: done,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                ExcludeSemantics(child: TxIcon(live)),
-                SizedBox(width: Sp.x4),
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    liveRegion: true,
-                    child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.strong.copyWith(fontSize: Fs.lg)),
-                  ),
-                ),
-                SizedBox(width: Sp.x4),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    EMoney(-live.amount, sign: true, color: context.dc.txSent, size: Fs.lg),
-                    if (live.fee > 0) Text(l.deskTxFee(formatEpicL(l, live.fee)), style: ts.caption),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: Sp.x5),
-            DeskPaymentSteps(tx: live, name: name),
-            SizedBox(height: Sp.x5),
-            Wrap(spacing: Sp.x3, runSpacing: Sp.x2, children: actions),
-          ],
-        ),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: Max.form),
+      child: ResultPanel(
+        key: const ValueKey('send-queued'),
+        // Queued, not sent yet: the waiting tile, never the done check.
+        glyph: const ResultGlyph.waiting(),
+        title: l.sendQueuedHeadline,
+        text: l.sendQueuedBody(_queuedFor!),
+        body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
+        // The one result card (UD-007): gold = this screen's next action, outlined = Activity.
+        actions: [
+          EButton.primary(semanticsId: TrustIds.sendAnother, label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
+          EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
+          // A payment from a link: its payee as a contact.
+          if (paid != null) EButton(key: const ValueKey('send-link-save-contact'), label: l.sendSaveContact, icon: EIcons.contacts, onPressed: () => _saveContact(paid)),
+        ],
       ),
     );
   }
-
-  /// The name of whom the last send went to, for the page after it; null for an address.
-  String? _sentTo;
 
   /// The file written: "Sealed for Anna" for a sealed one, with Send as plain instead, which
   /// asks first and writes the plain copy of the same payment (RFC 9.3).
@@ -2794,7 +2742,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     final gate = _gate(st);
     // The line under Review, and whether it names a block: then Review is off until it clears.
     final (hint, blocker) = switch (null) {
-      _ when res is SendDone => (_queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued, true),
+      _ when res is SendDone => (l.deskSendHintQueued, true),
       // The address in To is held by the mode or Tor: the notice's sentence, once more here.
       _ when _hold(st) != null => (sendHoldText(l, _hold(st)!), true),
       // The network mode first, as the banner: Offline does not poll a node that is not local,

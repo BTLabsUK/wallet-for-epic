@@ -17073,9 +17073,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get payOnItsWay => 'В пути';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount от $name';
   }
@@ -17185,21 +17182,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSendNothingLeaves =>
       'Ничего не уходит, пока вы не нажмёте «Отправить». После этого вернуть нельзя.';
-
-  @override
-  String deskSendLiveTo(String name) {
-    return 'Идёт к $name';
-  }
-
-  @override
-  String deskSendLiveAmountTo(String amount, String name) {
-    return '$amount EPIC — $name';
-  }
-
-  @override
-  String deskSendLiveAmount(String amount) {
-    return '$amount EPIC';
-  }
 
   @override
   String deskPayConfirmingComma(int count, int target) {
@@ -20162,16 +20144,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String deskSendLiveVia(String via) {
-    return 'Идёт $via';
-  }
-
-  @override
-  String deskSendLiveAmountVia(String amount, String via) {
-    return '$amount EPIC $via';
-  }
-
-  @override
   String deskTxCancelOutgoingViaBody(String amount, String via) {
     return '$amount EPIC $via. Пока ничего не оплачено: отмена бесплатна и надёжна.';
   }
@@ -22039,16 +22011,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetSynSystemNotices =>
       'уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол';
-
-  @override
-  String deskSendDoneTo(String name) {
-    return 'Отправлено: $name';
-  }
-
-  @override
-  String deskSendDoneVia(String via) {
-    return 'Отправлено $via';
-  }
 
   @override
   String get deskE1PhSetLine => 'Ссылки, коды для личной оплаты и файлы';

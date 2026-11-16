@@ -121,7 +121,7 @@ void main() {
           (w) => w is EButton && w.label.startsWith('Send 25'),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpSent(tester);
       expect(wallet.sent.single.message, 'For rent');
       final txs = await tester.runAsync(() => wallet.transactions());
       expect(txs!.where((t) => t.message == 'For rent'), hasLength(1));

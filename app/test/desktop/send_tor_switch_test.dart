@@ -182,7 +182,7 @@ void main() {
     expect(find.descendant(of: find.byType(Dialog), matching: find.text(_l.sendRouteLinkHttps)), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.textContaining('Send 5'));
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.sent.single.method, TxMethod.http);
     expect(wallet.sent.single.to, _https);
   }, skip: !torBuilt);

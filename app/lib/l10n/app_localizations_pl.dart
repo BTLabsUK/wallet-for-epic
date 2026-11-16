@@ -17089,9 +17089,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get payOnItsWay => 'W drodze';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount od $name';
   }
@@ -17201,21 +17198,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSendNothingLeaves =>
       'Nic nie wychodzi, dopóki nie naciśniesz Wyślij. Potem nie da się tego cofnąć.';
-
-  @override
-  String deskSendLiveTo(String name) {
-    return 'W drodze do $name';
-  }
-
-  @override
-  String deskSendLiveAmountTo(String amount, String name) {
-    return '$amount EPIC do $name';
-  }
-
-  @override
-  String deskSendLiveAmount(String amount) {
-    return '$amount EPIC';
-  }
 
   @override
   String deskPayConfirmingComma(int count, int target) {
@@ -20177,16 +20159,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String deskSendLiveVia(String via) {
-    return 'W drodze $via';
-  }
-
-  @override
-  String deskSendLiveAmountVia(String amount, String via) {
-    return '$amount EPIC $via';
-  }
-
-  @override
   String deskTxCancelOutgoingViaBody(String amount, String via) {
     return '$amount EPIC $via. Nic jeszcze nie zapłacono: anulowanie jest bez opłaty i pewne.';
   }
@@ -22044,16 +22016,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetSynSystemNotices =>
       'powiadomienia, alert, komunikat, baner, wyskakujące, płatność otrzymana, pulpit';
-
-  @override
-  String deskSendDoneTo(String name) {
-    return 'Wysłano do $name';
-  }
-
-  @override
-  String deskSendDoneVia(String via) {
-    return 'Wysłano $via';
-  }
 
   @override
   String get deskE1PhSetLine => 'Linki, kody do płatności osobistych i pliki';

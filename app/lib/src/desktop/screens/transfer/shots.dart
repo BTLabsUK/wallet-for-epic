@@ -85,7 +85,7 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '16-send-review', title: 'Send, review', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042'), opensDialog: true),
   DeskShot(id: '16-send-review-narrow', title: 'Send, review at 800x700', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042'), width: 800, height: 700, opensDialog: true),
   DeskShot(id: '16b-send-sending', title: 'Send, sending', route: DeskRoute.send, arg: SendArgs(step: SendStep.sending, recipient: _anna, amount: '12.5', message: 'Invoice 0042'), opensDialog: true),
-  DeskShot(id: '16c-send-done', title: 'Send, done', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5')),
+  DeskShot(id: '16c-send-done', title: 'Send, Payment sent', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5'), opensDialog: true),
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
   // A pasted `epic:` payment request.
   DeskShot(id: '13s-send-code', title: 'Send, pasted payment request', route: DeskRoute.send, arg: SendArgs(code: _request, codeOrigin: CodeOrigin.paste)),

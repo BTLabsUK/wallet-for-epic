@@ -9,13 +9,16 @@ import 'package:epic_wallet/src/desktop/screens/transfer/contact_picker.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/l10n.dart' show englishStrings, localDayMonth;
+import 'package:epic_wallet/src/l10n.dart' show AppLocalizations, englishStrings, localDayMonth;
 import 'package:epic_wallet/src/models.dart' show PairingState;
 import 'package:epic_wallet/src/name_service/payment_refusals.dart';
 import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
+import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'review_password.dart';
 
 
 final _l = englishStrings;
@@ -28,12 +31,27 @@ class _Wallet extends MockDeskWallet {
   /// A send through a pairing fails (the mailbox did not take it).
   bool failPairing = false;
 
+  /// The slates of the payments sent through a pairing.
+  final Set<String> _paired = {};
+
   @override
-  Future<SendResult> send(SendRequest request) {
+  Future<SendResult> send(SendRequest request) async {
     sent.add(request);
-    if (failPairing && request.pairingId != null) return Future.value(const SendFailed('No answer through the pairing.'));
-    return super.send(request);
+    if (failPairing && request.pairingId != null) return const SendFailed('No answer through the pairing.');
+    final result = await super.send(request);
+    if (request.pairingId != null && result is SendDone) _paired.add(result.tx.slateId);
+    return result;
   }
+
+  /// As the core lists it: a payment sent through a pairing is sealed.
+  @override
+  Future<List<Tx>> transactions() async => [
+    for (final t in await super.transactions())
+      if (_paired.contains(t.slateId))
+        Tx(id: t.id, slateId: t.slateId, direction: t.direction, state: t.state, method: t.method, amount: t.amount, fee: t.fee, created: t.created, cancellable: t.cancellable, sealed: true)
+      else
+        t,
+  ];
 }
 
 /// Anna's pairing takes no payments.
@@ -70,7 +88,8 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: body)),
+        // With the app's strings: the seal badge of the Payment sent modal reads them.
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), localizationsDelegates: AppLocalizations.localizationsDelegates, home: Scaffold(body: body)),
       ),
     );
     await tester.pumpAndSettle();
@@ -97,9 +116,13 @@ void main() {
     await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC'));
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
     expect(wallet.sent.single.pairingId, 'pz');
     expect(wallet.sent.single.to, isNull);
+    // The Payment sent modal names Zoe, and the seal: a pairing's payment is a sealed one.
+    final modal = find.byKey(const ValueKey('payment-sent'));
+    expect(find.descendant(of: modal, matching: find.text('Zoe')), findsOneWidget);
+    expect(find.descendant(of: modal, matching: find.byKey(epic1SealedKey)), findsOneWidget);
   });
 
   testWidgets('keys changed: the reason and Check the words instead of the readout', (tester) async {
@@ -162,7 +185,7 @@ void main() {
       await tester.enterText(password, 'secret-pass');
       await tester.pump();
       await tester.tap(find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC'));
-      await tester.pumpAndSettle();
+      await pumpSent(tester);
     }
 
     /// Whether the address selector has Paired address selected.
@@ -252,7 +275,7 @@ void main() {
       await tester.enterText(password, 'secret-pass');
       await tester.pump();
       await tester.tap(find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC'));
-      await tester.pumpAndSettle();
+      await pumpSent(tester);
       expect(wallet.sent, hasLength(2));
       expect(wallet.sent.last.pairingId, isNull);
       expect(wallet.sent.last.to, anna.address);

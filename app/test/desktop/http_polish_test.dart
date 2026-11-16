@@ -9,7 +9,6 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart' show whoOf;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/desktop/widgets/pay_steps.dart' show DeskPaymentSteps;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:epic_wallet/src/send_reach.dart' show ReachResult, reachCheckForTest;
 import 'package:flutter/material.dart';
@@ -88,21 +87,22 @@ void main() {
       await tester.pumpAndSettle();
       await enterReviewPassword(tester);
       await tester.tap(find.textContaining(RegExp(r'^Send \d')));
-      await tester.pumpAndSettle();
+      await pumpSent(tester);
     }
 
-    // The result is the payment's live steps, not a line per method.
-    TxState stepsState(WidgetTester tester) => tester.widget<DeskPaymentSteps>(find.byType(DeskPaymentSteps)).tx.state;
+    // The result is the Payment sent modal: one line at the payment's state, not a line per method.
+    Finder now(String text) => find.descendant(of: find.byKey(const ValueKey('payment-sent-now')), matching: find.text(text));
 
-    testWidgets('an HTTP send shows its steps at posted', (tester) async {
+    testWidgets('an HTTP send shows the modal at posted, named by its method', (tester) async {
       await send(tester, const SendArgs(method: TxMethod.http, recipient: 'https://wallet.example.org', amount: '1'));
-      expect(stepsState(tester), TxState.posted);
+      expect(now(_l.deskPaySentPosted), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('payment-sent')), matching: find.text(_l.sendRouteLinkHttps)), findsOneWidget);
       expect(find.textContaining('Handed to Epicbox'), findsNothing);
     });
 
-    testWidgets('an Epicbox send shows its steps waiting for the recipient', (tester) async {
+    testWidgets('an Epicbox send shows the modal waiting for the recipient', (tester) async {
       await send(tester, const SendArgs(recipient: 'esTestAddressTestAddressTestAddressTestAddressTestAddress@epicbox.example', amount: '1'));
-      expect(stepsState(tester), TxState.waitingRecipient);
+      expect(now(_l.deskPaySentWaiting), findsOneWidget);
     });
   });
 

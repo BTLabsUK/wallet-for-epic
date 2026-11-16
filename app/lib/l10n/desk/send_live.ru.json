@@ -1,10 +1,3 @@
 {
-  "deskSendNothingLeaves": "Ничего не уходит, пока вы не нажмёте «Отправить». После этого вернуть нельзя.",
-  "deskSendLiveTo": "Идёт к {name}",
-  "deskSendLiveAmountTo": "{amount} EPIC — {name}",
-  "deskSendLiveAmount": "{amount} EPIC",
-  "deskSendLiveVia": "Идёт {via}",
-  "deskSendLiveAmountVia": "{amount} EPIC {via}",
-  "deskSendDoneTo": "Отправлено: {name}",
-  "deskSendDoneVia": "Отправлено {via}"
+  "deskSendNothingLeaves": "Ничего не уходит, пока вы не нажмёте «Отправить». После этого вернуть нельзя."
 }

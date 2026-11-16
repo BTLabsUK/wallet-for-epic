@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/link_support.dart';
+import 'review_password.dart';
 
 final _l = englishStrings;
 
@@ -202,7 +203,7 @@ void main() {
     await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, label));
-    await tester.pumpAndSettle();
+    await pumpSent(tester);
   }
 
   testWidgets('a paid link is recorded, and the payee can be saved as a contact', (tester) async {
@@ -214,7 +215,8 @@ void main() {
     expect(wallet.sends, 1);
     expect(wallet.linkPaid, hasLength(1));
     expect(wallet.linkMeta.linkPayments, hasLength(1), reason: 'kept under the payment slate id for the receipt line');
-    expect(find.byKey(const ValueKey('send-link-save-contact')), findsOneWidget);
+    // The Payment sent modal offers the payee as a contact.
+    expect(find.descendant(of: find.byKey(const ValueKey('payment-sent')), matching: find.byKey(const ValueKey('send-link-save-contact'))), findsOneWidget);
   });
 
   testWidgets('a changed wallet asks once more before the review', (tester) async {

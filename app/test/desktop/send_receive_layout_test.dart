@@ -9,9 +9,12 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/trust_ids.dart';
+import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'review_password.dart';
 
 final _l = englishStrings;
 
@@ -80,8 +83,13 @@ Future<void> _reviewAndSend(WidgetTester tester) async {
   await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
   await tester.pump();
   await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.semanticsId == TrustIds.sendConfirm));
-  await tester.pumpAndSettle();
+  await pumpSent(tester);
 }
+
+final _sent = find.byKey(const ValueKey('payment-sent'));
+
+/// [text] on the Payment sent modal's status line.
+Finder _now(String text) => find.descendant(of: find.byKey(const ValueKey('payment-sent-now')), matching: find.text(text));
 
 SendScreen _send() => SendScreen(arg: SendArgs(recipient: _to, amount: '1', epicboxHealth: ServiceHealth.ok));
 
@@ -94,27 +102,46 @@ void main() {
     await _reviewAndSend(tester);
     expect(wallet.sent, hasLength(1));
     expect(wallet.sent.single.method, TxMethod.epicbox);
-    // The page now shows the payment's steps, not the old "Sent" card.
-    expect(find.byKey(const ValueKey('send-done')), findsOneWidget);
-    expect(find.text(_l.deskSendDoneViaEpicbox), findsNothing);
+    // The Payment sent modal over the emptied form: the address short, the method, the amount.
+    expect(_sent, findsOneWidget);
+    expect(find.descendant(of: _sent, matching: find.text(_l.deskPaySentTitle)), findsOneWidget);
+    expect(find.descendant(of: _sent, matching: find.text(_l.methodEpicbox)), findsOneWidget);
+    expect(find.descendant(of: _sent, matching: find.byType(EShortAddress)), findsOneWidget);
+    expect(_now(_l.deskPaySentWaiting), findsOneWidget);
+    expect(find.descendant(of: _sent, matching: find.byKey(epic1SealedKey)), findsNothing, reason: 'a plain Epicbox payment is not sealed');
+    expect(find.byKey(const ValueKey('send-route-epicbox')), findsNothing, reason: 'To is empty again');
+
+    // Done closes it; the form is ready for the next payment.
+    await tester.tap(find.byKey(const ValueKey('payment-sent-done')));
+    await tester.pumpAndSettle();
+    expect(_sent, findsNothing);
+    expect(find.widgetWithText(EButton, _l.deskSendReview), findsOneWidget);
   });
 
-  testWidgets('a send its receiver declines ends the live card: Declined by the receiver, and why', (tester) async {
+  testWidgets('View in Activity in the modal goes to the payment', (tester) async {
+    await _pump(tester, _send());
+    await _reviewAndSend(tester);
+    await tester.tap(find.byKey(const ValueKey('payment-sent-activity')));
+    await tester.pumpAndSettle();
+    expect(_sent, findsNothing);
+    final at = _container.read(deskNavProvider);
+    expect(at.route, DeskRoute.activity);
+    expect(at.arg, isA<int>());
+  });
+
+  testWidgets('a send its receiver declines: the modal says Declined by the receiver', (tester) async {
     final wallet = await _pump(tester, _send());
     await _reviewAndSend(tester);
-    expect(find.byKey(const ValueKey('send-done')), findsOneWidget);
+    expect(_now(_l.deskPaySentWaiting), findsOneWidget);
     // The receiver's `declined` notice: the core cancelled the send, the list says so.
     wallet.declined = true;
     await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('send-done')), findsNothing);
-    expect(find.byKey(const ValueKey('send-cancelled')), findsOneWidget);
-    expect(find.text(_l.txStatusReceiverDeclined), findsOneWidget);
-    expect(find.text(_l.txDetailsReceiverDeclined), findsOneWidget);
-    expect(find.text(_l.payOnItsWay), findsNothing);
-    // The way on stays: a new send, and the row under Activity.
-    expect(find.widgetWithText(EButton, _l.deskSendNewSend), findsOneWidget);
+    expect(_now(_l.txStatusReceiverDeclined), findsOneWidget);
+    expect(find.descendant(of: _sent, matching: find.byType(ESpinner)), findsNothing);
+    // The way on stays: the row under Activity, and Done.
     expect(find.widgetWithText(EButton, _l.deskSendViewTx), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.commonDone), findsOneWidget);
   });
 
   testWidgets('Receive: the switch and the Payment files card with one Open for every file', (tester) async {

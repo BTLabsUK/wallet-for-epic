@@ -15580,9 +15580,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get payOnItsWay => '已发出';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount 来自 $name';
   }
@@ -15691,21 +15688,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendNothingLeaves => '按下“发送”之前不会发出任何内容。发出后无法撤回。';
-
-  @override
-  String deskSendLiveTo(String name) {
-    return '正在发往 $name';
-  }
-
-  @override
-  String deskSendLiveAmountTo(String amount, String name) {
-    return '$amount EPIC 给 $name';
-  }
-
-  @override
-  String deskSendLiveAmount(String amount) {
-    return '$amount EPIC';
-  }
 
   @override
   String deskPayConfirmingComma(int count, int target) {
@@ -18498,16 +18480,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskSendLiveVia(String via) {
-    return '正在$via发送';
-  }
-
-  @override
-  String deskSendLiveAmountVia(String amount, String via) {
-    return '$amount EPIC（$via）';
-  }
-
-  @override
   String deskTxCancelOutgoingViaBody(String amount, String via) {
     return '$amount EPIC，$via。尚未支付任何款项：取消免费且一定成功。';
   }
@@ -20248,16 +20220,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSynSystemNotices => '通知, 提醒, 横幅, 弹窗, 收到付款, 桌面通知';
-
-  @override
-  String deskSendDoneTo(String name) {
-    return '已发送给 $name';
-  }
-
-  @override
-  String deskSendDoneVia(String via) {
-    return '已$via发送';
-  }
 
   @override
   String get deskE1PhSetLine => '链接、面对面付款码和文件';

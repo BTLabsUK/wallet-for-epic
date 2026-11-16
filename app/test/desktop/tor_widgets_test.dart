@@ -95,7 +95,7 @@ void main() {
       expect(find.descendant(of: find.byKey(const ValueKey('send-review-via')), matching: find.text(_l.methodDirectTor)), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0\u00a0EPIC'));
-      await tester.pumpAndSettle();
+      await pumpSent(tester);
       expect(wallet.sent.single.method, TxMethod.tor);
       // The reader sends the clean form of the address, without the scheme.
       expect(wallet.sent.single.to, _onion.substring('http://'.length));

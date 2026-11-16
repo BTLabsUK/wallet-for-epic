@@ -254,7 +254,7 @@ void main() {
     '10-overview': ['g4.nav.overview', 'g4.nav.settings', 'g4.overview.refresh', 'g4.overview.available'],
     '13-send': ['g4.send.to', 'g4.send.amount', 'g4.send.max', 'g4.send.review'],
     '16-send-review': ['g4.send.password', 'g4.send.confirm'],
-    '16c-send-done': ['g4.send.another'],
+    '16c-send-done': ['g4.send.sent.activity', 'g4.send.sent.done'],
     '17-receive': ['g4.receive.address'],
     '22-settings-node': ['g4.server.node', 'g4.settings.section.node'],
     '22c-node-typed': ['g4.server.search', 'g4.server.node.add'],

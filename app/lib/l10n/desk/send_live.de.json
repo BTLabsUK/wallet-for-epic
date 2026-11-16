@@ -1,10 +1,3 @@
 {
-  "deskSendNothingLeaves": "Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen.",
-  "deskSendLiveTo": "Unterwegs zu {name}",
-  "deskSendLiveAmountTo": "{amount} EPIC an {name}",
-  "deskSendLiveAmount": "{amount} EPIC",
-  "deskSendLiveVia": "Unterwegs {via}",
-  "deskSendLiveAmountVia": "{amount} EPIC {via}",
-  "deskSendDoneTo": "Gesendet an {name}",
-  "deskSendDoneVia": "Gesendet {via}"
+  "deskSendNothingLeaves": "Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen."
 }
