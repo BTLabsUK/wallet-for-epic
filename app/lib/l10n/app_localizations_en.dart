@@ -12550,7 +12550,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msgChecking => 'Checking messages';
 
   @override
-  String get msgCheckFailed => 'The last message check failed';
+  String get msgCheckFailedPayments =>
+      'Can\'t reach Epicbox · payments may wait';
+
+  @override
+  String get msgCheckFailedContacts =>
+      'Can\'t reach contacts\' mailboxes · messages may wait';
+
+  @override
+  String get msgCheckFailedWhatPayments => 'Payments address on Epicbox';
+
+  @override
+  String get msgCheckFailedWhatContacts => 'Contacts\' mailboxes';
+
+  @override
+  String get msgCheckGroupFailed => 'Not reached';
 
   @override
   String get msgCheckedJustNow => 'Checked just now';

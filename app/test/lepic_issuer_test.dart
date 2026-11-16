@@ -733,7 +733,7 @@ void main() {
 
   group('message checks with Epicbox off', () {
     Future<void> fail(CheckSource source) => expectLater(
-      session.checks.run<int>(source, () async => throw StateError('relay down'), outcomeOf: (_) => const CheckOutcome()),
+      session.checks.run<int>(source, () async => throw StateError('relay down'), asked: true, outcomeOf: (_) => const CheckOutcome()),
       throwsStateError,
     );
 

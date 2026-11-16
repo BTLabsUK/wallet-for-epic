@@ -12993,8 +12993,21 @@ class AppLocalizationsPl extends AppLocalizations {
   String get msgChecking => 'Sprawdzanie wiadomości';
 
   @override
-  String get msgCheckFailed =>
-      'Ostatnie sprawdzenie wiadomości nie powiodło się';
+  String get msgCheckFailedPayments =>
+      'Brak połączenia z Epicbox · płatności mogą poczekać';
+
+  @override
+  String get msgCheckFailedContacts =>
+      'Brak połączenia ze skrzynkami kontaktów · wiadomości mogą poczekać';
+
+  @override
+  String get msgCheckFailedWhatPayments => 'Adres płatności na Epicbox';
+
+  @override
+  String get msgCheckFailedWhatContacts => 'Skrzynki kontaktów';
+
+  @override
+  String get msgCheckGroupFailed => 'Brak połączenia';
 
   @override
   String get msgCheckedJustNow => 'Sprawdzono przed chwilą';

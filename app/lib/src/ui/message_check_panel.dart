@@ -3,8 +3,10 @@
 /// row with a quiet icon, the headline ("Checked 2 min ago", live) and, under it, what the
 /// last check found in a few words. A tap unfolds the findings in three groups, Read, Waiting
 /// and Needs a look, each line with its own quiet icon; a tap folds them again. Nothing with a
-/// zero count shows; without findings the row has no chevron and does not open. The
-/// "could not be read" line opens the kept messages; the other lines are plain text.
+/// zero count shows; without findings the row has no chevron and does not open. A check that
+/// could not reach its server, when the user should hear of it, leads the details with why
+/// and a Retry. The "could not be read" line opens the kept messages; the other lines are
+/// plain text.
 library;
 
 import 'dart:async';
@@ -14,6 +16,7 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../message_checks.dart';
 import 'kept_messages_sheet.dart';
+import 'kit/kit_button.dart';
 import 'message_check_lines.dart';
 import 'theme/tokens.dart';
 
@@ -22,14 +25,18 @@ const Key messageCheckPanelKey = ValueKey('message-check-panel');
 const Key messageCheckRowKey = ValueKey('message-check-row');
 const Key messageCheckDetailsKey = ValueKey('message-check-details');
 const Key messageCheckKeptKey = ValueKey('message-check-kept');
+const Key messageCheckRetryKey = ValueKey('message-check-retry');
 
 /// How long the unfold takes; the fold takes the same.
 const Duration messageCheckUnfold = Duration(milliseconds: 220);
 
 class MessageCheckPanel extends StatefulWidget {
-  const MessageCheckPanel(this.check, {super.key, this.padding = EdgeInsets.zero, this.open = false});
+  const MessageCheckPanel(this.check, {super.key, this.padding = EdgeInsets.zero, this.open = false, this.onRetry});
 
   final MessageCheck check;
+
+  /// Runs the checks again, shown under what could not be reached; without it no Retry.
+  final Future<void> Function()? onRetry;
 
   /// Around the row and the details; the row's tap target fills it.
   final EdgeInsetsGeometry padding;
@@ -67,7 +74,7 @@ class _MessageCheckPanelState extends State<MessageCheckPanel> {
     final text = Theme.of(context).textTheme;
     final view = messageCheckView(l, widget.check);
     final headline = messageCheckHeadline(l, view, DateTime.now());
-    final summary = messageCheckSummary(l, view);
+    final summary = messageCheckSummary(l, view, now: DateTime.now());
     final still = MediaQuery.disableAnimationsOf(context);
     final duration = still ? Duration.zero : messageCheckUnfold;
     final canOpen = view.hasItems;
@@ -146,7 +153,7 @@ class _MessageCheckPanelState extends State<MessageCheckPanel> {
               duration: duration,
               switchInCurve: Curves.easeOutCubic,
               switchOutCurve: Curves.easeInCubic,
-              child: open ? _Details(key: messageCheckDetailsKey, view) : const SizedBox(width: double.infinity),
+              child: open ? _Details(key: messageCheckDetailsKey, view, onRetry: widget.onRetry) : const SizedBox(width: double.infinity),
             ),
           ),
         ],
@@ -156,13 +163,22 @@ class _MessageCheckPanelState extends State<MessageCheckPanel> {
 }
 
 /// The findings in their groups: a small heading per group, one line per finding with a quiet
-/// icon; a problem's icon is amber and its reason reads under it.
+/// icon; a problem's icon is amber and its reason reads under it. What could not be reached
+/// is red and ends with Retry.
 class _Details extends StatelessWidget {
-  const _Details(this.view, {super.key});
+  const _Details(this.view, {super.key, this.onRetry});
 
   final MessageCheckView view;
+  final Future<void> Function()? onRetry;
+
+  static Color _tone(BuildContext context, CheckGroup g) => switch (g) {
+    CheckGroup.unreached => context.tokens.risk,
+    CheckGroup.problems => context.tokens.warn,
+    CheckGroup.read || CheckGroup.waiting => context.tokens.dim,
+  };
 
   static IconData _icon(CheckItemKind kind) => switch (kind) {
+    CheckItemKind.unreachedPayments || CheckItemKind.unreachedContacts => Icons.cloud_off_outlined,
     CheckItemKind.read => Icons.mark_email_read_outlined,
     CheckItemKind.held => Icons.hourglass_empty,
     CheckItemKind.more => Icons.more_horiz,
@@ -185,7 +201,7 @@ class _Details extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 1),
-            child: Icon(_icon(i.kind), size: 18, color: g == CheckGroup.problems ? t.warn : t.dim),
+            child: Icon(_icon(i.kind), size: 18, color: _tone(context, g)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -225,7 +241,6 @@ class _Details extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     final text = Theme.of(context).textTheme;
     final groups = [for (final g in CheckGroup.values) if (view.of(g).isNotEmpty) g];
     return Padding(
@@ -240,10 +255,26 @@ class _Details extends StatelessWidget {
               padding: EdgeInsets.only(top: n == 0 ? 0 : 12, bottom: 4),
               child: Text(
                 checkGroupLabel(l, g).toUpperCase(),
-                style: text.labelSmall?.copyWith(color: g == CheckGroup.problems ? t.warn : t.dim, letterSpacing: 0.8),
+                style: text.labelSmall?.copyWith(color: _tone(context, g), letterSpacing: 0.8),
               ),
             ),
             for (final i in view.of(g)) _item(context, i, g),
+            if (g == CheckGroup.unreached && onRetry != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: KitButton(
+                    key: messageCheckRetryKey,
+                    label: l.commonRetry,
+                    kind: KitButtonKind.ghost,
+                    small: true,
+                    expand: false,
+                    icon: Icons.refresh_rounded,
+                    onPressed: () => unawaited(onRetry!()),
+                  ),
+                ),
+              ),
           ],
         ],
       ),

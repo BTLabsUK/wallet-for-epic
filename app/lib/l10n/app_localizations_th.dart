@@ -12245,7 +12245,21 @@ class AppLocalizationsTh extends AppLocalizations {
   String get msgChecking => 'กำลังตรวจสอบข้อความ';
 
   @override
-  String get msgCheckFailed => 'การตรวจสอบข้อความครั้งล่าสุดล้มเหลว';
+  String get msgCheckFailedPayments =>
+      'เชื่อมต่อ Epicbox ไม่ได้ · การชำระเงินอาจล่าช้า';
+
+  @override
+  String get msgCheckFailedContacts =>
+      'เชื่อมต่อกล่องข้อความของผู้ติดต่อไม่ได้ · ข้อความอาจล่าช้า';
+
+  @override
+  String get msgCheckFailedWhatPayments => 'ที่อยู่รับชำระเงินบน Epicbox';
+
+  @override
+  String get msgCheckFailedWhatContacts => 'กล่องข้อความของผู้ติดต่อ';
+
+  @override
+  String get msgCheckGroupFailed => 'เชื่อมต่อไม่ได้';
 
   @override
   String get msgCheckedJustNow => 'ตรวจสอบเมื่อสักครู่';

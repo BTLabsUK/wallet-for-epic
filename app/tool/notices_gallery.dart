@@ -51,7 +51,7 @@ enum _State {
     return switch (this) {
       checking => const MessageCheck(checking: true),
       never => const MessageCheck(),
-      failed => MessageCheck(failed: true, checkedAt: now.subtract(const Duration(minutes: 12))),
+      failed => MessageCheck(failures: [CheckFailure(source: CheckSource.drain, since: now.subtract(const Duration(minutes: 11)), error: StateError('gallery'))], checkedAt: now.subtract(const Duration(minutes: 12))),
       clean => MessageCheck(checkedAt: now.subtract(const Duration(minutes: 2))),
       read => MessageCheck(checkedAt: now.subtract(const Duration(seconds: 20)), outcome: const CheckOutcome(messages: 3)),
       behind => MessageCheck(checkedAt: now.subtract(const Duration(minutes: 1)), outcome: const CheckOutcome(messages: 3, capped: 1)),

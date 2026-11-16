@@ -15,7 +15,7 @@ import 'package:epic_wallet/src/relay_directory.dart' as dir;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/ui/home_status.dart';
-import 'package:epic_wallet/src/ui/message_check_panel.dart' show messageCheckRowKey;
+import 'package:epic_wallet/src/ui/message_check_panel.dart' show messageCheckRetryKey, messageCheckRowKey;
 import 'package:epic_wallet/src/ui/receive_screen.dart'
     show ReceiveTab, receiveTabProvider;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart' show ServerListSheet;
@@ -963,13 +963,33 @@ void main() {
       expect(inSheet('Checked just now'), findsOneWidget);
     });
 
-    testWidgets('a failed check says so', (tester) async {
+    testWidgets('a background check that failed once says nothing', (tester) async {
       final checks = make();
       await openSheet(tester, checks);
-      await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+      await expectLater(checks.run<int>(CheckSource.drain, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
       await settle(tester);
-      expect(inSheet('The last message check failed'), findsOneWidget);
+      expect(inSheet("Can't reach"), findsNothing);
+      expect(find.byIcon(Icons.error_outline), findsNothing);
+      // Its show-after timer would outlive the test.
+      checks.forget(CheckSource.drain);
+    });
+
+    testWidgets('a failure the user hears of names what may wait and opens to why and Retry', (tester) async {
+      final checks = make();
+      await openSheet(tester, checks);
+      await expectLater(
+        checks.run<int>(CheckSource.drain, () async => throw StateError('x'), asked: true, outcomeOf: (_) => const CheckOutcome()),
+        throwsStateError,
+      );
+      await settle(tester);
+      expect(inSheet("Can't reach Epicbox · payments may wait"), findsOneWidget);
       expect(inSheet('Checked just now'), findsNothing);
+      await tester.ensureVisible(find.byKey(messageCheckRowKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(messageCheckRowKey));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(inSheet('Payments address on Epicbox'), findsOneWidget);
+      expect(find.byKey(messageCheckRetryKey), findsOneWidget);
     });
 
     for (final MapEntry(key: line, value: outcome) in lines.entries) {

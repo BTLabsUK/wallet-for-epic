@@ -138,6 +138,7 @@ class DeskStatusPopover extends ConsumerWidget {
         if (address != null && address.isNotEmpty) facts.add((label: l.statusAddress, value: common.shortAddress(address, relay: false), mono: true));
         panel = DeskMessageCheckPanel(
           ref.watch(deskMessageCheckProvider).value ?? const MessageCheck(),
+          onRetry: () async => ref.read(deskApiProvider).messageChecks?.retry(),
           onOpenKept: () {
             close();
             final nav = deskNavigatorKey.currentContext;

@@ -12694,8 +12694,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get msgChecking => 'Nachrichten werden geprüft';
 
   @override
-  String get msgCheckFailed =>
-      'Die letzte Nachrichtenprüfung ist fehlgeschlagen';
+  String get msgCheckFailedPayments =>
+      'Epicbox nicht erreichbar · Zahlungen können warten';
+
+  @override
+  String get msgCheckFailedContacts =>
+      'Postfächer der Kontakte nicht erreichbar · Nachrichten können warten';
+
+  @override
+  String get msgCheckFailedWhatPayments => 'Zahlungsadresse auf Epicbox';
+
+  @override
+  String get msgCheckFailedWhatContacts => 'Postfächer der Kontakte';
+
+  @override
+  String get msgCheckGroupFailed => 'Nicht erreicht';
 
   @override
   String get msgCheckedJustNow => 'Gerade eben geprüft';

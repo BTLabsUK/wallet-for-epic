@@ -90,11 +90,20 @@ void main() {
     await _end(tester);
   });
 
-  testWidgets('a failed check says so', (tester) async {
+  testWidgets('a background check that failed once says nothing', (tester) async {
     final checks = await _openPopover(tester);
     await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
     await tester.pump();
-    expect(_inPopover('The last message check failed'), findsOneWidget);
+    expect(_inPopover("Can't reach contacts' mailboxes · messages may wait"), findsNothing);
+    checks.forget(CheckSource.collect);
+    await _end(tester);
+  });
+
+  testWidgets('a failed check the user asked for names what may wait', (tester) async {
+    final checks = await _openPopover(tester);
+    await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome(), asked: true), throwsStateError);
+    await tester.pump();
+    expect(_inPopover("Can't reach contacts' mailboxes · messages may wait"), findsOneWidget);
     expect(_inPopover('Checked just now'), findsNothing);
     await _end(tester);
   });

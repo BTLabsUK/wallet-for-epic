@@ -399,6 +399,7 @@ class ConnectionsSheet extends ConsumerWidget {
           const SizedBox(height: 8),
           MessageCheckPanel(
             ref.watch(messageCheckProvider).value ?? const MessageCheck(),
+            onRetry: () async => ref.read(sessionProvider)?.checks.retry(),
             padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 4, Kit.gutter + 4, 0),
           ),
         ],

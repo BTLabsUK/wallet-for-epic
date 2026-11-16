@@ -30,11 +30,69 @@ void main() {
     checks.dispose();
   });
 
-  test('a failure is kept and shown until a check ends well', () async {
-    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero);
-    await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
-    expect(checks.value.failed, isTrue);
+  test('a background failure is only logged; it shows once no check of its source ended well for failingShowAfter', () async {
+    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero, failingShowAfter: const Duration(milliseconds: 80));
+    await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), quiet: true, outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+    expect(checks.value.failed, isFalse, reason: 'the next tick runs by itself');
+    await expectLater(checks.run<int>(CheckSource.drain, () async => throw StateError('y'), outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+    expect(checks.value.failed, isFalse, reason: 'an open or resume is not a look the user asked for');
+    // No other check needed: the time running out shows it.
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    expect(checks.value.failures.map((f) => f.source), [CheckSource.drain, CheckSource.collect]);
+    await checks.run(CheckSource.drain, () async => 1, outcomeOf: (_) => const CheckOutcome());
+    expect(checks.value.failures.map((f) => f.source), [CheckSource.collect]);
     await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome());
+    expect(checks.value.failed, isFalse);
+    checks.dispose();
+  });
+
+  test('a failure keeps the time of the first one: failing on every tick still shows', () async {
+    var now = DateTime(2026, 1, 1, 12);
+    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero, clock: () => now);
+    Future<void> fail() => expectLater(checks.run<int>(CheckSource.drain, () async => throw StateError('x'), quiet: true, outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+    await fail();
+    now = now.add(const Duration(minutes: 9));
+    await fail();
+    expect(checks.value.failed, isFalse);
+    now = now.add(const Duration(minutes: 1));
+    await fail();
+    expect(checks.value.failures.single.since, DateTime(2026, 1, 1, 12));
+    checks.dispose();
+  });
+
+  test('a check the user asked for shows its failure at once, until a check ends well', () async {
+    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero);
+    await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), asked: true, outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+    expect(checks.value.failures.single.source, CheckSource.collect);
+    await expectLater(checks.run<int>(CheckSource.collect, () async => throw StateError('x'), quiet: true, outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+    expect(checks.value.failed, isTrue, reason: 'a tick failing again does not hide it');
+    await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome());
+    expect(checks.value.failed, isFalse);
+    checks.dispose();
+  });
+
+  test('Retry runs every check as asked: a failure shows at once; retry itself throws nothing', () async {
+    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero);
+    await checks.retry(); // No retrier yet: nothing runs.
+    var runs = 0;
+    checks.retrier = () async {
+      runs++;
+      await checks.run<int>(CheckSource.drain, () async => throw StateError('x'), outcomeOf: (_) => const CheckOutcome());
+    };
+    await checks.retry();
+    expect(runs, 1);
+    expect(checks.value.failures.single.source, CheckSource.drain);
+    checks.retrier = () => checks.run(CheckSource.drain, () async => 1, outcomeOf: (_) => const CheckOutcome());
+    await checks.retry();
+    expect(checks.value.failed, isFalse);
+    checks.dispose();
+  });
+
+  test('forget drops a failure not shown yet, and its timer', () async {
+    final checks = MessageChecks(showAfter: const Duration(seconds: 5), digestGrace: Duration.zero, failingShowAfter: const Duration(milliseconds: 60));
+    await expectLater(checks.run<int>(CheckSource.drain, () async => throw StateError('x'), quiet: true, outcomeOf: (_) => const CheckOutcome()), throwsStateError);
+    checks.forget(CheckSource.drain);
+    await Future<void>.delayed(const Duration(milliseconds: 120));
     expect(checks.value.failed, isFalse);
     checks.dispose();
   });
@@ -56,7 +114,15 @@ void main() {
       '1 message could not be read',
       'Kept on this device. Open it to try again or remove it.',
     ]);
-    expect(messageCheckLines(l, const MessageCheck(failed: true), now: now), ['The last message check failed']);
+    final drainDown = MessageCheck(
+      checkedAt: DateTime(2026, 1, 1, 12, 5),
+      failures: [CheckFailure(source: CheckSource.drain, since: DateTime(2026, 1, 1, 13), error: StateError('x'))],
+    );
+    expect(messageCheckLines(l, drainDown, now: now).take(2), ["Can't reach Epicbox · payments may wait", 'Payments address on Epicbox']);
+    expect(messageCheckSummary(l, messageCheckView(l, drainDown), now: now), keepWhole('Checked 2 h ago'));
+    expect(messageCheckView(l, drainDown).hasItems, isTrue, reason: 'the row opens to why and Retry');
+    final contactsDown = MessageCheck(failures: [CheckFailure(source: CheckSource.collect, since: now, error: StateError('x'))]);
+    expect(messageCheckLines(l, contactsDown, now: now).take(2), ["Can't reach contacts' mailboxes · messages may wait", "Contacts' mailboxes"]);
     expect(messageCheckLines(l, const MessageCheck(outcome: CheckOutcome(messages: 3, failed: 1, capped: 1)), now: now), [
       'Not checked yet',
       '3 messages read',

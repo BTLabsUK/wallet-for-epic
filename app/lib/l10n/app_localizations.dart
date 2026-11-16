@@ -19717,11 +19717,35 @@ abstract class AppLocalizations {
   /// **'Checking messages'**
   String get msgChecking;
 
-  /// Status line when the last check of the wallet's messages ended with an error.
+  /// Message check status headline: checks of the payments address on Epicbox kept failing (or a Retry failed), so payments sent to this wallet may wait until it is reached.
   ///
   /// In en, this message translates to:
-  /// **'The last message check failed'**
-  String get msgCheckFailed;
+  /// **'Can\'t reach Epicbox · payments may wait'**
+  String get msgCheckFailedPayments;
+
+  /// Message check status headline: checks of the paired contacts' mailboxes kept failing (or a Retry failed), so their messages may wait.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach contacts\' mailboxes · messages may wait'**
+  String get msgCheckFailedContacts;
+
+  /// Message check details, a failure line: what could not be reached, the payments address on Epicbox. The error follows under it.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments address on Epicbox'**
+  String get msgCheckFailedWhatPayments;
+
+  /// Message check details, a failure line: what could not be reached, the paired contacts' mailboxes. The error follows under it.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts\' mailboxes'**
+  String get msgCheckFailedWhatContacts;
+
+  /// Message check details: small group heading over the checks that could not reach their server.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reached'**
+  String get msgCheckGroupFailed;
 
   /// Status: the last check of the wallet's messages ended less than a minute ago.
   ///

@@ -4,8 +4,10 @@
 /// one row: a quiet icon, the headline ("Checked 2 min ago", live) and what the last check
 /// found in a few words; a click, or the chevron, unfolds the findings in three groups, Read,
 /// Waiting and Needs a look. Zero counts never show; without findings the row has no chevron.
-/// Only a finding with something to do is a button: the messages not read open their list
-/// ([onOpenKept]); the others say what happened and show no click cursor.
+/// A check that could not reach its server, when the user should hear of it, leads the details
+/// with why and a Retry ([onRetry]). Only a finding with something to do is a button: the
+/// messages not read open their list ([onOpenKept]); the others say what happened and show no
+/// click cursor.
 library;
 
 import 'dart:async';
@@ -22,11 +24,15 @@ const Key deskMessageCheckPanelKey = ValueKey('desk-message-check-panel');
 const Key deskMessageCheckRowKey = ValueKey('desk-message-check-row');
 const Key deskMessageCheckDetailsKey = ValueKey('desk-message-check-details');
 const Key deskMessageCheckKeptKey = ValueKey('desk-message-check-kept');
+const Key deskMessageCheckRetryKey = ValueKey('desk-message-check-retry');
 
 class DeskMessageCheckPanel extends StatefulWidget {
-  const DeskMessageCheckPanel(this.check, {super.key, this.open = false, this.onOpenKept});
+  const DeskMessageCheckPanel(this.check, {super.key, this.open = false, this.onOpenKept, this.onRetry});
 
   final MessageCheck check;
+
+  /// Runs the checks again, shown under what could not be reached; without it no Retry.
+  final Future<void> Function()? onRetry;
 
   /// Opens the messages not read; without it their line is plain text.
   final VoidCallback? onOpenKept;
@@ -57,6 +63,7 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
   }
 
   static IconData _icon(CheckItemKind kind) => switch (kind) {
+    CheckItemKind.unreachedPayments || CheckItemKind.unreachedContacts => EIcons.error,
     CheckItemKind.read => EIcons.invoice,
     CheckItemKind.held => EIcons.sand,
     CheckItemKind.more => EIcons.dots,
@@ -72,7 +79,7 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
     final ts = context.ts;
     final view = messageCheckView(l, widget.check);
     final headline = messageCheckHeadline(l, view, DateTime.now());
-    final summary = messageCheckSummary(l, view);
+    final summary = messageCheckSummary(l, view, now: DateTime.now());
     final canOpen = view.hasItems;
     final open = canOpen && _open;
     final still = MediaQuery.disableAnimationsOf(context);
@@ -145,11 +152,22 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
                     padding: EdgeInsets.only(top: n == 0 ? 0 : Sp.x3, bottom: Sp.x1),
                     child: Text(
                       checkGroupLabel(l, g).toUpperCase(),
-                      style: ts.caption.copyWith(color: g == CheckGroup.problems ? c.warn : c.dim, letterSpacing: 0.8, fontWeight: FontWeight.w600),
+                      style: ts.caption.copyWith(color: _tone(c, g), letterSpacing: 0.8, fontWeight: FontWeight.w600),
                     ),
                   ),
                   for (final i in view.of(g))
                     _item(context, i, g),
+                  if (g == CheckGroup.unreached && widget.onRetry != null)
+                    Padding(
+                      padding: EdgeInsets.only(top: Sp.x1),
+                      child: EButton(
+                        key: deskMessageCheckRetryKey,
+                        label: l.commonRetry,
+                        icon: EIcons.refresh,
+                        size: EBtnSize.inline,
+                        onPressed: () => unawaited(widget.onRetry!()),
+                      ),
+                    ),
                 ],
               ],
             ),
@@ -158,6 +176,12 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
       ],
     );
   }
+
+  static Color _tone(DeskColors c, CheckGroup g) => switch (g) {
+    CheckGroup.unreached => c.risk,
+    CheckGroup.problems => c.warn,
+    CheckGroup.read || CheckGroup.waiting => c.dim,
+  };
 
   Widget _item(BuildContext context, CheckItem i, CheckGroup g) {
     final c = context.dc;
@@ -170,7 +194,7 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
         children: [
           Padding(
             padding: EdgeInsets.only(top: 2.u),
-            child: Icon(_icon(i.kind), size: Ctl.iconSm, color: g == CheckGroup.problems ? c.warn : c.dim),
+            child: Icon(_icon(i.kind), size: Ctl.iconSm, color: _tone(c, g)),
           ),
           SizedBox(width: Sp.x2),
           Expanded(

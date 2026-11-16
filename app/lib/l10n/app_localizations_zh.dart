@@ -11835,7 +11835,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get msgChecking => '正在检查消息';
 
   @override
-  String get msgCheckFailed => '上次消息检查失败';
+  String get msgCheckFailedPayments => '无法连接 Epicbox · 付款可能会延迟';
+
+  @override
+  String get msgCheckFailedContacts => '无法连接联系人的信箱 · 消息可能会延迟';
+
+  @override
+  String get msgCheckFailedWhatPayments => 'Epicbox 上的收款地址';
+
+  @override
+  String get msgCheckFailedWhatContacts => '联系人的信箱';
+
+  @override
+  String get msgCheckGroupFailed => '无法连接';
 
   @override
   String get msgCheckedJustNow => '刚刚检查过';

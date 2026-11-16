@@ -102,46 +102,108 @@ class CheckOutcome {
 /// Which check a run was.
 enum CheckSource { drain, collect }
 
+/// A check of [source] that keeps failing, as the status shows it: since when no check of it
+/// ended well, and the last error.
+class CheckFailure {
+  const CheckFailure({required this.source, required this.since, required this.error});
+
+  final CheckSource source;
+
+  /// The first failure after the last check that ended well.
+  final DateTime since;
+
+  /// What the last run threw.
+  final Object error;
+
+  @override
+  int get hashCode => Object.hash(source, since, error);
+
+  @override
+  bool operator ==(Object other) => other is CheckFailure && source == other.source && since == other.since && error == other.error;
+}
+
 /// The state the status shows: a check running for longer than the show delay, when the last
-/// one ended well, whether the last one failed, and what the checks found.
+/// one ended well, the failures worth the user's notice, and what the checks found.
 class MessageCheck {
-  const MessageCheck({this.checking = false, this.checkedAt, this.failed = false, this.outcome = const CheckOutcome()});
+  const MessageCheck({this.checking = false, this.checkedAt, this.failures = const [], this.outcome = const CheckOutcome()});
 
   final bool checking;
 
   /// When a check last ended well; null before the first.
   final DateTime? checkedAt;
 
-  /// The last check of some kind failed.
-  final bool failed;
+  /// The checks that failed where the user asked for them, or that kept failing for
+  /// [MessageChecks.failingShowAfter]; in [CheckSource] order. A background check that failed
+  /// once is only logged: the next one runs by itself.
+  final List<CheckFailure> failures;
 
   /// The last drain's counts and the last collect's, added.
   final CheckOutcome outcome;
 
+  /// Some check failed in a way the user should hear about.
+  bool get failed => failures.isNotEmpty;
+
   @override
-  int get hashCode => Object.hash(checking, checkedAt, failed, outcome);
+  int get hashCode => Object.hash(checking, checkedAt, Object.hashAll(failures), outcome);
 
   @override
   bool operator ==(Object other) =>
-      other is MessageCheck && checking == other.checking && checkedAt == other.checkedAt && failed == other.failed && outcome == other.outcome;
+      other is MessageCheck &&
+      checking == other.checking &&
+      checkedAt == other.checkedAt &&
+      _sameList(failures, other.failures) &&
+      outcome == other.outcome;
+}
+
+bool _sameList<T>(List<T> a, List<T> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
+/// A source's failures since its last good check.
+class _Failing {
+  _Failing(this.since, this.error, this.asked);
+
+  final DateTime since;
+  Object error;
+
+  /// A run the user asked for (a Retry) failed: it shows at once.
+  bool asked;
 }
 
 /// Keeps the [MessageCheck] of one wallet session and tells its listeners when it changes.
 class MessageChecks {
-  MessageChecks({required this.showAfter, required Duration digestGrace, Future<void> Function()? settle, DateTime Function()? clock})
-    : notices = NoticeBatch(grace: digestGrace, settle: settle),
-      _now = clock ?? DateTime.now;
+  MessageChecks({
+    required this.showAfter,
+    required Duration digestGrace,
+    this.failingShowAfter = const Duration(minutes: 10),
+    Future<void> Function()? settle,
+    DateTime Function()? clock,
+  }) : notices = NoticeBatch(grace: digestGrace, settle: settle),
+       _now = clock ?? DateTime.now;
 
   /// A check shows as running only after it has run this long.
   final Duration showAfter;
+
+  /// A check that failed in the background shows as failed once no check of its source has
+  /// ended well for this long: by then payments or messages may be waiting.
+  final Duration failingShowAfter;
+
+  /// Runs every check again as one the user asked for: set by the session, called by Retry.
+  Future<void> Function()? retrier;
 
   /// The notices held while a check runs, quiet ones too: one result per run.
   final NoticeBatch notices;
   final DateTime Function() _now;
   final StreamController<MessageCheck> _changes = StreamController<MessageCheck>.broadcast();
   final Map<CheckSource, CheckOutcome> _outcomes = {};
-  final Set<CheckSource> _failed = {};
+  final Map<CheckSource, _Failing> _failing = {};
   Timer? _timer;
+  Timer? _failingTimer;
+  int _asking = 0;
   int _active = 0;
   bool _showing = false;
   DateTime? _checkedAt;
@@ -150,19 +212,34 @@ class MessageChecks {
   MessageCheck get value => _value;
   Stream<MessageCheck> get stream => _changes.stream;
 
-  /// Runs [body] as one check of [source]. [outcomeOf] reads its result. A failure marks the
-  /// check failed and is thrown again. A [quiet] run (a timer's tick) never shows "checking".
-  Future<T> run<T>(CheckSource source, Future<T> Function() body, {required CheckOutcome Function(T result) outcomeOf, bool quiet = false}) async {
+  /// Runs [body] as one check of [source]. [outcomeOf] reads its result. A failure is thrown
+  /// again; it shows at once only when the user asked for the run ([asked], or inside
+  /// [retry]), else only after [failingShowAfter] without a good check of [source]. A [quiet]
+  /// run (a timer's tick) never shows "checking".
+  Future<T> run<T>(
+    CheckSource source,
+    Future<T> Function() body, {
+    required CheckOutcome Function(T result) outcomeOf,
+    bool quiet = false,
+    bool asked = false,
+  }) async {
+    final byUser = asked || _asking > 0;
     notices.begin();
     if (!quiet) _begin();
     try {
       final result = await body();
       _outcomes[source] = outcomeOf(result);
-      _failed.remove(source);
+      _failing.remove(source);
       _checkedAt = _now();
       return result;
-    } on Object {
-      _failed.add(source);
+    } on Object catch (error) {
+      final f = _failing[source];
+      if (f == null) {
+        _failing[source] = _Failing(_now(), error, byUser);
+      } else {
+        f.error = error;
+        f.asked = f.asked || byUser;
+      }
       rethrow;
     } finally {
       if (!quiet) _end();
@@ -171,11 +248,26 @@ class MessageChecks {
     }
   }
 
+  /// Runs every check again through [retrier], each as one the user asked for: a failure
+  /// shows at once. Throws nothing: the failures are in [value].
+  Future<void> retry() async {
+    final again = retrier;
+    if (again == null) return;
+    _asking++;
+    try {
+      await again();
+    } on Object {
+      // Kept in the failures.
+    } finally {
+      _asking--;
+    }
+  }
+
   /// Drops what the last check of [source] found and whether it failed: the check no longer
   /// runs (its method was turned off).
   void forget(CheckSource source) {
     final had = _outcomes.remove(source) != null;
-    if (_failed.remove(source) || had) _publish();
+    if (_failing.remove(source) != null || had) _publish();
   }
 
   /// Sets how many messages the wallet keeps unread, after the user tried them again or
@@ -219,10 +311,27 @@ class MessageChecks {
   }
 
   void _publish() {
+    final now = _now();
+    _failingTimer?.cancel();
+    _failingTimer = null;
+    DateTime? nextShow;
+    final shown = <CheckFailure>[];
+    for (final source in CheckSource.values) {
+      final f = _failing[source];
+      if (f == null) continue;
+      final showAt = f.since.add(failingShowAfter);
+      if (f.asked || !now.isBefore(showAt)) {
+        shown.add(CheckFailure(source: source, since: f.since, error: f.error));
+      } else if (nextShow == null || showAt.isBefore(nextShow)) {
+        nextShow = showAt;
+      }
+    }
+    // A failure not shown yet shows when its time is up, with no other check needed.
+    if (nextShow != null && !_changes.isClosed) _failingTimer = Timer(nextShow.difference(now), _publish);
     final next = MessageCheck(
       checking: _showing,
       checkedAt: _checkedAt,
-      failed: _failed.isNotEmpty,
+      failures: shown,
       outcome: _outcomes.values.fold(const CheckOutcome(), (a, b) => a + b),
     );
     if (next == _value) return;
@@ -232,6 +341,7 @@ class MessageChecks {
 
   void dispose() {
     _timer?.cancel();
+    _failingTimer?.cancel();
     notices.dispose();
     _changes.close();
   }

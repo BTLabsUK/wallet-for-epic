@@ -1704,6 +1704,15 @@ class LepicWalletSession
     // Both checks go over Epicbox: once it is off (its switch, Node only, Kill switch), what
     // they last found or failed is not shown.
     _gateWatch = [NetGate.epicboxSwitch.listen((_) => _forgetChecksOff()), NetGate.changes.listen((_) => _forgetChecksOff())];
+    // Retry: the drain and a full look at the contacts, each failure shown at once.
+    checks.retrier = () async {
+      try {
+        await drainPayments();
+      } on Object catch (error) {
+        logWarn('invoices', 'payments drain failed: ${error.runtimeType}');
+      }
+      if (_pairing.supported) await _pairing.collect(trigger: PairingCollectTrigger.pull);
+    };
   }
 
   late final List<StreamSubscription<Object?>> _gateWatch;

@@ -12967,7 +12967,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get msgChecking => 'Проверка сообщений';
 
   @override
-  String get msgCheckFailed => 'Последняя проверка сообщений не удалась';
+  String get msgCheckFailedPayments =>
+      'Нет связи с Epicbox · платежи могут подождать';
+
+  @override
+  String get msgCheckFailedContacts =>
+      'Нет связи с ящиками контактов · сообщения могут подождать';
+
+  @override
+  String get msgCheckFailedWhatPayments => 'Адрес для платежей на Epicbox';
+
+  @override
+  String get msgCheckFailedWhatContacts => 'Ящики контактов';
+
+  @override
+  String get msgCheckGroupFailed => 'Нет связи';
 
   @override
   String get msgCheckedJustNow => 'Проверено только что';

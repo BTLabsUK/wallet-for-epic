@@ -16697,9 +16697,25 @@
   "@msgChecking": {
     "description": "Status line while the wallet reads its messages (payments address and contacts) and the check takes a moment."
   },
-  "msgCheckFailed": "The last message check failed",
-  "@msgCheckFailed": {
-    "description": "Status line when the last check of the wallet's messages ended with an error."
+  "msgCheckFailedPayments": "Can't reach Epicbox · payments may wait",
+  "@msgCheckFailedPayments": {
+    "description": "Message check status headline: checks of the payments address on Epicbox kept failing (or a Retry failed), so payments sent to this wallet may wait until it is reached."
+  },
+  "msgCheckFailedContacts": "Can't reach contacts' mailboxes · messages may wait",
+  "@msgCheckFailedContacts": {
+    "description": "Message check status headline: checks of the paired contacts' mailboxes kept failing (or a Retry failed), so their messages may wait."
+  },
+  "msgCheckFailedWhatPayments": "Payments address on Epicbox",
+  "@msgCheckFailedWhatPayments": {
+    "description": "Message check details, a failure line: what could not be reached, the payments address on Epicbox. The error follows under it."
+  },
+  "msgCheckFailedWhatContacts": "Contacts' mailboxes",
+  "@msgCheckFailedWhatContacts": {
+    "description": "Message check details, a failure line: what could not be reached, the paired contacts' mailboxes. The error follows under it."
+  },
+  "msgCheckGroupFailed": "Not reached",
+  "@msgCheckGroupFailed": {
+    "description": "Message check details: small group heading over the checks that could not reach their server."
   },
   "msgCheckedJustNow": "Checked just now",
   "@msgCheckedJustNow": {
