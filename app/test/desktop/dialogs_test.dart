@@ -3,6 +3,7 @@
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -14,6 +15,34 @@ void main() {
     // The dialog takes the focus a frame later (Esc closes it).
     await tester.pump(const Duration(milliseconds: 1));
   }
+
+  testWidgets('a footer whose label does not fit its slot stacks, no label cut', (tester) async {
+    Future<void> check(String back, String no, String yes, {required bool stacked}) async {
+      await pump(
+        tester,
+        EDialog(
+          title: 'T',
+          size: DialogWidth.wide,
+          actions: [
+            EButton(label: back, onPressed: () {}),
+            EButton(label: no, onPressed: () {}),
+            EButton.primary(label: yes, onPressed: () {}),
+          ],
+        ),
+      );
+      for (final l in [back, no, yes]) {
+        final p = tester.renderObject<RenderParagraph>(find.text(l));
+        expect(p.didExceedMaxLines, isFalse, reason: l);
+      }
+      final ys = {for (final l in [back, no, yes]) tester.getCenter(find.text(l)).dy};
+      if (stacked) expect(ys.length, 3, reason: no);
+    }
+
+    await check('Back', 'They do not match', 'They match', stacked: true);
+    await check('Zurück', 'Sie stimmen nicht überein', 'Sie stimmen überein', stacked: true);
+    await check('Wstecz', 'Nie zgadzają się', 'Zgadzają się', stacked: false);
+    await check('返回', '不一致', '一致', stacked: false);
+  });
 
   testWidgets('orders the footer, keeps one filled primary and one height', (tester) async {
     await pump(

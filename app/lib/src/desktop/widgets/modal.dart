@@ -156,6 +156,32 @@ class EModalButtons extends StatelessWidget {
     ];
   }
 
+  /// Whether a button's label is wider than the room in its slot (width less padding, edge
+  /// and the room a spinner or icon takes).
+  static bool _cutOff(BuildContext context, List<Widget> actions, List<Widget> buttons, List<double> widths) {
+    final base = DefaultTextStyle.of(context).style;
+    final scaler = MediaQuery.textScalerOf(context);
+    for (final (i, b) in buttons.indexed) {
+      final w = b is EDialogActions ? b.child : b;
+      if (w is! EButton) continue;
+      final painter = TextPainter(
+        text: TextSpan(
+          text: w.label,
+          style: base.merge(TextStyle(fontSize: Fs.md, fontWeight: FontWeight.w600, height: 1.2)),
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final extra = (w.icon != null || w.busy) ? 18.u + Sp.x2 : 0.0;
+      final room = widths[i] - 2 * EButton.padFor(EBtnSize.md) - 2 - extra;
+      final needed = painter.width;
+      painter.dispose();
+      if (needed > room) return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final buttons = ordered(actions);
@@ -168,6 +194,25 @@ class EModalButtons extends StatelessWidget {
         final unit = floor((box.maxWidth - gap * (last - 1)) / (last == 1 ? 1 : last - 1 + 1.35));
         final main = last == 1 ? unit : floor(box.maxWidth - gap * (last - 1) - unit * (last - 1));
         final above = first == 0 ? 0.0 : floor((box.maxWidth - gap * (first - 1)) / first);
+        // A label that does not fit its slot stacks the whole footer, one full-width button per
+        // line, the main action on top (as the phone's check page), so no label is cut.
+        final widths = [
+          for (var i = 0; i < buttons.length; i++) i < first ? above : (i == buttons.length - 1 ? main : unit),
+        ];
+        if (_cutOff(context, actions, buttons, widths)) {
+          return FocusTraversalGroup(
+            policy: OrderedTraversalPolicy(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, b) in buttons.reversed.indexed) ...[
+                  if (i > 0) SizedBox(height: gap),
+                  EButtonFill(child: b),
+                ],
+              ],
+            ),
+          );
+        }
         // One group: a footer may set its own Tab order (FocusTraversalOrder on an action).
         return FocusTraversalGroup(
           policy: OrderedTraversalPolicy(),
