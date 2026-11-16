@@ -26,7 +26,7 @@ abstract class DeskSystemNotifier {
 
   /// Shows [title] over [body]; [payload] comes back through [onTap] when it is clicked.
   /// Returns whether it was shown (false: refused by the user, or no notification service).
-  Future<bool> show({required String title, required String body, required String payload, String openLabel = 'Open'});
+  Future<bool> show({required String title, required String body, required String payload, required String openLabel});
 
   /// Called with a notification's payload when the user clicks it.
   set onTap(void Function(String? payload)? run);
@@ -37,7 +37,7 @@ class NoSystemNotifier extends DeskSystemNotifier {
   const NoSystemNotifier();
 
   @override
-  Future<bool> show({required String title, required String body, required String payload, String openLabel = 'Open'}) async => false;
+  Future<bool> show({required String title, required String body, required String payload, required String openLabel}) async => false;
 
   @override
   set onTap(void Function(String? payload)? run) {}
@@ -72,7 +72,7 @@ class PluginSystemNotifier extends DeskSystemNotifier {
           // Permission is asked for at the first notification (below), not here.
           macOS: DarwinInitializationSettings(requestAlertPermission: false, requestSoundPermission: false, requestBadgePermission: false),
           windows: WindowsInitializationSettings(
-            appName: 'BT Wallet',
+            appName: 'BT Wallet', // l10n-ok: the app's product name
             appUserModelId: 'uk.btlabs.epiccash.desktop',
             guid: '6f3c2c52-1d0e-4a57-9f2b-7c1a5d8e4b90',
           ),
@@ -91,7 +91,7 @@ class PluginSystemNotifier extends DeskSystemNotifier {
   }
 
   @override
-  Future<bool> show({required String title, required String body, required String payload, String openLabel = 'Open'}) async {
+  Future<bool> show({required String title, required String body, required String payload, required String openLabel}) async {
     final ready = await (_ready ??= _init(openLabel));
     if (!ready) return false;
     try {
