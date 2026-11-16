@@ -6,7 +6,6 @@ import 'package:epic_wallet/src/desktop/app/desk_window.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/system_notice.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/models.dart' show formatEpicL;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -23,7 +22,7 @@ class _Notifier extends DeskSystemNotifier {
   void Function(String? payload)? tap;
 
   @override
-  Future<bool> show({required String title, required String body, required String payload, String openLabel = 'Open'}) async {
+  Future<bool> show({required String title, required String body, required String payload, required String openLabel}) async {
     shown.add((title: title, body: body, payload: payload));
     return true;
   }

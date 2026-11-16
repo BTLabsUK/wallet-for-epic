@@ -63,6 +63,11 @@ lepic-flutter/lib/src/rust/api/types.dart	node\.example:3413
 lepic/crates/lepic-cli/src/app_config.rs	"epicbox\.epiccash\.com"
 lepic/crates/lepic-cli/src/settings_file.rs	"epicbox\.(epiccash\.com|btlabs\.uk)"
 
+# LEPIC CLI tests that check the shipped list of public nodes and the ports in it (assertions in
+# #[cfg(test)] modules, never dialled).
+lepic/crates/lepic-cli/src/settings_file.rs	https://(node\.btlabs\.uk|node\.epiccash\.com|node\.epicnet\.us|epic\.stackwallet\.com)
+lepic/crates/lepic-cli/src/shell/node.rs	https://(node\.btlabs\.uk|node\.epiccash\.com|node\.epicnet\.us|epic\.stackwallet\.com)|node\.example:3413
+
 # A doc comment's example of a LAN address (lanNetworkKey's input), never connected to.
 app/lib/src/phone_http.dart	192\.168\.1\.20:3415
 
