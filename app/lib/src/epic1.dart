@@ -48,8 +48,8 @@ class Epic1Host {
   /// The host is in the wallet's relay list: no "Send through this server?" for it.
   final bool inRelayList;
 
-  /// `host` alone, or `host:port`, as the UI shows it.
-  String get label => '$host:$port';
+  /// `host` alone for port 443, otherwise `host:port`, as the UI shows it.
+  String get label => port == 443 ? host : '$host:$port';
 
   @override
   bool operator ==(Object other) =>
@@ -87,8 +87,8 @@ class Epic1LinkInfo {
   final String? message;
   final String? label;
 
-  /// The relays the payment tries, in order. One not [Epic1Host.inRelayList] asks "Send
-  /// through this server?" first, then the pay goes with `hostsOk: true`.
+  /// The relays the payment tries, in order. One the app does not know (`epic1HostKnown`)
+  /// asks "Send through this server?" first, then the pay goes with `hostsOk: true`.
   final List<Epic1Host> hosts;
 }
 

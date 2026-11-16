@@ -239,6 +239,9 @@ const List<SettingsKey> settingsKeys = [
   // (`plain_http_nodes.dart`); left out while there is none.
   SettingsKey('node.plain_http', TextListKind(checkNodeAddress), byDefault: <String>[]),
   SettingsKey('epicbox.servers', TextListKind(checkEpicboxServer)),
+  // The relays of epic1 links and codes the user pressed "Use server" for (`epic1_hosts.dart`);
+  // left out while there is none.
+  SettingsKey('epicbox.accepted', TextListKind(checkEpicboxServer), byDefault: <String>[]),
   SettingsKey('online.status_site', BoolKind()),
   SettingsKey('online.update_check', BoolKind()),
   SettingsKey('online.price', BoolKind()),
@@ -262,6 +265,7 @@ const Set<String> retiredSettingsTables = {'donate'};
 const Map<String, List<String>> keyComments = {
   'online.announcements': ['# Messages from BT Labs (Settings › Advanced › Announcements). Absent = on.'],
   'node.plain_http': ['# Nodes at a shared address (100.64.x.x: Tailscale) you agreed to reach over plain, unencrypted http.'],
+  'epicbox.accepted': ['# Servers of payment links and codes you agreed to send through ("Use server").'],
   'network.mode': ['# Network mode: tor_only, node_only or kill_switch (Settings › Advanced › Network). Absent = normal.'],
 };
 

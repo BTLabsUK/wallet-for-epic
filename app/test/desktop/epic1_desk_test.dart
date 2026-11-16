@@ -8,7 +8,9 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show 
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsArgs;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/epic1.dart';
+import 'package:epic_wallet/src/epic1_hosts.dart' show acceptedRelaysIn;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show HostSettings, hostSettings;
 import 'package:epic_wallet/src/ui/epic1/epic1_sealed.dart' show epic1SealedKey;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,6 +102,11 @@ Future<void> _enter(WidgetTester tester, String key, String text) async {
 bool _switchOn(WidgetTester tester) => tester.widget<ESwitch>(find.byKey(const ValueKey('e1-switch'))).value;
 
 void main() {
+  // "Use server" writes the settings ([acceptedRelaysIn]): each test starts from the same ones.
+  late HostSettings saved;
+  setUp(() => saved = hostSettings);
+  tearDown(() => hostSettings = saved);
+
   group('Settings › Transactions', () {
     testWidgets('classic: Experimental last; turning on asks first, then applies at the next unlock', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
@@ -251,6 +258,47 @@ void main() {
       await _settle(tester);
       expect(_wallet.epic1Fake.calls, contains('payLink'));
       expect(find.byKey(const ValueKey('e1-waiting')), findsOneWidget);
+    });
+
+    testWidgets('epic1: a link through a listed server the wallet is not on reviews with no question', (tester) async {
+      // LEPIC knows only the relay in use; the link names another of the Epicbox list, port written.
+      final listed = hostSettings.epicboxServers.last;
+      await _open(tester, DeskRoute.send, epic1: true);
+      _wallet.epic1Fake.linkHosts = [Epic1Host(host: listed.host.toUpperCase(), port: listed.port)];
+      await _enter(tester, 'e1-send-to', _link);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-amount-fixed')), findsOneWidget);
+      await _tap(tester, 'e1-review');
+      _wallet.e1State = TxState.waitingRecipient;
+      await _tap(tester, 'e1-send');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
+      expect(_wallet.epic1Fake.calls, contains('payLink'));
+    });
+
+    testWidgets('epic1: "Use server" is kept, the next link through that server asks nothing', (tester) async {
+      await _open(tester, DeskRoute.send, epic1: true);
+      _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
+      await _enter(tester, 'e1-send-to', _link);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);
+      await _tap(tester, 'e1-use-server');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+      expect(acceptedRelaysIn(hostSettings).map((r) => r.label), ['relay.example.invalid']);
+
+      // The next payment, after a restart of the screen: no question.
+      await tester.pumpWidget(const SizedBox());
+      await _open(tester, DeskRoute.send, epic1: true);
+      _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
+      await _enter(tester, 'e1-send-to', _link);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-amount-fixed')), findsOneWidget);
+      // Another server still asks.
+      await tester.pumpWidget(const SizedBox());
+      await _open(tester, DeskRoute.send, epic1: true);
+      _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'other.example.invalid', port: 443)];
+      await _enter(tester, 'e1-send-to', _link);
+      expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);
     });
 
     testWidgets('epic1: Cancel in the server question leaves the form', (tester) async {
