@@ -12366,26 +12366,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get msgCheckItemMore => 'มีข้อความอีกที่รอการตรวจสอบครั้งถัดไป';
 
   @override
-  String msgCheckItemRefused(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'ปฏิเสธข้อความ $count ข้อความ',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String msgCheckItemPairingFailed(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'การจับคู่ $count รายการไม่เสร็จสมบูรณ์',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String msgCheckItemUnreadable(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -12394,14 +12374,6 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get msgCheckWhyRefusedNothing =>
-      'ไม่ใช่ของกระเป๋านี้ ใหญ่เกินไป หรือเสียหาย ไม่ต้องทำอะไร';
-
-  @override
-  String get msgCheckWhyPairingFailed =>
-      'หมดเวลาหรือไม่ได้รับการยอมรับ คุณจับคู่ใหม่ได้';
 
   @override
   String get msgCheckWhyUnreadableOpen =>

@@ -13112,32 +13112,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get msgCheckItemMore => 'Ещё сообщения ждут следующей проверки';
 
   @override
-  String msgCheckItemRefused(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count сообщения отклонено',
-      many: '$count сообщений отклонено',
-      few: '$count сообщения отклонено',
-      one: '$count сообщение отклонено',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String msgCheckItemPairingFailed(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count сопряжения не завершено',
-      many: '$count сопряжений не завершены',
-      few: '$count сопряжения не завершены',
-      one: '$count сопряжение не завершено',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String msgCheckItemUnreadable(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -13149,14 +13123,6 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get msgCheckWhyRefusedNothing =>
-      'Не для этого кошелька, слишком большое или повреждено. Ничего делать не нужно.';
-
-  @override
-  String get msgCheckWhyPairingFailed =>
-      'Время вышло или сопряжение не приняли. Можно выполнить сопряжение снова.';
 
   @override
   String get msgCheckWhyUnreadableOpen =>

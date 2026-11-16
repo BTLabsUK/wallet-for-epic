@@ -19843,35 +19843,11 @@ abstract class AppLocalizations {
   /// **'More messages wait for the next check'**
   String get msgCheckItemMore;
 
-  /// Detail of the last message check: messages it refused or dropped.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, one{{count} message turned away} other{{count} messages turned away}}'**
-  String msgCheckItemRefused(int count);
-
-  /// Detail of the last message check: pairings in progress that ended without pairing.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, one{{count} pairing did not complete} other{{count} pairings did not complete}}'**
-  String msgCheckItemPairingFailed(int count);
-
   /// Detail of the last message check: messages the wallet keeps on this device because it could not take them.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} message could not be read} other{{count} messages could not be read}}'**
   String msgCheckItemUnreadable(int count);
-
-  /// Quiet line under msgCheckItemRefused: why messages were turned away, and that the user need not act.
-  ///
-  /// In en, this message translates to:
-  /// **'Not for this wallet, too large or damaged. Nothing to do.'**
-  String get msgCheckWhyRefusedNothing;
-
-  /// Quiet line under msgCheckItemPairingFailed: why a pairing ended unfinished and what the user can do.
-  ///
-  /// In en, this message translates to:
-  /// **'It ran out of time or was not accepted. You can pair again.'**
-  String get msgCheckWhyPairingFailed;
 
   /// Quiet line under msgCheckItemUnreadable: where such a message is; the row opens the list of these messages.
   ///

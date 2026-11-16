@@ -16829,26 +16829,6 @@
   "@msgCheckItemMore": {
     "description": "Detail of the last message check: a mailbox still had messages when the check stopped."
   },
-  "msgCheckItemRefused": "{count, plural, one{{count} message turned away} other{{count} messages turned away}}",
-  "@msgCheckItemRefused": {
-    "description": "Detail of the last message check: messages it refused or dropped.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "example": "1"
-      }
-    }
-  },
-  "msgCheckItemPairingFailed": "{count, plural, one{{count} pairing did not complete} other{{count} pairings did not complete}}",
-  "@msgCheckItemPairingFailed": {
-    "description": "Detail of the last message check: pairings in progress that ended without pairing.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "example": "1"
-      }
-    }
-  },
   "msgCheckItemUnreadable": "{count, plural, one{{count} message could not be read} other{{count} messages could not be read}}",
   "@msgCheckItemUnreadable": {
     "description": "Detail of the last message check: messages the wallet keeps on this device because it could not take them.",
@@ -16858,14 +16838,6 @@
         "example": "1"
       }
     }
-  },
-  "msgCheckWhyRefusedNothing": "Not for this wallet, too large or damaged. Nothing to do.",
-  "@msgCheckWhyRefusedNothing": {
-    "description": "Quiet line under msgCheckItemRefused: why messages were turned away, and that the user need not act."
-  },
-  "msgCheckWhyPairingFailed": "It ran out of time or was not accepted. You can pair again.",
-  "@msgCheckWhyPairingFailed": {
-    "description": "Quiet line under msgCheckItemPairingFailed: why a pairing ended unfinished and what the user can do."
   },
   "msgCheckWhyUnreadableOpen": "Kept on this device. Open it to try again or remove it.",
   "@msgCheckWhyUnreadableOpen": {

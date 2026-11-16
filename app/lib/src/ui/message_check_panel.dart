@@ -182,8 +182,6 @@ class _Details extends StatelessWidget {
     CheckItemKind.read => Icons.mark_email_read_outlined,
     CheckItemKind.held => Icons.hourglass_empty,
     CheckItemKind.more => Icons.more_horiz,
-    CheckItemKind.refused => Icons.block,
-    CheckItemKind.pairingFailed => Icons.link_off,
     CheckItemKind.unreadable => Icons.visibility_off_outlined,
   };
 

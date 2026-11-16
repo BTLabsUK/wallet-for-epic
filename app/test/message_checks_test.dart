@@ -109,8 +109,6 @@ void main() {
     expect(lines, [
       'Checked 2 min ago',
       '2 messages left for the next check',
-      '1 message turned away',
-      'Not for this wallet, too large or damaged. Nothing to do.',
       '1 message could not be read',
       'Kept on this device. Open it to try again or remove it.',
     ]);
@@ -127,9 +125,9 @@ void main() {
       'Not checked yet',
       '3 messages read',
       'More messages wait for the next check',
-      '1 pairing did not complete',
-      'It ran out of time or was not accepted. You can pair again.',
     ]);
+    // Turned away and pairings that did not complete leave nothing to do: log only.
+    expect(messageCheckLines(l, const MessageCheck(outcome: CheckOutcome(rejected: 2, dropped: 1, failed: 1)), now: now), ['Not checked yet']);
   });
 
   test('a kept message read or removed lowers the unreadable count at once', () async {
@@ -156,10 +154,10 @@ void main() {
   test('the folded summary and the groups', () {
     final l = AppLocalizationsEn();
     final view = messageCheckView(l, const MessageCheck(outcome: CheckOutcome(messages: 3, held: 2, rejected: 1, failed: 1, unreadable: 1, capped: 1)));
-    expect(messageCheckSummary(l, view), metaLine(['3 read', '2 waiting', '3 to look at'], whole: true));
+    expect(messageCheckSummary(l, view), metaLine(['3 read', '2 waiting', '1 to look at'], whole: true));
     expect(view.of(CheckGroup.read).map((i) => i.kind), [CheckItemKind.read]);
     expect(view.of(CheckGroup.waiting).map((i) => i.kind), [CheckItemKind.held, CheckItemKind.more]);
-    expect(view.of(CheckGroup.problems).map((i) => i.kind), [CheckItemKind.refused, CheckItemKind.pairingFailed, CheckItemKind.unreadable]);
+    expect(view.of(CheckGroup.problems).map((i) => i.kind), [CheckItemKind.unreadable]);
     expect(messageCheckSummary(l, messageCheckView(l, const MessageCheck(outcome: CheckOutcome(capped: 1)))), keepWhole('more waiting'));
     expect(messageCheckSummary(l, messageCheckView(l, const MessageCheck())), '');
     expect(messageCheckView(l, const MessageCheck()).hasItems, isFalse);

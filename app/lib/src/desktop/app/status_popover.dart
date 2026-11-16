@@ -19,6 +19,7 @@ import '../../ui/common.dart' as common show shortAddress;
 import '../../message_checks.dart' show MessageCheck;
 import '../data/desk_node.dart';
 import '../data/server_look.dart';
+import '../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider;
 import '../desk_l10n.dart';
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -136,7 +137,9 @@ class DeskStatusPopover extends ConsumerWidget {
         second = modeLine ? i.second : relay;
         secondMono = !modeLine;
         if (address != null && address.isNotEmpty) facts.add((label: l.statusAddress, value: common.shortAddress(address, relay: false), mono: true));
-        panel = DeskMessageCheckPanel(
+        // Message checks run over Epicbox only: nothing to tell while it is off or blocked.
+        if (ref.watch(deskPairNetProvider) == DeskPairNet.online) {
+          panel = DeskMessageCheckPanel(
           ref.watch(deskMessageCheckProvider).value ?? const MessageCheck(),
           onRetry: () async => ref.read(deskApiProvider).messageChecks?.retry(),
           onOpenKept: () {
@@ -145,6 +148,7 @@ class DeskStatusPopover extends ConsumerWidget {
             if (nav != null) unawaited(showDeskKeptMessages(nav));
           },
         );
+        }
       default:
         tile = DeskServiceTile(icon: i.icon, state: i.state);
         if (i.second != '–' && i.second != i.word) second = [i.second, ?i.marker].join(' ');

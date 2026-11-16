@@ -67,8 +67,6 @@ class _DeskMessageCheckPanelState extends State<DeskMessageCheckPanel> {
     CheckItemKind.read => EIcons.invoice,
     CheckItemKind.held => EIcons.sand,
     CheckItemKind.more => EIcons.dots,
-    CheckItemKind.refused => EIcons.cancel,
-    CheckItemKind.pairingFailed => EIcons.lanOff,
     CheckItemKind.unreadable => EIcons.eyeOff,
   };
 

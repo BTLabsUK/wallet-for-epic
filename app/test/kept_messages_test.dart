@@ -73,8 +73,8 @@ void main() {
         tester,
         const MessageCheckPanel(MessageCheck(outcome: CheckOutcome(rejected: 1, unreadable: 2)), open: true),
       );
-      // Turned away has nothing to do: no tap target.
-      expect(find.ancestor(of: find.text('1 message turned away'), matching: find.byType(InkWell)), findsNothing);
+      // Turned away has nothing to do: not shown at all.
+      expect(find.text('1 message turned away'), findsNothing);
       await tester.tap(find.byKey(messageCheckKeptKey));
       await tester.pumpAndSettle();
       expect(find.byKey(keptSheetKey), findsOneWidget);

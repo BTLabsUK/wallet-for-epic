@@ -12679,28 +12679,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msgCheckItemMore => 'More messages wait for the next check';
 
   @override
-  String msgCheckItemRefused(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count messages turned away',
-      one: '$count message turned away',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String msgCheckItemPairingFailed(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count pairings did not complete',
-      one: '$count pairing did not complete',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String msgCheckItemUnreadable(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -12710,14 +12688,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get msgCheckWhyRefusedNothing =>
-      'Not for this wallet, too large or damaged. Nothing to do.';
-
-  @override
-  String get msgCheckWhyPairingFailed =>
-      'It ran out of time or was not accepted. You can pair again.';
 
   @override
   String get msgCheckWhyUnreadableOpen =>

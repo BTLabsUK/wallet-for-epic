@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/message_check_panel.dart' show deskMessageCheckRowKey;
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show DeskPairNet, deskPairNetProvider;
 import 'package:epic_wallet/src/desktop/app/routes.dart' show DeskRoute, deskStartProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -20,22 +21,21 @@ final _delay = appConfig.checkShowAfter;
 
 final _lines = {
   '3 messages read': const CheckOutcome(messages: 3),
-  '1 pairing did not complete': const CheckOutcome(failed: 1),
   '2 messages left for the next check': const CheckOutcome(held: 2),
-  '3 messages turned away': const CheckOutcome(rejected: 1, dropped: 2),
   '1 message could not be read': const CheckOutcome(unreadable: 1),
   'More messages wait for the next check': const CheckOutcome(capped: 1),
 };
 
 const _popover = ValueKey('status-pop-epicbox');
 
-Future<MessageChecks> _openPopover(WidgetTester tester) async {
+Future<MessageChecks> _openPopover(WidgetTester tester, {DeskPairNet? pairNet}) async {
   tester.view.physicalSize = const Size(1440, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(
     overrides: [
       deskStartProvider.overrideWithValue(DeskRoute.overview),
+      if (pairNet != null) deskPairNetProvider.overrideWithValue(pairNet),
     ],
   );
   addTearDown(container.dispose);
@@ -65,6 +65,15 @@ Future<void> _end(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('with Epicbox off, the popover says nothing about checks', (tester) async {
+    final checks = await _openPopover(tester, pairNet: DeskPairNet.epicboxOff);
+    await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome(messages: 3));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(_inPopover('Checked'), findsNothing);
+    expect(find.byKey(deskMessageCheckRowKey), findsNothing);
+    await _end(tester);
+  });
+
   testWidgets('no check yet: the popover says nothing about checks', (tester) async {
     await _openPopover(tester);
     for (final t in ['Checking messages', 'Checked just now', 'Messages', 'could not be read', 'More messages']) {

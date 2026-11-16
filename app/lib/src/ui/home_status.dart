@@ -39,6 +39,7 @@ import 'status.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import '../text_join.dart';
+import '../pairing_providers.dart' show PairNet, pairNetProvider;
 
 /// The key of the Tor status icon, for tests.
 const Key torIconKey = ValueKey('status-tor');
@@ -396,12 +397,16 @@ class ConnectionsSheet extends ConsumerWidget {
                 ),
             ],
           ),
+          // Message checks run over Epicbox only: with it off (or a mode that blocks it) there
+          // is nothing to tell.
+          if (ref.watch(pairNetProvider) == PairNet.online) ...[
           const SizedBox(height: 8),
           MessageCheckPanel(
             ref.watch(messageCheckProvider).value ?? const MessageCheck(),
             onRetry: () async => ref.read(sessionProvider)?.checks.retry(),
             padding: const EdgeInsets.fromLTRB(Kit.gutter + 4, 4, Kit.gutter + 4, 0),
           ),
+          ],
         ],
       ),
     );

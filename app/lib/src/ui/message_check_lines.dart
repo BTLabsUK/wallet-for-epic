@@ -19,8 +19,6 @@ enum CheckItemKind {
   read(CheckGroup.read),
   held(CheckGroup.waiting),
   more(CheckGroup.waiting),
-  refused(CheckGroup.problems),
-  pairingFailed(CheckGroup.problems),
   unreadable(CheckGroup.problems);
 
   const CheckItemKind(this.group);
@@ -62,7 +60,7 @@ class MessageCheckView {
   /// Whether there is anything to unfold.
   bool get hasItems => items.isNotEmpty;
 
-  /// Messages turned away or not readable and pairings that did not complete, added.
+  /// Messages that could not be read, added.
   int get problems => of(CheckGroup.problems).fold(0, (a, i) => a + i.count);
 }
 
@@ -89,8 +87,6 @@ MessageCheckView messageCheckView(AppLocalizations l, MessageCheck check) {
       if (o.messages > 0) (kind: CheckItemKind.read, count: o.messages, text: l.msgCheckItemRead(o.messages), why: null),
       if (o.held > 0) (kind: CheckItemKind.held, count: o.held, text: l.msgCheckItemHeld(o.held), why: null),
       if (o.capped > 0) (kind: CheckItemKind.more, count: 1, text: l.msgCheckItemMore, why: null),
-      if (o.refused > 0) (kind: CheckItemKind.refused, count: o.refused, text: l.msgCheckItemRefused(o.refused), why: l.msgCheckWhyRefusedNothing),
-      if (o.failed > 0) (kind: CheckItemKind.pairingFailed, count: o.failed, text: l.msgCheckItemPairingFailed(o.failed), why: l.msgCheckWhyPairingFailed),
       if (o.unreadable > 0) (kind: CheckItemKind.unreadable, count: o.unreadable, text: l.msgCheckItemUnreadable(o.unreadable), why: l.msgCheckWhyUnreadableOpen),
     ],
   );

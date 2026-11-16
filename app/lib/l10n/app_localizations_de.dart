@@ -12824,28 +12824,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Weitere Nachrichten warten auf die nächste Prüfung';
 
   @override
-  String msgCheckItemRefused(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Nachrichten abgewiesen',
-      one: '$count Nachricht abgewiesen',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String msgCheckItemPairingFailed(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Kopplungen nicht abgeschlossen',
-      one: '$count Kopplung nicht abgeschlossen',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String msgCheckItemUnreadable(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -12855,14 +12833,6 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get msgCheckWhyRefusedNothing =>
-      'Nicht für diese Wallet, zu groß oder beschädigt. Nichts zu tun.';
-
-  @override
-  String get msgCheckWhyPairingFailed =>
-      'Die Zeit ist abgelaufen oder die Kopplung wurde nicht angenommen. Sie können erneut koppeln.';
 
   @override
   String get msgCheckWhyUnreadableOpen =>

@@ -13139,32 +13139,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Kolejne wiadomości czekają na następne sprawdzenie';
 
   @override
-  String msgCheckItemRefused(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count wiadomości odrzuconej',
-      many: '$count wiadomości odrzuconych',
-      few: '$count wiadomości odrzucone',
-      one: '$count wiadomość odrzucona',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String msgCheckItemPairingFailed(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count parowania nie zostało ukończone',
-      many: '$count parowań nie zostało ukończonych',
-      few: '$count parowania nie zostały ukończone',
-      one: '$count parowanie nie zostało ukończone',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String msgCheckItemUnreadable(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -13176,14 +13150,6 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get msgCheckWhyRefusedNothing =>
-      'Nie dla tego portfela, zbyt duża lub uszkodzona. Nic nie trzeba robić.';
-
-  @override
-  String get msgCheckWhyPairingFailed =>
-      'Czas minął lub parowanie nie zostało przyjęte. Możesz sparować ponownie.';
 
   @override
   String get msgCheckWhyUnreadableOpen =>

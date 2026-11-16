@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/ui/home_status.dart';
 import 'package:epic_wallet/src/ui/message_check_panel.dart' show messageCheckRetryKey, messageCheckRowKey;
+import 'package:epic_wallet/src/pairing_providers.dart' show PairNet, pairNetProvider;
 import 'package:epic_wallet/src/ui/receive_screen.dart'
     show ReceiveTab, receiveTabProvider;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart' show ServerListSheet;
@@ -175,6 +176,7 @@ Future<void> _pump(
   double scale = 1,
   AdvancedPrefs advanced = AdvancedPrefs.none,
   MessageChecks? checks,
+  PairNet? pairNet,
 }) async {
   final t = tip ?? AsyncData(_tip);
   tester.view.physicalSize = Size(width * 3, 2400);
@@ -204,6 +206,7 @@ Future<void> _pump(
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         priceSourceProvider.overrideWithValue(_Price()),
         if (checks != null) messageCheckProvider.overrideWith((ref) => messageCheckStream(checks)),
+        if (pairNet != null) pairNetProvider.overrideWithValue(pairNet),
       ],
       child: MaterialApp(
         theme: buildWalletTheme(protocolDark, Brightness.dark),
@@ -911,9 +914,7 @@ void main() {
     final delay = appConfig.checkShowAfter;
     final lines = {
       '3 messages read': const CheckOutcome(messages: 3),
-      '1 pairing did not complete': const CheckOutcome(failed: 1),
       '2 messages left for the next check': const CheckOutcome(held: 2),
-      '3 messages turned away': const CheckOutcome(rejected: 1, dropped: 2),
       '1 message could not be read': const CheckOutcome(unreadable: 1),
       'More messages wait for the next check': const CheckOutcome(capped: 1),
     };
@@ -937,6 +938,20 @@ void main() {
       final c = MessageChecks(showAfter: delay, digestGrace: Duration.zero);
       addTearDown(c.dispose);
       return c;
+    }
+
+    for (final net in [PairNet.epicboxOff, PairNet.offline]) {
+      testWidgets('with Epicbox ${net.name}, the footer says nothing about checks', (tester) async {
+        final checks = make();
+        await _pump(tester, checks: checks, pairNet: net);
+        await tester.tap(find.byKey(nodeStatusKey));
+        await tester.pumpAndSettle();
+        await checks.run(CheckSource.collect, () async => 1, outcomeOf: (_) => const CheckOutcome(messages: 3));
+        await settle(tester);
+        expect(inSheet('Checked'), findsNothing);
+        expect(inSheet('3 messages read'), findsNothing);
+        expect(find.byKey(messageCheckRowKey), findsNothing);
+      });
     }
 
     testWidgets('no check yet: the footer says nothing', (tester) async {

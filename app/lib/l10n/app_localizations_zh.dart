@@ -11954,26 +11954,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get msgCheckItemMore => '还有更多消息等待下次检查';
 
   @override
-  String msgCheckItemRefused(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 条消息已被拒收',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String msgCheckItemPairingFailed(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 次配对未完成',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String msgCheckItemUnreadable(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -11982,12 +11962,6 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get msgCheckWhyRefusedNothing => '不属于这个钱包、太大或已损坏。无需操作。';
-
-  @override
-  String get msgCheckWhyPairingFailed => '超时了，或未被接受。你可以重新配对。';
 
   @override
   String get msgCheckWhyUnreadableOpen => '保留在此设备上。打开后可重试或移除。';
