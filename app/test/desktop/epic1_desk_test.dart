@@ -320,6 +320,25 @@ void main() {
       expect(tester.widget<EditableText>(_field('e1-send-to')).controller.text, _link);
     });
 
+    testWidgets('To cleared goes back to the classic form; typed empty, the amount stays', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(code: _link));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+      await _tap(tester, 'e1-clear');
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-review')), findsNothing);
+
+      const open = 'epic:epic1qtestlink0000000000000000000000000000';
+      _container.read(deskNavProvider.notifier).reset(DeskRoute.send, const SendArgs(code: open));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await _settle(tester);
+      await tester.enterText(_field('e1-amount'), '2,5');
+      await tester.enterText(_field('e1-send-to'), '');
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is EditableText && w.controller.text == '2,5'), findsOneWidget);
+    });
+
     testWidgets('an amount from Home opens the classic Send with it', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(amount: '12,5'));
       expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
