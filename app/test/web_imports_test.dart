@@ -81,6 +81,11 @@ void main() {
       'lib/src/ui/theme/fonts.dart',
       // The failover reads the local node's state types; the node itself runs on the desktop.
       'lib/src/builtin_node.dart',
+      // The built-in node's controller and its support-report data: the desktop starts the node
+      // and builds the report data; the feedback screen only reads the type and a constant, and
+      // passes no node data on the web.
+      'lib/src/node/local_node_controller.dart',
+      'lib/src/node/node_report.dart',
       // Announcements: Platform only after kIsWeb (the timers switch, the phone's browser).
       'lib/src/announcements/announcements_service.dart',
       'lib/src/announcements/announcement_card.dart',
