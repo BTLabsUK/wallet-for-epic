@@ -19,7 +19,7 @@ import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/boosts.dart' show Boosts;
 import 'package:epic_wallet/src/name_service/name_service.dart';
-import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
+import 'package:epic_wallet/src/pairing_api.dart' show PairingApi, pairDomainHold;
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/secret_store_api.dart' show MemorySecretStore;
 import 'package:epic_wallet/src/models.dart' show Chain, PairingInvitePreview, PairingParty, PaymentsDrainReport;
@@ -462,17 +462,14 @@ void main() {
     await tester.pump(const Duration(hours: 2));
   });
 
-  testWidgets('a code with a proven domain: the words with Checking at once, then Verified in the one window', (tester) async {
+  testWidgets('a code with a proven domain: the wait holds while it is checked, then Verified, no words', (tester) async {
     final id = await answerDomainCode(tester, FakeDomainProof.proven, const Duration(seconds: 2));
     expect(find.byType(EDialog), findsOneWidget);
     final waitFrame = tester.getRect(find.byType(Dialog));
     _pairing.confirmAnswer(id);
     await _settle(tester);
-    expect(find.byKey(deskCheckMatchKey), findsOneWidget, reason: 'the words at once');
-    expect(tester.getRect(find.byType(Dialog)), waitFrame, reason: 'the window keeps its place and size from the wait to the words');
-    expect(find.byKey(deskDomainCheckingKey), findsOneWidget);
-    expect(find.text(_l.deskPairDomainChecking('anna.example')), findsOneWidget);
-    expect(find.byType(EDialog), findsOneWidget);
+    expect(find.byKey(deskCheckMatchKey), findsNothing, reason: 'the words do not flash while the domain is checked');
+    expect(find.byKey(deskWaitingCloseKey), findsOneWidget, reason: 'the wait holds');
     await tester.pump(const Duration(seconds: 3));
     await _real(tester);
     expect(find.byKey(deskCheckMatchKey), findsNothing);
@@ -484,29 +481,26 @@ void main() {
     await tester.pump(const Duration(hours: 2));
   });
 
-  testWidgets('a code whose domain does not answer: the words stay, the Checking line goes', (tester) async {
-    final id = await answerDomainCode(tester, FakeDomainProof.unreachable, const Duration(seconds: 3));
+  testWidgets('a code whose domain does not answer: the wait holds up to the cap, then the words', (tester) async {
+    final id = await answerDomainCode(tester, FakeDomainProof.unreachable, const Duration(seconds: 5));
     _pairing.confirmAnswer(id);
     await _settle(tester);
-    expect(find.byKey(deskCheckMatchKey), findsOneWidget);
-    expect(find.byKey(deskDomainCheckingKey), findsOneWidget);
-    await tester.pump(const Duration(seconds: 4));
+    expect(find.byKey(deskCheckMatchKey), findsNothing, reason: 'held while the domain is asked');
+    await tester.pump(pairDomainHold + const Duration(seconds: 1));
     await _real(tester);
-    expect(find.byKey(deskDomainCheckingKey), findsNothing);
     expect(find.byKey(deskCheckMatchKey), findsOneWidget);
     expect(find.byType(EDialog), findsOneWidget, reason: 'the same window, not a new one');
     await tester.pump(const Duration(hours: 2));
   });
 
-  testWidgets('a refused domain: the words stay, the Checking line goes', (tester) async {
+  testWidgets('a refused domain: the words show after the verdict, no Verified', (tester) async {
     final id = await answerDomainCode(tester, FakeDomainProof.refused, const Duration(seconds: 2));
     _pairing.confirmAnswer(id);
     await _settle(tester);
-    expect(find.byKey(deskDomainCheckingKey), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
     await _real(tester);
-    expect(find.byKey(deskDomainCheckingKey), findsNothing);
     expect(find.byKey(deskCheckMatchKey), findsOneWidget);
+    expect(find.text(_l.deskPairDomainVerifiedBody('Anna', 'anna.example')), findsNothing);
     await tester.pump(const Duration(hours: 2));
   });
 
