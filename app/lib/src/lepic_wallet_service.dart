@@ -3787,7 +3787,13 @@ class LepicWalletSession
       });
 
   @override
-  Future<PaymentsDrainReport> drainPayments() => checks.run(
+  Future<PaymentsDrainReport> drainPayments() => NetGate.epicboxOff
+      // Nothing to drain without Epicbox: no check, and an earlier drain's result goes.
+      ? Future.sync(() {
+          checks.forget(CheckSource.drain);
+          return const PaymentsDrainReport();
+        })
+      : checks.run(
     CheckSource.drain,
     () => _epicboxGuard('payments drain', () async {
       _watchEvents();

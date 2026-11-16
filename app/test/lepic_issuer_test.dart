@@ -9,6 +9,8 @@ import 'dart:typed_data';
 
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
+import 'package:epic_wallet/src/message_checks.dart';
+import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
@@ -739,6 +741,20 @@ void main() {
         expect(wallet.calls, ['drainEpicbox', 'sweepInvoices(86400)']);
       },
     );
+
+    test('with Epicbox off it does not run and is not a failed check', () async {
+      // A drain that failed while Epicbox was on is forgotten once it is off.
+      await expectLater(
+        session.checks.run<int>(CheckSource.drain, () async => throw StateError('relay down'), outcomeOf: (_) => const CheckOutcome()),
+        throwsStateError,
+      );
+      expect(session.checks.value.failed, isTrue);
+      NetGate.setEpicbox(false);
+      addTearDown(() => NetGate.setEpicbox(true));
+      expect(await session.drainPayments(), const PaymentsDrainReport(received: 0, finalized: 0));
+      expect(wallet.calls, isNot(contains('drainEpicbox')));
+      expect(session.checks.value.failed, isFalse);
+    });
 
     test('a missed event is caught up from LEPIC\'s store', () async {
       final a = await ask(five);

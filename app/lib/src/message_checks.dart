@@ -171,6 +171,13 @@ class MessageChecks {
     }
   }
 
+  /// Drops what the last check of [source] found and whether it failed: the check no longer
+  /// runs (its method was turned off).
+  void forget(CheckSource source) {
+    final had = _outcomes.remove(source) != null;
+    if (_failed.remove(source) || had) _publish();
+  }
+
   /// Sets how many messages the wallet keeps unread, after the user tried them again or
   /// removed one, without a new check.
   void setUnreadable(int count) {
