@@ -76,5 +76,17 @@
   "deskNodeEtaMinute": "minuty",
   "deskNodeEtaMinutes": "{minutes} min",
   "deskNodeEtaHours": "{hours} godz.",
-  "deskNodeEtaHoursMinutes": "{hours} godz. {minutes} min"
+  "deskNodeEtaHoursMinutes": "{hours} godz. {minutes} min",
+  "deskBarPublicNode": "Węzeł publiczny",
+  "deskNodeUsingPublic": "Używany węzeł publiczny",
+  "deskNodeTipCatchingUp": "Używany {host} · twój węzeł nadrabia",
+  "deskNodeTipNotSyncing": "Używany {host} · twój węzeł się nie synchronizuje",
+  "deskNodeCatchingUp": "twój węzeł nadrabia",
+  "deskNodeCatchingUpPct": "twój węzeł nadrabia {percent}",
+  "deskNodeCatchingUpNote": "Twój węzeł nadrabia. Portfel sam do niego wróci, gdy będzie zsynchronizowany.",
+  "deskNodeCatchingUpNotePct": "Twój węzeł nadrabia {percent}. Portfel sam do niego wróci, gdy będzie zsynchronizowany.",
+  "deskNodeNotSyncing": "Twój węzeł się nie synchronizuje",
+  "deskNodeNotSyncingNote": "Twój węzeł się nie synchronizuje: brak postępu od {minutes} min. Ponowne uruchomienie często pomaga.",
+  "deskNodeRestart": "Uruchom węzeł ponownie",
+  "deskNodeMarkerNotSyncing": "brak synchronizacji"
 }

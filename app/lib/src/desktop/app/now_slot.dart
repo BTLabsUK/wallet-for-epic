@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../node/local_node_state.dart' show LocalNodePhase;
-import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeInfoProvider, deskOwnerSecretProvider, deskOwnStatusProvider, NodeHead, nodeClassOf;
+import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeNotSyncingProvider, deskRestartLocalNode, deskNodeInfoProvider, deskOwnerSecretProvider, deskOwnStatusProvider, NodeHead, nodeClassOf;
 import '../data/desk_update.dart' show DeskUpdatePhase, deskUpdateProvider;
 import '../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../data/node_view.dart' show localNodeView, digits, syncPercent;
@@ -164,23 +164,37 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
     );
   }
   // 6. Invoices to pay are the Invoices tab's count (title_bar.dart), not said twice here.
-  // 7. The local node starting or syncing.
+  // 7. The local node starting or syncing: with a public node standing in, "Using public node ·
+  // your node is catching up 29%"; with no progress for a long while, "Your node is not
+  // syncing" and a click restarts it.
   if (ref.watch(settingsPrefsProvider.select((p) => p.builtin))) {
     final node = ref.watch(deskLocalNodeProvider).value;
     if (node != null && (node.phase == LocalNodePhase.starting || node.phase == LocalNodePhase.syncing)) {
-      final v = localNodeView(l, node);
+      final stuck = node.phase == LocalNodePhase.syncing && ref.watch(deskNodeNotSyncingProvider);
+      final v = localNodeView(l, node, fallbackUrl: status?.node.url, notSyncing: stuck);
+      final standIn = v.standIn;
       items.add(
-        NowItem(
-          id: 'node',
-          icon: EIcons.node,
-          tone: ETone.info,
-          title: node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing,
-          detail: node.phase == LocalNodePhase.starting ? null : metaLine([?v.marker, ?v.eta]),
-          stacked: true,
-          // The share its percent says, else a bar without a known end.
-          progress: node.phase == LocalNodePhase.syncing ? node.progress?.overall ?? -1 : -1,
-          hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
-        ),
+        stuck
+            ? NowItem(
+                id: 'node',
+                icon: EIcons.node,
+                tone: ETone.warn,
+                title: l.deskNodeNotSyncing,
+                stacked: true,
+                hint: l.deskNodeRestart,
+                onTap: () => unawaited(deskRestartLocalNode(ref)),
+              )
+            : NowItem(
+                id: 'node',
+                icon: EIcons.node,
+                tone: ETone.info,
+                title: standIn != null ? l.deskNodeUsingPublic : (node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing),
+                detail: standIn != null ? standIn.detail(l) : (node.phase == LocalNodePhase.starting ? null : metaLine([?v.marker, ?v.eta])),
+                stacked: true,
+                // The share its percent says, else a bar without a known end.
+                progress: node.phase == LocalNodePhase.syncing ? node.progress?.overall ?? -1 : -1,
+                hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
+              ),
       );
     }
   }

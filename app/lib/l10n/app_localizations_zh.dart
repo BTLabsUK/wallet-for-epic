@@ -20219,4 +20219,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskPairVerifiedByDomain(String domain) {
     return '已通过 $domain 验证';
   }
+
+  @override
+  String get deskBarPublicNode => '公共节点';
+
+  @override
+  String get deskNodeUsingPublic => '正在使用公共节点';
+
+  @override
+  String deskNodeTipCatchingUp(String host) {
+    return '正在使用 $host · 你的节点正在追赶';
+  }
+
+  @override
+  String deskNodeTipNotSyncing(String host) {
+    return '正在使用 $host · 你的节点没有在同步';
+  }
+
+  @override
+  String get deskNodeCatchingUp => '你的节点正在追赶';
+
+  @override
+  String deskNodeCatchingUpPct(String percent) {
+    return '你的节点正在追赶 $percent';
+  }
+
+  @override
+  String get deskNodeCatchingUpNote => '你的节点正在追赶。同步完成后，钱包会自动切回该节点。';
+
+  @override
+  String deskNodeCatchingUpNotePct(String percent) {
+    return '你的节点正在追赶 $percent。同步完成后，钱包会自动切回该节点。';
+  }
+
+  @override
+  String get deskNodeNotSyncing => '你的节点没有在同步';
+
+  @override
+  String deskNodeNotSyncingNote(int minutes) {
+    return '你的节点没有在同步：$minutes 分钟没有进展。重启通常能解决。';
+  }
+
+  @override
+  String get deskNodeRestart => '重启节点';
+
+  @override
+  String get deskNodeMarkerNotSyncing => '未同步';
 }

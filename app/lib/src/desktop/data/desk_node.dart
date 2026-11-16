@@ -102,6 +102,38 @@ final deskNodeProvider = Provider<DeskNodeApi>((ref) => MockDeskNode());
 /// The local node's state; loading until the controller is up, an error where the build has none.
 final deskLocalNodeProvider = StreamProvider<LocalNodeState>((ref) => ref.watch(deskNodeProvider).states());
 
+/// True while the local node syncs without getting anywhere for [notSyncingAfter] ([SyncWatch]):
+/// the screens then say it is not syncing and offer a restart, not "catching up" for ever.
+final deskNodeNotSyncingProvider = NotifierProvider<DeskNodeNotSyncing, bool>(DeskNodeNotSyncing.new);
+
+class DeskNodeNotSyncing extends Notifier<bool> {
+  final SyncWatch _watch = SyncWatch();
+
+  @override
+  bool build() {
+    ref.listen(deskLocalNodeProvider, (_, next) {
+      final s = next.value;
+      if (s == null) return;
+      final stuck = _watch.update(s);
+      if (stuck == state) return;
+      logInfo('node', stuck ? 'local node not syncing: no progress for ${notSyncingAfter.inMinutes} min, ${localNodeLogLine(s)}' : 'local node moving again: ${localNodeLogLine(s)}');
+      state = stuck;
+    }, fireImmediately: true);
+    return false;
+  }
+}
+
+/// The "Restart node" of the not-syncing notice. The wallet stays on the public node meanwhile;
+/// the fallback moves it back once the node has synced.
+Future<void> deskRestartLocalNode(WidgetRef ref) async {
+  logInfo('node', 'restart asked: the local node was not syncing');
+  try {
+    await ref.read(deskNodeProvider).restart();
+  } on Object catch (e) {
+    logWarn('node', 'restart of the local node failed: $e');
+  }
+}
+
 /// The fallback answer, saved through [DeskFallback.set].
 final deskFallbackProvider = AsyncNotifierProvider<DeskFallback, FallbackChoice>(DeskFallback.new);
 

@@ -22007,4 +22007,51 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskPairVerifiedByDomain(String domain) {
     return 'Zweryfikowano przez $domain';
   }
+
+  @override
+  String get deskBarPublicNode => 'Węzeł publiczny';
+
+  @override
+  String get deskNodeUsingPublic => 'Używany węzeł publiczny';
+
+  @override
+  String deskNodeTipCatchingUp(String host) {
+    return 'Używany $host · twój węzeł nadrabia';
+  }
+
+  @override
+  String deskNodeTipNotSyncing(String host) {
+    return 'Używany $host · twój węzeł się nie synchronizuje';
+  }
+
+  @override
+  String get deskNodeCatchingUp => 'twój węzeł nadrabia';
+
+  @override
+  String deskNodeCatchingUpPct(String percent) {
+    return 'twój węzeł nadrabia $percent';
+  }
+
+  @override
+  String get deskNodeCatchingUpNote =>
+      'Twój węzeł nadrabia. Portfel sam do niego wróci, gdy będzie zsynchronizowany.';
+
+  @override
+  String deskNodeCatchingUpNotePct(String percent) {
+    return 'Twój węzeł nadrabia $percent. Portfel sam do niego wróci, gdy będzie zsynchronizowany.';
+  }
+
+  @override
+  String get deskNodeNotSyncing => 'Twój węzeł się nie synchronizuje';
+
+  @override
+  String deskNodeNotSyncingNote(int minutes) {
+    return 'Twój węzeł się nie synchronizuje: brak postępu od $minutes min. Ponowne uruchomienie często pomaga.';
+  }
+
+  @override
+  String get deskNodeRestart => 'Uruchom węzeł ponownie';
+
+  @override
+  String get deskNodeMarkerNotSyncing => 'brak synchronizacji';
 }

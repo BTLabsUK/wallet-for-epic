@@ -76,5 +76,17 @@
   "deskNodeEtaMinute": "минуты",
   "deskNodeEtaMinutes": "{minutes} мин",
   "deskNodeEtaHours": "{hours} ч",
-  "deskNodeEtaHoursMinutes": "{hours} ч {minutes} мин"
+  "deskNodeEtaHoursMinutes": "{hours} ч {minutes} мин",
+  "deskBarPublicNode": "Публичный узел",
+  "deskNodeUsingPublic": "Используется публичный узел",
+  "deskNodeTipCatchingUp": "Используется {host} · ваш узел догоняет",
+  "deskNodeTipNotSyncing": "Используется {host} · ваш узел не синхронизируется",
+  "deskNodeCatchingUp": "ваш узел догоняет",
+  "deskNodeCatchingUpPct": "ваш узел догоняет {percent}",
+  "deskNodeCatchingUpNote": "Ваш узел догоняет сеть. Кошелёк сам вернётся к нему после синхронизации.",
+  "deskNodeCatchingUpNotePct": "Ваш узел догоняет сеть, {percent}. Кошелёк сам вернётся к нему после синхронизации.",
+  "deskNodeNotSyncing": "Ваш узел не синхронизируется",
+  "deskNodeNotSyncingNote": "Ваш узел не синхронизируется: нет прогресса {minutes} мин. Перезапуск часто помогает.",
+  "deskNodeRestart": "Перезапустить узел",
+  "deskNodeMarkerNotSyncing": "не синхронизируется"
 }

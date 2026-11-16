@@ -23,10 +23,11 @@ class NodeView {
     this.marker,
     this.eta,
     this.lines = const [],
+    this.standIn,
   });
 
   /// A node in [shown]: its one word and state (state_language.dart).
-  NodeView.of(AppLocalizations l, ShownState shown, {required this.host, this.marker, this.eta, this.lines = const []}) : word = shown.word(l), state = EState.of(shown);
+  NodeView.of(AppLocalizations l, ShownState shown, {required this.host, this.marker, this.eta, this.lines = const [], this.standIn}) : word = shown.word(l), state = EState.of(shown);
 
   /// Synced, Behind, Not answering, Checking, Starting, Syncing, Stalled, Failed, Stopped.
   final String word;
@@ -45,7 +46,33 @@ class NodeView {
   /// The tooltip's lines, only the known ones.
   final List<String> lines;
 
+  /// The public node standing in for the local node while it is starting or syncing.
+  final NodeStandIn? standIn;
+
   String get second => marker == null ? host : metaLine([host, marker]);
+}
+
+/// A public node the wallet reads through while the local node catches up ([percent], when
+/// known) or makes no progress ([notSyncing]).
+class NodeStandIn {
+  const NodeStandIn({required this.host, this.percent, this.notSyncing = false});
+
+  final String host;
+  final String? percent;
+  final bool notSyncing;
+
+  /// "Using node.example.org · your node is catching up".
+  String tip(AppLocalizations l) => notSyncing ? l.deskNodeTipNotSyncing(host) : l.deskNodeTipCatchingUp(host);
+
+  /// The status bar's "your node is catching up 29%" after "Using public node".
+  String detail(AppLocalizations l) => percent == null ? l.deskNodeCatchingUp : l.deskNodeCatchingUpPct(percent!);
+
+  /// The node popover's note.
+  String note(AppLocalizations l) => notSyncing
+      ? l.deskNodeNotSyncingNote(notSyncingAfter.inMinutes)
+      : percent == null
+      ? l.deskNodeCatchingUpNote
+      : l.deskNodeCatchingUpNotePct(percent!);
 }
 
 /// 2914414 → "2,914,414" (`2.914.414` in German), for text shown.
@@ -198,7 +225,8 @@ bool isLocalNodeUrl(String url) {
 /// The local node (§16). [fallbackUrl] is the public node the wallet actually reads through
 /// meanwhile (the wallet's own node URL when it is not the local one): the second line then
 /// names that node, whatever the local node's phase, and the tooltip says which is which.
-NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackUrl}) {
+/// [notSyncing]: the node has made no progress for [notSyncingAfter] (`deskNodeNotSyncingProvider`).
+NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackUrl, bool notSyncing = false}) {
   final name = l.deskNodeLocal;
   final fallback = fallbackUrl == null || isLocalNodeUrl(fallbackUrl) ? null : nodeHost(fallbackUrl);
   final host = fallback != null ? serviceHost('Node', fallback) : name; // l10n-ok: serviceHost's row key
@@ -209,11 +237,26 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
       return NodeView.of(l, ShownState.starting,
         host: host,
         marker: l.deskNodeMarkerStarting,
+        standIn: fallback == null ? null : NodeStandIn(host: fallback),
         lines: [name, l.deskNodeConnectingPeers, if (fallback != null) l.deskNodeUsingUntilSynced(fallback)],
       );
     case LocalNodePhase.syncing:
       final pct = p?.overall == null ? null : syncPercent(l, p!.overall!);
+      final standIn = fallback == null ? null : NodeStandIn(host: fallback, percent: pct, notSyncing: notSyncing);
+      if (notSyncing) {
+        return NodeView.of(l, ShownState.stalled,
+          host: host,
+          marker: l.deskNodeMarkerNotSyncing,
+          standIn: standIn,
+          lines: [
+            metaLine([name, if (s.height != null) digits(l, s.height!)]),
+            l.deskNodeNotSyncingNote(notSyncingAfter.inMinutes),
+            if (fallback != null) l.deskNodeUsingMeanwhile(fallback),
+          ],
+        );
+      }
       return NodeView.of(l, ShownState.syncing,
+        standIn: standIn,
         host: host,
         marker: pct,
         eta: syncEtaText(l, s.etaTotal),

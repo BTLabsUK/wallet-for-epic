@@ -90,8 +90,10 @@ class DeskStatusPopover extends ConsumerWidget {
     final status = ref.watch(deskProvider.select((s) => s.status));
     final nodes = ref.watch(deskProvider.select((s) => s.nodes)) ?? const <NodeServer>[];
     final boxes = ref.watch(deskProvider.select((s) => s.epicboxes)) ?? const <EpicboxServer>[];
-    final name = i.name;
-    final word = i.word;
+    final standIn = i.standIn;
+    // A public node standing in: "Node · Using public node", its host under it (not "Public node").
+    final name = standIn == null ? i.name : l.deskRailNode;
+    final word = standIn == null ? i.word : l.deskNodeUsingPublic;
     final facts = <DeskFact>[];
     final notes = <String>[];
     Widget tile;
@@ -175,6 +177,11 @@ class DeskStatusPopover extends ConsumerWidget {
               secondMono: secondMono,
             ),
           ),
+          if (standIn != null)
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x3, 0, Sp.x3, Sp.x3),
+              child: Text(standIn.note(l), key: const ValueKey('status-node-standin'), style: ts.small.copyWith(color: standIn.notSyncing ? c.text : c.dim)),
+            ),
           if (facts.isNotEmpty) Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: DeskFactStrip(facts, bottomLine: false)),
           if (notes.isNotEmpty)
             Padding(
@@ -205,6 +212,16 @@ class DeskStatusPopover extends ConsumerWidget {
                 spacing: Sp.x2,
                 runSpacing: Sp.x2,
                 children: [
+                  if (standIn?.notSyncing ?? false)
+                    EButton(
+                      key: const ValueKey('status-node-restart'),
+                      label: l.deskNodeRestart,
+                      size: EBtnSize.sm,
+                      onPressed: () {
+                        close();
+                        unawaited(deskRestartLocalNode(ref));
+                      },
+                    ),
                   EButton(
                     key: ValueKey('status-open-${i.jump.name}'),
                     label: i.open,

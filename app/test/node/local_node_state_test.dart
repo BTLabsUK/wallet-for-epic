@@ -295,4 +295,58 @@ void main() {
       expect(line, contains('behind 100'));
     });
   });
+
+  group('not syncing watch', () {
+    final t0 = DateTime(2026, 11, 16, 9);
+    LocalNodeState at(int min, {LocalNodePhase phase = LocalNodePhase.syncing, int height = 100, SyncStage stage = SyncStage.blocks, int? done}) => LocalNodeState(
+      phase: phase,
+      dataFolder: '/n',
+      chainDataPath: '/n/chain_data',
+      at: t0.add(Duration(minutes: min)),
+      height: height,
+      progress: SyncProgress(stage, done: done ?? height),
+    );
+
+    test('15 min without progress: not syncing; a new height moves it again', () {
+      final w = SyncWatch();
+      expect(w.update(at(0)), isFalse);
+      expect(w.update(at(14)), isFalse);
+      expect(w.update(at(15)), isTrue);
+      expect(w.update(at(16, height: 101)), isFalse);
+      expect(w.update(at(30)), isFalse);
+      expect(w.update(at(31)), isTrue);
+    });
+
+    test('header progress counts while the height stands', () {
+      final w = SyncWatch();
+      w.update(at(0, stage: SyncStage.headers, done: 500));
+      expect(w.update(at(14, stage: SyncStage.headers, done: 900)), isFalse);
+      expect(w.update(at(28, stage: SyncStage.headers, done: 900)), isFalse);
+      expect(w.update(at(29, stage: SyncStage.headers, done: 900)), isTrue);
+    });
+
+    test('flipping between stages without new blocks stays not syncing', () {
+      final w = SyncWatch();
+      w.update(at(0, done: 100));
+      w.update(at(5, stage: SyncStage.headers, done: 3800000));
+      expect(w.update(at(15, done: 100)), isFalse, reason: 'headers moved at 5');
+      expect(w.update(at(20, stage: SyncStage.headers, done: 3800000)), isTrue);
+    });
+
+    test('a stage with no measure never counts as stuck', () {
+      final w = SyncWatch();
+      w.update(at(0));
+      expect(w.update(at(40, stage: SyncStage.chainStateProcessing)), isFalse);
+    });
+
+    test('leaving syncing resets the watch', () {
+      final w = SyncWatch();
+      w.update(at(0));
+      expect(w.update(at(20)), isTrue);
+      expect(w.update(at(21, phase: LocalNodePhase.synced)), isFalse);
+      expect(w.update(at(22)), isFalse);
+      expect(w.update(at(36)), isFalse);
+      expect(w.update(at(37)), isTrue);
+    });
+  });
 }

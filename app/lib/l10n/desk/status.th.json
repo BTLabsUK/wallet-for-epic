@@ -76,5 +76,17 @@
   "deskNodeEtaMinute": "หนึ่งนาที",
   "deskNodeEtaMinutes": "{minutes} นาที",
   "deskNodeEtaHours": "{hours} ชั่วโมง",
-  "deskNodeEtaHoursMinutes": "{hours} ชั่วโมง {minutes} นาที"
+  "deskNodeEtaHoursMinutes": "{hours} ชั่วโมง {minutes} นาที",
+  "deskBarPublicNode": "โหนดสาธารณะ",
+  "deskNodeUsingPublic": "กำลังใช้โหนดสาธารณะ",
+  "deskNodeTipCatchingUp": "กำลังใช้ {host} · โหนดของคุณกำลังตามให้ทัน",
+  "deskNodeTipNotSyncing": "กำลังใช้ {host} · โหนดของคุณไม่ซิงค์",
+  "deskNodeCatchingUp": "โหนดของคุณกำลังตามให้ทัน",
+  "deskNodeCatchingUpPct": "โหนดของคุณกำลังตามให้ทัน {percent}",
+  "deskNodeCatchingUpNote": "โหนดของคุณกำลังตามให้ทัน กระเป๋าเงินจะกลับไปใช้โหนดนี้เองเมื่อซิงค์เสร็จ",
+  "deskNodeCatchingUpNotePct": "โหนดของคุณกำลังตามให้ทัน {percent} กระเป๋าเงินจะกลับไปใช้โหนดนี้เองเมื่อซิงค์เสร็จ",
+  "deskNodeNotSyncing": "โหนดของคุณไม่ซิงค์",
+  "deskNodeNotSyncingNote": "โหนดของคุณไม่ซิงค์ ไม่คืบหน้า {minutes} นาที การเริ่มใหม่มักช่วยได้",
+  "deskNodeRestart": "เริ่มโหนดใหม่",
+  "deskNodeMarkerNotSyncing": "ไม่ซิงค์"
 }

@@ -313,3 +313,46 @@ String localNodeLogLine(LocalNodeState s) =>
     'local node ${s.phase.name} (${localNodeReason(s)}): height ${s.height ?? '?'}, '
     'network ${s.networkHeight ?? '?'}, behind ${s.blocksBehind ?? '?'}, peers ${s.peers ?? '?'}, '
     'ready ${s.readyForTxs ?? '?'}';
+
+/// A syncing node that has not moved for this long reads "not syncing".
+const Duration notSyncingAfter = Duration(minutes: 15);
+
+/// Watches a syncing local node for progress: its height, or any stage's own count (headers,
+/// chain state bytes, kernels, range proofs), going past the best seen. A node that flips
+/// between waiting for peers and a stage without getting further is not progressing. [update]
+/// answers whether [after] has gone by since the last progress, by the states' own clocks.
+class SyncWatch {
+  SyncWatch({this.after = notSyncingAfter});
+
+  final Duration after;
+  int _height = -1;
+  final Map<SyncStage, int> _done = {};
+  DateTime? _since;
+
+  bool update(LocalNodeState s) {
+    if (s.phase != LocalNodePhase.syncing) {
+      _height = -1;
+      _done.clear();
+      _since = null;
+      return false;
+    }
+    var moved = _since == null;
+    final h = s.height ?? 0;
+    if (h > _height) {
+      _height = h;
+      moved = true;
+    }
+    final p = s.progress;
+    final d = p?.done;
+    if (p != null && d != null && d > (_done[p.stage] ?? -1)) {
+      _done[p.stage] = d;
+      moved = true;
+    }
+    // A stage with no count to watch (the chain state checked as a whole) is given its time.
+    if (p != null && _unmeasured.contains(p.stage)) moved = true;
+    if (moved) _since = s.at;
+    return s.at.difference(_since!) >= after;
+  }
+}
+
+const _unmeasured = {SyncStage.chainStateProcessing, SyncStage.compacting, SyncStage.shuttingDown};

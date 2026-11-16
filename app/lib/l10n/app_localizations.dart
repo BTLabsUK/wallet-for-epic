@@ -33516,6 +33516,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Verified by {domain}'**
   String deskPairVerifiedByDomain(String domain);
+
+  /// Status bar, node part: the wallet reads the chain through a public node while the user's own node on this computer catches up. Very short; a percent may follow.
+  ///
+  /// In en, this message translates to:
+  /// **'Public node'**
+  String get deskBarPublicNode;
+
+  /// Status bar title and node popover badge: the wallet reads the chain through a public node meanwhile (the node's address follows on its own line).
+  ///
+  /// In en, this message translates to:
+  /// **'Using public node'**
+  String get deskNodeUsingPublic;
+
+  /// Tooltip of the status bar's node part: the public node in use, and the user's own node on this computer is still syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Using {host} · your node is catching up'**
+  String deskNodeTipCatchingUp(String host);
+
+  /// Tooltip of the status bar's node part: the public node in use, and the user's own node has made no progress for a long while.
+  ///
+  /// In en, this message translates to:
+  /// **'Using {host} · your node is not syncing'**
+  String deskNodeTipNotSyncing(String host);
+
+  /// Status bar, after 'Using public node ·': the user's own node is still syncing. Lower case: it follows a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'your node is catching up'**
+  String get deskNodeCatchingUp;
+
+  /// Status bar, after 'Using public node ·': the user's own node is still syncing, with its progress ("29%"). Lower case: it follows a dot.
+  ///
+  /// In en, this message translates to:
+  /// **'your node is catching up {percent}'**
+  String deskNodeCatchingUpPct(String percent);
+
+  /// Node popover note while a public node stands in for the user's own node that is still syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node is catching up. The wallet moves back to it by itself once it is synced.'**
+  String get deskNodeCatchingUpNote;
+
+  /// Node popover note while a public node stands in for the user's own node that is still syncing, with its progress ("29%").
+  ///
+  /// In en, this message translates to:
+  /// **'Your node is catching up {percent}. The wallet moves back to it by itself once it is synced.'**
+  String deskNodeCatchingUpNotePct(String percent);
+
+  /// Status bar and node popover: the user's own node has made no progress for a long while; a Restart node action follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node is not syncing'**
+  String get deskNodeNotSyncing;
+
+  /// Node popover note and tooltip line: the user's own node has not moved for this many minutes; a Restart node button follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Your node is not syncing: no progress for {minutes} min. A restart often gets it going again.'**
+  String deskNodeNotSyncingNote(int minutes);
+
+  /// Button and status bar action: restarts the user's own node on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart node'**
+  String get deskNodeRestart;
+
+  /// Status bar, after 'Public node': the user's own node makes no progress. Very short, lower case.
+  ///
+  /// In en, this message translates to:
+  /// **'not syncing'**
+  String get deskNodeMarkerNotSyncing;
 }
 
 class _AppLocalizationsDelegate

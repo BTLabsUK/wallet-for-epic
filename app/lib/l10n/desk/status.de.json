@@ -76,5 +76,17 @@
   "deskNodeEtaMinute": "eine Minute",
   "deskNodeEtaMinutes": "{minutes} Min.",
   "deskNodeEtaHours": "{hours} Std.",
-  "deskNodeEtaHoursMinutes": "{hours} Std. {minutes} Min."
+  "deskNodeEtaHoursMinutes": "{hours} Std. {minutes} Min.",
+  "deskBarPublicNode": "Öffentlicher Node",
+  "deskNodeUsingPublic": "Öffentlicher Node in Nutzung",
+  "deskNodeTipCatchingUp": "Nutzt {host} · Ihr Node holt auf",
+  "deskNodeTipNotSyncing": "Nutzt {host} · Ihr Node synchronisiert nicht",
+  "deskNodeCatchingUp": "Ihr Node holt auf",
+  "deskNodeCatchingUpPct": "Ihr Node holt auf {percent}",
+  "deskNodeCatchingUpNote": "Ihr Node holt auf. Die Wallet wechselt von selbst zurück, sobald er synchronisiert ist.",
+  "deskNodeCatchingUpNotePct": "Ihr Node holt auf {percent}. Die Wallet wechselt von selbst zurück, sobald er synchronisiert ist.",
+  "deskNodeNotSyncing": "Ihr Node synchronisiert nicht",
+  "deskNodeNotSyncingNote": "Ihr Node synchronisiert nicht: seit {minutes} Min. kein Fortschritt. Ein Neustart hilft oft.",
+  "deskNodeRestart": "Node neu starten",
+  "deskNodeMarkerNotSyncing": "synchronisiert nicht"
 }

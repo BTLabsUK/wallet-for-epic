@@ -250,7 +250,7 @@ class _StatusLight extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final tip = deskStatusTip(l, item);
+    final tip = item.standIn?.tip(l) ?? deskStatusTip(l, item);
     final node = item.jump == SettingsJump.node;
     final height = node && item.state == EState.ok ? ref.watch(deskProvider.select((s) => s.status?.nodeHeight)) : null;
     final detail = node ? (item.marker ?? (height == null ? null : digits(l, height))) : null;

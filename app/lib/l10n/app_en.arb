@@ -29141,5 +29141,83 @@
         "type": "String"
       }
     }
+  },
+  "deskBarPublicNode": "Public node",
+  "@deskBarPublicNode": {
+    "description": "Status bar, node part: the wallet reads the chain through a public node while the user's own node on this computer catches up. Very short; a percent may follow."
+  },
+  "deskNodeUsingPublic": "Using public node",
+  "@deskNodeUsingPublic": {
+    "description": "Status bar title and node popover badge: the wallet reads the chain through a public node meanwhile (the node's address follows on its own line)."
+  },
+  "deskNodeTipCatchingUp": "Using {host} · your node is catching up",
+  "@deskNodeTipCatchingUp": {
+    "description": "Tooltip of the status bar's node part: the public node in use, and the user's own node on this computer is still syncing.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeTipNotSyncing": "Using {host} · your node is not syncing",
+  "@deskNodeTipNotSyncing": {
+    "description": "Tooltip of the status bar's node part: the public node in use, and the user's own node has made no progress for a long while.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeCatchingUp": "your node is catching up",
+  "@deskNodeCatchingUp": {
+    "description": "Status bar, after 'Using public node ·': the user's own node is still syncing. Lower case: it follows a dot."
+  },
+  "deskNodeCatchingUpPct": "your node is catching up {percent}",
+  "@deskNodeCatchingUpPct": {
+    "description": "Status bar, after 'Using public node ·': the user's own node is still syncing, with its progress (\"29%\"). Lower case: it follows a dot.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "29%"
+      }
+    }
+  },
+  "deskNodeCatchingUpNote": "Your node is catching up. The wallet moves back to it by itself once it is synced.",
+  "@deskNodeCatchingUpNote": {
+    "description": "Node popover note while a public node stands in for the user's own node that is still syncing."
+  },
+  "deskNodeCatchingUpNotePct": "Your node is catching up {percent}. The wallet moves back to it by itself once it is synced.",
+  "@deskNodeCatchingUpNotePct": {
+    "description": "Node popover note while a public node stands in for the user's own node that is still syncing, with its progress (\"29%\").",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "29%"
+      }
+    }
+  },
+  "deskNodeNotSyncing": "Your node is not syncing",
+  "@deskNodeNotSyncing": {
+    "description": "Status bar and node popover: the user's own node has made no progress for a long while; a Restart node action follows."
+  },
+  "deskNodeNotSyncingNote": "Your node is not syncing: no progress for {minutes} min. A restart often gets it going again.",
+  "@deskNodeNotSyncingNote": {
+    "description": "Node popover note and tooltip line: the user's own node has not moved for this many minutes; a Restart node button follows.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
+  "deskNodeRestart": "Restart node",
+  "@deskNodeRestart": {
+    "description": "Button and status bar action: restarts the user's own node on this computer."
+  },
+  "deskNodeMarkerNotSyncing": "not syncing",
+  "@deskNodeMarkerNotSyncing": {
+    "description": "Status bar, after 'Public node': the user's own node makes no progress. Very short, lower case."
   }
 }

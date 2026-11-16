@@ -22002,4 +22002,51 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskPairVerifiedByDomain(String domain) {
     return 'Проверено через $domain';
   }
+
+  @override
+  String get deskBarPublicNode => 'Публичный узел';
+
+  @override
+  String get deskNodeUsingPublic => 'Используется публичный узел';
+
+  @override
+  String deskNodeTipCatchingUp(String host) {
+    return 'Используется $host · ваш узел догоняет';
+  }
+
+  @override
+  String deskNodeTipNotSyncing(String host) {
+    return 'Используется $host · ваш узел не синхронизируется';
+  }
+
+  @override
+  String get deskNodeCatchingUp => 'ваш узел догоняет';
+
+  @override
+  String deskNodeCatchingUpPct(String percent) {
+    return 'ваш узел догоняет $percent';
+  }
+
+  @override
+  String get deskNodeCatchingUpNote =>
+      'Ваш узел догоняет сеть. Кошелёк сам вернётся к нему после синхронизации.';
+
+  @override
+  String deskNodeCatchingUpNotePct(String percent) {
+    return 'Ваш узел догоняет сеть, $percent. Кошелёк сам вернётся к нему после синхронизации.';
+  }
+
+  @override
+  String get deskNodeNotSyncing => 'Ваш узел не синхронизируется';
+
+  @override
+  String deskNodeNotSyncingNote(int minutes) {
+    return 'Ваш узел не синхронизируется: нет прогресса $minutes мин. Перезапуск часто помогает.';
+  }
+
+  @override
+  String get deskNodeRestart => 'Перезапустить узел';
+
+  @override
+  String get deskNodeMarkerNotSyncing => 'не синхронизируется';
 }

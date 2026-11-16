@@ -20978,4 +20978,51 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskPairVerifiedByDomain(String domain) {
     return 'ยืนยันผ่าน $domain';
   }
+
+  @override
+  String get deskBarPublicNode => 'โหนดสาธารณะ';
+
+  @override
+  String get deskNodeUsingPublic => 'กำลังใช้โหนดสาธารณะ';
+
+  @override
+  String deskNodeTipCatchingUp(String host) {
+    return 'กำลังใช้ $host · โหนดของคุณกำลังตามให้ทัน';
+  }
+
+  @override
+  String deskNodeTipNotSyncing(String host) {
+    return 'กำลังใช้ $host · โหนดของคุณไม่ซิงค์';
+  }
+
+  @override
+  String get deskNodeCatchingUp => 'โหนดของคุณกำลังตามให้ทัน';
+
+  @override
+  String deskNodeCatchingUpPct(String percent) {
+    return 'โหนดของคุณกำลังตามให้ทัน $percent';
+  }
+
+  @override
+  String get deskNodeCatchingUpNote =>
+      'โหนดของคุณกำลังตามให้ทัน กระเป๋าเงินจะกลับไปใช้โหนดนี้เองเมื่อซิงค์เสร็จ';
+
+  @override
+  String deskNodeCatchingUpNotePct(String percent) {
+    return 'โหนดของคุณกำลังตามให้ทัน $percent กระเป๋าเงินจะกลับไปใช้โหนดนี้เองเมื่อซิงค์เสร็จ';
+  }
+
+  @override
+  String get deskNodeNotSyncing => 'โหนดของคุณไม่ซิงค์';
+
+  @override
+  String deskNodeNotSyncingNote(int minutes) {
+    return 'โหนดของคุณไม่ซิงค์ ไม่คืบหน้า $minutes นาที การเริ่มใหม่มักช่วยได้';
+  }
+
+  @override
+  String get deskNodeRestart => 'เริ่มโหนดใหม่';
+
+  @override
+  String get deskNodeMarkerNotSyncing => 'ไม่ซิงค์';
 }

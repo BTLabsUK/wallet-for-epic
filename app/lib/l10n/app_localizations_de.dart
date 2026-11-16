@@ -21636,4 +21636,51 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskPairVerifiedByDomain(String domain) {
     return 'Verifiziert über $domain';
   }
+
+  @override
+  String get deskBarPublicNode => 'Öffentlicher Node';
+
+  @override
+  String get deskNodeUsingPublic => 'Öffentlicher Node in Nutzung';
+
+  @override
+  String deskNodeTipCatchingUp(String host) {
+    return 'Nutzt $host · Ihr Node holt auf';
+  }
+
+  @override
+  String deskNodeTipNotSyncing(String host) {
+    return 'Nutzt $host · Ihr Node synchronisiert nicht';
+  }
+
+  @override
+  String get deskNodeCatchingUp => 'Ihr Node holt auf';
+
+  @override
+  String deskNodeCatchingUpPct(String percent) {
+    return 'Ihr Node holt auf $percent';
+  }
+
+  @override
+  String get deskNodeCatchingUpNote =>
+      'Ihr Node holt auf. Die Wallet wechselt von selbst zurück, sobald er synchronisiert ist.';
+
+  @override
+  String deskNodeCatchingUpNotePct(String percent) {
+    return 'Ihr Node holt auf $percent. Die Wallet wechselt von selbst zurück, sobald er synchronisiert ist.';
+  }
+
+  @override
+  String get deskNodeNotSyncing => 'Ihr Node synchronisiert nicht';
+
+  @override
+  String deskNodeNotSyncingNote(int minutes) {
+    return 'Ihr Node synchronisiert nicht: seit $minutes Min. kein Fortschritt. Ein Neustart hilft oft.';
+  }
+
+  @override
+  String get deskNodeRestart => 'Node neu starten';
+
+  @override
+  String get deskNodeMarkerNotSyncing => 'synchronisiert nicht';
 }

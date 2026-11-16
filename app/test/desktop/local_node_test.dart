@@ -311,4 +311,20 @@ void main() {
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, isNull, reason: 'the folder row has Change');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
   });
+
+  test('the stand-in copy: catching up with its percent, then not syncing with Restart node', () {
+    final s = mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.3);
+    final up = localNodeView(englishStrings, s, fallbackUrl: 'https://node.lab.invalid');
+    expect(up.standIn?.tip(englishStrings), 'Using node.lab.invalid · your node is catching up');
+    expect(up.standIn?.detail(englishStrings), 'your node is catching up 30%');
+    expect(up.standIn?.note(englishStrings), contains('30%'));
+
+    final stuck = localNodeView(englishStrings, s, fallbackUrl: 'https://node.lab.invalid', notSyncing: true);
+    expect(stuck.marker, 'not syncing');
+    expect(stuck.standIn?.tip(englishStrings), 'Using node.lab.invalid · your node is not syncing');
+    expect(stuck.standIn?.note(englishStrings), 'Your node is not syncing: no progress for 15 min. A restart often gets it going again.');
+    expect(stuck.lines, contains('Your node is not syncing: no progress for 15 min. A restart often gets it going again.'));
+
+    expect(localNodeView(englishStrings, s).standIn, isNull, reason: 'no fallback, no stand-in');
+  });
 }

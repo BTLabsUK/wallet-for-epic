@@ -5573,5 +5573,17 @@
   "deskPaySentPosted": "ส่งเข้าเครือข่ายแล้ว รอเข้าบล็อก",
   "deskPairDomainChecking": "กำลังตรวจ {domain}…",
   "deskPairDomainVerifiedBody": "{domain} ยืนยันว่านี่คือกระเป๋าเงินของ {name} ไม่ต้องเทียบคำ",
-  "deskPairVerifiedByDomain": "ยืนยันผ่าน {domain}"
+  "deskPairVerifiedByDomain": "ยืนยันผ่าน {domain}",
+  "deskBarPublicNode": "โหนดสาธารณะ",
+  "deskNodeUsingPublic": "กำลังใช้โหนดสาธารณะ",
+  "deskNodeTipCatchingUp": "กำลังใช้ {host} · โหนดของคุณกำลังตามให้ทัน",
+  "deskNodeTipNotSyncing": "กำลังใช้ {host} · โหนดของคุณไม่ซิงค์",
+  "deskNodeCatchingUp": "โหนดของคุณกำลังตามให้ทัน",
+  "deskNodeCatchingUpPct": "โหนดของคุณกำลังตามให้ทัน {percent}",
+  "deskNodeCatchingUpNote": "โหนดของคุณกำลังตามให้ทัน กระเป๋าเงินจะกลับไปใช้โหนดนี้เองเมื่อซิงค์เสร็จ",
+  "deskNodeCatchingUpNotePct": "โหนดของคุณกำลังตามให้ทัน {percent} กระเป๋าเงินจะกลับไปใช้โหนดนี้เองเมื่อซิงค์เสร็จ",
+  "deskNodeNotSyncing": "โหนดของคุณไม่ซิงค์",
+  "deskNodeNotSyncingNote": "โหนดของคุณไม่ซิงค์ ไม่คืบหน้า {minutes} นาที การเริ่มใหม่มักช่วยได้",
+  "deskNodeRestart": "เริ่มโหนดใหม่",
+  "deskNodeMarkerNotSyncing": "ไม่ซิงค์"
 }

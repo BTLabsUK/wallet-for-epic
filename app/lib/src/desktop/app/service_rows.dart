@@ -42,6 +42,7 @@ class ServiceItem {
     required this.open,
     required this.jump,
     this.byMode = false,
+    this.standIn,
   });
 
   final IconData icon;
@@ -65,6 +66,9 @@ class ServiceItem {
 
   /// The mode turned this service off: a click opens the Network section ([opens]).
   final bool byMode;
+
+  /// The node row only: the public node standing in for the local node.
+  final NodeStandIn? standIn;
 
   /// The row of a service the network mode turns off: neutral, "Off (Node only)", nothing is
   /// being checked; a click opens the Network section, not the service's switch.
@@ -203,7 +207,9 @@ List<ServiceItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, Desk
 /// The Node row from a [NodeView].
 ServiceItem nodeRailItem(AppLocalizations l, NodeView v) => ServiceItem(
   icon: EIcons.node,
-  name: l.deskRailNode,
+  // "Public node · 29%": the node the wallet reads through, not the local one catching up.
+  name: v.standIn == null ? l.deskRailNode : l.deskBarPublicNode,
+  standIn: v.standIn,
   word: v.word,
   state: v.state,
   second: v.host,
@@ -312,7 +318,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       _url = null;
       // The node the wallet actually reads through: the public fallback until the local node
       // takes over, whatever the local node's phase.
-      node = localNodeView(context.l10n, ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url);
+      node = localNodeView(context.l10n, ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url, notSyncing: ref.watch(deskNodeNotSyncingProvider));
     } else if (status == null) {
       _url = null;
       node = NodeView.of(l, ShownState.checking, host: '–');
