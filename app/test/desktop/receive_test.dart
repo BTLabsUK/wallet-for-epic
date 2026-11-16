@@ -147,9 +147,14 @@ void main() {
     }
 
     final closed = tester.getSize(panel).height;
+    // The page scrolls: the toggle sits below a 900 px window.
+    await tester.ensureVisible(find.byKey(const ValueKey('rx-qr-http')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('rx-qr-http')));
     final open = await frames();
     expect(tester.getSize(panel).height, greaterThan(closed + 150));
+    await tester.ensureVisible(find.byKey(const ValueKey('rx-qr-http')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('rx-qr-http')));
     final close = await frames();
     expect(tester.getSize(panel).height, closed);
@@ -159,6 +164,8 @@ void main() {
 
   _testWidgets('with reduced motion the reveal swaps in one frame', (tester) async {
     await _internet(tester, await _pump(tester, const ReceiveArgs(http: RxHttp.on), reduce: true));
+    await tester.ensureVisible(find.byKey(const ValueKey('rx-qr-http')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('rx-qr-http')));
     await tester.pump();
     expect(find.byKey(const ValueKey('rx-qr-image-http')), findsOneWidget);

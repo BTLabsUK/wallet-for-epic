@@ -56,6 +56,9 @@ class _InvoiceWallet with NoBoosts implements lepic.EpicWallet {
   bool nativeDirectInUse() => false;
 
   @override
+  Future<List<lepic.Epic1AnswerView>> epic1Answers({required lepic.ContactRelayMode relayMode}) async => const [];
+
+  @override
   void lock() {}
 
   @override

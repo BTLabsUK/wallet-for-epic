@@ -102,15 +102,23 @@ void main() {
       expect(find.byKey(deskCancelFeeHintKey), findsNothing);
       expect(find.text(_l.cancelMoreInHelp), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       // The main button is the last one: at the end of the bar, after Unlock coins, which comes
-      // after Keep (the bar may wrap onto a second row when the labels are long).
+      // after Keep (the bar may wrap onto a second row when the labels are long). A label that
+      // does not fit its slot stacks the footer instead: one full-width button per line, the
+      // main action on top, Keep at the bottom.
       final sure = tester.getRect(_button(_l.cancelMoveBack));
       final stop = tester.getRect(_button(_l.cancelUnlockOpen));
       final keep = tester.getRect(_button(_l.deskTxCancelKeep));
-      expect(sure.bottom, greaterThanOrEqualTo(stop.bottom - 1));
-      expect(sure.bottom, greaterThanOrEqualTo(keep.bottom - 1));
-      expect(stop.bottom, greaterThanOrEqualTo(keep.bottom - 1));
-      if ((sure.center.dy - stop.center.dy).abs() < 1) expect(stop.right, lessThanOrEqualTo(sure.left + 1));
-      if ((stop.center.dy - keep.center.dy).abs() < 1) expect(keep.right, lessThanOrEqualTo(stop.left + 1));
+      final stacked = (sure.width - keep.width).abs() < 1 && (sure.left - keep.left).abs() < 1 && sure.bottom <= stop.top + 1;
+      if (stacked) {
+        expect(stop.bottom, lessThanOrEqualTo(keep.top + 1));
+        expect((stop.width - sure.width).abs(), lessThan(1));
+      } else {
+        expect(sure.bottom, greaterThanOrEqualTo(stop.bottom - 1));
+        expect(sure.bottom, greaterThanOrEqualTo(keep.bottom - 1));
+        expect(stop.bottom, greaterThanOrEqualTo(keep.bottom - 1));
+        if ((sure.center.dy - stop.center.dy).abs() < 1) expect(stop.right, lessThanOrEqualTo(sure.left + 1));
+        if ((stop.center.dy - keep.center.dy).abs() < 1) expect(keep.right, lessThanOrEqualTo(stop.left + 1));
+      }
       await _end(tester);
     });
 
