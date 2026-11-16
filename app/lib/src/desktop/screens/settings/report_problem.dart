@@ -15,6 +15,7 @@ import '../../../log.dart';
 import '../../../support_report.dart';
 import '../../../ui/feedback_screen.dart' show feedbackCleanContextProvider, feedbackPlatformProvider;
 import '../../app/shell.dart' show deskVersion;
+import '../../data/desk_node.dart' show NodeReportData, deskNodeProvider;
 import '../../data/logs.dart';
 import '../../data/net_mode_view.dart';
 import '../../../network_gate.dart' show NetBlock;
@@ -132,11 +133,25 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
       final sink = ref.read(feedbackLogProvider);
       _files = await sink.files();
       _log = await sink.tail(feedbackLogBytes);
+      await _readNode();
     } catch (error) {
       _log = 'The log could not be read: $error\n'; // l10n-ok: goes into the report
     }
     if (mounted) setState(() {});
     _refreshPreview();
+  }
+
+  NodeReportData? _node;
+
+  /// The built-in node's state and logs now; null when it was not used or cannot be read.
+  Future<void> _readNode() async {
+    if (widget.lastSession != null) return;
+    try {
+      _node = await ref.read(deskNodeProvider).reportData().timeout(const Duration(seconds: 5));
+    } catch (error) {
+      _node = null;
+      logWarn('support', 'node state not read for the report: $error');
+    }
   }
 
   FeedbackDetails _details() {
@@ -171,6 +186,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     final at = _at;
     final context = ref.read(feedbackCleanContextProvider);
     final lastSession = widget.lastSession;
+    final node = _attachLogs ? _node : null;
     // The cleaning keeps the hosts the shipped files name: the other isolate gets a copy of the
     // settings in use and of the default copy (its own would fall back to the user's).
     final settings = hostSettings;
@@ -178,7 +194,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     return Isolate.run(() {
       hostSettings = settings;
       shippedHostSettings = shipped;
-      return buildFeedbackReport(message: message, details: details, ring: ring, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails, lastSession: lastSession);
+      return buildFeedbackReport(message: message, details: details, ring: ring, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails, lastSession: lastSession, node: node);
     });
   }
 
@@ -197,6 +213,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
       final outlet = ref.read(feedbackOutletProvider);
       final id = await feedbackSendWithin(() async {
         await _logRead;
+        await _readNode(); // the snapshot as of the send
         return outlet.post(url, await _report());
       }());
       logInfo('support', 'report sent, $id');

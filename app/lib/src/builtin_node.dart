@@ -546,6 +546,8 @@ class BuiltInNode {
   String? _userDbRoot;
   DateTime? _startedAt;
   String? _version;
+  int _spawns = 0;
+  NodeProcess? _lastProcess;
   Future<void>? _restarting;
   int _stopCalls = 0;
   bool _disposed = false;
@@ -565,6 +567,14 @@ class BuiltInNode {
   /// When the running process was spawned (a watchdog restart or [restart] spawns a new one);
   /// null while none runs.
   DateTime? get startedAt => _process == null ? null : _startedAt;
+
+  /// How many times this object spawned the node process (the first start, a watchdog restart,
+  /// [restart]); for the support report.
+  int get spawns => _spawns;
+
+  /// The last lines the newest process wrote to stdout and stderr, also after it exited (the
+  /// node keeps no stdout log of its own).
+  List<String> get outputTail => List.of(_lastProcess?.tail ?? const <String>[]);
 
   /// True after [dispose]: the state stream is closed.
   bool get isDisposed => _disposed;
@@ -919,6 +929,8 @@ class BuiltInNode {
     _badSince = null;
     final now = _clock();
     _startedAt = now;
+    _spawns++;
+    _lastProcess = process;
     _version = null;
     _lastAnswer = now;
     _lastDiskCheck = now;
@@ -1535,7 +1547,7 @@ class _IoNodeProcess implements NodeProcess {
         .transform(const LineSplitter())
         .listen((line) {
           tail.add(line);
-          if (tail.length > 20) tail.removeAt(0);
+          if (tail.length > 100) tail.removeAt(0);
         }, onError: (_) {});
     collect(_process.stdout);
     collect(_process.stderr);

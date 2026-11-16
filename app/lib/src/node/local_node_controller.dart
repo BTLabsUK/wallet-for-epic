@@ -306,6 +306,26 @@ class LocalNodeController {
     }
   }
 
+  /// Where the network tip in [state] came from, for the support report: the node's own
+  /// highest height, the node directory, or the peers' median; the largest known wins, as in
+  /// [networkTipOf].
+  String get networkTipSource {
+    final status = node.state.status;
+    final own = node.state.highest ?? status?.syncInfo?.highestHeight;
+    final outside = _directoryHeight ?? _peersHeight;
+    final outsideName = _directoryHeight != null ? 'node directory' : 'peers (median)';
+    if (own == null && outside == null) return 'unknown';
+    if (outside == null) return 'the node\'s highest height';
+    if (own == null || outside >= own) return outsideName;
+    return 'the node\'s highest height';
+  }
+
+  /// Times the node process was spawned by this app session.
+  int get spawns => node.spawns;
+
+  /// The last lines of the node's stdout and stderr.
+  List<String> get outputTail => node.outputTail;
+
   /// Stops the timers and the state stream. The node keeps running (the wallet may use it).
   Future<void> dispose() async {
     if (_disposed) return;

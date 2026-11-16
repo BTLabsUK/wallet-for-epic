@@ -20,6 +20,7 @@ import 'l10n.dart';
 import 'last_session.dart';
 import 'settings_file/host_settings.dart' show appConfig;
 import 'slate_files.dart';
+import 'node/node_report.dart' show NodeReportData, nodeReportLogBytes;
 import 'support_clean.dart';
 import 'support_report.dart';
 
@@ -108,6 +109,7 @@ SupportReport buildFeedbackReport({
   CleanContext context = const CleanContext(),
   bool fullDetails = false,
   LastSessionLog? lastSession,
+  NodeReportData? node,
 }) {
   // One set of names for the facts and the log, so the node is the same <host-n> in both; the
   // message gets its own, as in the GUI.
@@ -143,6 +145,15 @@ SupportReport buildFeedbackReport({
       if (trace != null)
         // The freeze's threads: the main thread is at the start, so the start is what stays.
         _headFile('$dir/trace.txt', clean(trace), feedbackLogBytes),
+      // The built-in node: the snapshot, its own log and its output, cleaned like the app's
+      // log (IP addresses and the like become <ip-n>; the node's log names its peers).
+      if (node != null && lastSession == null) ...[
+        SupportFile(name: 'node/status.txt', text: clean(node.status)),
+        if (node.serverLog.isNotEmpty)
+          tailFile('node/epic-server.log', clean(node.serverLog), max: nodeReportLogBytes),
+        if (node.stdoutTail.isNotEmpty)
+          tailFile('node/stdout.log', clean(node.stdoutTail), max: nodeReportLogBytes),
+      ],
     ],
   );
 }

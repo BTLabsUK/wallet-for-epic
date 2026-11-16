@@ -18,6 +18,7 @@ import '../../builtin_node.dart' show NodeTomlOptions, NodeFailure, realPortInUs
 import '../../models.dart' show Chain;
 import '../../net/local_address.dart' show nodeClassOf;
 import '../../node/node.dart';
+import '../../node/node_report.dart';
 import '../../providers.dart' show secretStoreProvider;
 import '../../relay_directory.dart' show NodeHealthState, NetworkStatus;
 import '../../secret_store_api.dart' show MemorySecretStore;
@@ -27,6 +28,7 @@ import '../../settings_file/host_settings.dart' show appConfig;
 
 export '../../builtin_node.dart' show NodeTomlOptions, NodeFailure;
 export '../../node/node.dart';
+export '../../node/node_report.dart' show NodeReportData;
 export '../../relay_directory.dart' show NodeHealthState, NetworkStatus;
 export '../../net/local_address.dart' show NodeClass, nodeClassOf;
 export 'own_node.dart' show OwnerCheck, OwnerOff, OwnerUnavailable, OwnNodeStatus;
@@ -55,6 +57,9 @@ abstract interface class DeskNodeApi {
 
   Future<List<String>> logTail({int lines = 200});
   Future<String> logPath();
+
+  /// The node's state and logs for a problem report; null when the node was not used.
+  Future<NodeReportData?> reportData();
 
   /// The peers, now and every 10 s while listened to.
   Stream<PeerSnapshot> peers();
@@ -242,6 +247,9 @@ class LepicDeskNode implements DeskNodeApi {
   int _choiceSeq = 0;
   LocalNodeState? _state;
   FallbackDecision? _decision;
+
+  /// When the wallet last moved to the public node (this session), for the support report.
+  DateTime? _publicSince;
   late final FallbackSwitch _switch = FallbackSwitch((d) => unawaited(onDecision?.call(d)), timer: _switchTimer);
 
   Future<LocalNodeController> get _c => _ref.read(localNodeControllerProvider(chain).future);
@@ -253,6 +261,11 @@ class LepicDeskNode implements DeskNodeApi {
     if (s == null || c == null) return;
     final d = decideFallback(s, c);
     if (d == _decision) return;
+    if (d.action == FallbackAction.usePublic && _decision?.action != FallbackAction.usePublic) {
+      _publicSince = DateTime.now();
+    } else if (d.action != FallbackAction.usePublic) {
+      _publicSince = null;
+    }
     _decision = d;
     _switch.update(d);
   }
@@ -332,6 +345,10 @@ class LepicDeskNode implements DeskNodeApi {
 
   @override
   Future<String> logPath() async => (await _c).logPath;
+
+  @override
+  Future<NodeReportData?> reportData() async =>
+      readNodeReport(await _c, choice: await fallbackChoice(), publicSince: _publicSince);
 
   @override
   Stream<PeerSnapshot> peers() async* {
@@ -512,6 +529,9 @@ class MockDeskNode implements DeskNodeApi {
 
   @override
   Future<String> logPath() async => '${_state.dataFolder}/epic-server.log';
+
+  @override
+  Future<NodeReportData?> reportData() async => null;
 
   @override
   Stream<PeerSnapshot> peers() async* {
