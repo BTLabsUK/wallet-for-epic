@@ -26,3 +26,4 @@ test/send_test.dart 49 keep large screen file; recorded cost at seeding
 test/wallet_flow_test.dart 47 keep large screen file; recorded cost at seeding
 test/offline/desk_screens_offline_test.dart 46 keep large screen file; recorded cost at seeding
 test/desktop/home_field_test.dart 45 keep 26 cases, each on a full app; 31 s alone on main 9732ffce8, over 30 s in a wide run
+test/desktop/update_notice_test.dart 60 keep 18 update states on a fresh app each; 30 to 36 s alone on main b691dc080
