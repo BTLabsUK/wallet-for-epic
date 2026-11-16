@@ -1824,9 +1824,26 @@ class _PairFlowState extends ConsumerState<_PairFlowDialog> {
 
   /// The confirmation is in; [record] is the wallet's own view of the pairing, null when
   /// it could not be read.
-  void confirmed(PairingRecord? record) {
+  Future<void> confirmed(PairingRecord? record) async {
     final id = _id!;
+    // The sender's domain is asked first, the wait staying up: a proof ends Verified with no
+    // words shown; no proof by the cap, the words.
+    if (record != null && record.domainProvable) {
+      final api = ref.read(deskPairingApiProvider);
+      await holdForDomain(api, record);
+      if (!mounted) return;
+      try {
+        record = await api.pairing(id) ?? record;
+      } on Object {
+        // The record from before stands.
+      }
+    }
+    if (!mounted) return;
     if (record != null && record.state == PairingState.verified) {
+      if (record.domainStatus == DomainStatus.proven && (record.peerDomain ?? '').isNotEmpty) {
+        await _verifiedByDomain(id);
+        return;
+      }
       final host = Navigator.of(context).context;
       final l = context.l10n;
       final name = ref.read(deskPairingNameProvider(id));
@@ -1834,7 +1851,7 @@ class _PairFlowState extends ConsumerState<_PairFlowDialog> {
       if (host.mounted) showEToast(host, l.pairPairedWith(name), tone: ETone.ok);
       return;
     }
-    // The words at once, for every peer; a domain that can prove the wallet is asked under them.
+    // The words; a domain that was still being asked is asked under them.
     _go(_FlowPhase.words);
     if (record != null && record.domainProvable) _startProof(id);
   }

@@ -1072,17 +1072,19 @@ void main() {
       expect(find.byType(Scaffold), findsOneWidget, reason: 'one flow screen, one scaffold');
     }
 
-    testWidgets('a proven domain: the words at once with the checking line, then Verified in the same screen', (tester) async {
+    testWidgets('a proven domain: the wait holds, the words never show, Verified in the same screen', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.proven);
       final route = ModalRoute.of(tester.element(find.byType(PairingWaitingScreen)));
       h.api.confirmAnswer(id);
       await _frames(tester, 3);
-      // Nothing waits up front: the words are there, the line is a quiet note under them.
-      expect(find.byKey(checkMatchKey), findsOneWidget);
-      expect(find.text(_l.sasLead('Harbor Books')), findsOneWidget);
-      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
+      // The wait stays up while the domain is asked: no words, no checking line.
+      expect(find.byKey(checkMatchKey), findsNothing);
+      expect(find.text(_l.sasLead('Harbor Books')), findsNothing);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
       expectOneRoute(tester);
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byKey(checkMatchKey), findsNothing);
+      await tester.pump(const Duration(seconds: 1));
       await _frames(tester);
       expect(find.byType(CheckWordsScreen), findsNothing);
       expect(find.byKey(checkMatchKey), findsNothing);
@@ -1102,12 +1104,11 @@ void main() {
       expect(find.byType(PairingWaitingScreen), findsNothing);
     });
 
-    testWidgets('an unreachable domain: the words stay, the line goes; a match ends in place', (tester) async {
+    testWidgets('an unreachable domain: the words follow the verdict; a match ends in place', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.unreachable, after: const Duration(seconds: 1));
       h.api.confirmAnswer(id);
       await _frames(tester, 3);
-      expect(find.byKey(checkMatchKey), findsOneWidget);
-      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
+      expect(find.byKey(checkMatchKey), findsNothing);
       await tester.pump(const Duration(seconds: 1));
       await _frames(tester);
       expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
@@ -1124,12 +1125,11 @@ void main() {
       expectOneRoute(tester);
     });
 
-    testWidgets('a wrong file: the words stay, the line goes', (tester) async {
+    testWidgets('a wrong file: the words follow the verdict', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.refused, after: const Duration(seconds: 1));
       h.api.confirmAnswer(id);
       await _frames(tester, 3);
-      expect(find.byKey(checkMatchKey), findsOneWidget);
-      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
+      expect(find.byKey(checkMatchKey), findsNothing);
       await tester.pump(const Duration(seconds: 1));
       await _frames(tester);
       expect(find.byKey(checkMatchKey), findsOneWidget);
@@ -1137,15 +1137,18 @@ void main() {
       expect(h.api.records.single.state, PairingState.paired);
     });
 
-    testWidgets('a slow proof: the words wait for the user as long as it takes, then turn Verified in place', (tester) async {
+    testWidgets('a slow proof: the words show at the 3 s cap, then turn Verified in place', (tester) async {
       final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 12));
       h.api.confirmAnswer(id);
-      await tester.pump(const Duration(seconds: 9));
+      await tester.pump(const Duration(seconds: 1));
+      await _frames(tester);
+      expect(find.byKey(checkMatchKey), findsNothing);
+      await tester.pump(const Duration(seconds: 2));
       await _frames(tester);
       expect(find.byKey(checkMatchKey), findsOneWidget);
       expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
       expectOneRoute(tester);
-      await tester.pump(const Duration(seconds: 4));
+      await tester.pump(const Duration(seconds: 9));
       await _frames(tester);
       expect(find.byKey(checkMatchKey), findsNothing);
       expect(find.text(_l.sasMatchedTitle('Harbor Books')), findsOneWidget);
@@ -1155,13 +1158,14 @@ void main() {
     });
 
     testWidgets('the words answered before the proof: the plain result, the proof does not turn it', (tester) async {
-      final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 3));
+      final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 6));
       h.api.confirmAnswer(id);
+      await tester.pump(const Duration(seconds: 4));
       await _frames(tester, 3);
       await tester.tap(find.byKey(checkMatchKey));
       await _frames(tester);
       expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
-      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 6));
       await _frames(tester);
       expect(find.text(_l.deskPairDomainVerifiedBody('Harbor Books', domain)), findsNothing);
       expect(find.text(_l.pairNotChecked('Harbor Books')), findsOneWidget);

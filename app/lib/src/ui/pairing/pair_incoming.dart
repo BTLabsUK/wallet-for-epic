@@ -420,6 +420,18 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
       // Not read: the words are the safe way on.
     }
     if (!mounted) return;
+    // The sender's domain is asked first, the wait staying up: a proof ends Verified with no
+    // words shown; no proof by the cap, the words.
+    if (record != null && record.domainProvable) {
+      await holdForDomain(api, record);
+      if (!mounted) return;
+      try {
+        record = await api.pairing(widget.pairingId) ?? record;
+      } on Object {
+        // The record from before stands.
+      }
+    }
+    if (!mounted) return;
     final nav = Navigator.of(context);
     if (record != null && record.state == PairingState.verified && record.domainStatus == DomainStatus.proven && record.peerDomain != null) {
       // The domain's proof was in before the words were: Verified by it, in place.

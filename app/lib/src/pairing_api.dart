@@ -13,6 +13,7 @@
 /// [WalletError] of kind [WalletErrorKind.pairingFailed]; [pairingFailureOf] says why.
 library;
 
+import 'domain_check.dart' show DomainStatus;
 import 'models.dart';
 
 /// How long a code (the standing one, or the one a request carries) is good for (RFC 7.1).
@@ -35,6 +36,22 @@ const int privatePayloadMaxBytes = 32 * 1024;
 
 /// How many words the check shows.
 const int sasWordCount = 4;
+
+/// The most a confirmed code's pairing waits for its sender's domain before the words show.
+const Duration pairDomainHold = Duration(seconds: 3);
+
+/// Holds the step after a confirm while the sender's domain is asked ([PairingRecord.domainProvable]),
+/// until the verdict or [pairDomainHold]. A contact with no claim, or one whose domain was refused
+/// already, goes on at once. A check that outlasts the cap goes on running and still verifies.
+/// Read the pairing again afterwards. Never throws.
+Future<void> holdForDomain(PairingApi api, PairingRecord? record) async {
+  if (record == null || !record.domainProvable || record.domainStatus == DomainStatus.refused) return;
+  try {
+    await api.proveByDomain(record.id).timeout(pairDomainHold);
+  } on Object {
+    // Not proven in time: the words show, and a later proof still ends it Verified.
+  }
+}
 
 abstract interface class PairingApi {
   /// True when this core pairs. Every other call throws when it is false.
