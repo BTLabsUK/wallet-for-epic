@@ -16140,9 +16140,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get payOnItsWay => 'กำลังไป';
 
   @override
-  String get payCloseNote => 'ปิดหน้านี้ได้ รายการจะอยู่ในกิจกรรมจนกว่าจะเสร็จ';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount จาก $name';
   }
@@ -21014,4 +21011,14 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetSynSystemNotices =>
       'แจ้งเตือน, การแจ้งเตือน, แบนเนอร์, ป๊อปอัป, ได้รับการชำระเงิน, เดสก์ท็อป';
+
+  @override
+  String deskSendDoneTo(String name) {
+    return 'ส่งถึง $name แล้ว';
+  }
+
+  @override
+  String deskSendDoneVia(String via) {
+    return 'ส่งแล้ว $via';
+  }
 }

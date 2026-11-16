@@ -540,6 +540,18 @@ void main() {
       expect(restored.id, isNegative, reason: 'no local id: not cancellable');
     });
 
+    test('two contacts with one address: the first names the payment, as in Send\'s To', () async {
+      await wallet.saveContact(Contact(id: '', name: 'Faucet', address: 'esA@box.epic.invalid'));
+      await wallet.saveContact(Contact(id: '', name: 'Tip bot', address: 'esA@box.epic.invalid'));
+      service.session.transactionsValue = [
+        core.fakeTx(id: 1, slateId: 's1', kind: core.TxKind.sent, status: core.TxStatus.awaitingConfirmation, amountDebited: BigInt.from(110), fee: BigInt.from(10), counterparty: 'esA@box.epic.invalid'),
+      ];
+      await wallet.sync();
+      final holders = [for (final c in await wallet.contacts()) if (c.addresses.contains('esA@box.epic.invalid')) c.name];
+      expect(holders, ['Faucet', 'Tip bot']);
+      expect((await wallet.transactions()).single.contactName, 'Faucet');
+    });
+
     test('a mining reward matures by its output\'s lock height, never a fixed count', () async {
       final s = service.session;
       const commit = '08aa';

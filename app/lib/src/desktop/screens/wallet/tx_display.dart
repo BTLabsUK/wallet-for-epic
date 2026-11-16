@@ -96,18 +96,22 @@ FoundTexts foundTexts(AppLocalizations l, Tx t) {
 /// The paired contact a payment went to or came from through its mailbox (RFC 9.1: no
 /// address), by name, or null. The core's link ([Tx.pairingId]) names it at every state, both
 /// ways; without one, rows ask only for a send still waiting for its answer, as each ask reads
-/// the wallet's payments, and [any] asks for any such send (the detail pane).
+/// the wallet's payments, and [any] asks for any such send (the detail pane). One name per
+/// payment: the address book's ([Tx.contactName], the row's title) comes before the name the
+/// pairing shows, so the title, the status and the steps never name two.
 String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
   if (t.isInvoice || t.fromBackup || !ref.watch(deskPairsProvider)) return null;
   if (t.pairingId case final id?) {
-    final name = ref.watch(deskPairingNameProvider(id));
+    final paired = ref.watch(deskPairingNameProvider(id));
+    final name = t.contactName ?? paired;
     return name.isEmpty ? null : name;
   }
   if (t.incoming || t.counterparty != null || t.slateId.isEmpty) return null;
   if (!any && t.state != TxState.waitingRecipient) return null;
   final pairingId = ref.watch(deskPairingSlateProvider(t.slateId)).value?.pairingId;
   if (pairingId == null) return null;
-  final name = ref.watch(deskPairingNameProvider(pairingId));
+  final paired = ref.watch(deskPairingNameProvider(pairingId));
+  final name = t.contactName ?? paired;
   return name.isEmpty ? null : name;
 }
 

@@ -4167,7 +4167,6 @@
   "payConfirmingOf": "กำลังยืนยัน {count} จาก {target}",
   "paySigned": "{name} เซ็นแล้ว",
   "payOnItsWay": "กำลังไป",
-  "payCloseNote": "ปิดหน้านี้ได้ รายการจะอยู่ในกิจกรรมจนกว่าจะเสร็จ",
   "payArrivalFrom": "{amount} จาก {name}",
   "payOpen": "เปิด",
   "payNewToday": "ใหม่วันนี้",
@@ -5576,5 +5575,7 @@
   "deskSysNoticeTitle": "ได้รับการชำระเงิน",
   "deskSysNoticeOpen": "เปิด",
   "deskSetSystemNotices": "การแจ้งเตือนของระบบ",
-  "deskSetSynSystemNotices": "แจ้งเตือน, การแจ้งเตือน, แบนเนอร์, ป๊อปอัป, ได้รับการชำระเงิน, เดสก์ท็อป"
+  "deskSetSynSystemNotices": "แจ้งเตือน, การแจ้งเตือน, แบนเนอร์, ป๊อปอัป, ได้รับการชำระเงิน, เดสก์ท็อป",
+  "deskSendDoneTo": "ส่งถึง {name} แล้ว",
+  "deskSendDoneVia": "ส่งแล้ว {via}"
 }

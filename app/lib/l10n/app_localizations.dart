@@ -25441,12 +25441,6 @@ abstract class AppLocalizations {
   /// **'On its way'**
   String get payOnItsWay;
 
-  /// Level 1 Send: under On its way.
-  ///
-  /// In en, this message translates to:
-  /// **'You can close this. It shows under Activity until it is done.'**
-  String get payCloseNote;
-
   /// Level 1 Receive: arrival card title, a payment coming in.
   ///
   /// In en, this message translates to:
@@ -33534,6 +33528,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'notifications, alerts, toast, banner, desktop notification, payment received, popup'**
   String get deskSetSynSystemNotices;
+
+  /// Heading of Send after a payment went out, once it is confirmed. {name} is the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to {name}'**
+  String deskSendDoneTo(String name);
+
+  /// Heading of Send after a payment went out, once it is confirmed, when the payment has no contact name; via is how it travelled, e.g. 'via file'.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {via}'**
+  String deskSendDoneVia(String via);
 }
 
 class _AppLocalizationsDelegate

@@ -15583,9 +15583,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get payOnItsWay => '已发出';
 
   @override
-  String get payCloseNote => '可以关闭此页。完成前会显示在“活动”中。';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount 来自 $name';
   }
@@ -20254,4 +20251,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSynSystemNotices => '通知, 提醒, 横幅, 弹窗, 收到付款, 桌面通知';
+
+  @override
+  String deskSendDoneTo(String name) {
+    return '已发送给 $name';
+  }
+
+  @override
+  String deskSendDoneVia(String via) {
+    return '已$via发送';
+  }
 }

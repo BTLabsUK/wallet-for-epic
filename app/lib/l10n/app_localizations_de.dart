@@ -16693,10 +16693,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get payOnItsWay => 'Unterwegs';
 
   @override
-  String get payCloseNote =>
-      'Sie können das schließen. Die Zahlung steht unter Aktivität, bis sie fertig ist.';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount von $name';
   }
@@ -21674,4 +21670,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetSynSystemNotices =>
       'benachrichtigung, mitteilung, hinweis, banner, popup, zahlung erhalten, desktop';
+
+  @override
+  String deskSendDoneTo(String name) {
+    return 'Gesendet an $name';
+  }
+
+  @override
+  String deskSendDoneVia(String via) {
+    return 'Gesendet $via';
+  }
 }

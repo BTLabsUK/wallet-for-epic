@@ -4,5 +4,7 @@
   "deskSendLiveAmountTo": "{amount} EPIC an {name}",
   "deskSendLiveAmount": "{amount} EPIC",
   "deskSendLiveVia": "Unterwegs {via}",
-  "deskSendLiveAmountVia": "{amount} EPIC {via}"
+  "deskSendLiveAmountVia": "{amount} EPIC {via}",
+  "deskSendDoneTo": "Gesendet an {name}",
+  "deskSendDoneVia": "Gesendet {via}"
 }

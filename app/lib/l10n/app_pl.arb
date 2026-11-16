@@ -4167,7 +4167,6 @@
   "payConfirmingOf": "Potwierdzanie {count} z {target}",
   "paySigned": "{name} podpisał(a)",
   "payOnItsWay": "W drodze",
-  "payCloseNote": "Możesz to zamknąć. Płatność jest w Aktywności, aż się zakończy.",
   "payArrivalFrom": "{amount} od {name}",
   "payOpen": "Otwórz",
   "payNewToday": "Nowy dzisiaj",
@@ -5576,5 +5575,7 @@
   "deskSysNoticeTitle": "Otrzymano płatność",
   "deskSysNoticeOpen": "Otwórz",
   "deskSetSystemNotices": "Powiadomienia systemowe",
-  "deskSetSynSystemNotices": "powiadomienia, alert, komunikat, baner, wyskakujące, płatność otrzymana, pulpit"
+  "deskSetSynSystemNotices": "powiadomienia, alert, komunikat, baner, wyskakujące, płatność otrzymana, pulpit",
+  "deskSendDoneTo": "Wysłano do {name}",
+  "deskSendDoneVia": "Wysłano {via}"
 }

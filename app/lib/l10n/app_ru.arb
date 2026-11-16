@@ -4167,7 +4167,6 @@
   "payConfirmingOf": "Подтверждение {count} из {target}",
   "paySigned": "{name} подписал(а)",
   "payOnItsWay": "В пути",
-  "payCloseNote": "Можно закрыть. Платёж виден в «Активности», пока не завершится.",
   "payArrivalFrom": "{amount} от {name}",
   "payOpen": "Открыть",
   "payNewToday": "Новый сегодня",
@@ -5576,5 +5575,7 @@
   "deskSysNoticeTitle": "Платёж получен",
   "deskSysNoticeOpen": "Открыть",
   "deskSetSystemNotices": "Системные уведомления",
-  "deskSetSynSystemNotices": "уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол"
+  "deskSetSynSystemNotices": "уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол",
+  "deskSendDoneTo": "Отправлено: {name}",
+  "deskSendDoneVia": "Отправлено {via}"
 }

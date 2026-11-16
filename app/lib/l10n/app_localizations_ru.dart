@@ -17076,10 +17076,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get payOnItsWay => 'В пути';
 
   @override
-  String get payCloseNote =>
-      'Можно закрыть. Платёж виден в «Активности», пока не завершится.';
-
-  @override
   String payArrivalFrom(String amount, String name) {
     return '$amount от $name';
   }
@@ -22046,4 +22042,14 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetSynSystemNotices =>
       'уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол';
+
+  @override
+  String deskSendDoneTo(String name) {
+    return 'Отправлено: $name';
+  }
+
+  @override
+  String deskSendDoneVia(String via) {
+    return 'Отправлено $via';
+  }
 }
