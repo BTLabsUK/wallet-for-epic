@@ -16,6 +16,7 @@ import '../../name_service/name_service.dart';
 import '../../name_service/phone_name_service.dart';
 import '../../trust/policy.dart' show featureNameService, statedAutomated;
 import '../../errors.dart';
+import '../../history/domain_check_book.dart' show DomainStatus;
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../providers.dart' show sessionProvider;
@@ -126,12 +127,16 @@ Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRec
 const Key pairOtherAddressNewKey = ValueKey('pair-other-address-new');
 
 /// The words check of the pairing [pairingId]. [recheck] is the contact page's "Check the
-/// words" on a pairing already paired.
+/// words" on a pairing already paired. Inside a [PairFlowStage] (the answered code's one screen)
+/// [onMatched] takes the match in place of the push of the result screen, and [onDomainVerified]
+/// hears that a proof of the contact's domain arrived while the words were shown.
 class CheckWordsScreen extends ConsumerStatefulWidget {
-  const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false});
+  const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false, this.onMatched, this.onDomainVerified});
 
   final String pairingId;
   final bool recheck;
+  final void Function(PairingRecord record)? onMatched;
+  final VoidCallback? onDomainVerified;
 
   @override
   ConsumerState<CheckWordsScreen> createState() => _CheckWordsScreenState();
@@ -140,6 +145,9 @@ class CheckWordsScreen extends ConsumerStatefulWidget {
 class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   bool _busy = false;
   bool _left = false;
+
+  /// An answer of this screen went out: a verification that follows is the words' own.
+  bool _answered = false;
   void Function()? _unboost;
   StreamSubscription<PairingEvent>? _events;
 
@@ -205,6 +213,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     if (_busy) return;
     final l = context.l10n;
     setState(() => _busy = true);
+    _answered = true;
     try {
       final record = await pairingCall(ref, (api) => api.checkWords(widget.pairingId, check));
       final nameService = _nameService != null && _step == HelloStep.check ? _nameService : null;
@@ -230,10 +239,16 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         await showNameServiceJoinSheet(context, ref, serviceKey: entry.serviceKey, label: ref.read(pairingNameProvider(record.id)));
         if (!mounted) return;
       }
-      await Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => PairingResultScreen(pairingId: record.id)),
-      );
+      final onMatched = widget.onMatched;
+      if (onMatched != null) {
+        onMatched(record);
+      } else {
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(builder: (_) => PairingResultScreen(pairingId: record.id)),
+        );
+      }
     } catch (error) {
+      _answered = false;
       if (mounted) ref.read(noticeProvider.notifier).show(describeError(l, error), level: NoticeLevel.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -269,6 +284,13 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     final l = context.l10n;
     final t = context.tokens;
     final record = ref.watch(pairingByIdProvider(widget.pairingId));
+    if (widget.onDomainVerified != null) {
+      // The proof of the domain came after the wait: this pairing is Verified without the words.
+      ref.listen(pairingByIdProvider(widget.pairingId), (_, now) {
+        if (_answered || _left || now == null) return;
+        if (now.state == PairingState.verified && now.domainStatus == DomainStatus.proven) widget.onDomainVerified!();
+      });
+    }
     if (record == null) {
       return PairFlowPage(title: l.sasTitle, leadingId: TrustIds.pairflowCheckClose, children: const []);
     }
@@ -347,10 +369,16 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
 
 /// After the check: Verified with the two switches, or Paired, not verified with Check now.
 /// A pairing not yet in the address book offers Save as a new contact or Add to a contact.
+///
+/// [domain] is the domain whose proof ended this pairing Verified without the words: the line
+/// says so. Inside a [PairFlowStage] [onCheckNow] takes Check now in place of the push of the
+/// words.
 class PairingResultScreen extends ConsumerStatefulWidget {
-  const PairingResultScreen({super.key, required this.pairingId});
+  const PairingResultScreen({super.key, required this.pairingId, this.domain, this.onCheckNow});
 
   final String pairingId;
+  final String? domain;
+  final VoidCallback? onCheckNow;
 
   @override
   ConsumerState<PairingResultScreen> createState() => _PairingResultScreenState();
@@ -477,7 +505,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
                   label: l.sasCheckNow,
                   kind: KitButtonKind.quiet,
                   semanticsId: TrustIds.pairflowResultCheckNow,
-                  onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id))),
+                  onPressed: widget.onCheckNow ?? () => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id))),
                 ),
               ],
             ),
@@ -486,7 +514,9 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
         PairOutcome(
           icon: verified ? EpicGlyphs.verified : EpicGlyphs.paired,
           title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
-          body: verified ? (noPayments ? null : l.sasMatchedBody(name)) : l.sasSkippedBody(name),
+          body: verified
+              ? (widget.domain != null ? l.deskPairDomainVerifiedBody(name, widget.domain!) : (noPayments ? null : l.sasMatchedBody(name)))
+              : l.sasSkippedBody(name),
           good: verified,
         ),
         const PairGap(12),
@@ -502,7 +532,8 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
             ),
           ),
         ),
-        if (verified) ...[
+        // On the domain path no words were compared, so the peer's side of the check is not a question.
+        if (verified && widget.domain == null) ...[
           const PairGap(8),
           PairNote(
             statedAutomated(record.peerProfile)

@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contacts.dart';
 import '../../errors.dart';
+import '../../history/domain_check_book.dart' show DomainStatus;
 import '../../key_picture.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -64,7 +65,8 @@ const Key finishScreenCheckKey = ValueKey('finish-check');
 /// [contact] is the address-book contact the pairing attaches to, when known. With [replace]
 /// the screen that opens takes the place of the current one. Text without a pairing link,
 /// or an older in-person card, is "Not a pairing code". [source] is how the text came, for the
-/// pair request's Source row; [byCamera] alone counts as scanned.
+/// pair request's Source row; [byCamera] alone counts as scanned. [onConfirmed] takes a
+/// confirmation that is not Verified yet, in place of the push of the words.
 Future<void> openPairingLink(
   BuildContext context,
   WidgetRef ref,
@@ -73,6 +75,7 @@ Future<void> openPairingLink(
   bool replace = false,
   bool byCamera = false,
   InviteSource? source,
+  Future<void> Function(PairingRecord record)? onConfirmed,
 }) async {
   source ??= byCamera ? InviteSource.scanned : null;
   // A page link carries the invite in its fragment; a message holds the bare text among words.
@@ -125,7 +128,11 @@ Future<void> openPairingLink(
           notices.show(l.pairPairedWith(ref.read(pairingNameProvider(record.id))), level: NoticeLevel.success);
           return;
         }
-        await show(CheckWordsScreen(pairingId: record.id));
+        if (onConfirmed != null) {
+          await onConfirmed(record);
+        } else {
+          await show(CheckWordsScreen(pairingId: record.id));
+        }
       case PairingLinkKind.card:
         return;
     }
@@ -323,6 +330,10 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
 /// Share / Copy, and a field for the finish code that comes back by hand. The confirm opens
 /// the words check (a request ends Verified with a notice instead). It can be closed: the
 /// pairing goes on in the background.
+///
+/// The screen stays one route from the answer to the end: the wait, then (when the contact
+/// claims a domain) "Checking {domain}…", then Verified by the domain, or the words and the
+/// result, each step giving way to the next in place.
 class PairingWaitingScreen extends ConsumerStatefulWidget {
   const PairingWaitingScreen({super.key, required this.pairingId, this.name = ''});
 
@@ -335,7 +346,17 @@ class PairingWaitingScreen extends ConsumerStatefulWidget {
   ConsumerState<PairingWaitingScreen> createState() => _PairingWaitingScreenState();
 }
 
+/// Where the answered code's screen stands.
+enum _Stage { waiting, checking, words, result }
+
 class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
+  _Stage _stage = _Stage.waiting;
+
+  /// The contact's domain while it is checked and when it proved the pairing.
+  String? _domain;
+
+  /// The result is Verified by the domain, not by the words.
+  bool _byDomain = false;
   void Function()? _unboost;
   Timer? _slow;
   bool _late = false;
@@ -405,7 +426,60 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
       nav.pop();
       return;
     }
-    nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)));
+    // The wait is over: its timers go, the words step boosts the relays for itself.
+    _unboost?.call();
+    _unboost = null;
+    _slow?.cancel();
+    final domain = record != null && record.domainProvable ? record.peerDomain : null;
+    if (domain == null) {
+      setState(() => _stage = _Stage.words);
+      return;
+    }
+    // The contact claims a domain: its proof can end the pairing Verified without the words.
+    setState(() {
+      _domain = domain;
+      _stage = _Stage.checking;
+    });
+    var proven = false;
+    try {
+      proven = await api.proveByDomain(widget.pairingId).timeout(domainPairingWait);
+    } on Object {
+      // Not proven in time (or not at all): the words, as without a domain.
+    }
+    if (!mounted) return;
+    if (!proven) {
+      // A proof that came just after the wait still counts.
+      try {
+        final now = await api.pairing(widget.pairingId);
+        proven = now != null && now.state == PairingState.verified && now.domainStatus == DomainStatus.proven;
+      } on Object {
+        // Not read: the words.
+      }
+      if (!mounted) return;
+    }
+    setState(() {
+      _byDomain = proven;
+      _stage = proven ? _Stage.result : _Stage.words;
+    });
+  }
+
+  /// The words matched: the result, in place.
+  void _matched(PairingRecord record) {
+    if (!mounted) return;
+    setState(() {
+      _byDomain = false;
+      _stage = _Stage.result;
+    });
+  }
+
+  /// The domain's proof came while the words were shown: Verified, in place.
+  void _provenLate() {
+    if (!mounted || _stage != _Stage.words) return;
+    setState(() {
+      _domain = ref.read(pairingByIdProvider(widget.pairingId))?.peerDomain ?? _domain;
+      _byDomain = _domain != null;
+      _stage = _Stage.result;
+    });
   }
 
   String get _name {
@@ -457,8 +531,21 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
       return;
     }
     _left = true;
-    await openPairingLink(context, ref, text, replace: true);
-    if (mounted && (ModalRoute.of(context)?.isCurrent ?? false)) _left = false;
+    await openPairingLink(
+      context,
+      ref,
+      text,
+      onConfirmed: (record) async {
+        if (!mounted) return;
+        if (record.id == widget.pairingId) {
+          _left = false;
+          await _finished();
+        } else {
+          await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id)));
+        }
+      },
+    );
+    if (mounted && _stage == _Stage.waiting && (ModalRoute.of(context)?.isCurrent ?? false)) _left = false;
   }
 
   @override
@@ -490,6 +577,42 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     final byHand = _late || (record?.relayDown ?? false) || net != PairNet.online;
     final canShare = ref.watch(slateFilesProvider).canShareText;
     final link = _link;
+    final Widget step = switch (_stage) {
+      _Stage.waiting => _waiting(l, t, name: name, byHand: byHand, canShare: canShare, link: link),
+      _Stage.checking => _checking(l, t, name: name),
+      _Stage.words => CheckWordsScreen(pairingId: widget.pairingId, onMatched: _matched, onDomainVerified: _provenLate),
+      _Stage.result => PairingResultScreen(pairingId: widget.pairingId, domain: _byDomain ? _domain : null, onCheckNow: () => setState(() => _stage = _Stage.words)),
+    };
+    return PairFlowStage(stepKey: _stage, child: step);
+  }
+
+  /// "Checking {domain}…": the contact's domain is asked to prove its wallet; the layout is the
+  /// wait's, so the step changes in place.
+  Widget _checking(AppLocalizations l, WalletTokens t, {required String name}) {
+    final domain = _domain ?? '';
+    return PairFlowPage(
+      title: l.pairWaitingTitleShort,
+      leadingId: TrustIds.pairflowWaitingClose,
+      children: [
+        const PairGap(10),
+        Semantics(
+          header: true,
+          liveRegion: true,
+          child: Row(
+            children: [
+              const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2.5)),
+              const SizedBox(width: 12),
+              Expanded(child: Text(l.deskPairDomainChecking(domain), style: KitType.sheetTitle.copyWith(color: t.text))),
+            ],
+          ),
+        ),
+        const PairGap(8),
+        PairLead(l.deskPairDomainCheckingBody(name, domain)),
+      ],
+    );
+  }
+
+  Widget _waiting(AppLocalizations l, WalletTokens t, {required String name, required bool byHand, required bool canShare, required String? link}) {
     return PairFlowPage(
       title: l.pairWaitingTitleShort,
       leadingId: TrustIds.pairflowWaitingClose,
