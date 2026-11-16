@@ -126,6 +126,42 @@ class DeskPairAvatar extends StatelessWidget {
   }
 }
 
+/// The peer's picture (an avatar, or the key picture) with what the dialog says about the
+/// peer beside it, the picture on the left, the text vertically centred on it. Every pairing
+/// dialog that shows the peer opens its body with this one row, so the picture, the text and
+/// the table under it share the dialog's left edge.
+class DeskPeerLead extends StatelessWidget {
+  const DeskPeerLead({super.key, required this.picture, required this.child});
+
+  /// The usual text: one dim paragraph.
+  DeskPeerLead.text({super.key, required this.picture, required String text}) : child = _PeerLeadText(text);
+
+  final Widget picture;
+  final Widget child;
+
+  /// The picture's side, in every dialog.
+  static double get pictureSize => 56.u;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      picture,
+      SizedBox(width: Sp.x4),
+      Expanded(child: child),
+    ],
+  );
+}
+
+class _PeerLeadText extends StatelessWidget {
+  const _PeerLeadText(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(text, style: context.ts.bodyDim);
+}
+
 /// Contacts › Pair: Your invite (the standing QR, Copy invite, the name they see) on the
 /// left, Have their invite? (a Paste field) on the right. One handler for anything pasted: an
 /// invite → Pair with …?; an answer → the confirmation to copy; a confirmation → the words;
@@ -730,21 +766,15 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              if (key != null)
-                KeyPictureView(picture: KeyPicture.of(key), size: 56.u, framed: true)
-              else
-                DeskPairAvatar(name: noName ? l.pairUnnamed : name, size: 56.u),
-              // 24 u, less the bracket offset on a key picture.
-              SizedBox(width: key != null ? Sp.x6 - KeyPictureView.frameOffsetOf(56.u) + 1 : Sp.x6),
-              if (sender != null) EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok),
-            ],
+          DeskPeerLead.text(
+            picture: key != null
+                ? KeyPictureView(picture: KeyPicture.of(key), size: DeskPeerLead.pictureSize, framed: true)
+                : DeskPairAvatar(name: noName ? l.pairUnnamed : name, size: DeskPeerLead.pictureSize),
+            text: p.isRequest ? l.pairIncomingBodyRequest(shown) : l.pairIncomingBody(shown),
           ),
+          if (sender != null) ...[SizedBox(height: Sp.x3), Align(alignment: AlignmentDirectional.centerStart, child: EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok))],
           if (p.fromAddress case final from?) ...[SizedBox(height: Sp.x3), Text(from, style: ts.mono())],
           SizedBox(height: Sp.x4),
-          Text(p.isRequest ? l.pairIncomingBodyRequest(shown) : l.pairIncomingBody(shown), style: ts.bodyDim),
-          SizedBox(height: Sp.x3),
           EFacts([
             if (server.isNotEmpty) (l.pairIncomingServer, Text(server, key: deskIncomingServerKey, style: ts.mono())),
             if (source != null) (l.pairIncomingSource, Text(source, key: deskIncomingSourceKey)),
@@ -1488,10 +1518,8 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: DeskPairAvatar(name: name, size: 48.u)),
-          SizedBox(height: Sp.x3),
-          Text(lead, style: ts.bodyDim, textAlign: TextAlign.center),
-          SizedBox(height: Sp.x6),
+          DeskPeerLead.text(picture: DeskPairAvatar(name: name, size: DeskPeerLead.pictureSize), text: lead),
+          SizedBox(height: Sp.x4),
           WordTiles(words: r.sas, label: l.sasWordsLabel, size: WordTileSize.check),
           if (r.domainChecking && (r.peerDomain ?? '').isNotEmpty) ...[
             SizedBox(height: Sp.x3),
