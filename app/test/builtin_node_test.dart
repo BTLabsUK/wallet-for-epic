@@ -1026,9 +1026,51 @@ void main() {
       expect(
         toml,
         contains(
-          'capabilities = "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC"\n\n[server.pool_config]',
+          'capabilities = "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC"\npeer_min_preferred_outbound_count = 2\n\n[server.pool_config]',
         ),
       );
+    });
+
+    test('an install with the old generated toml gets the lower peer minimum', () async {
+      final node = make();
+      node.options = const NodeTomlOptions(
+        preferredPeers: ['1.2.3.4:3414'],
+        maxOutbound: 9,
+      );
+      // The toml an earlier build wrote: the same render without the minimum line.
+      final wanted = node.renderToml();
+      final old = wanted.replaceFirst(
+        'peer_min_preferred_outbound_count = 2\n',
+        '',
+      );
+      expect(old, isNot(equals(wanted)));
+      await Directory(node.folder).create(recursive: true);
+      await File('${node.folder}/epic-server.toml').writeAsString(old);
+      await File('${node.folder}/epic-server.toml.sha256').writeAsString(_sha(old));
+      final user = await node.prepareFolder();
+      expect(user, isFalse);
+      final now = await File('${node.folder}/epic-server.toml').readAsString();
+      expect(now, wanted);
+      expect(now, contains('peer_min_preferred_outbound_count = 2\n'));
+      expect(now, contains('peers_preferred = ["1.2.3.4:3414"]'));
+      expect(now, contains('peer_max_outbound_count = 9'));
+      expect(
+        await File('${node.folder}/epic-server.toml.sha256').readAsString(),
+        _sha(wanted),
+      );
+    });
+
+    test('a hand-edited toml is not given the minimum', () async {
+      final node = make();
+      final mine = node.renderToml().replaceFirst(
+        'peer_min_preferred_outbound_count = 2\n',
+        'peer_min_preferred_outbound_count = 7\n',
+      );
+      await Directory(node.folder).create(recursive: true);
+      await File('${node.folder}/epic-server.toml').writeAsString(mine);
+      await File('${node.folder}/epic-server.toml.sha256').writeAsString(_sha('x'));
+      expect(await node.prepareFolder(), isTrue);
+      expect(await File('${node.folder}/epic-server.toml').readAsString(), mine);
     });
 
     test('peers, peer counts and the chain data folder are written', () {

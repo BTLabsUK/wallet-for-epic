@@ -319,6 +319,12 @@ class NodePorts {
   final int stratum;
 }
 
+/// `peer_min_preferred_outbound_count` of the generated toml. The node (default 4) holds block
+/// sync in `awaiting_peers` while it has fewer outbound peers than this, and mainnet has only
+/// about three healthy peers, so the default stalls sync. 2 keeps a second peer to cross-check
+/// the first and still lets sync run when one of three drops.
+const int nodeMinOutboundPeers = 2;
+
 /// The node's `epic-server.toml`, ported from the Electron GUI's resources/epic-server.toml
 /// (comments dropped). `{{NAME}}` is replaced by [BuiltInNode.renderToml]; strings are quoted
 /// there. `{{P2P_EXTRA}}` holds the [NodeTomlOptions] p2p lines, and is empty without them. Disables the TUI, binds the API to loopback and keeps the log in the node folder.
@@ -340,7 +346,8 @@ run_test_miner = false
 host = "0.0.0.0"
 port = {{P2P_PORT}}
 seeding_type = {{SEEDING}}
-capabilities = "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC"{{P2P_EXTRA}}
+capabilities = "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC"
+peer_min_preferred_outbound_count = $nodeMinOutboundPeers{{P2P_EXTRA}}
 
 [server.pool_config]
 accept_fee_base = 100000
