@@ -90,12 +90,16 @@ if (rootProject.findProject(":mobile_scanner") != null) { // dist-prep: names on
 
 android {
     namespace = "uk.btlabs.btwallet"
-    compileSdk = flutter.compileSdkVersion
+    // 37, not Flutter's default 36: flutter_local_notifications (desktop system notifications)
+    // and its androidx.core 1.19 compile against it and need core library desugaring. compileSdk
+    // only picks the API the code compiles against; targetSdk and minSdk stay Flutter's.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -238,3 +242,8 @@ tasks.matching { Regex("^(package|sign)\\w*(Debug|Profile|Release)(Bundle)?$").m
                 }
         }
     }
+
+dependencies {
+    // Core library desugaring, which flutter_local_notifications requires of the app.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}

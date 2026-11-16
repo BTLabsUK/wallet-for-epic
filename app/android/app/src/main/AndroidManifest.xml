@@ -15,6 +15,10 @@
     <uses-feature android:name="android.hardware.camera.any" android:required="false"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove"/>
+    <!-- flutter_local_notifications serves the desktop's system notifications only; the phone
+         app does not use it, so its notification and vibration permissions are not wanted. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" tools:node="remove"/>
+    <uses-permission android:name="android.permission.VIBRATE" tools:node="remove"/>
     <!-- No auto backup and no device-to-device transfer: Keystore keys do not move to a new
          device, so restored secure storage would be unreadable, and the wallet database,
          metadata and logs stay on this one. allowBackup and fullBackupContent cover Android 11
