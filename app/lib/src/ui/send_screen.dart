@@ -2686,7 +2686,9 @@ class _SendViewState extends ConsumerState<SendView> {
     }
     // The Who step has no button until an address is in: its list is the way on (Send-1).
     final foot = _stage == SendStage.recipient && !_hasRecipient && _pairingTo == null && note == NetBlock.none ? null : bottomWithNotes;
-    return _page(_FlowBody(bottom: foot, children: [...children, ?problem]));
+    // Keyed by step: each step opens at its top, not at the last step's scroll offset (the
+    // posted file payment showed its steps scrolled out of view).
+    return _page(_FlowBody(key: ValueKey(_stage), bottom: foot, children: [...children, ?problem]));
   }
 
   /// The review (HANDOFF 9, Send-3): a sheet over the amount page, which shows dimmed under it.
@@ -5346,7 +5348,7 @@ class _Initial extends StatelessWidget {
 /// the content, the first 14 under the bar, and the button at the foot with no rule above it,
 /// 6 from the notes over it, clear of the keyboard and the home bar.
 class _FlowBody extends StatelessWidget {
-  const _FlowBody({required this.children, this.bottom});
+  const _FlowBody({super.key, required this.children, this.bottom});
 
   final List<Widget> children;
   final Widget? bottom;
