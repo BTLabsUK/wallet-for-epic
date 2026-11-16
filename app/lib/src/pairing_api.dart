@@ -36,11 +36,6 @@ const int privatePayloadMaxBytes = 32 * 1024;
 /// How many words the check shows.
 const int sasWordCount = 4;
 
-/// How long the words step waits for the proof of the contact's domain
-/// ([PairingApi.proveByDomain]), Tor included, before it shows the words. The check runs on
-/// after it: a proof that comes later still ends the pairing Verified.
-const Duration domainPairingWait = Duration(seconds: 8);
-
 abstract interface class PairingApi {
   /// True when this core pairs. Every other call throws when it is false.
   bool get supported;
