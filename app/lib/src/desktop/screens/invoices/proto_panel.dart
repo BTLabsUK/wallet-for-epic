@@ -20,7 +20,9 @@ class ProtoButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(deskApiProvider) is! MockDeskWallet) return const SizedBox.shrink();
+    // A real wallet: nothing shows. It stays a (zero-size) Positioned child: a plain child of the shell's
+    // Stack would size the Stack to nothing and take the whole page with it.
+    if (ref.watch(deskApiProvider) is! MockDeskWallet) return const Positioned(left: 0, top: 0, width: 0, height: 0, child: SizedBox.shrink());
     return Positioned(
       right: Sp.x5,
       bottom: Sp.x5,
