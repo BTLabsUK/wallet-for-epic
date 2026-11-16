@@ -102,7 +102,11 @@ class SendArgs {
     this.codeOrigin = CodeOrigin.link,
     this.pairingTo,
     this.all = false,
+    this.focusTo = false,
   });
+
+  /// To takes the focus when the form opens: the epic1 form's link was cleared.
+  final bool focusTo;
 
   /// Send everything spendable (minus the fee), as Send's own Max does; [amount] is ignored.
   final bool all;
@@ -501,6 +505,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
         if (mounted) openPaymentText(code, origin: args.codeOrigin);
       });
     }
+    if (args.focusTo) _focusTo();
     // Send opened plainly (its tab, Overview) takes the form as it was left.
     final kept = _keeper.kept;
     _keeper.kept = null;
@@ -572,10 +577,12 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
 
   /// What the page keeps when it closes: a form with something in it, never a finished one.
   _KeptSend? get _toKeep {
-    if (_result != null || (_to.text.isEmpty && _amount.text.isEmpty && _message.text.isEmpty && _pairingTo == null)) return null;
+    // An epic1 link is paid on its own form: it is not part of this form's draft.
+    final to = looksLikeEpic1Link(_to.text) ? '' : _to.text;
+    if (_result != null || (to.isEmpty && _amount.text.isEmpty && _message.text.isEmpty && _pairingTo == null)) return null;
     return _KeptSend(
       wallet: _wallet,
-      to: _to.text,
+      to: to,
       amount: _all ? '' : _amount.text,
       message: _message.text,
       file: _file,

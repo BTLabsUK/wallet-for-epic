@@ -390,6 +390,16 @@ void main() {
       expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
     });
 
+    testWidgets('the typed link cleared on the epic1 form: the classic form is empty, To focused', (tester) async {
+      await _open(tester, DeskRoute.send);
+      await typeAndLeave(tester);
+      await _tap(tester, 'e1-clear');
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      final to = tester.widget<EditableText>(find.byType(EditableText).first);
+      expect(to.controller.text, isEmpty);
+      expect(to.focusNode.hasFocus, isTrue);
+    });
+
     testWidgets('epic1 off: a typed link gets the off line under To', (tester) async {
       await _open(tester, DeskRoute.send, epic1: false);
       await typeAndLeave(tester);

@@ -401,9 +401,11 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     }
   }
 
-  /// Back to Send's start, the classic form: To cleared, or the payment done.
-  void _start({String amount = ''}) =>
-      ref.read(deskNavProvider.notifier).reset(DeskRoute.send, amount.isEmpty ? null : SendArgs(amount: amount));
+  /// Back to Send's start, the classic form: To cleared, or the payment done. It opens empty
+  /// (but for [amount]) with To focused, whatever the classic form held before the link.
+  void _start({String amount = ''}) => ref
+      .read(deskNavProvider.notifier)
+      .reset(DeskRoute.send, SendArgs(amount: amount.isEmpty ? null : amount, focusTo: true));
 
   @override
   Widget build(BuildContext context) {
