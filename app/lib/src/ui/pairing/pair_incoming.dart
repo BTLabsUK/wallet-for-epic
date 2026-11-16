@@ -258,35 +258,38 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: key != null
-                  ? KeyPictureView(picture: KeyPicture.of(key), size: 72, framed: true)
-                  : PairAvatar(name: noName ? unnamedLabel : name, size: 72),
-            ),
-            const PairGap(10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Flexible(child: Text(shown, textAlign: TextAlign.center, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis)),
-                if (btlabs != null) ...[
-                  const SizedBox(width: 6),
-                  VerifiedCheck(label: l.pairVerifiedService, colour: t.ok),
-                ],
+                if (key != null) KeyPictureView(picture: KeyPicture.of(key), size: 56, framed: true) else PairAvatar(name: noName ? unnamedLabel : name, size: 56),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(child: Text(shown, style: KitType.rowTitle.copyWith(color: t.text), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                          if (btlabs != null) ...[
+                            const SizedBox(width: 6),
+                            VerifiedCheck(label: l.pairVerifiedService, colour: t.ok),
+                          ],
+                        ],
+                      ),
+                      if (sender != null) ...[
+                        const PairGap(6),
+                        KitChip(l.pairInContacts, icon: KitIcons.contact, info: true),
+                      ],
+                    ],
+                  ),
+                ),
               ],
             ),
-            if (sender != null) ...[
-              const PairGap(8),
-              Center(child: KitChip(l.pairInContacts, icon: KitIcons.contact, info: true)),
-            ],
             if (p.fromAddress case final from?) ...[
               const PairGap(8),
-              Center(child: ShortAddressText(from, style: KitType.rowSub.copyWith(color: t.dim))),
+              ShortAddressText(from, style: KitType.rowSub.copyWith(color: t.dim)),
             ],
             const PairGap(14),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(p.isRequest ? l.pairIncomingBodyRequest(shown) : l.pairIncomingBody(shown), style: KitType.body.copyWith(color: t.dim)),
-            ),
+            Text(p.isRequest ? l.pairIncomingBodyRequest(shown) : l.pairIncomingBody(shown), style: KitType.body.copyWith(color: t.dim)),
             const PairGap(14),
             KitGroup(
               onSheet: true,

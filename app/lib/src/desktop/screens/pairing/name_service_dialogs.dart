@@ -15,7 +15,7 @@ import '../../data/name_service_state.dart';
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import 'pair_screens.dart' show DeskPairAvatar;
+import 'pair_screens.dart' show DeskPairAvatar, DeskPeerLead;
 
 /// Keys for tests.
 const Key deskDirJoinKey = ValueKey('desk-dir-join');
@@ -152,9 +152,17 @@ class DeskNameServiceCodeCheck extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [DeskPairAvatar(name: label, size: 48.u), SizedBox(width: Sp.x3), Expanded(child: Text(label, style: ts.h3)), if (noPayments) ...[SizedBox(width: Sp.x2), const NoPaymentsBadge()]]),
-          SizedBox(height: Sp.x3),
-          Text(l.nsCodeLead(label), style: ts.bodyDim),
+          DeskPeerLead(
+            picture: DeskPairAvatar(name: label, size: DeskPeerLead.pictureSize),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [Expanded(child: Text(label, style: ts.h3)), if (noPayments) ...[SizedBox(width: Sp.x2), const NoPaymentsBadge()]]),
+                SizedBox(height: Sp.x1),
+                Text(l.nsCodeLead(label), style: ts.bodyDim),
+              ],
+            ),
+          ),
           SizedBox(height: Sp.x4),
           WordTiles(key: deskDirCodeKey, words: codeWords(nameServiceCodeIndexes(fromHex(serviceKey))), label: l.nsCodeLabel, size: WordTileSize.check),
         ],
