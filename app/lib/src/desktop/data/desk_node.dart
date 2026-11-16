@@ -14,6 +14,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../log.dart';
 import '../../builtin_node.dart' show NodeTomlOptions, NodeFailure, realPortInUse;
 import '../../models.dart' show Chain;
 import '../../net/local_address.dart' show nodeClassOf;
@@ -256,9 +257,19 @@ class LepicDeskNode implements DeskNodeApi {
   Future<NodeMaintenance> get _m => _ref.read(nodeMaintenanceProvider(chain).future);
   NodeSettings get _settings => _ref.read(nodeSettingsProvider(chain));
 
+  /// The phase and reason last written to the log.
+  String? _logged;
+
   void _decide() {
     final s = _state, c = _choice;
-    if (s == null || c == null) return;
+    if (s == null) return;
+    // Every change of phase or reason goes to lepic.log, with the heights it was judged on.
+    final key = '${s.phase.name} ${localNodeReason(s)}';
+    if (key != _logged) {
+      _logged = key;
+      logInfo('node', localNodeLogLine(s));
+    }
+    if (c == null) return;
     final d = decideFallback(s, c);
     if (d == _decision) return;
     if (d.action == FallbackAction.usePublic && _decision?.action != FallbackAction.usePublic) {
@@ -266,6 +277,7 @@ class LepicDeskNode implements DeskNodeApi {
     } else if (d.action != FallbackAction.usePublic) {
       _publicSince = null;
     }
+    if (d.action != _decision?.action) logInfo('node', 'fallback decision ${d.action.name} (local node ${d.localPhase.name})');
     _decision = d;
     _switch.update(d);
   }

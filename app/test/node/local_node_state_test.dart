@@ -261,4 +261,38 @@ void main() {
     expect(derive(s), derive(s));
     expect(derive(s).hashCode, derive(s).hashCode);
   });
+
+  group('log reason', () {
+    const running = NodeStatusKind.running;
+    for (final (name, s, dirTip, reason) in <(String, BuiltInNodeState, int?, String)>[
+      (
+        'header sync',
+        BuiltInNodeState(NodeStatusKind.syncing, height: 10, highest: 500, phase: 'header_sync', status: status('header_sync', 10, highest: 500)),
+        null,
+        'node headers',
+      ),
+      (
+        'body sync',
+        BuiltInNodeState(NodeStatusKind.syncing, height: 10, highest: 500, phase: 'body_sync', status: status('body_sync', 10, highest: 500)),
+        null,
+        'node blocks',
+      ),
+      ('running but behind the network', const BuiltInNodeState(running, height: 500, readyForTxs: true, phase: 'no_sync'), 600, 'behind the network'),
+      ('running, not ready', const BuiltInNodeState(running, height: 500, readyForTxs: false, phase: 'no_sync'), null, 'node not ready'),
+      ('synced', const BuiltInNodeState(running, height: 500, readyForTxs: true, phase: 'no_sync'), 505, 'synced'),
+      ('stopped', const BuiltInNodeState.off(), null, 'stopped'),
+    ]) {
+      test(name, () => expect(localNodeReason(derive(s, directoryTip: dirTip)), reason));
+    }
+
+    test('the line holds the phase, the reason and the heights', () {
+      final line = localNodeLogLine(
+        derive(const BuiltInNodeState(running, height: 500, readyForTxs: true, phase: 'no_sync'), directoryTip: 600),
+      );
+      expect(line, contains('local node syncing (behind the network)'));
+      expect(line, contains('height 500'));
+      expect(line, contains('network 600'));
+      expect(line, contains('behind 100'));
+    });
+  });
 }

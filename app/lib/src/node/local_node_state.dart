@@ -285,3 +285,31 @@ LocalNodeState deriveLocalNodeState(
     at: now,
   );
 }
+
+/// Why the node is in its phase, in a few fixed words for the log: a new reason is a new
+/// word, never a new count.
+String localNodeReason(LocalNodeState s) => switch (s.phase) {
+  LocalNodePhase.stopped => s.stopping ? 'stopping' : 'stopped',
+  LocalNodePhase.starting => 'starting',
+  LocalNodePhase.error => s.stalled ? 'stalled' : 'failed ${s.failure?.name ?? 'unknown'}',
+  LocalNodePhase.synced => 'synced',
+  LocalNodePhase.syncing => _whySyncing(s),
+};
+
+String _whySyncing(LocalNodeState s) {
+  final stage = s.progress?.stage;
+  if (s.readyForTxs != true && stage != null && stage != SyncStage.synced) return 'node ${stage.name}';
+  if (s.readyForTxs == false) return 'node not ready';
+  if ((s.height ?? 0) <= 0) return 'no height';
+  if (s.peers == 0) return 'no peers';
+  final behind = s.blocksBehind;
+  if (behind != null && behind > syncedWithinBlocks) return 'behind the network';
+  return 'node ${stage?.name ?? 'status unknown'}';
+}
+
+/// One log line for a phase or reason change: the phase, the reason, and the heights it was
+/// judged on.
+String localNodeLogLine(LocalNodeState s) =>
+    'local node ${s.phase.name} (${localNodeReason(s)}): height ${s.height ?? '?'}, '
+    'network ${s.networkHeight ?? '?'}, behind ${s.blocksBehind ?? '?'}, peers ${s.peers ?? '?'}, '
+    'ready ${s.readyForTxs ?? '?'}';
