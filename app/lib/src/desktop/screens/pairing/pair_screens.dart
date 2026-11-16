@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
+import '../../../history/domain_check_book.dart' show DomainStatus;
 import '../../../key_picture.dart';
 import '../../../l10n.dart' show localDayMonth;
 import '../../../models.dart'
@@ -657,11 +658,11 @@ class DeskConfirmationDialog extends ConsumerWidget {
 /// opens the wait for the confirmation. Below the inviter, what the invite itself says: the
 /// server it came by, how it came ([source]; a request is always by Epicbox) and how long it
 /// stays open.
-Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact, InviteSource? source}) async {
-  final answered = await showEDialog<PairingRecord>(context, builder: (_) => _IncomingDialog(preview: p, contact: contact, source: source));
-  if (answered == null || !context.mounted) return;
-  await showEDialog<void>(context, dismissible: false, builder: (_) => DeskPairWaitingDialog(pairingId: answered.id, name: p.name));
-}
+///
+/// One window from the code to the result: the same dialog goes on to the wait, the domain
+/// check and the words or the Verified result ([_PairFlowDialog]).
+Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact, InviteSource? source}) =>
+    showEDialog<void>(context, dismissible: false, builder: (_) => _PairFlowDialog.incoming(preview: p, contact: contact, source: source));
 
 class _IncomingDialog extends ConsumerStatefulWidget {
   const _IncomingDialog({required this.preview, this.contact, this.source});
@@ -696,7 +697,7 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
         ref,
         (api) => api.acceptInvite(token: widget.preview.token, name: name, contactId: _sender()?.id, byHand: ref.read(deskPairNetProvider) != DeskPairNet.online),
       );
-      if (mounted) Navigator.pop(context, r);
+      if (mounted) _PairFlowScope.of(context).flow.answered(r);
     } catch (error) {
       if (mounted) setState(() => _error = deskErrorText(error, l));
     } finally {
@@ -724,6 +725,8 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
       titleTrailing: btlabs != null ? VerifiedCheck(label: l.pairVerifiedService, colour: context.dc.ok, size: 18.u) : null,
       // Wide, as its 520 u width rendered (it snapped up).
       size: DialogWidth.wide,
+      minBodyHeight: _PairFlowScope.of(context).minBody,
+      minFootHeight: _PairFlowScope.of(context).minFoot,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -784,11 +787,16 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
   StreamSubscription<PairingEvent>? _events;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
+  /// The flow window this wait is a step of; null for a wait shown on its own.
+  _PairFlowState? _flow;
+
   @override
   void initState() {
     super.initState();
+    _flow = _PairFlowScope.maybeOf(context)?.flow;
     pairingWordsOnScreen.add(_onScreen);
-    deskPairingStepsOnScreen.add(widget.pairingId);
+    // A flow window holds the pairing's marks for all its steps.
+    if (_flow == null) deskPairingStepsOnScreen.add(widget.pairingId);
     final api = ref.read(deskPairingApiProvider);
     if (ref.read(deskPairNetProvider) == DeskPairNet.online) {
       _unboost = boostRelays(ref.read(deskApiProvider).boosts, const Duration(seconds: 10));
@@ -818,7 +826,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
 
   @override
   void dispose() {
-    deskPairingStepsOnScreen.remove(widget.pairingId);
+    if (_flow == null) deskPairingStepsOnScreen.remove(widget.pairingId);
     pairingWordsOnScreen.remove(_onScreen);
     _unboost?.call();
     _slow?.cancel();
@@ -848,6 +856,11 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
       // Not read: the words are the safe way on.
     }
     if (!mounted) return;
+    final flow = _flow;
+    if (flow != null) {
+      flow.confirmed(record);
+      return;
+    }
     Navigator.pop(context);
     if (record != null && record.state == PairingState.verified) {
       if (host.mounted) showEToast(host, l.pairPairedWith(name), tone: ETone.ok);
@@ -925,7 +938,10 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
       title: l.pairPairingWith(name),
       icon: EIcons.trusted,
       size: DialogWidth.wide,
-      dismissible: false,
+      minBodyHeight: _flow?.minBody,
+      minFootHeight: _flow?.minFoot,
+      // In the flow window the key strip stays, so the footer keeps its place: Esc is Close.
+      dismissible: _flow != null,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1267,11 +1283,25 @@ Future<void> deskAttachPairing(BuildContext context, WidgetRef ref, PairingRecor
 /// The name field of the Save as a new contact form, for tests.
 const Key deskSaveContactNameKey = ValueKey('desk-save-contact-name');
 
+/// The check of a pairing: the words, or first the contact's domain when it can prove the
+/// wallet ([PairingRecord.domainProvable]), in one window ([_PairFlowDialog]).
 Future<void> showDeskCheckWords(BuildContext context, WidgetRef ref, String pairingId, {bool recheck = false}) async {
   // One words check per pairing: an answer's event and the paste that took it both ask.
   if (!_checksOpen.add(pairingId)) return;
   try {
-    await showEDialog<void>(context, builder: (_) => _CheckDialog(pairingId: pairingId, recheck: recheck));
+    var record = ref.read(deskPairingByIdProvider(pairingId));
+    if (record == null) {
+      // The records are still being read: the window must know whether the domain goes first.
+      try {
+        await ref.read(deskPairingsProvider.future);
+      } on Object {
+        // The words are the safe way on.
+      }
+      record = ref.read(deskPairingByIdProvider(pairingId));
+    }
+    if (!context.mounted) return;
+    final proof = !recheck && (record?.domainProvable ?? false);
+    await showEDialog<void>(context, builder: (_) => _PairFlowDialog.check(pairingId: pairingId, recheck: recheck, proof: proof));
   } finally {
     _checksOpen.remove(pairingId);
   }
@@ -1287,15 +1317,14 @@ void deskForgetOpenChecks() => _checksOpen.clear();
 
 /// [showDeskCheckWords] from a plain [BuildContext], for the screenshot catalogue.
 Future<void> showDeskCheckWordsFor(BuildContext context, String pairingId) =>
-    showEDialog<void>(context, builder: (_) => _CheckDialog(pairingId: pairingId, recheck: false));
+    showEDialog<void>(context, builder: (_) => _PairFlowDialog.check(pairingId: pairingId, recheck: false, proof: false));
 
 /// Check the words: They match (Verified), They do not match (ended on both sides). Close is
 /// later: the row stays Paired. No Skip.
 class _CheckDialog extends ConsumerStatefulWidget {
-  const _CheckDialog({required this.pairingId, required this.recheck});
+  const _CheckDialog({required this.pairingId});
 
   final String pairingId;
-  final bool recheck;
 
   @override
   ConsumerState<_CheckDialog> createState() => _CheckDialogState();
@@ -1313,24 +1342,21 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
-    // A pairing whose peer claims the name service feature waits for its hello before the words.
+    // A pairing whose peer claims the name service feature listens for its hello under the words.
     WidgetsBinding.instance.addPostFrameCallback((_) => _beginNameService());
   }
 
   Future<void> _beginNameService() async {
     final service = ref.read(deskNameServiceProvider);
     if (service == null) return;
-    var record = ref.read(deskPairingByIdProvider(widget.pairingId));
-    if (record == null) {
-      // The records are still being read.
-      try {
-        await ref.read(deskPairingsProvider.future);
-      } on Object {
-        return;
-      }
-      if (!mounted) return;
-      record = ref.read(deskPairingByIdProvider(widget.pairingId));
+    // The wallet's own view: the provider's records may be older than the confirm.
+    PairingRecord? record;
+    try {
+      record = await ref.read(deskPairingApiProvider).pairing(widget.pairingId);
+    } on Object {
+      return;
     }
+    if (!mounted) return;
     if (record == null || record.peerFeatures & featureNameService == 0) return;
     _nameService = service;
     final step = await service.beginHello(widget.pairingId);
@@ -1371,6 +1397,8 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
     try {
       final nameService = _nameService != null && _step == HelloStep.check ? _nameService : null;
       final r = await deskPairingCall(ref, (api) => api.checkWords(widget.pairingId, check));
+      // The plain words were answered before any hello came: the listening is over.
+      if (nameService == null) _nameService?.cancelHello(widget.pairingId);
       if (nameService != null) {
         // The code was compared: the serviceKey is this contact's, or the name service is forgotten.
         if (check == PairingCheck.match && r != null) {
@@ -1381,31 +1409,21 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       }
       if (r != null && check == PairingCheck.match) await deskWriteProvenAddress(ref, r);
       if (!mounted) return;
-      final host = Navigator.of(context).context;
-      final contacts = ref.read(deskProvider).contacts ?? const <Contact>[];
-      final saved = r == null || (r.contactId != null && contacts.any((c) => c.id == r.contactId));
-      Navigator.pop(context);
+      final flow = _PairFlowScope.of(context).flow;
       if (check == PairingCheck.mismatch) {
+        final host = Navigator.of(context).context;
+        Navigator.pop(context);
         if (host.mounted) showEToast(host, l.pairEndedNotice, tone: ETone.warn);
         return;
       }
       final entry = nameService?.book.byPairing(widget.pairingId);
-      if (entry != null && entry.pinned && host.mounted) {
-        // The Join dialog; Not now leaves a verified name service with Join on its page.
-        await showDeskNameServiceJoin(host, ref, serviceKey: entry.serviceKey, label: name);
+      if (entry != null && entry.pinned) {
+        // The Join dialog, over this window; Not now leaves a verified name service with Join on its page.
+        await showDeskNameServiceJoin(context, ref, serviceKey: entry.serviceKey, label: name);
+        if (!mounted) return;
       }
-      // Not in the contacts yet: the result asks where it goes, as the phone's Verified screen
-      // does; else the toast says it.
-      if (!saved && !widget.recheck && host.mounted) {
-        await showEDialog<void>(host, builder: (_) => DeskPairedSaveDialog(pairingId: r.id, verified: true));
-        return;
-      }
-      if (!host.mounted) return;
-      if (r != null && check == PairingCheck.match && !ref.read(paymentRefusalsProvider).refusesPayments(pairingId: r.id)) {
-        await showEDialog<void>(host, builder: (_) => DeskMatchedResult(pairingId: r.id));
-      } else {
-        showEToast(host, l.sasMatchedTitle(name), tone: ETone.ok);
-      }
+      // The window goes on to the result in place: the save offer, the Allow row or the toast.
+      await flow.showResult(r, name: name);
     } catch (error) {
       if (mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
     } finally {
@@ -1416,21 +1434,26 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final ts = context.ts;
     final r = ref.watch(deskPairingByIdProvider(widget.pairingId));
     final name = ref.watch(deskPairingNameProvider(widget.pairingId));
     if (r == null) return EDialog(title: l.sasTitle, icon: EIcons.trusted);
+    final flow = _PairFlowScope.of(context);
+    Widget? code;
     if (_nameService != null) {
       final view = ref.watch(deskNameServices.view);
       final step = view?.steps[widget.pairingId] ?? _began;
-      final helloEntry = view?.book.byPairing(r.id);
-      final serviceKey = helloEntry?.serviceKey;
+      final serviceKey = view?.book.byPairing(r.id)?.serviceKey;
+      // A hello arrived: the same window turns into the service's code check. Without one
+      // (a plain wallet never sends it) the words are all there is.
       if (step == HelloStep.check && serviceKey != null) {
-        return DeskNameServiceCodeCheck(
+        code = DeskNameServiceCodeCheck(
+          key: const ValueKey('code'),
           label: name,
           serviceKey: serviceKey,
           noPayments: ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: r.id),
           busy: _busy,
+          minBodyHeight: flow.minBody,
+          minFootHeight: flow.minFoot,
           onLater: () => Navigator.pop(context),
           onMatch: () => _answer(PairingCheck.match),
           onNoMatch: () => _answer(PairingCheck.mismatch),
@@ -1439,16 +1462,29 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
           laterKey: deskCheckLaterKey,
         );
       }
-      if (step == null || step == HelloStep.waiting) {
-        return DeskNameServiceWaiting(label: name, onCancel: () => _nameService?.cancelHello(widget.pairingId));
-      }
     }
+    final still = MediaQuery.disableAnimationsOf(context);
+    final current = code == null ? const ValueKey('words') : const ValueKey('code');
+    return AnimatedSwitcher(
+      duration: still ? Duration.zero : Motion.cross,
+      switchInCurve: Motion.easeOut,
+      transitionBuilder: (child, animation) => child.key == current ? FadeTransition(opacity: animation, child: child) : IgnorePointer(child: child),
+      child: code ?? _words(context, r, name),
+    );
+  }
+
+  Widget _words(BuildContext context, PairingRecord r, String name) {
+    final l = context.l10n;
+    final ts = context.ts;
     final lead = statedAutomated(r.peerProfile) ? l.sasLeadExchange(name) : l.sasLead(name);
     return EDialog(
+      key: const ValueKey('words'),
       title: l.sasDialogTitle(name),
       icon: EIcons.trusted,
       // Wide, as its 520 u width rendered (it snapped up).
       size: DialogWidth.wide,
+      minBodyHeight: _PairFlowScope.of(context).minBody,
+      minFootHeight: _PairFlowScope.of(context).minFoot,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1457,6 +1493,18 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
           Text(lead, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           WordTiles(words: r.sas, label: l.sasWordsLabel, size: WordTileSize.check),
+          if (r.domainChecking && (r.peerDomain ?? '').isNotEmpty) ...[
+            SizedBox(height: Sp.x3),
+            // The contact's domain is being asked: a calm line, the words stay usable.
+            Row(
+              key: deskDomainCheckingKey,
+              children: [
+                ESpinner(size: 12.u),
+                SizedBox(width: Sp.x2),
+                Expanded(child: Semantics(liveRegion: true, child: Text(l.deskPairDomainChecking(r.peerDomain!), style: ts.caption.copyWith(color: context.dc.dim)))),
+              ],
+            ),
+          ],
         ],
       ),
       actions: [
@@ -1471,10 +1519,13 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
 /// After the words check of a pairing that is in no contact yet: Verified and where it goes,
 /// Add to contacts (a new contact or one there), or Not now.
 class DeskPairedSaveDialog extends ConsumerWidget {
-  const DeskPairedSaveDialog({super.key, required this.pairingId, required this.verified});
+  const DeskPairedSaveDialog({super.key, required this.pairingId, required this.verified, this.domain});
 
   final String pairingId;
   final bool verified;
+
+  /// The domain that proved the wallet, when it did and no words were compared.
+  final String? domain;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1494,17 +1545,23 @@ class DeskPairedSaveDialog extends ConsumerWidget {
     final name = ref.watch(deskPairingNameProvider(pairingId));
     final suggested = r == null ? null : deskSuggestedContact(ref, r);
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairingId);
+    final inFlow = _PairFlowScope.maybeOf(context);
     return EDialog(
       title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
       tone: verified ? ETone.ok : ETone.warn,
       icon: verified ? EIcons.trusted : EIcons.shield,
-      // Room for the choices on one line in every language.
-      size: suggested == null ? DialogWidth.standard : DialogWidth.wide,
+      // Room for the choices on one line in every language; the flow window keeps its width.
+      size: suggested == null && inFlow == null ? DialogWidth.standard : DialogWidth.wide,
+      minBodyHeight: inFlow?.minBody,
+      minFootHeight: inFlow?.minFoot,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!verified || !noPayments) Text(verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name), style: ts.bodyDim),
+          if (domain case final d? when verified)
+            Text(l.deskPairDomainVerifiedBody(name, d), style: ts.bodyDim)
+          else if (!verified || !noPayments)
+            Text(verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name), style: ts.bodyDim),
           if (verified && !noPayments) ...[
             SizedBox(height: Sp.x3),
             DeskAllowGroup(pairingId: pairingId),
@@ -1590,9 +1647,12 @@ class _DeskAllowGroupState extends ConsumerState<DeskAllowGroup> {
 /// recheck): the verified title, the line, and the Allow invoices row, off until the payer
 /// turns it on. The phone shows the same on its result screen.
 class DeskMatchedResult extends ConsumerWidget {
-  const DeskMatchedResult({super.key, required this.pairingId});
+  const DeskMatchedResult({super.key, required this.pairingId, this.domain});
 
   final String pairingId;
+
+  /// The domain that proved the wallet, when it did and no words were compared.
+  final String? domain;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1600,15 +1660,19 @@ class DeskMatchedResult extends ConsumerWidget {
     final ts = context.ts;
     final r = ref.watch(deskPairingByIdProvider(pairingId));
     final name = ref.watch(deskPairingNameProvider(pairingId));
+    final inFlow = _PairFlowScope.maybeOf(context);
     return EDialog(
       title: l.sasMatchedTitle(name),
       tone: ETone.ok,
       icon: EIcons.trusted,
+      size: inFlow == null ? DialogWidth.standard : DialogWidth.wide,
+      minBodyHeight: inFlow?.minBody,
+      minFootHeight: inFlow?.minFoot,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(l.sasMatchedBody(name), style: ts.bodyDim),
+          Text(domain == null ? l.sasMatchedBody(name) : l.deskPairDomainVerifiedBody(name, domain!), style: ts.bodyDim),
           if (r != null && statedAutomated(r.peerProfile)) ...[
             SizedBox(height: Sp.x1),
             Text(l.pairIsService, style: ts.bodyDim),
@@ -1640,4 +1704,254 @@ Future<void> showDeskOutcome(BuildContext context, PairingFailure failure, {Stri
       actions: [EButton.primary(label: l.pairClosed, onPressed: () => Navigator.pop(ctx))],
     ),
   );
+}
+
+/// The body height every step of the pairing window shares, at scale 1: the window keeps one
+/// size from the code to the result.
+const double _flowBodyHeight = 224;
+
+/// The steps of the pairing window.
+enum _FlowPhase { incoming, waiting, words, result }
+
+/// What the flow's last step offers.
+enum _FlowResult { saveOffer, matched }
+
+/// The line under the words while the contact's domain is being asked, for tests.
+const Key deskDomainCheckingKey = ValueKey('desk-domain-checking');
+
+/// What the steps of a [_PairFlowDialog] reach: the window, to tell it the step is done.
+class _PairFlowScope extends InheritedWidget {
+  const _PairFlowScope({required this.flow, required super.child});
+
+  final _PairFlowState flow;
+
+  double get minBody => flow.minBody;
+  double get minFoot => flow.minFoot;
+
+  static _PairFlowScope? maybeOf(BuildContext context) => context.getInheritedWidgetOfExactType<_PairFlowScope>();
+
+  static _PairFlowScope of(BuildContext context) => maybeOf(context)!;
+
+  @override
+  bool updateShouldNotify(_PairFlowScope old) => flow != old.flow;
+}
+
+/// The pairing window for a code this wallet answered (and the words check from the other
+/// entry points): ONE dialog from "Pair with Anna?" to the result. It never closes and
+/// reopens: the incoming step, the wait, the words and the result change inside it with a
+/// short cross-fade (none with reduce motion), at one width and one body height.
+///
+/// Nothing waits up front: after the confirm the words show at once for every peer. A
+/// pairing with [PairingRecord.domainProvable] asks the domain under them ("Checking
+/// `domain`…"); a proof turns the window into Verified in place, a refusal or silence only
+/// removes the line. A name service hello that arrives upgrades the words to its code check.
+class _PairFlowDialog extends ConsumerStatefulWidget {
+  const _PairFlowDialog.incoming({required PairingInvitePreview this.preview, this.contact, this.source})
+    : pairingId = null,
+      recheck = false,
+      proof = false;
+
+  const _PairFlowDialog.check({required String this.pairingId, required this.recheck, required this.proof})
+    : preview = null,
+      contact = null,
+      source = null;
+
+  final PairingInvitePreview? preview;
+  final Contact? contact;
+  final InviteSource? source;
+  final String? pairingId;
+  final bool recheck;
+  /// The check opens on a pairing whose contact's domain can prove it: the proof runs under the words.
+  final bool proof;
+
+  @override
+  ConsumerState<_PairFlowDialog> createState() => _PairFlowState();
+}
+
+class _PairFlowState extends ConsumerState<_PairFlowDialog> {
+  late _FlowPhase _phase;
+  String? _id;
+  String _domain = '';
+  _FlowResult _result = _FlowResult.matched;
+
+  /// The domain's answer was taken (proven): a second one does nothing.
+  bool _proved = false;
+
+  /// The ids this window put in the on-screen sets, to take them out again.
+  bool _marked = false;
+
+  double get minBody => _flowBodyHeight.u;
+
+  /// Three buttons stacked, the tallest footer of the steps.
+  double get minFoot => 3 * Ctl.md + 2 * Sp.x2p5;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.pairingId;
+    if (id == null) {
+      _phase = _FlowPhase.incoming;
+      return;
+    }
+    _id = id;
+    _phase = _FlowPhase.words;
+    if (widget.proof) WidgetsBinding.instance.addPostFrameCallback((_) => _startProof(id));
+  }
+
+  @override
+  void dispose() {
+    final id = _id;
+    if (id != null && _marked && widget.pairingId == null) {
+      deskPairingStepsOnScreen.remove(id);
+      _checksOpen.remove(id);
+    }
+    super.dispose();
+  }
+
+  void _go(_FlowPhase phase) {
+    if (mounted) setState(() => _phase = phase);
+  }
+
+  /// The answer to the code went out: the wait for the confirmation.
+  void answered(PairingRecord r) {
+    _id = r.id;
+    // The wait is up, and the words check is this window's: nobody opens a second one.
+    deskPairingStepsOnScreen.add(r.id);
+    _checksOpen.add(r.id);
+    _marked = true;
+    _go(_FlowPhase.waiting);
+  }
+
+  /// The confirmation is in; [record] is the wallet's own view of the pairing, null when
+  /// it could not be read.
+  void confirmed(PairingRecord? record) {
+    final id = _id!;
+    if (record != null && record.state == PairingState.verified) {
+      final host = Navigator.of(context).context;
+      final l = context.l10n;
+      final name = ref.read(deskPairingNameProvider(id));
+      Navigator.pop(context);
+      if (host.mounted) showEToast(host, l.pairPairedWith(name), tone: ETone.ok);
+      return;
+    }
+    // The words at once, for every peer; a domain that can prove the wallet is asked under them.
+    _go(_FlowPhase.words);
+    if (record != null && record.domainProvable) _startProof(id);
+  }
+
+  /// Asks the contact's domain while the words are up. Proven, the window turns Verified in
+  /// place; refused or unreachable, the line under the words just goes away.
+  void _startProof(String id) {
+    if (!mounted) return;
+    unawaited(_runProof(id));
+  }
+
+  Future<void> _runProof(String id) async {
+    final api = ref.read(deskPairingApiProvider);
+    final records = ref.read(deskPairingsProvider.notifier);
+    var proven = false;
+    try {
+      proven = await api.proveByDomain(id);
+    } on Object {
+      // Not proven: the words stay.
+    }
+    if (!mounted) return;
+    if (proven && _phase == _FlowPhase.words) {
+      await _verifiedByDomain(id);
+      return;
+    }
+    // The record's own domainChecking turns the line off; read it again.
+    unawaited(records.reload());
+  }
+
+  /// The domain proved the wallet: the pairing is Verified; the window shows it in place.
+  Future<void> _verifiedByDomain(String id) async {
+    if (_proved) return;
+    _proved = true;
+    PairingRecord? record;
+    try {
+      record = await ref.read(deskPairingApiProvider).pairing(id);
+    } on Object {
+      // The records are read again by the event.
+    }
+    if (!mounted) return;
+    unawaited(ref.read(deskPairingsProvider.notifier).reload());
+    if (record != null) await deskWriteProvenAddress(ref, record);
+    if (!mounted) return;
+    if (record?.peerDomain case final d? when d.isNotEmpty) _domain = d;
+    await showResult(record, name: ref.read(deskPairingNameProvider(id)), domain: _domain);
+  }
+
+  /// The result in place: the save offer when the pairing is in no contact yet, else the
+  /// matched result with its Allow row, else the toast.
+  Future<void> showResult(PairingRecord? r, {required String name, String? domain}) async {
+    if (!mounted) return;
+    final l = context.l10n;
+    final host = Navigator.of(context).context;
+    final contacts = ref.read(deskProvider).contacts ?? const <Contact>[];
+    final saved = r == null || (r.contactId != null && contacts.any((c) => c.id == r.contactId));
+    if (domain != null && domain.isEmpty) domain = null;
+    if (!saved && !widget.recheck) {
+      _show(_FlowResult.saveOffer, domain);
+    } else if (r != null && !ref.read(paymentRefusalsProvider).refusesPayments(pairingId: r.id)) {
+      _show(_FlowResult.matched, domain);
+    } else {
+      Navigator.pop(context);
+      if (host.mounted) showEToast(host, l.sasMatchedTitle(name), tone: ETone.ok);
+    }
+  }
+
+  void _show(_FlowResult result, String? domain) {
+    setState(() {
+      _result = result;
+      _domain = domain ?? '';
+      _phase = _FlowPhase.result;
+    });
+  }
+
+  Widget _step(BuildContext context) {
+    final id = _id;
+    switch (_phase) {
+      case _FlowPhase.incoming:
+        return _IncomingDialog(preview: widget.preview!, contact: widget.contact, source: widget.source);
+      case _FlowPhase.waiting:
+        return DeskPairWaitingDialog(pairingId: id!, name: widget.preview?.name ?? '');
+      case _FlowPhase.words:
+        return _CheckDialog(pairingId: id!);
+      case _FlowPhase.result:
+        final domain = _domain.isEmpty ? null : _domain;
+        return _result == _FlowResult.saveOffer
+            ? DeskPairedSaveDialog(pairingId: id!, verified: true, domain: domain)
+            : DeskMatchedResult(pairingId: id!, domain: domain);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // A proof that comes after the wait: the words turn into Verified, no new window.
+    ref.listen<PairingRecord?>(deskPairingByIdProvider(_id ?? ''), (_, next) {
+      if (_phase == _FlowPhase.words && next != null && next.state == PairingState.verified && next.domainStatus == DomainStatus.proven) {
+        unawaited(_verifiedByDomain(next.id));
+      }
+    });
+    final still = MediaQuery.disableAnimationsOf(context);
+    final current = ValueKey(_phase);
+    return _PairFlowScope(
+      flow: this,
+      // The words step is taller than the others: the window grows to it in place, not in a jump.
+      child: AnimatedSize(
+        duration: still ? Duration.zero : Motion.cross,
+        curve: Motion.easeOut,
+        clipBehavior: Clip.none,
+        child: AnimatedSwitcher(
+          duration: still ? Duration.zero : Motion.cross,
+          switchInCurve: Motion.easeOut,
+          // The new step fades in over the old one, which stays whole until it is covered, so
+          // the window never thins out in between.
+          transitionBuilder: (child, animation) => child.key == current ? FadeTransition(opacity: animation, child: child) : IgnorePointer(child: child),
+          child: KeyedSubtree(key: current, child: _step(context)),
+        ),
+      ),
+    );
+  }
 }

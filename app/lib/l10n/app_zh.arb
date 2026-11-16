@@ -4715,7 +4715,6 @@
   "linkChangedConfirmTitle": "付款前请核对",
   "linkTrustChangedNoName": "收款方现在收款到另一个钱包，与你在 {date} 付款时不同。仅在对方告知过你时再付款。",
   "linkCodeLabelPlain": "图案",
-  "nsWaitingFor": "正在等待 {label}…",
   "nsCodeTitle": "核对代码",
   "nsCodeLead": "{label} 显示四个图案。请与这里的对比。",
   "nsCodeLabel": "四个图案",
@@ -5577,5 +5576,8 @@
   "deskPaySentTitle": "付款已发送",
   "deskPaySentBody": "完成之前，它会显示在首页和“活动”中。",
   "deskPaySentWaiting": "等待收款方的钱包",
-  "deskPaySentPosted": "已广播到网络，等待打包进区块"
+  "deskPaySentPosted": "已广播到网络，等待打包进区块",
+  "deskPairDomainChecking": "正在检查 {domain}…",
+  "deskPairDomainVerifiedBody": "{domain} 确认这是 {name} 的钱包。无需比对词语。",
+  "deskPairVerifiedByDomain": "已通过 {domain} 验证"
 }

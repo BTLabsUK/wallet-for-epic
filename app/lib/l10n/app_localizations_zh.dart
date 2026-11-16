@@ -17553,11 +17553,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkChangedConfirmTitle => '付款前请核对';
 
   @override
-  String nsWaitingFor(String label) {
-    return '正在等待 $label…';
-  }
-
-  @override
   String get nsCodeTitle => '核对代码';
 
   @override
@@ -20247,4 +20242,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskPaySentPosted => '已广播到网络，等待打包进区块';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return '正在检查 $domain…';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain 确认这是 $name 的钱包。无需比对词语。';
+  }
+
+  @override
+  String deskPairVerifiedByDomain(String domain) {
+    return '已通过 $domain 验证';
+  }
 }

@@ -134,6 +134,26 @@ void main() {
       expect(await broken.run(claim()), DomainStatus.claimed);
     });
 
+    test('a run while one is on shares it: one fetch, one verdict', () async {
+      final held = Completer<HttpBytes>();
+      reply = () => held.future;
+      final c = check();
+      final first = c.run(claim());
+      final second = c.run(claim());
+      expect(c.running('p1'), isTrue);
+      held.complete(HttpBytes(200, Uint8List.fromList([123, 125])));
+      expect(await first, DomainStatus.proven);
+      expect(await second, DomainStatus.proven);
+      expect(fetched, hasLength(1));
+      expect(c.running('p1'), isFalse);
+    });
+
+    test('a transport that throws something else is claimed, never thrown', () async {
+      reply = () async => throw StateError('socket');
+      expect(await check().run(claim()), DomainStatus.claimed);
+      expect(log.book.checks['p1']!.reason, 'fetch StateError');
+    });
+
     test('a contact with no domain is not fetched', () async {
       final none = PairingRecord(id: 'p2', state: PairingState.verified, way: PairingWay.link, inviter: false, createdAt: now);
       expect(await check().run(none), DomainStatus.claimed);
@@ -191,7 +211,19 @@ void main() {
       );
       final back = DomainCheckBook.fromJson(book.toJson());
       expect(back.checks['p1'], book.checks['p1']);
+      expect(back.verified, isEmpty);
       expect(DomainCheckBook.fromJson(null).isEmpty, isTrue);
+    });
+
+    test('keeps the pairings a domain proof verified until the words are checked', () async {
+      final log = MemoryDomainCheckLog();
+      await log.markVerified('p1', 1792900000000);
+      expect(log.book.isEmpty, isFalse);
+      final back = DomainCheckBook.fromJson(log.book.toJson());
+      expect(back.verified, {'p1': 1792900000000});
+      await log.markVerified('p1', null);
+      expect(log.book.verified, isEmpty);
+      expect(() => DomainCheckBook.fromJson({'verified': {'p1': 'x'}}), throwsFormatException);
     });
   });
 }

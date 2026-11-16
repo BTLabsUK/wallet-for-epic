@@ -4715,7 +4715,6 @@
   "linkChangedConfirmTitle": "Проверьте перед оплатой",
   "linkTrustChangedNoName": "Получатель теперь получает платежи на другой кошелёк, чем при вашем платеже {date}. Платите, только если вам об этом сказали.",
   "linkCodeLabelPlain": "Картинки",
-  "nsWaitingFor": "Ожидание {label}…",
   "nsCodeTitle": "Проверьте код",
   "nsCodeLead": "{label} показывает четыре картинки. Сравните их с этими.",
   "nsCodeLabel": "Четыре картинки",
@@ -5577,5 +5576,8 @@
   "deskPaySentTitle": "Платёж отправлен",
   "deskPaySentBody": "Он виден на «Главной» и в «Активности», пока не завершится.",
   "deskPaySentWaiting": "Ждём кошелёк получателя",
-  "deskPaySentPosted": "Отправлено в сеть, ждёт блок"
+  "deskPaySentPosted": "Отправлено в сеть, ждёт блок",
+  "deskPairDomainChecking": "Проверка {domain}…",
+  "deskPairDomainVerifiedBody": "{domain} подтверждает, что это кошелёк {name}. Сравнивать слова не нужно.",
+  "deskPairVerifiedByDomain": "Проверено через {domain}"
 }

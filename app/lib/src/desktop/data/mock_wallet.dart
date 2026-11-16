@@ -25,7 +25,7 @@ import '../../name_service/receipts.dart' show LinkPaymentRecords, MemoryLinkPay
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../message_checks.dart' show MessageChecks;
-import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, QrSlateProgress, TxEntry, PairingCaps, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
+import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, QrSlateProgress, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../boosts.dart' show Boosts, MemoryBoosts;
@@ -1548,6 +1548,16 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> forgetPeers({required Duration olderThan}) async => forgetPeersCalls.add(olderThan);
+
+  /// A code of a shop for the Demo panel: its sender confirms 2 s after the answer. With
+  /// [proof] the shop claims harbor-books.example, whose check takes [after] and ends as
+  /// [proof] says; without, it claims no domain.
+  String demoPairCode({FakeDomainProof? proof, Duration after = const Duration(seconds: 2)}) => pairing.inviteLinkFrom(
+    name: 'Harbor Books',
+    kind: PairingParty.shop,
+    domain: proof == null ? null : (domain: 'harbor-books.example', proof: proof, after: after),
+    confirmAfter: const Duration(seconds: 2),
+  );
 
   FakePairing _seedPairing(FakePairing p) {
     p.clock = () => proto.now;

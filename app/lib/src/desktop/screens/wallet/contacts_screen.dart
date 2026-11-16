@@ -1567,7 +1567,10 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
     // A pairing made before addresses were proven: nothing confirms the contact's address.
     final unproven = (verified || p.state == PairingState.paired) && p.paymentsAddress == null;
     final statusTitle = changed ? l.trustKeysChanged : waiting ? l.pairWaitingFor(name) : verified ? l.trustVerified : l.trustPaired;
-    final statusLine = changed
+    // Verified by the domain: no words were compared, so the row names the domain and no
+    // "has not checked" follows.
+    final byDomain = verified && p.verifiedByDomain && p.peerDomain != null;
+    final String? statusLine = changed
         ? l.contactKeysChangedStatus
         : waiting
             ? l.pairAnsweredNotHeard
@@ -1575,7 +1578,9 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
                 ? l.pairIsService
                 : (verified && p.peerVerifiedAt != null)
                     ? l.pairConfirmedToo(name)
-                    : l.pairNotChecked(name);
+                    : byDomain
+                        ? null
+                        : l.pairNotChecked(name);
     // A relay move (`relay_moves.dart`): asked and open as a notice; refused, not followed or
     // made in the last 30 days as a quiet line on the relay row.
     final asked = p.requestedRelay;
@@ -1682,7 +1687,12 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
           rows: [
             ESetRow(
               title: statusTitle,
-              text: verified && p.verifiedAt != null ? metaLine([l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)), statusLine]) : statusLine,
+              text: verified && p.verifiedAt != null
+                  ? metaLine([
+                      if (byDomain) ...[l.deskPairVerifiedByDomain(p.peerDomain!), localDayMonth(l, p.verifiedAt!)] else l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)),
+                      statusLine,
+                    ])
+                  : statusLine,
               control: !changed && p.sas.isNotEmpty && (waiting || p.state == PairingState.paired)
                   ? EButton(key: deskContactCheckKey, semanticsId: TrustIds.pairContactCheck, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: !waiting))
                   : null,

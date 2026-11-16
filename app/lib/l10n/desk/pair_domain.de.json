@@ -1,0 +1,5 @@
+{
+  "deskPairDomainChecking": "{domain} wird geprüft …",
+  "deskPairDomainVerifiedBody": "{domain} bestätigt, dass dies die Wallet von {name} ist. Kein Wortvergleich nötig.",
+  "deskPairVerifiedByDomain": "Verifiziert über {domain}"
+}

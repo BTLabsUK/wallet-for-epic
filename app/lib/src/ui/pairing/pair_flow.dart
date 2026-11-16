@@ -47,41 +47,83 @@ class PairFlowPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final padding = DockSlack.pad(context, const EdgeInsets.fromLTRB(Kit.gutter, 8, Kit.gutter, Kit.gutter));
+    final content = Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: phoneFrameBreakpoint),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KitFlowHeader(
+              title: title,
+              back: back,
+              onLeading: onLeading ?? () => Navigator.of(context).maybePop(),
+              onHelp: onHelp,
+              leadingId: leadingId,
+              helpId: helpId,
+            ),
+            Expanded(
+              child: ListView(
+                padding: bottom == null ? padding : padding.copyWith(bottom: Kit.gutter),
+                children: children,
+              ),
+            ),
+            if (bottom != null)
+              Padding(
+                padding: EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, padding.bottom),
+                child: bottom,
+              ),
+          ],
+        ),
+      ),
+    );
+    // Inside a PairFlowStage the stage owns the scaffold: only the content is drawn, so one step
+    // gives way to the next in place, without a route change.
+    return PairFlowStage.holds(context) ? content : SlotScaffold(idle: idle, body: SafeArea(child: content));
+  }
+}
+
+/// One route for a flow whose steps give way to each other in place: the scaffold stays, the
+/// step (an embedded [PairFlowPage]) cross-fades. [stepKey] tells the switcher the step changed.
+/// With the system's reduce-motion setting the change is at once.
+class PairFlowStage extends StatelessWidget {
+  const PairFlowStage({super.key, required this.stepKey, required this.child, this.idle});
+
+  final Object stepKey;
+  final Widget child;
+  final Widget? idle;
+
+  /// A step arriving: short and calm.
+  static const Duration fade = Duration(milliseconds: 220);
+
+  /// True when [context] is a step of a stage.
+  static bool holds(BuildContext context) => context.getInheritedWidgetOfExactType<_StageMark>() != null;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduced = MediaQuery.disableAnimationsOf(context);
     return SlotScaffold(
       idle: idle,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: phoneFrameBreakpoint),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                KitFlowHeader(
-                  title: title,
-                  back: back,
-                  onLeading: onLeading ?? () => Navigator.of(context).maybePop(),
-                  onHelp: onHelp,
-                  leadingId: leadingId,
-                  helpId: helpId,
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: bottom == null ? padding : padding.copyWith(bottom: Kit.gutter),
-                    children: children,
-                  ),
-                ),
-                if (bottom != null)
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(Kit.gutter, 0, Kit.gutter, padding.bottom),
-                    child: bottom,
-                  ),
-              ],
-            ),
+        child: AnimatedSwitcher(
+          duration: reduced ? Duration.zero : fade,
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          layoutBuilder: (current, previous) => Stack(
+            fit: StackFit.expand,
+            children: [...previous, ?current],
           ),
+          child: _StageMark(key: ValueKey(stepKey), child: child),
         ),
       ),
     );
   }
+}
+
+class _StageMark extends InheritedWidget {
+  const _StageMark({super.key, required super.child});
+
+  @override
+  bool updateShouldNotify(_StageMark old) => false;
 }
 
 /// A QR code on white (dark modules on white scan reliably in either theme) inside the brand's

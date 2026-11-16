@@ -1,0 +1,5 @@
+{
+  "deskPairDomainChecking": "正在检查 {domain}…",
+  "deskPairDomainVerifiedBody": "{domain} 确认这是 {name} 的钱包。无需比对词语。",
+  "deskPairVerifiedByDomain": "已通过 {domain} 验证"
+}

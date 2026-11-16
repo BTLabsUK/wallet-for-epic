@@ -4715,7 +4715,6 @@
   "linkChangedConfirmTitle": "Vor dem Bezahlen prüfen",
   "linkTrustChangedNoName": "Der Empfänger erhält Zahlungen jetzt auf eine andere Wallet als bei Ihrer Zahlung am {date}. Zahlen Sie nur, wenn es Ihnen gesagt wurde.",
   "linkCodeLabelPlain": "Bilder",
-  "nsWaitingFor": "Warten auf {label}…",
   "nsCodeTitle": "Code prüfen",
   "nsCodeLead": "{label} zeigt vier Bilder. Vergleichen Sie sie mit diesen.",
   "nsCodeLabel": "Die vier Bilder",
@@ -5577,5 +5576,8 @@
   "deskPaySentTitle": "Zahlung gesendet",
   "deskPaySentBody": "Sie steht auf Start und unter Aktivität, bis sie abgeschlossen ist.",
   "deskPaySentWaiting": "Warten auf die Wallet des Empfängers",
-  "deskPaySentPosted": "An das Netzwerk gesendet, wartet auf einen Block"
+  "deskPaySentPosted": "An das Netzwerk gesendet, wartet auf einen Block",
+  "deskPairDomainChecking": "{domain} wird geprüft …",
+  "deskPairDomainVerifiedBody": "{domain} bestätigt, dass dies die Wallet von {name} ist. Kein Wortvergleich nötig.",
+  "deskPairVerifiedByDomain": "Verifiziert über {domain}"
 }

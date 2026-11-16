@@ -3346,6 +3346,9 @@ class PairingRecord {
     this.peerDomain,
     this.peerDomainAttestation,
     this.domainStatus,
+    this.domainProvable = false,
+    this.domainChecking = false,
+    this.verifiedByDomain = false,
     this.relayMove = RelayMoveState.none,
     this.movedAt,
     this.awaiting = false,
@@ -3463,6 +3466,19 @@ class PairingRecord {
   /// What `isDomainBacked` reads.
   final DomainStatus? domainStatus;
 
+  /// This wallet answered the contact's code in this run of the app, the pairing is Paired and
+  /// the contact claims [peerDomain]: a proof of the domain ends it Verified without the words
+  /// (`PairingApi.proveByDomain`). Kept in memory only: after a restart the words stay.
+  final bool domainProvable;
+
+  /// The proof of [peerDomain] that can end the pairing Verified ([domainProvable]) is being
+  /// fetched now. A screen shows that it checks; it waits for nothing.
+  final bool domainChecking;
+
+  /// The pairing is Verified because the contact's domain proved its key, not by the words
+  /// (kept in the wallet's meta file). Words checked later make it a words check.
+  final bool verifiedByDomain;
+
   /// Where [requestedRelay] stands under the move rules (`relay_moves.dart`).
   final RelayMoveState relayMove;
 
@@ -3544,6 +3560,9 @@ class PairingRecord {
     String? peerDomain,
     Uint8List? peerDomainAttestation,
     DomainStatus? domainStatus,
+    bool? domainProvable,
+    bool? domainChecking,
+    bool? verifiedByDomain,
     RelayMoveState? relayMove,
     DateTime? movedAt,
     bool? awaiting,
@@ -3584,6 +3603,9 @@ class PairingRecord {
     peerDomain: peerDomain ?? this.peerDomain,
     peerDomainAttestation: peerDomainAttestation ?? this.peerDomainAttestation,
     domainStatus: domainStatus ?? this.domainStatus,
+    domainProvable: domainProvable ?? this.domainProvable,
+    domainChecking: domainChecking ?? this.domainChecking,
+    verifiedByDomain: verifiedByDomain ?? this.verifiedByDomain,
     relayMove: relayMove ?? this.relayMove,
     movedAt: movedAt ?? this.movedAt,
     awaiting: awaiting ?? this.awaiting,

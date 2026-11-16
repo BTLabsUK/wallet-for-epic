@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -28,6 +29,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'devices/two_devices.dart';
+import 'pair_shot_fonts.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -459,18 +461,23 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
 
-    testWidgets('waiting, then Check the code; They match pins it and Join posts a verifiable card', (tester) async {
+    testWidgets('the words at once, the hello upgrades the screen to Check the code; They match pins it and Join posts a verifiable card', (tester) async {
       final rig = await pump(tester, const SizedBox());
       final r = rig.paired();
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
-      expect(find.byKey(nsWaitCancelKey), findsOneWidget);
+      // No waiting view: the ordinary words, while the service still listens.
+      expect(find.text(_l.sasLead('Anna')), findsOneWidget);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(rig.service.stepOf(r.id), HelloStep.waiting);
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
       await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
+      // Mid-fade both views stand; once settled the code check has taken the place of the words.
+      await tester.pump(const Duration(milliseconds: 400));
       expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
+      expect(find.text(_l.sasLead('Anna')), findsNothing);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
       expect(find.descendant(of: find.byKey(nsCodeKey), matching: find.byType(WordTiles)), findsOneWidget);
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pump(const Duration(milliseconds: 300));
@@ -489,7 +496,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('the features come with the confirm: the wait opens though the records still reload', (tester) async {
+    testWidgets('the features come with the confirm: the service listens though the records still reload', (tester) async {
       final rig = await pump(tester, const SizedBox());
       rig.api.clock = rig.clock.call;
       final preview = await rig.api.openInvite(rig.api.inviteLinkFrom(name: 'Anna'));
@@ -502,25 +509,57 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(CheckWordsScreen), findsOneWidget);
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
+      // The words are there at once and stay while no hello comes.
+      expect(find.text(_l.sasLead('Anna')), findsOneWidget);
+      expect(rig.service.stepOf(answered.id), HelloStep.waiting);
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.text(_l.sasLead('Anna')), findsOneWidget);
+      // A hello at about 2 s: the same route takes the code check in place of the words.
+      final route = ModalRoute.of(tester.element(find.byType(PairingWaitingScreen)));
       rig.api.nameServiceHello(answered.id, serviceKey: _serviceKey);
       unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
       await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 400));
       expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
+      expect(find.text(_l.sasLead('Anna')), findsNothing);
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      expect(ModalRoute.of(tester.element(find.byType(PairingWaitingScreen))), same(route));
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('no hello: Cancel gives the ordinary words step', (tester) async {
+    testWidgets('the screenshots: the words first, then the service code check in the same screen', (tester) async {
+      final dir = Platform.environment['PAIR_SHOTS_DIR'];
+      await tester.runAsync(loadShotFonts);
+      final rig = await pump(tester, const SizedBox());
+      rig.api.clock = rig.clock.call;
+      final preview = await rig.api.openInvite(rig.api.inviteLinkFrom(name: 'Anna'));
+      final answered = await rig.api.acceptInvite(token: preview.token, name: 'Alex');
+      await mount(tester, rig, PairingWaitingScreen(pairingId: answered.id, name: 'Anna'));
+      rig.api.confirmAnswer(answered.id, features: _nameServiceBits);
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(milliseconds: 400));
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/service-words-first.png'));
+      rig.api.nameServiceHello(answered.id, serviceKey: _serviceKey);
+      unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 400));
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/service-check-upgrade.png'));
+      await tester.pumpWidget(const SizedBox());
+    }, skip: Platform.environment['PAIR_SHOTS_DIR'] == null);
+
+    testWidgets('no hello: the words answer plainly and the wait is cancelled', (tester) async {
       final rig = await pump(tester, const SizedBox());
       final r = rig.paired();
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byKey(nsWaitCancelKey), findsOneWidget);
-      await tester.tap(find.byKey(nsWaitCancelKey));
-      await tester.pump(const Duration(milliseconds: 200));
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);
-      expect(find.byKey(nsWaitCancelKey), findsNothing);
+      expect(rig.service.stepOf(r.id), HelloStep.waiting);
+      await tester.tap(find.byKey(checkMatchKey));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(rig.api.records.single.state, PairingState.verified);
+      expect(rig.service.stepOf(r.id), HelloStep.words);
+      expect(rig.service.verifiedFor(r.id), isNull);
       await tester.pumpWidget(const SizedBox());
     });
 
@@ -545,7 +584,7 @@ void main() {
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
       await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.byKey(checkNoMatchKey));
       // The sheet slides in; its action is pressed once it is in place.
       await tester.pump(const Duration(milliseconds: 400));
@@ -567,7 +606,7 @@ void main() {
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@alice_test');
       unawaited(rig.service.sync(NameServiceSyncTrigger.tick));
       await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));

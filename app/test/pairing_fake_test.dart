@@ -3,6 +3,7 @@
 // run on: the standing invite, requests to a contact and their answers, the states a pairing
 // goes through (Waiting until heard, Paired, Verified, Ended with its reason), the request
 // filter, the mismatch hold, crossed invites, the attach rules, and the backup.
+import 'package:epic_wallet/src/history/domain_check_book.dart' show DomainStatus;
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart' show repostWaitingSends, waitingSendKeys;
 import 'package:epic_wallet/src/trust/policy.dart' show featureStatusNotices;
@@ -491,6 +492,78 @@ void main() {
       api.enabled = true;
       await repostWaitingSends(api, ['s:y']);
       expect(api.calls.where((c) => c.startsWith('repost:')), ['repost:s:y']);
+    });
+  });
+
+  group('a code whose sender claims a domain', () {
+    const quick = Duration(milliseconds: 10);
+
+    Future<String> answered({FakeDomainProof? proof, Duration after = quick}) async {
+      final link = api.inviteLinkFrom(
+        name: 'Harbor Books',
+        kind: PairingParty.shop,
+        domain: proof == null ? null : (domain: 'harbor-books.example', proof: proof, after: after),
+      );
+      final preview = await api.openInvite(link);
+      return (await api.acceptInvite(token: preview.token, name: 'Alex')).id;
+    }
+
+    PairingRecord rec(String id) => api.records.firstWhere((r) => r.id == id);
+
+    test('a proven domain ends the pairing Verified without the words; one check per pairing', () async {
+      final id = await answered(proof: FakeDomainProof.proven);
+      final confirmed = api.confirmAnswer(id);
+      expect(confirmed.state, PairingState.paired);
+      expect(confirmed.peerDomain, 'harbor-books.example');
+      expect(confirmed.domainProvable, isTrue);
+      expect(await api.proveByDomain(id), isTrue);
+      expect(await api.proveByDomain(id), isTrue, reason: 'a second call shares the first');
+      expect(rec(id).state, PairingState.verified);
+      expect(rec(id).verifiedAt, isNotNull);
+      expect(rec(id).domainStatus, DomainStatus.proven);
+      expect(rec(id).domainProvable, isFalse);
+      expect(rec(id).domainChecking, isFalse);
+      expect(rec(id).verifiedByDomain, isTrue);
+      expect(api.calls.where((c) => c == 'proveByDomain'), hasLength(1));
+      expect(api.calls.where((c) => c.startsWith('check:')), isEmpty, reason: 'no words were answered');
+      await api.checkWords(id, PairingCheck.match);
+      expect(rec(id).verifiedByDomain, isFalse, reason: 'words checked later make it a words check');
+    });
+
+    test('a wrong file or an unreachable domain leaves the pairing Paired for the words', () async {
+      for (final (proof, status) in [(FakeDomainProof.refused, DomainStatus.refused), (FakeDomainProof.unreachable, DomainStatus.claimed)]) {
+        final id = await answered(proof: proof);
+        api.confirmAnswer(id);
+        expect(rec(id).domainChecking, isTrue, reason: 'the confirm starts the check');
+        expect(await api.proveByDomain(id), isFalse);
+        expect(rec(id).domainChecking, isFalse, reason: 'a screen stops showing the check');
+        expect(rec(id).state, PairingState.paired);
+        expect(rec(id).domainStatus, status);
+        expect(rec(id).domainProvable, isTrue, reason: 'a later proof could still end it Verified');
+      }
+    });
+
+    test('no domain: nothing to prove', () async {
+      final id = await answered();
+      expect(api.confirmAnswer(id).domainProvable, isFalse);
+      expect(await api.proveByDomain(id), isFalse);
+      expect(rec(id).state, PairingState.paired);
+    });
+
+    test('the words answered before the proof came: the proof changes nothing', () async {
+      final id = await answered(proof: FakeDomainProof.proven, after: const Duration(milliseconds: 50));
+      api.confirmAnswer(id);
+      final words = await api.checkWords(id, PairingCheck.match);
+      expect(await api.proveByDomain(id), isFalse);
+      expect(rec(id).verifiedAt, words!.verifiedAt);
+      expect(rec(id).domainStatus, DomainStatus.claimed);
+      expect(rec(id).verifiedByDomain, isFalse);
+    });
+
+    test('before the confirm there is nothing to prove', () async {
+      final id = await answered(proof: FakeDomainProof.proven);
+      expect(rec(id).domainProvable, isFalse);
+      expect(await api.proveByDomain(id), isFalse);
     });
   });
 }

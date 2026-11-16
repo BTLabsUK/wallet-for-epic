@@ -17,7 +17,6 @@ import '../../trust_ids.dart';
 import '../common.dart';
 import '../info_hint.dart';
 import '../kit/kit_button.dart';
-import '../kit/kit_icons.dart';
 import '../kit/kit_sheet.dart';
 import '../kit/kit_tokens.dart';
 import '../status_icons.dart' show EpicGlyphs;
@@ -28,7 +27,6 @@ import 'pairing_parts.dart';
 /// Keys for tests.
 const Key nsJoinKey = ValueKey('dir-join');
 const Key nsNotNowKey = ValueKey('dir-not-now');
-const Key nsWaitCancelKey = ValueKey('dir-wait-cancel');
 const Key nsLeaveKey = ValueKey('dir-leave');
 const Key nsBlockKey = ValueKey('dir-block');
 const Key nsCodeKey = ValueKey('dir-code');
@@ -146,49 +144,6 @@ class NameServiceCodeTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => WordTiles(words: codeWords(indexes), label: label, size: size);
-}
-
-/// The wait for a name service's message: static text, never a spinner; Cancel gives the ordinary
-/// words step.
-class NameServiceWaiting extends StatelessWidget {
-  const NameServiceWaiting({super.key, required this.label, required this.onCancel});
-
-  final String label;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    return PairFlowPage(
-      title: l.nsCodeTitle,
-      leadingId: TrustIds.pairflowNsWaitClose,
-      bottom: KitButton(
-        key: nsWaitCancelKey,
-        label: l.commonCancel,
-        kind: KitButtonKind.quiet,
-        semanticsId: TrustIds.pairflowNsWaitCancel,
-        onPressed: onCancel,
-      ),
-      children: [
-        const PairGap(48),
-        Center(
-          child: Container(
-            width: Kit.emptyWell,
-            height: Kit.emptyWell,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: t.fill, shape: BoxShape.circle),
-            child: ExcludeSemantics(child: Icon(KitIcons.hourglass, size: 34, color: t.info)),
-          ),
-        ),
-        const PairGap(18),
-        Semantics(
-          liveRegion: true,
-          child: Text(l.nsWaitingFor(label), textAlign: TextAlign.center, style: KitType.sheetTitle.copyWith(color: t.text)),
-        ),
-      ],
-    );
-  }
 }
 
 /// Check the code: the four pictures the name service shows in its chat, to compare.

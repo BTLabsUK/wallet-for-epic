@@ -18204,11 +18204,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get linkChangedConfirmTitle => 'ตรวจสอบก่อนจ่าย';
 
   @override
-  String nsWaitingFor(String label) {
-    return 'กำลังรอ $label…';
-  }
-
-  @override
   String get nsCodeTitle => 'ตรวจรหัส';
 
   @override
@@ -21007,4 +21002,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskPaySentPosted => 'ส่งเข้าเครือข่ายแล้ว รอเข้าบล็อก';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return 'กำลังตรวจ $domain…';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain ยืนยันว่านี่คือกระเป๋าเงินของ $name ไม่ต้องเทียบคำ';
+  }
+
+  @override
+  String deskPairVerifiedByDomain(String domain) {
+    return 'ยืนยันผ่าน $domain';
+  }
 }

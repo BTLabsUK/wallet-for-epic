@@ -74,6 +74,21 @@ String fakePairedAddress(String seed, [String? relay]) {
   return '$b@$relay';
 }
 
+/// How the domain of a code's sender ([FakePairing.inviteLinkFrom]) answers its check.
+enum FakeDomainProof {
+  /// The file proves the sender's key.
+  proven,
+
+  /// The file names another key.
+  refused,
+
+  /// No file comes: the server or the network does not answer.
+  unreachable,
+}
+
+/// The domain a code's sender claims, and how its check goes.
+typedef FakeDomain = ({String domain, FakeDomainProof proof, Duration after});
+
 class FakePairing implements PairingApi {
   FakePairing([this.session]);
 
@@ -119,6 +134,68 @@ class FakePairing implements PairingApi {
   /// Nothing is fetched here: a test or the preview seeds the status ([seedPaired]).
   @override
   Future<void> checkDomain(String id) async {}
+
+  /// The domain each code of another wallet claims, by its token, from the code's link.
+  final Map<String, FakeDomain> _codeDomains = {};
+
+  /// When each code's sender confirms on its own, by token, from the code's link.
+  final Map<String, Duration> _codeConfirms = {};
+
+  /// The domain each pairing's contact claims, from the code this wallet answered.
+  final Map<String, FakeDomain> _domains = {};
+
+  /// Each pairing's one check of [proveByDomain].
+  final Map<String, Future<bool>> _proving = {};
+
+  /// The check of [id]'s domain takes its [FakeDomain.after] and ends as its
+  /// [FakeDomain.proof] says; a proof ends the pairing Verified, as the core's adapter does.
+  @override
+  Future<bool> proveByDomain(String id) => _proving[id] ??= _proveByDomain(id);
+
+  /// Marks [id]'s record as checking its domain, or not, and says so.
+  void _checking(String id, bool on) {
+    final r = records.where((r) => r.id == id).firstOrNull;
+    if (r == null || r.domainChecking == on) return;
+    _put(r.copyWith(domainChecking: on));
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+  }
+
+  Future<bool> _proveByDomain(String id) async {
+    final d = _domains[id];
+    final before = records.where((r) => r.id == id).firstOrNull;
+    if (d == null || before == null || !before.domainProvable) return false;
+    calls.add('proveByDomain');
+    _checking(id, true);
+    // A timer the fake's dispose stops: a test ends with none running.
+    final wait = Completer<void>();
+    _timers.add(Timer(d.after, wait.complete));
+    await wait.future;
+    _checking(id, false);
+    final r = records.where((r) => r.id == id).firstOrNull;
+    // The words were answered meanwhile, or the pairing ended.
+    if (r == null || !r.domainProvable) return false;
+    switch (d.proof) {
+      case FakeDomainProof.proven:
+        final now = clock();
+        _put(r.copyWith(
+          state: PairingState.verified,
+          verifiedAt: now,
+          peerHeardAt: r.peerHeardAt ?? now,
+          domainStatus: DomainStatus.proven,
+          domainProvable: false,
+          domainChecking: false,
+          verifiedByDomain: true,
+        ));
+        emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+        return true;
+      case FakeDomainProof.refused:
+        _put(r.copyWith(domainStatus: DomainStatus.refused));
+        emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+        return false;
+      case FakeDomainProof.unreachable:
+        return false;
+    }
+  }
 
   @override
   Future<void> acceptRelayMove(String id, String relay) async {
@@ -371,6 +448,7 @@ class FakePairing implements PairingApi {
     String? requestedRelay,
     String? peerDomain,
     DomainStatus? domainStatus,
+    bool verifiedByDomain = false,
   }) {
     final rid = id ?? _id('pairing');
     final now = clock();
@@ -404,6 +482,7 @@ class FakePairing implements PairingApi {
       requestedRelay: requestedRelay,
       peerDomain: peerDomain,
       domainStatus: peerDomain == null ? null : domainStatus ?? DomainStatus.claimed,
+      verifiedByDomain: verifiedByDomain && state == PairingState.verified,
     );
     seed(record);
     return record;
@@ -465,9 +544,16 @@ class FakePairing implements PairingApi {
       peerProfile: profile ?? r.peerProfile,
       peerHeardAt: now,
     );
-    _put(paired);
-    emit(PairingEvent(PairingEventKind.confirmed, pairingId: id, name: paired.shownName));
-    return paired;
+    // The code's sender claims a domain: the confirm carries it, and the code bound the
+    // sender's card, so a proof stands for the words.
+    final domain = request ? null : _domains[id];
+    final shown = domain == null
+        ? paired
+        : paired.copyWith(peerDomain: domain.domain, domainStatus: DomainStatus.claimed, domainProvable: true);
+    _put(shown);
+    emit(PairingEvent(PairingEventKind.confirmed, pairingId: id, name: shown.shownName));
+    if (domain != null) unawaited(proveByDomain(id));
+    return shown;
   }
 
   /// The other wallet was heard in the pairing [id] (its finished notice, a card, a slate):
@@ -617,6 +703,8 @@ class FakePairing implements PairingApi {
     PairingParty kind = PairingParty.person,
     String? relay,
     String? from,
+    FakeDomain? domain,
+    Duration? confirmAfter,
   }) {
     final token = _id('invite');
     return fakePairingLink('pair', {
@@ -626,6 +714,8 @@ class FakePairing implements PairingApi {
       'k': kind.name,
       'r': relay ?? homeRelay,
       'from': ?from,
+      if (domain != null) ...{'d': domain.domain, 'dp': domain.proof.name, 'dt': domain.after.inMilliseconds},
+      if (confirmAfter != null) 'ac': confirmAfter.inMilliseconds,
     });
   }
 
@@ -862,6 +952,15 @@ class FakePairing implements PairingApi {
       inviteKey: inviteKeyOf(link),
     );
     _previews[token] = preview;
+    final domain = body['d'] as String?;
+    if (domain != null) {
+      _codeDomains[token] = (
+        domain: domain,
+        proof: FakeDomainProof.values.asNameMap()[body['dp']] ?? FakeDomainProof.unreachable,
+        after: Duration(milliseconds: (body['dt'] as num?)?.toInt() ?? 0),
+      );
+    }
+    if (body['ac'] case final num after) _codeConfirms[token] = Duration(milliseconds: after.toInt());
     return preview;
   }
 
@@ -956,10 +1055,17 @@ class FakePairing implements PairingApi {
       relayDown: !byHand && relayUnreachable,
     );
     _put(record);
+    if (_codeDomains.remove(token) case final domain?) _domains[record.id] = domain;
+    final confirmAfter = _codeConfirms.remove(token);
+    void confirm() {
+      if (records.any((r) => r.id == record.id && r.state == PairingState.pendingReply)) confirmAnswer(record.id);
+    }
     if (!byHand && !relayUnreachable) {
-      _later(() {
-        if (records.any((r) => r.id == record.id && r.state == PairingState.pendingReply)) confirmAnswer(record.id);
-      });
+      if (confirmAfter != null) {
+        _timers.add(Timer(confirmAfter, confirm));
+      } else {
+        _later(confirm);
+      }
     }
     return record;
   }
@@ -997,13 +1103,16 @@ class FakePairing implements PairingApi {
           state: PairingState.verified,
           verifiedAt: clock(),
           peerHeardAt: r.peerHeardAt ?? clock(),
+          domainProvable: false,
+          domainChecking: false,
+          verifiedByDomain: false,
         );
         _put(verified);
         return verified;
       case PairingCheck.mismatch:
         // Ended, not deleted: the verdict goes to the other side, and a sealed send waiting in
         // this mailbox is never finalized (its row offers Cancel).
-        final ended = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.mismatch, endedAt: clock(), allowInvoices: false);
+        final ended = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.mismatch, endedAt: clock(), allowInvoices: false, domainProvable: false, domainChecking: false, verifiedByDomain: false);
         _put(ended);
         _dropInvoicesOf(ended);
         return ended;

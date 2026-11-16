@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier
 import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, NodeStatus, WalletStatus;
 
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
+import 'package:epic_wallet/src/history/domain_check_book.dart' show DomainStatus;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -37,10 +38,12 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'pair_shot_fonts.dart';
 import 'support/contact_pairing.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
@@ -600,6 +603,16 @@ void main() {
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
     });
 
+    testWidgets('verified by its domain: the domain in place of "has not checked yet"', (tester) async {
+      await page(
+        tester,
+        (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna, peerDomain: 'harbor-books.example', domainStatus: DomainStatus.proven, verifiedByDomain: true),
+      );
+      await openContactPairing(tester);
+      expect(find.text(_l.deskPairVerifiedByDomain('harbor-books.example')), findsOneWidget);
+      expect(find.text(_l.pairNotChecked('Anna')), findsNothing);
+    });
+
     testWidgets('verified: the date, "confirmed too" once the verdict came, both switches', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
       await openContactPairing(tester);
@@ -1032,5 +1045,144 @@ void main() {
       expect(find.byKey(incomingSourceKey), findsNothing);
       expect(fact(tester, incomingExpiresKey), '${_l.pairExpiresIn} · ${_l.pairDurMinutes(30)}');
     });
+  });
+
+  group('an answered code whose sender claims a domain', () {
+    const domain = 'harbor-books.example';
+
+    /// Answers a code of "Harbor Books" and opens the wait on the pairing, as a pushed route.
+    Future<(_Harness, String)> open(WidgetTester tester, {FakeDomainProof? proof, Duration after = const Duration(seconds: 2)}) async {
+      final h = _Harness();
+      final link = h.api.inviteLinkFrom(name: 'Harbor Books', domain: proof == null ? null : (domain: domain, proof: proof, after: after));
+      final preview = await h.api.openInvite(link);
+      final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex');
+      await h.pump(tester, Builder(builder: (context) => TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: answered.id, name: 'Harbor Books'))), child: const Text('host'))));
+      await tester.tap(find.text('host'));
+      await _frames(tester);
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      return (h, answered.id);
+    }
+
+    /// The words, the result and the checking step are all inside the wait's one route.
+    void expectOneRoute(WidgetTester tester) {
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      expect(find.byType(Scaffold), findsOneWidget, reason: 'one flow screen, one scaffold');
+    }
+
+    testWidgets('a proven domain: the words at once with the checking line, then Verified in the same screen', (tester) async {
+      final (h, id) = await open(tester, proof: FakeDomainProof.proven);
+      final route = ModalRoute.of(tester.element(find.byType(PairingWaitingScreen)));
+      h.api.confirmAnswer(id);
+      await _frames(tester, 3);
+      // Nothing waits up front: the words are there, the line is a quiet note under them.
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.sasLead('Harbor Books')), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
+      expectOneRoute(tester);
+      await tester.pump(const Duration(seconds: 2));
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsNothing);
+      expect(find.byKey(checkMatchKey), findsNothing);
+      expect(find.text(_l.sasMatchedTitle('Harbor Books')), findsOneWidget);
+      expect(find.text(_l.deskPairDomainVerifiedBody('Harbor Books', domain)), findsOneWidget);
+      expect(find.byKey(checkDoneKey), findsOneWidget);
+      expect(find.text(_l.pairNotChecked('Harbor Books')), findsNothing, reason: 'no words were compared on the domain path');
+      expect(find.text(_l.pairConfirmedToo('Harbor Books')), findsNothing);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
+      expect(h.api.records.single.state, PairingState.verified);
+      expect(h.api.calls.where((c) => c.startsWith('check:')), isEmpty, reason: 'no words were answered');
+      expectOneRoute(tester);
+      expect(ModalRoute.of(tester.element(find.byType(PairingWaitingScreen))), same(route));
+      // Done leaves the one screen.
+      await tester.tap(find.byKey(checkDoneKey));
+      await _frames(tester);
+      expect(find.byType(PairingWaitingScreen), findsNothing);
+    });
+
+    testWidgets('an unreachable domain: the words stay, the line goes; a match ends in place', (tester) async {
+      final (h, id) = await open(tester, proof: FakeDomainProof.unreachable, after: const Duration(seconds: 1));
+      h.api.confirmAnswer(id);
+      await _frames(tester, 3);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      await _frames(tester);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expectOneRoute(tester);
+      await tester.tap(find.byKey(checkMatchKey));
+      await _frames(tester);
+      expect(find.byType(PairingResultScreen), findsOneWidget);
+      expect(find.text(_l.sasMatchedTitle('Harbor Books')), findsOneWidget);
+      expect(find.text(_l.deskPairDomainVerifiedBody('Harbor Books', domain)), findsNothing, reason: 'the words verified it');
+      expect(find.text(_l.pairNotChecked('Harbor Books')), findsOneWidget, reason: 'the words path keeps the peer line');
+      expect(find.byType(CheckWordsScreen), findsNothing);
+      expectOneRoute(tester);
+    });
+
+    testWidgets('a wrong file: the words stay, the line goes', (tester) async {
+      final (h, id) = await open(tester, proof: FakeDomainProof.refused, after: const Duration(seconds: 1));
+      h.api.confirmAnswer(id);
+      await _frames(tester, 3);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      await _frames(tester);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
+      expect(h.api.records.single.state, PairingState.paired);
+    });
+
+    testWidgets('a slow proof: the words wait for the user as long as it takes, then turn Verified in place', (tester) async {
+      final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 12));
+      h.api.confirmAnswer(id);
+      await tester.pump(const Duration(seconds: 9));
+      await _frames(tester);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
+      expectOneRoute(tester);
+      await tester.pump(const Duration(seconds: 4));
+      await _frames(tester);
+      expect(find.byKey(checkMatchKey), findsNothing);
+      expect(find.text(_l.sasMatchedTitle('Harbor Books')), findsOneWidget);
+      expect(find.text(_l.deskPairDomainVerifiedBody('Harbor Books', domain)), findsOneWidget);
+      expect(h.api.records.single.state, PairingState.verified);
+      expectOneRoute(tester);
+    });
+
+    testWidgets('the words answered before the proof: the plain result, the proof does not turn it', (tester) async {
+      final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 3));
+      h.api.confirmAnswer(id);
+      await _frames(tester, 3);
+      await tester.tap(find.byKey(checkMatchKey));
+      await _frames(tester);
+      expect(find.text(_l.deskPairDomainChecking(domain)), findsNothing);
+      await tester.pump(const Duration(seconds: 3));
+      await _frames(tester);
+      expect(find.text(_l.deskPairDomainVerifiedBody('Harbor Books', domain)), findsNothing);
+      expect(find.text(_l.pairNotChecked('Harbor Books')), findsOneWidget);
+    });
+
+    testWidgets('no domain: the words at once, no checking line', (tester) async {
+      final (h, id) = await open(tester);
+      h.api.confirmAnswer(id);
+      await _frames(tester, 3);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.textContaining(domain), findsNothing);
+      expectOneRoute(tester);
+    });
+
+    testWidgets('the screenshots: the words with the checking line, Verified by the domain', (tester) async {
+      final dir = Platform.environment['PAIR_SHOTS_DIR'];
+      await tester.runAsync(loadShotFonts);
+      final (h, id) = await open(tester, proof: FakeDomainProof.proven, after: const Duration(seconds: 3));
+      h.api.confirmAnswer(id);
+      await _frames(tester, 6);
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/words-with-checking-line.png'));
+      await tester.pump(const Duration(seconds: 3));
+      await _frames(tester);
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('${dir ?? '.'}/verified-by-domain.png'));
+    }, skip: Platform.environment['PAIR_SHOTS_DIR'] == null);
   });
 }

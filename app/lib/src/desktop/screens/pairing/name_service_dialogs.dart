@@ -20,7 +20,6 @@ import 'pair_screens.dart' show DeskPairAvatar;
 /// Keys for tests.
 const Key deskDirJoinKey = ValueKey('desk-dir-join');
 const Key deskDirNotNowKey = ValueKey('desk-dir-not-now');
-const Key deskDirWaitCancelKey = ValueKey('desk-dir-wait-cancel');
 const Key deskDirLeaveKey = ValueKey('desk-dir-leave');
 const Key deskDirBlockKey = ValueKey('desk-dir-block');
 const Key deskDirCodeKey = ValueKey('desk-dir-code');
@@ -103,36 +102,6 @@ class _JoinDialogState extends ConsumerState<_JoinDialog> {
   }
 }
 
-/// The body of the words dialog while it waits for the name service's message: static text, never a
-/// spinner. Cancel gives the ordinary words step.
-class DeskNameServiceWaiting extends StatelessWidget {
-  const DeskNameServiceWaiting({super.key, required this.label, required this.onCancel});
-
-  final String label;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final ts = context.ts;
-    return EDialog(
-      title: l.nsCodeTitle,
-      icon: EIcons.trusted,
-      body: Semantics(
-        liveRegion: true,
-        child: Row(
-          children: [
-            Icon(EIcons.sand, color: context.dc.info),
-            SizedBox(width: Sp.x3),
-            Expanded(child: Text(l.nsWaitingFor(label), style: ts.body)),
-          ],
-        ),
-      ),
-      actions: [EButton(key: deskDirWaitCancelKey, label: l.commonCancel, onPressed: onCancel)],
-    );
-  }
-}
-
 /// Check the code: the four pictures the name service shows in its chat, to compare.
 class DeskNameServiceCodeCheck extends StatelessWidget {
   const DeskNameServiceCodeCheck({
@@ -140,6 +109,8 @@ class DeskNameServiceCodeCheck extends StatelessWidget {
     required this.label,
     required this.serviceKey,
     this.noPayments = false,
+    this.minBodyHeight,
+    this.minFootHeight,
     required this.busy,
     required this.onLater,
     required this.onMatch,
@@ -154,6 +125,12 @@ class DeskNameServiceCodeCheck extends StatelessWidget {
 
   /// The hello says the contact takes no payments: its badge sits in the head row.
   final bool noPayments;
+
+  /// The body's least height, so a window that turns into this one keeps its size.
+  final double? minBodyHeight;
+
+  /// The buttons' least height, so the footer of this step does not change the window's size.
+  final double? minFootHeight;
   final bool busy;
   final VoidCallback onLater;
   final VoidCallback onMatch;
@@ -170,6 +147,8 @@ class DeskNameServiceCodeCheck extends StatelessWidget {
       title: l.nsCodeTitle,
       icon: EIcons.trusted,
       size: DialogWidth.wide,
+      minBodyHeight: minBodyHeight,
+      minFootHeight: minFootHeight,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

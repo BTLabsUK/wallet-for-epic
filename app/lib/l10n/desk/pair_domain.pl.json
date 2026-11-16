@@ -1,0 +1,5 @@
+{
+  "deskPairDomainChecking": "Sprawdzanie {domain}…",
+  "deskPairDomainVerifiedBody": "{domain} potwierdza, że to portfel {name}. Bez porównywania słów.",
+  "deskPairVerifiedByDomain": "Zweryfikowano przez {domain}"
+}

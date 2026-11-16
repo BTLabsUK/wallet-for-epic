@@ -187,7 +187,12 @@ class InvoiceReview extends ConsumerWidget {
                     const SealedBadge(),
                     TrustBadge(pairing),
                     Text(
-                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : metaLine([l.reqSealedSigned(i.label), l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!))]),
+                      pairing.verifiedAt == null
+                          ? l.reqSealedSigned(i.label)
+                          : metaLine([
+                              l.reqSealedSigned(i.label),
+                              if (pairing.verifiedByDomain && pairing.peerDomain != null) ...[l.deskPairVerifiedByDomain(pairing.peerDomain!), localDayMonth(l, pairing.verifiedAt!)] else l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!)),
+                            ]),
                       style: ts.small,
                     ),
                   ],

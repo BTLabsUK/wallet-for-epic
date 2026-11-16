@@ -1,0 +1,5 @@
+{
+  "deskPairDomainChecking": "Проверка {domain}…",
+  "deskPairDomainVerifiedBody": "{domain} подтверждает, что это кошелёк {name}. Сравнивать слова не нужно.",
+  "deskPairVerifiedByDomain": "Проверено через {domain}"
+}

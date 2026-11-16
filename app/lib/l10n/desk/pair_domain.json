@@ -1,0 +1,32 @@
+{
+  "deskPairDomainChecking": "Checking {domain}…",
+  "@deskPairDomainChecking": {
+    "description": "Pairing window, desktop and phone: a muted line under the four words while the wallet checks the domain the new contact claims. If the domain proves the contact's key, the window turns Verified. {domain} is the domain, e.g. shop.example.",
+    "placeholders": {
+      "domain": {
+        "type": "String"
+      }
+    }
+  },
+  "deskPairDomainVerifiedBody": "{domain} confirms this is {name}’s wallet. No words to compare.",
+  "@deskPairDomainVerifiedBody": {
+    "description": "Pairing window: the line under the Verified title when the contact's domain proved its wallet, so the four words were not needed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "domain": {
+        "type": "String"
+      }
+    }
+  },
+  "deskPairVerifiedByDomain": "Verified by {domain}",
+  "@deskPairVerifiedByDomain": {
+    "description": "Contact page, desktop and phone, and the invoice review: how a Verified contact was verified when its domain proved its key and the four words were not compared. {domain} is the domain, e.g. shop.example.",
+    "placeholders": {
+      "domain": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -519,8 +519,6 @@
 {"id": "g4.pairflow.send_check", "screen": "pairflow", "family": ["android"], "driver": false},
 {"id": "g4.pairflow.ns_join", "screen": "pairflow", "family": ["android"], "driver": false},
 {"id": "g4.pairflow.ns_not_now", "screen": "pairflow", "family": ["android"], "driver": false},
-{"id": "g4.pairflow.ns_wait_close", "screen": "pairflow", "family": ["android"], "driver": false},
-{"id": "g4.pairflow.ns_wait_cancel", "screen": "pairflow", "family": ["android"], "driver": false},
 {"id": "g4.pairflow.ns_check_close", "screen": "pairflow", "family": ["android"], "driver": false},
 {"id": "g4.pairflow.ns_match", "screen": "pairflow", "family": ["android"], "driver": false},
 {"id": "g4.pairflow.ns_no_match", "screen": "pairflow", "family": ["android"], "driver": false},
