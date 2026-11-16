@@ -118,8 +118,9 @@ class DeskNodeNotSyncing extends Notifier<bool> {
       if (stuck == state) return;
       logInfo('node', stuck ? 'local node not syncing: no progress for ${notSyncingAfter.inMinutes} min, ${localNodeLogLine(s)}' : 'local node moving again: ${localNodeLogLine(s)}');
       state = stuck;
-    }, fireImmediately: true);
-    return false;
+    });
+    final s = ref.read(deskLocalNodeProvider).value;
+    return s != null && _watch.update(s);
   }
 }
 

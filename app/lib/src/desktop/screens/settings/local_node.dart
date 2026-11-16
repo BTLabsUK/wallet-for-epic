@@ -194,6 +194,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         state: s,
         fallback: fallback,
         accepted: accepted,
+        notSyncing: ref.watch(deskNodeNotSyncingProvider),
         sync: _sync,
         download: _download,
         disk: _disk,
@@ -443,12 +444,19 @@ String nodeActLabel(AppLocalizations l, NodeAct a, String fallback) => switch (a
   NodeAct.fallback => l.deskSetLnodeUseMeanwhile(fallback),
 };
 
-StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String fallback, required bool accepted}) {
+StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String fallback, required bool accepted, bool notSyncing = false}) {
   switch (s.phase) {
     case LocalNodePhase.starting:
       return StatusWords(detail: l.deskSetLnodeWaitingPeers);
     case LocalNodePhase.syncing:
       final stage = s.progress == null ? l.deskSetLnodeSyncingLower : stageName(l, s.progress!.stage);
+      // No progress for a while (SyncWatch): Restart is the header's, once on the page (UD-019).
+      if (notSyncing) {
+        return StatusWords(
+          detail: metaLine([stage, l.deskNodeMarkerNotSyncing]),
+          notice: (tone: ETone.warn, title: l.deskNodeNotSyncing, text: l.deskNodeNotSyncingNote(notSyncingAfter.inMinutes), action: null),
+        );
+      }
       if (accepted) return StatusWords(detail: l.deskSetLnodeStageUsing(stage, fallback));
       return StatusWords(
         detail: stage,
@@ -492,6 +500,7 @@ class _StatusTab extends StatelessWidget {
     required this.state,
     required this.fallback,
     required this.accepted,
+    this.notSyncing = false,
     required this.sync,
     required this.download,
     required this.disk,
@@ -510,6 +519,7 @@ class _StatusTab extends StatelessWidget {
   final LocalNodeState state;
   final String fallback;
   final bool accepted;
+  final bool notSyncing;
   final List<_Sample> sync;
   final List<_Sample> download;
   final List<_Sample> disk;
@@ -528,8 +538,8 @@ class _StatusTab extends StatelessWidget {
     final ts = context.ts;
     final l = context.l10n;
     final s = state;
-    final v = localNodeView(l, s);
-    final words = statusWords(l, s, fallback: fallback, accepted: accepted);
+    final v = localNodeView(l, s, notSyncing: notSyncing);
+    final words = statusWords(l, s, fallback: fallback, accepted: accepted, notSyncing: notSyncing);
     final p = s.progress;
     final syncing = s.phase == LocalNodePhase.syncing || s.phase == LocalNodePhase.starting;
     final live = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;

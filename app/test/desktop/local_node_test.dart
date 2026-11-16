@@ -7,6 +7,8 @@
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/app/service_rows.dart' show nodeRailItem;
+import 'package:epic_wallet/src/desktop/app/status_popover.dart' show graceRailItems;
 import 'package:epic_wallet/src/desktop/data/node_view.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart';
@@ -307,6 +309,10 @@ void main() {
 
   test('statusWords: the table of §19', () {
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epic.invalid', accepted: true).detail, 'blocks · using node.epic.invalid meanwhile');
+    final stuck = statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epic.invalid', accepted: true, notSyncing: true);
+    expect(stuck.detail, 'blocks\u00A0· not syncing');
+    expect(stuck.notice?.title, 'Your node is not syncing');
+    expect(stuck.notice?.action, isNull, reason: 'Restart is the header\'s');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epic.invalid', accepted: true).detail, 'the wallet uses node.epic.invalid meanwhile');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, isNull, reason: 'the folder row has Change');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
@@ -321,10 +327,15 @@ void main() {
 
     final stuck = localNodeView(englishStrings, s, fallbackUrl: 'https://node.lab.invalid', notSyncing: true);
     expect(stuck.marker, 'not syncing');
+    expect(stuck.state, EState.warn, reason: 'the public node serves meanwhile');
     expect(stuck.standIn?.tip(englishStrings), 'Using node.lab.invalid · your node is not syncing');
     expect(stuck.standIn?.note(englishStrings), 'Your node is not syncing: no progress for 15 min. A restart often gets it going again.');
     expect(stuck.lines, contains('Your node is not syncing: no progress for 15 min. A restart often gets it going again.'));
 
     expect(localNodeView(englishStrings, s).standIn, isNull, reason: 'no fallback, no stand-in');
+
+    // Right after the start the node reads Connecting; the popover still says what stands in.
+    final grace = graceRailItems(englishStrings, [nodeRailItem(englishStrings, stuck)], grace: true).single;
+    expect(grace.standIn?.notSyncing, isTrue);
   });
 }

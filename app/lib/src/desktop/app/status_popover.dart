@@ -38,7 +38,7 @@ List<ServiceItem> deskStatusShown(WidgetRef ref, List<ServiceItem> items) {
   return [
     for (final i in items)
       offer && i.jump == SettingsJump.epicbox && i.state == EState.risk
-            ? ServiceItem(icon: i.icon, name: i.name, word: i.word, state: EState.warn, second: i.second, marker: i.marker, lines: i.lines, note: i.note, open: i.open, jump: i.jump, byMode: i.byMode)
+            ? ServiceItem(icon: i.icon, name: i.name, word: i.word, state: EState.warn, second: i.second, marker: i.marker, lines: i.lines, note: i.note, open: i.open, jump: i.jump, byMode: i.byMode, standIn: i.standIn)
             : i,
   ];
 }
@@ -64,6 +64,7 @@ List<ServiceItem> graceRailItems(AppLocalizations l, List<ServiceItem> items, {r
               note: i.note,
               open: i.open,
               jump: i.jump,
+              standIn: i.standIn,
             ),
       ];
 

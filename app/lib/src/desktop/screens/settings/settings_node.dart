@@ -571,7 +571,7 @@ mixin _NodePicker<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
     // stands in for it, so the field's dot never says Synced next to Not answering (#76).
     final NodeView view = prefs.builtin
-        ? localNodeView(context.l10n, local, fallbackUrl: status.node.url)
+        ? localNodeView(context.l10n, local, fallbackUrl: status.node.url, notSyncing: ref.watch(deskNodeNotSyncingProvider))
         : own
         ? ownNodeView(context.l10n, chosenUrl, chosenInfo, health: nodeHealth, standIn: ref.watch(deskFailoverProvider), mine: mine)
         : remoteNodeView(context.l10n, current.url, info, health: nodeHealth, torOn: torOn);

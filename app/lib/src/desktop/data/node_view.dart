@@ -244,7 +244,10 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
       final pct = p?.overall == null ? null : syncPercent(l, p!.overall!);
       final standIn = fallback == null ? null : NodeStandIn(host: fallback, percent: pct, notSyncing: notSyncing);
       if (notSyncing) {
-        return NodeView.of(l, ShownState.stalled,
+        // Amber, not red: the wallet works through the public node meanwhile.
+        return NodeView(
+          word: ShownState.stalled.word(l),
+          state: fallback == null ? EState.of(ShownState.stalled) : EState.warn,
           host: host,
           marker: l.deskNodeMarkerNotSyncing,
           standIn: standIn,
