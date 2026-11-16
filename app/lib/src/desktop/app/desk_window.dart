@@ -110,6 +110,44 @@ class PictureDeskWindow extends DeskWindow {
 /// The window the bar drives; main_desktop.dart puts in the real one.
 final deskWindowProvider = Provider<DeskWindow>((ref) => DeskWindow.none);
 
+/// macOS: the system keeps its title bar and closing; the app follows the focus, so a payment
+/// that arrives while another app is in front gets the system's notification, and a click on it
+/// brings the window forward.
+class MacDeskWindow extends DeskWindow with WindowListener {
+  MacDeskWindow._();
+
+  /// One not yet tied to window_manager: the tests call its listener methods.
+  @visibleForTesting
+  factory MacDeskWindow.detached() => MacDeskWindow._();
+
+  /// Null on any other platform.
+  static Future<MacDeskWindow?> init() async {
+    if (kIsWeb || !Platform.isMacOS) return null;
+    final w = MacDeskWindow._();
+    await windowManager.ensureInitialized();
+    windowManager.addListener(w);
+    w._state.value = DeskWindowState(focused: await windowManager.isFocused());
+    return w;
+  }
+
+  final _state = ValueNotifier(const DeskWindowState());
+
+  @override
+  ValueListenable<DeskWindowState> get state => _state;
+
+  @override
+  Future<void> show() async {
+    await windowManager.show();
+    await windowManager.focus();
+  }
+
+  @override
+  void onWindowFocus() => _state.value = _state.value.copyWith(focused: true);
+
+  @override
+  void onWindowBlur() => _state.value = _state.value.copyWith(focused: false);
+}
+
 /// The real window, through window_manager. Call [init] before the first frame.
 class SystemDeskWindow extends DeskWindow with WindowListener, SnapLayoutsListener {
   SystemDeskWindow._();
