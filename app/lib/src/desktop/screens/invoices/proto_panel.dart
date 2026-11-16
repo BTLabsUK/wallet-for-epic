@@ -7,10 +7,12 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/invoice_state.dart';
 import '../../data/mock_wallet.dart';
+import '../../../pairing_fake.dart' show FakeDomainProof;
 import '../../widgets/kit.dart';
 import 'invoice_parts.dart';
 
@@ -47,7 +49,9 @@ class _ProtoPanel extends ConsumerStatefulWidget {
 }
 
 class _ProtoPanelState extends ConsumerState<_ProtoPanel> {
-  InvoiceProto get _p => (ref.read(deskApiProvider) as MockDeskWallet).proto;
+  InvoiceProto get _p => _mock.proto;
+
+  MockDeskWallet get _mock => ref.read(deskApiProvider) as MockDeskWallet;
 
   void _do(String done, void Function(InvoiceProto p) act) {
     act(_p);
@@ -113,6 +117,16 @@ class _ProtoPanelState extends ConsumerState<_ProtoPanel> {
             ]),
             _group('Incoming payments', [
               ('A payment arrives', 'A payment arrived.', (p) => unawaited((ref.read(deskApiProvider) as MockDeskWallet).simulateIncoming())),
+            ]),
+            _group('Pairing codes (copied: paste on Pair)', [
+              for (final (label, proof, after) in [
+                ('Domain proven', FakeDomainProof.proven, const Duration(seconds: 2)),
+                ('Proof after 12 s', FakeDomainProof.proven, const Duration(seconds: 12)),
+                ('Wrong domain file', FakeDomainProof.refused, const Duration(seconds: 2)),
+                ('Domain unreachable', FakeDomainProof.unreachable, const Duration(seconds: 15)),
+                ('No domain', null, Duration.zero),
+              ])
+                (label, 'A code from Harbor Books is copied: $label.', (p) => unawaited(Clipboard.setData(ClipboardData(text: _mock.demoPairCode(proof: proof, after: after))))),
             ]),
             _group('Outgoing payments', [
               ('Next step', 'The newest send moved one step.', (p) => (ref.read(deskApiProvider) as MockDeskWallet).advanceSend()),

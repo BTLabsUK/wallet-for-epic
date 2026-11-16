@@ -3346,6 +3346,7 @@ class PairingRecord {
     this.peerDomain,
     this.peerDomainAttestation,
     this.domainStatus,
+    this.domainProvable = false,
     this.relayMove = RelayMoveState.none,
     this.movedAt,
     this.awaiting = false,
@@ -3463,6 +3464,11 @@ class PairingRecord {
   /// What `isDomainBacked` reads.
   final DomainStatus? domainStatus;
 
+  /// This wallet answered the contact's code in this run of the app, the pairing is Paired and
+  /// the contact claims [peerDomain]: a proof of the domain ends it Verified without the words
+  /// (`PairingApi.proveByDomain`). Kept in memory only: after a restart the words stay.
+  final bool domainProvable;
+
   /// Where [requestedRelay] stands under the move rules (`relay_moves.dart`).
   final RelayMoveState relayMove;
 
@@ -3544,6 +3550,7 @@ class PairingRecord {
     String? peerDomain,
     Uint8List? peerDomainAttestation,
     DomainStatus? domainStatus,
+    bool? domainProvable,
     RelayMoveState? relayMove,
     DateTime? movedAt,
     bool? awaiting,
@@ -3584,6 +3591,7 @@ class PairingRecord {
     peerDomain: peerDomain ?? this.peerDomain,
     peerDomainAttestation: peerDomainAttestation ?? this.peerDomainAttestation,
     domainStatus: domainStatus ?? this.domainStatus,
+    domainProvable: domainProvable ?? this.domainProvable,
     relayMove: relayMove ?? this.relayMove,
     movedAt: movedAt ?? this.movedAt,
     awaiting: awaiting ?? this.awaiting,

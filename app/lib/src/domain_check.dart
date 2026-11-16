@@ -58,7 +58,8 @@ class DomainCheck {
   final DomainFetch _fetch;
   final DateTime Function() _now;
 
-  final Set<String> _running = {};
+  /// The check running for each contact: a second [run] meanwhile shares it.
+  final Map<String, Future<DomainStatus>> _running = {};
 
   /// A short hash of the claim's [domain], then one of its [attestation]: a changed claim is
   /// checked again.
@@ -96,43 +97,55 @@ class DomainCheck {
   /// Fetches the file of [p]'s domain and has the core judge it. [DomainStatus.proven] or
   /// [DomainStatus.refused] when the core did (or the file was too long to read); else
   /// [DomainStatus.claimed], with the error kept ([reasonOf]). Never throws.
-  Future<DomainStatus> run(PairingRecord p) async {
+  /// A [run] while one for the same contact is on shares its result.
+  Future<DomainStatus> run(PairingRecord p) {
     final domain = p.peerDomain;
-    if (domain == null) return DomainStatus.claimed;
-    if (!_running.add(p.id)) return statusOf(p.id, domain) ?? DomainStatus.claimed;
-    try {
-      final key = claimKey(domain, p.peerDomainAttestation);
-      final Uri url;
-      try {
-        url = Uri.https(domain, domainFilePath);
-      } on FormatException {
-        return await _save(p.id, key, DomainStatus.claimed, 'domain');
-      }
-      final HttpBytes reply;
-      try {
-        reply = await _fetch(url, timeout: domainFetchTimeout, maxBytes: domainFileMaxBytes, followRedirects: false);
-      } on NetTooLarge {
-        return await _save(p.id, key, DomainStatus.refused, domainFileTooLarge);
-      } on NetError catch (error) {
-        // No request was made: the network mode refused it, or Tor is not connected yet. Not a
-        // check; the next trigger tries again.
-        if (error.message == netModeError || error.message == 'Tor not connected') return DomainStatus.claimed;
-        return await _save(p.id, key, DomainStatus.claimed, error.message);
-      } on TimeoutException {
-        return await _save(p.id, key, DomainStatus.claimed, 'timeout');
-      }
-      // A transport that does not cap the body: the core is not given a file this long.
-      if (reply.bytes.length > domainFileMaxBytes) return await _save(p.id, key, DomainStatus.refused, domainFileTooLarge);
-      // A redirect, a missing file and a server error say nothing of the claim.
-      if (reply.status != 200) return await _save(p.id, key, DomainStatus.claimed, 'http ${reply.status}');
-      try {
-        final verdict = await verify(p.id, reply.bytes);
-        return await _save(p.id, key, verdict.proven ? DomainStatus.proven : DomainStatus.refused, verdict.proven ? null : verdict.refused ?? 'refused');
-      } on Object catch (error) {
-        return await _save(p.id, key, DomainStatus.claimed, 'verify ${error.runtimeType}');
-      }
-    } finally {
+    if (domain == null) return Future.value(DomainStatus.claimed);
+    final running = _running[p.id];
+    if (running != null) return running;
+    // The block returns nothing: a returned future would be awaited, and this one is it.
+    final check = _run(p, domain).whenComplete(() {
       _running.remove(p.id);
+    });
+    _running[p.id] = check;
+    return check;
+  }
+
+  /// Whether a check of [id] is on.
+  bool running(String id) => _running.containsKey(id);
+
+  Future<DomainStatus> _run(PairingRecord p, String domain) async {
+    final key = claimKey(domain, p.peerDomainAttestation);
+    final Uri url;
+    try {
+      url = Uri.https(domain, domainFilePath);
+    } on FormatException {
+      return await _save(p.id, key, DomainStatus.claimed, 'domain');
+    }
+    final HttpBytes reply;
+    try {
+      reply = await _fetch(url, timeout: domainFetchTimeout, maxBytes: domainFileMaxBytes, followRedirects: false);
+    } on NetTooLarge {
+      return await _save(p.id, key, DomainStatus.refused, domainFileTooLarge);
+    } on NetError catch (error) {
+      // No request was made: the network mode refused it, or Tor is not connected yet. Not a
+      // check; the next trigger tries again.
+      if (error.message == netModeError || error.message == 'Tor not connected') return DomainStatus.claimed;
+      return await _save(p.id, key, DomainStatus.claimed, error.message);
+    } on TimeoutException {
+      return await _save(p.id, key, DomainStatus.claimed, 'timeout');
+    } on Object catch (error) {
+      return await _save(p.id, key, DomainStatus.claimed, 'fetch ${error.runtimeType}');
+    }
+    // A transport that does not cap the body: the core is not given a file this long.
+    if (reply.bytes.length > domainFileMaxBytes) return await _save(p.id, key, DomainStatus.refused, domainFileTooLarge);
+    // A redirect, a missing file and a server error say nothing of the claim.
+    if (reply.status != 200) return await _save(p.id, key, DomainStatus.claimed, 'http ${reply.status}');
+    try {
+      final verdict = await verify(p.id, reply.bytes);
+      return await _save(p.id, key, verdict.proven ? DomainStatus.proven : DomainStatus.refused, verdict.proven ? null : verdict.refused ?? 'refused');
+    } on Object catch (error) {
+      return await _save(p.id, key, DomainStatus.claimed, 'verify ${error.runtimeType}');
     }
   }
 

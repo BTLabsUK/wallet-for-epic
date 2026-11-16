@@ -4345,7 +4345,12 @@ class _LepicPairing implements PairingApi {
         final before = _record(c);
         if (!_domain.due(before)) continue;
         final status = await _domain.run(before);
-        if (status != before.domainStatus) _contactsChanged(c.contactId);
+        // A proof that came after the words showed still ends the pairing Verified, quietly.
+        if (status == DomainStatus.proven && before.domainProvable) {
+          await proveByDomain(c.contactId);
+        } else if (status != before.domainStatus) {
+          _contactsChanged(c.contactId);
+        }
       }
     } on Object catch (error) {
       logWarn('pairing', 'domain check failed: ${error.runtimeType}');
@@ -4628,7 +4633,57 @@ class _LepicPairing implements PairingApi {
     peerDomain: c.peerDomain,
     peerDomainAttestation: c.peerDomainAttestation,
     domainStatus: _domain.statusOf(c.contactId, c.peerDomain),
+    domainProvable: _domainProvable(c),
   ), _moves.book, DateTime.now());
+
+  /// The contacts whose code this wallet answered in this run of the app ([acceptInvite]): the
+  /// invite's commitment bound their card, so a proof of their domain stands for the words.
+  /// Kept in memory only; after a restart the words stay.
+  final Set<String> _answeredHere = {};
+
+  /// The [proveByDomain] running for each pairing: a second call meanwhile shares it.
+  final Map<String, Future<bool>> _proving = {};
+
+  bool _domainProvable(lepic.ContactView c) =>
+      _answeredHere.contains(c.contactId) &&
+      c.peerDomain != null &&
+      c.state == lepic.PairingState.paired &&
+      c.verifiedAtMs == null &&
+      c.endedReason == null &&
+      !c.removedByPeer;
+
+  @override
+  Future<bool> proveByDomain(String id) => _proving[id] ??= _proveByDomain(id).whenComplete(() {
+    _proving.remove(id);
+  });
+
+  Future<bool> _proveByDomain(String id) async {
+    try {
+      final before = _record(await _w.contact(contactId: id));
+      if (!before.domainProvable) return false;
+      final status = before.domainStatus == DomainStatus.proven ? DomainStatus.proven : await _domain.run(before);
+      if (status != DomainStatus.proven) {
+        if (status != before.domainStatus) _contactsChanged(id);
+        return false;
+      }
+      return await _verifyByDomain(id);
+    } on Object catch (error) {
+      logWarn('pairing', 'domain proof failed: ${error.runtimeType}');
+      return false;
+    }
+  }
+
+  /// Ends [id]'s pairing Verified as They match does, when it can still be: the words were
+  /// not answered meanwhile. The contact's wallet is told as by the words.
+  Future<bool> _verifyByDomain(String id) async {
+    final now = await _w.contact(contactId: id);
+    if (!_domainProvable(now) || _domain.statusOf(id, now.peerDomain) != DomainStatus.proven) return false;
+    await _w.pairingSas(contactId: id, decision: lepic.SasDecision.match, relayMode: lepicRelayMode());
+    _answeredHere.remove(id);
+    logInfo('pairing', 'verified by domain');
+    _contactsChanged(id);
+    return true;
+  }
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
     id: p.contactId,
@@ -4918,6 +4973,8 @@ class _LepicPairing implements PairingApi {
     final id = answer.contactId;
     _replyLinks[id] = answer.replyLink;
     _ways[id] = request == null ? PairingWay.link : PairingWay.request;
+    // A request's answer ends Verified by the address proof; a code's may by the domain.
+    if (request == null) _answeredHere.add(id);
     if (request != null) {
       _requestLinks.remove(token.trim());
       _forwardedRequests.remove(request.requestId);
@@ -5467,6 +5524,11 @@ class _LepicPairing implements PairingApi {
         _unposted.remove(id);
         await _attachPending(id);
       }
+    }
+    // The contact's confirm is in: a proven domain ends the pairing Verified, with or without
+    // the words on screen.
+    if (e.kind == lepic.WalletEventKind.pairingConfirmed && id != null && _answeredHere.contains(id)) {
+      unawaited(proveByDomain(id));
     }
     final kind = switch (e.kind) {
       lepic.WalletEventKind.pairingReplied => PairingEventKind.replied,
