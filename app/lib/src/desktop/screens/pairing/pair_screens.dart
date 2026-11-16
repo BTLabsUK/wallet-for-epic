@@ -1488,10 +1488,10 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [DeskPairAvatar(name: name, size: 48.u)]),
+          Center(child: DeskPairAvatar(name: name, size: 48.u)),
           SizedBox(height: Sp.x3),
-          Text(lead, style: ts.bodyDim),
-          SizedBox(height: Sp.x4),
+          Text(lead, style: ts.bodyDim, textAlign: TextAlign.center),
+          SizedBox(height: Sp.x6),
           WordTiles(words: r.sas, label: l.sasWordsLabel, size: WordTileSize.check),
           if (r.domainChecking && (r.peerDomain ?? '').isNotEmpty) ...[
             SizedBox(height: Sp.x3),
