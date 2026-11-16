@@ -1567,7 +1567,9 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
     // A pairing made before addresses were proven: nothing confirms the contact's address.
     final unproven = (verified || p.state == PairingState.paired) && p.paymentsAddress == null;
     final statusTitle = changed ? l.trustKeysChanged : waiting ? l.pairWaitingFor(name) : verified ? l.trustVerified : l.trustPaired;
-    final statusLine = changed
+    // Verified by the domain: the other wallet never compares words, so no "has not checked".
+    final byDomain = verified && p.domainStatus == DomainStatus.proven && p.peerVerifiedAt == null;
+    final String? statusLine = changed
         ? l.contactKeysChangedStatus
         : waiting
             ? l.pairAnsweredNotHeard
@@ -1575,7 +1577,9 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
                 ? l.pairIsService
                 : (verified && p.peerVerifiedAt != null)
                     ? l.pairConfirmedToo(name)
-                    : l.pairNotChecked(name);
+                    : byDomain
+                        ? null
+                        : l.pairNotChecked(name);
     // A relay move (`relay_moves.dart`): asked and open as a notice; refused, not followed or
     // made in the last 30 days as a quiet line on the relay row.
     final asked = p.requestedRelay;

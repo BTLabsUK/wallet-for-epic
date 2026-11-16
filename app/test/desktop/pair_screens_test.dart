@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/name_service_state.dart' show deskNameServiceProvider;
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairRequestsProvider, deskPairingsProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/screens/pairing/desk_allow_row.dart' show deskMatchedAllowKey;
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
@@ -16,15 +17,20 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/boosts.dart' show Boosts;
+import 'package:epic_wallet/src/name_service/name_service.dart';
+import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/pairing_fake.dart';
-import 'package:epic_wallet/src/models.dart' show PairingInvitePreview, PairingParty;
+import 'package:epic_wallet/src/secret_store_api.dart' show MemorySecretStore;
+import 'package:epic_wallet/src/models.dart' show Chain, PairingInvitePreview, PairingParty, PaymentsDrainReport;
 import 'package:epic_wallet/src/pairing_text.dart' show InviteSource, pairReplyFallbackAfter, relayHostOf, unnamedPeerName;
 import 'package:epic_wallet/src/ui/key_picture.dart' show KeyPictureView;
 import 'package:epic_wallet/src/trust/policy.dart';
-import 'package:epic_wallet/src/wallet_service.dart' show PairingEndReason, PairingState;
+import 'package:epic_wallet/src/wallet_service.dart' show ListingDrainResult, PairingEndReason, PairingState;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -35,6 +41,43 @@ String? _clip;
 
 FakePairing get _pairing => _mock.pairing;
 
+final Uint8List _serviceKey = Uint8List.fromList([2, ...List.filled(32, 9)]);
+
+/// The mock's name service host with a verifier that takes a hello's filler signature.
+class _HelloHost implements NameServiceHost {
+  _HelloHost(this._inner);
+
+  final NameServiceHost _inner;
+
+  @override
+  PairingApi get pairing => _inner.pairing;
+  @override
+  Boosts get boosts => _inner.boosts;
+  @override
+  bool get online => true;
+  @override
+  int get net => _inner.net;
+  @override
+  NameServiceVerifier get verifier => (keyText, domain, message, der) async => domain == domainHello || domain == domainUnlist;
+  @override
+  Future<String> listingAddress(String serviceKeyHex, int generation) => _inner.listingAddress(serviceKeyHex, generation);
+  @override
+  Future<Uint8List> sign(String serviceKeyHex, int generation, String domain, Uint8List message) => _inner.sign(serviceKeyHex, generation, domain, message);
+  @override
+  Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _inner.drain(serviceKeyHex, generation);
+  @override
+  Future<List<ListingDrainResult>> drainMany(List<ListingDrain> listings) => _inner.drainMany(listings);
+}
+
+Override _helloService() => deskNameServiceProvider.overrideWith((ref) {
+  final service = NameService(host: _HelloHost(_mock.nameServiceHost(online: () => true)!), store: NameServiceStore(MemorySecretStore(), chain: Chain.mainnet, walletId: 'w1'));
+  ref.onDispose(service.dispose);
+  unawaited(service.load());
+  return service;
+});
+
+const int _nameServiceBits = featureStatusNotices | featureNameService;
+
 final String _anna = 'es${'a' * 50}@epicbox.epiccash.com';
 
 Future<void> _real(WidgetTester tester, [int ms = 400]) async {
@@ -44,7 +87,14 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, bool epicbox = true}) async {
+// Real time for the wallet's futures, then the dialog's cross-fade; the fake clock moves little.
+Future<void> _settle(WidgetTester tester) async {
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 200));
+}
+
+Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, bool epicbox = true, List<Override> overrides = const []}) async {
   tester.view.physicalSize = const Size(1280, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -56,7 +106,7 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, bool 
   _clip = null;
   addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
   _mock = MockDeskWallet(delay: Duration.zero);
-  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock)]);
+  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock), ...overrides]);
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
@@ -335,6 +385,130 @@ void main() {
     expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
     expect(find.byKey(deskCheckMatchKey), findsOneWidget);
     expect(find.text(_l.pairPairedWith('Anna')), findsNothing);
+  });
+
+  // One window for every code: incoming, waiting, then the words AT ONCE after the confirm (a
+  // domain is asked under them, a name service hello upgrades them), then the result, in the
+  // same route.
+  Future<String> answerCode(WidgetTester tester, {FakeDomain? domain, List<Override> overrides = const []}) async {
+    await _open(
+      tester,
+      overrides: overrides,
+      Consumer(
+        builder: (context, ref, _) => Center(
+          child: TextButton(
+            onPressed: () async {
+              final preview = await _pairing.openInvite(_pairing.inviteLinkFrom(name: 'Anna', domain: domain, confirmAfter: const Duration(hours: 1)));
+              if (context.mounted) unawaited(showDeskIncoming(context, ref, preview));
+            },
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await _real(tester);
+    await tester.tap(find.byKey(deskIncomingPairKey));
+    await _real(tester);
+    expect(find.byKey(deskWaitingCloseKey), findsOneWidget);
+    final id = _pairing.records.singleWhere((r) => r.state == PairingState.pendingReply).id;
+    _c.invalidate(deskPairingsProvider);
+    await tester.runAsync(() => _c.read(deskPairingsProvider.future));
+    return id;
+  }
+
+  Future<String> answerDomainCode(WidgetTester tester, FakeDomainProof proof, Duration after) =>
+      answerCode(tester, domain: (domain: 'anna.example', proof: proof, after: after));
+
+  testWidgets('a code with no hello and no domain: the words at once, no waiting view', (tester) async {
+    final id = await answerCode(tester, overrides: [_helloService()]);
+    _pairing.confirmAnswer(id, features: _nameServiceBits);
+    await _settle(tester);
+    expect(find.byKey(deskCheckMatchKey), findsOneWidget, reason: 'the words, not a wait');
+    expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
+    expect(find.text(_l.nsWaitingFor('Anna')), findsNothing);
+    expect(find.byKey(deskDomainCheckingKey), findsNothing);
+    expect(find.byType(EDialog), findsOneWidget);
+    await tester.pump(const Duration(hours: 2));
+  });
+
+  testWidgets('a name service hello while the words are up: the same window turns into the code check', (tester) async {
+    final id = await answerCode(tester, overrides: [_helloService()]);
+    _pairing.confirmAnswer(id, features: _nameServiceBits);
+    await _settle(tester);
+    expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
+    final route = ModalRoute.of(tester.element(find.byType(EDialog)));
+    _pairing.nameServiceHello(id, serviceKey: _serviceKey);
+    await tester.runAsync(() => _c.read(deskNameServiceProvider)!.sync(NameServiceSyncTrigger.tick));
+    await _settle(tester);
+    expect(find.text(_l.nsCodeTitle), findsOneWidget);
+    expect(find.text(_l.sasDialogTitle('Anna')), findsNothing);
+    expect(find.byKey(deskCheckMatchKey), findsOneWidget);
+    expect(find.byType(EDialog), findsOneWidget);
+    expect(ModalRoute.of(tester.element(find.byType(EDialog))), same(route), reason: 'one route, not a new window');
+    await tester.pump(const Duration(hours: 2));
+  });
+
+  testWidgets('the words answered before any hello: the plain verdict, the listening stops', (tester) async {
+    final id = await answerCode(tester, overrides: [_helloService()]);
+    _pairing.confirmAnswer(id, features: _nameServiceBits);
+    await _settle(tester);
+    final service = _c.read(deskNameServiceProvider)!;
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+    expect(service.stepOf(id), HelloStep.waiting);
+    await tester.tap(find.byKey(deskCheckMatchKey));
+    await _real(tester);
+    expect((await tester.runAsync(() => _pairing.pairing(id)))!.state, PairingState.verified);
+    expect(service.stepOf(id), isNot(HelloStep.waiting));
+    await tester.pump(const Duration(hours: 2));
+  });
+
+  testWidgets('a code with a proven domain: the words with Checking at once, then Verified in the one window', (tester) async {
+    final id = await answerDomainCode(tester, FakeDomainProof.proven, const Duration(seconds: 2));
+    expect(find.byType(EDialog), findsOneWidget);
+    final waitFrame = tester.getRect(find.byType(Dialog));
+    _pairing.confirmAnswer(id);
+    await _settle(tester);
+    expect(find.byKey(deskCheckMatchKey), findsOneWidget, reason: 'the words at once');
+    expect(tester.getRect(find.byType(Dialog)), waitFrame, reason: 'the window keeps its place and size from the wait to the words');
+    expect(find.byKey(deskDomainCheckingKey), findsOneWidget);
+    expect(find.text(_l.deskPairDomainChecking('anna.example')), findsOneWidget);
+    expect(find.byType(EDialog), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await _real(tester);
+    expect(find.byKey(deskCheckMatchKey), findsNothing);
+    expect(find.byKey(deskDomainCheckingKey), findsNothing);
+    expect(find.text(_l.deskPairDomainVerifiedBody('Anna', 'anna.example')), findsOneWidget);
+    expect(find.byType(EDialog), findsOneWidget, reason: 'one window to the end');
+    expect(tester.getRect(find.byType(Dialog)), waitFrame, reason: 'and to the result');
+    expect((await tester.runAsync(() => _pairing.pairing(id)))!.state, PairingState.verified);
+    await tester.pump(const Duration(hours: 2));
+  });
+
+  testWidgets('a code whose domain does not answer: the words stay, the Checking line goes', (tester) async {
+    final id = await answerDomainCode(tester, FakeDomainProof.unreachable, const Duration(seconds: 3));
+    _pairing.confirmAnswer(id);
+    await _settle(tester);
+    expect(find.byKey(deskCheckMatchKey), findsOneWidget);
+    expect(find.byKey(deskDomainCheckingKey), findsOneWidget);
+    await tester.pump(const Duration(seconds: 4));
+    await _real(tester);
+    expect(find.byKey(deskDomainCheckingKey), findsNothing);
+    expect(find.byKey(deskCheckMatchKey), findsOneWidget);
+    expect(find.byType(EDialog), findsOneWidget, reason: 'the same window, not a new one');
+    await tester.pump(const Duration(hours: 2));
+  });
+
+  testWidgets('a refused domain: the words stay, the Checking line goes', (tester) async {
+    final id = await answerDomainCode(tester, FakeDomainProof.refused, const Duration(seconds: 2));
+    _pairing.confirmAnswer(id);
+    await _settle(tester);
+    expect(find.byKey(deskDomainCheckingKey), findsOneWidget);
+    await tester.pump(const Duration(seconds: 3));
+    await _real(tester);
+    expect(find.byKey(deskDomainCheckingKey), findsNothing);
+    expect(find.byKey(deskCheckMatchKey), findsOneWidget);
+    await tester.pump(const Duration(hours: 2));
   });
 
   testWidgets('the contact pane: a proven peer gets the request dialog; Send request sends; Waiting with Show my invite and Cancel', (tester) async {

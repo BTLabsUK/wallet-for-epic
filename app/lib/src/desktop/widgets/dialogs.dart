@@ -69,7 +69,17 @@ class EDialog extends StatelessWidget {
     this.dismissible = true,
     this.foot,
     this.keys = const [],
+    this.minBodyHeight,
+    this.minFootHeight,
   });
+
+  /// The body is at least this tall, so a flow of steps in one window keeps one size (the
+  /// pairing window): the steps share it, and the body still scrolls when the window is short.
+  final double? minBodyHeight;
+
+  /// The buttons' area is at least this tall (buttons on top, room below), so a step with one
+  /// row of buttons keeps the frame of a step whose footer stacks.
+  final double? minFootHeight;
 
   /// More [EKeyHint]s for the strip, after Esc (a list's ↑ ↓, what Enter takes).
   final List<Widget> keys;
@@ -187,14 +197,19 @@ class EDialog extends StatelessWidget {
                   if (body != null)
                     Flexible(
                       child: SingleChildScrollView(
-                        child: Padding(padding: EdgeInsets.fromLTRB(padX, m.bodyTop, padX, 0), child: body),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(padX, m.bodyTop, padX, 0),
+                          child: minBodyHeight == null ? body : ConstrainedBox(constraints: BoxConstraints(minHeight: minBodyHeight!), child: body),
+                        ),
                       ),
                     ),
                   if (foot != null) Padding(padding: EdgeInsets.fromLTRB(padX, Sp.x4, padX, 0), child: foot),
                   if (actions.isNotEmpty)
                     Padding(
                       padding: EdgeInsets.fromLTRB(padX, m.footTop, padX, 0),
-                      child: EModalButtons(actions: actions),
+                      child: minFootHeight == null
+                          ? EModalButtons(actions: actions)
+                          : ConstrainedBox(constraints: BoxConstraints(minHeight: minFootHeight!), child: EModalButtons(actions: actions)),
                     ),
                   if (strip)
                     EModalKeys(
