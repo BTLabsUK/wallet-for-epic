@@ -87,6 +87,7 @@
   "deskNodeCatchingUpNotePct": "โหนดของคุณกำลังตามให้ทัน {percent} กระเป๋าเงินจะกลับไปใช้โหนดนี้เองเมื่อซิงค์เสร็จ",
   "deskNodeNotSyncing": "โหนดของคุณไม่ซิงค์",
   "deskNodeNotSyncingNote": "โหนดของคุณไม่ซิงค์ ไม่คืบหน้า {minutes} นาที การเริ่มใหม่มักช่วยได้",
+  "deskSetLnodeNotSyncingText": "ไม่คืบหน้า {minutes} นาที การเริ่มใหม่มักช่วยได้",
   "deskNodeRestart": "เริ่มโหนดใหม่",
   "deskNodeMarkerNotSyncing": "ไม่ซิงค์"
 }

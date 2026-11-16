@@ -33577,6 +33577,12 @@ abstract class AppLocalizations {
   /// **'Your node is not syncing: no progress for {minutes} min. A restart often gets it going again.'**
   String deskNodeNotSyncingNote(int minutes);
 
+  /// Settings, Local node: text of the 'Your node is not syncing' notice, under the title; minutes without progress, then the restart hint.
+  ///
+  /// In en, this message translates to:
+  /// **'No progress for {minutes} min. A restart often gets it going again.'**
+  String deskSetLnodeNotSyncingText(int minutes);
+
   /// Button and status bar action: restarts the user's own node on this computer.
   ///
   /// In en, this message translates to:

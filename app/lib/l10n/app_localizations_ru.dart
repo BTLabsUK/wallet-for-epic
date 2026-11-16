@@ -22045,6 +22045,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskSetLnodeNotSyncingText(int minutes) {
+    return 'Нет прогресса $minutes мин. Перезапуск часто помогает.';
+  }
+
+  @override
   String get deskNodeRestart => 'Перезапустить узел';
 
   @override

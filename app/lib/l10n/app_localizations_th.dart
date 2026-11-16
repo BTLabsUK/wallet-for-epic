@@ -21021,6 +21021,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String deskSetLnodeNotSyncingText(int minutes) {
+    return 'ไม่คืบหน้า $minutes นาที การเริ่มใหม่มักช่วยได้';
+  }
+
+  @override
   String get deskNodeRestart => 'เริ่มโหนดใหม่';
 
   @override

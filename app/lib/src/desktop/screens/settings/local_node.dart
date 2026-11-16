@@ -454,7 +454,7 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
       if (notSyncing) {
         return StatusWords(
           detail: metaLine([stage, l.deskNodeMarkerNotSyncing]),
-          notice: (tone: ETone.warn, title: l.deskNodeNotSyncing, text: l.deskNodeNotSyncingNote(notSyncingAfter.inMinutes), action: null),
+          notice: (tone: ETone.warn, title: l.deskNodeNotSyncing, text: l.deskSetLnodeNotSyncingText(notSyncingAfter.inMinutes), action: null),
         );
       }
       if (accepted) return StatusWords(detail: l.deskSetLnodeStageUsing(stage, fallback));
@@ -636,7 +636,7 @@ class _StatusTab extends StatelessWidget {
               Text(
                 p?.stage == SyncStage.waitingForPeers || p == null
                     ? (startedAgo == null ? '' : (startedAgo.inSeconds < 90 ? l.deskSetLnodeStartedSecAgo(startedAgo.inSeconds) : l.deskSetLnodeStartedAgo(duration(l, startedAgo))))
-                    : metaLine([?pct, syncEtaText(l, s.etaTotal)]),
+                    : metaLine([?pct, if (!notSyncing) syncEtaText(l, s.etaTotal)]),
                 style: ts.small.copyWith(color: c.dim),
               ),
             ],

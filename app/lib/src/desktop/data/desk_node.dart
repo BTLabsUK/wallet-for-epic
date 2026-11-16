@@ -749,8 +749,9 @@ LocalNodeState mockLocalNode(
   bool userToml = false,
   ChainDataOrigin origin = ChainDataOrigin.own,
   int? bytes,
+  DateTime? now,
 }) {
-  final at = DateTime(2026, 10, 22, 14, 2);
+  final at = now ?? DateTime(2026, 10, 22, 14, 2);
   final syncing = phase == LocalNodePhase.syncing;
   final live = phase != LocalNodePhase.stopped && phase != LocalNodePhase.error;
   return LocalNodeState(

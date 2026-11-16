@@ -139,6 +139,19 @@ final List<DeskShot> settingsShots = [
     ('21-local-restart-needed', 'Local node, settings changed', mockLocalNode(LocalNodePhase.synced, restartNeeded: true, userToml: true), FallbackConsent.accepted),
   ])
     DeskShot(id: id, title: title, route: DeskRoute.settingsNode, arg: NodeShot.builtin, prepare: (c, _) => showLocalNode(c, state, consent)),
+  // Syncing, then the same state 16 minutes later with nothing moved: "not syncing", no ETA.
+  DeskShot(
+    id: '21-local-not-syncing',
+    title: 'Local node, not syncing',
+    route: DeskRoute.settingsNode,
+    arg: NodeShot.builtin,
+    prepare: (c, _) async {
+      final t = DateTime(2026, 10, 22, 14, 2);
+      LocalNodeState at(DateTime now) => mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: mockTip, eta: const Duration(minutes: 12), now: now);
+      await showLocalNode(c, at(t), FallbackConsent.accepted);
+      await showLocalNode(c, at(t.add(const Duration(minutes: 16))), FallbackConsent.accepted);
+    },
+  ),
   DeskShot(id: '21-local-synced-2474', title: 'Local node, synced, 2474x1338', route: DeskRoute.settingsNode, arg: NodeShot.builtin, width: 2474, height: 1338, prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted)),
   // The Ports row's info popover with its "More in Help" link (WD2-063).
   DeskShot(

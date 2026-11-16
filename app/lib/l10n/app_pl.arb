@@ -5584,6 +5584,7 @@
   "deskNodeCatchingUpNotePct": "Twój węzeł nadrabia {percent}. Portfel sam do niego wróci, gdy będzie zsynchronizowany.",
   "deskNodeNotSyncing": "Twój węzeł się nie synchronizuje",
   "deskNodeNotSyncingNote": "Twój węzeł się nie synchronizuje: brak postępu od {minutes} min. Ponowne uruchomienie często pomaga.",
+  "deskSetLnodeNotSyncingText": "Brak postępu od {minutes} min. Ponowne uruchomienie często pomaga.",
   "deskNodeRestart": "Uruchom węzeł ponownie",
   "deskNodeMarkerNotSyncing": "brak synchronizacji"
 }

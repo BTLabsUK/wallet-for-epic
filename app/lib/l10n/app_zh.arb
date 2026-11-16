@@ -5584,6 +5584,7 @@
   "deskNodeCatchingUpNotePct": "你的节点正在追赶 {percent}。同步完成后，钱包会自动切回该节点。",
   "deskNodeNotSyncing": "你的节点没有在同步",
   "deskNodeNotSyncingNote": "你的节点没有在同步：{minutes} 分钟没有进展。重启通常能解决。",
+  "deskSetLnodeNotSyncingText": "{minutes} 分钟没有进展。重启通常能解决。",
   "deskNodeRestart": "重启节点",
   "deskNodeMarkerNotSyncing": "未同步"
 }

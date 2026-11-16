@@ -22050,6 +22050,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String deskSetLnodeNotSyncingText(int minutes) {
+    return 'Brak postępu od $minutes min. Ponowne uruchomienie często pomaga.';
+  }
+
+  @override
   String get deskNodeRestart => 'Uruchom węzeł ponownie';
 
   @override

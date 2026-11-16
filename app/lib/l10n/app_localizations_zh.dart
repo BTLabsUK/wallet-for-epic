@@ -20261,6 +20261,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String deskSetLnodeNotSyncingText(int minutes) {
+    return '$minutes 分钟没有进展。重启通常能解决。';
+  }
+
+  @override
   String get deskNodeRestart => '重启节点';
 
   @override

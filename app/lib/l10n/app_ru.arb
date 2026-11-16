@@ -5584,6 +5584,7 @@
   "deskNodeCatchingUpNotePct": "Ваш узел догоняет сеть, {percent}. Кошелёк сам вернётся к нему после синхронизации.",
   "deskNodeNotSyncing": "Ваш узел не синхронизируется",
   "deskNodeNotSyncingNote": "Ваш узел не синхронизируется: нет прогресса {minutes} мин. Перезапуск часто помогает.",
+  "deskSetLnodeNotSyncingText": "Нет прогресса {minutes} мин. Перезапуск часто помогает.",
   "deskNodeRestart": "Перезапустить узел",
   "deskNodeMarkerNotSyncing": "не синхронизируется"
 }

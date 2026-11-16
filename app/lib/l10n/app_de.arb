@@ -5584,6 +5584,7 @@
   "deskNodeCatchingUpNotePct": "Ihr Node holt auf {percent}. Die Wallet wechselt von selbst zurück, sobald er synchronisiert ist.",
   "deskNodeNotSyncing": "Ihr Node synchronisiert nicht",
   "deskNodeNotSyncingNote": "Ihr Node synchronisiert nicht: seit {minutes} Min. kein Fortschritt. Ein Neustart hilft oft.",
+  "deskSetLnodeNotSyncingText": "Seit {minutes} Min. kein Fortschritt. Ein Neustart hilft oft.",
   "deskNodeRestart": "Node neu starten",
   "deskNodeMarkerNotSyncing": "synchronisiert nicht"
 }

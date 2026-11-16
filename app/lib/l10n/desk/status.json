@@ -576,6 +576,16 @@
       }
     }
   },
+  "deskSetLnodeNotSyncingText": "No progress for {minutes} min. A restart often gets it going again.",
+  "@deskSetLnodeNotSyncingText": {
+    "description": "Settings, Local node: text of the 'Your node is not syncing' notice, under the title; minutes without progress, then the restart hint.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
   "deskNodeRestart": "Restart node",
   "@deskNodeRestart": {
     "description": "Button and status bar action: restarts the user's own node on this computer."

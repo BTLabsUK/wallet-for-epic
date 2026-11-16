@@ -21679,6 +21679,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String deskSetLnodeNotSyncingText(int minutes) {
+    return 'Seit $minutes Min. kein Fortschritt. Ein Neustart hilft oft.';
+  }
+
+  @override
   String get deskNodeRestart => 'Node neu starten';
 
   @override
