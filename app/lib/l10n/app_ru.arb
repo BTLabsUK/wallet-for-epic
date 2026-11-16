@@ -5578,5 +5578,6 @@
   "deskSetSynSystemNotices": "уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол",
   "deskSendDoneTo": "Отправлено: {name}",
   "deskSendDoneVia": "Отправлено {via}",
-  "deskE1PhSetLine": "Ссылки, коды для личной оплаты и файлы"
+  "deskE1PhSetLine": "Ссылки, коды для личной оплаты и файлы",
+  "deskE1PhOtherLine": "По ссылке epic1, лично или файлом"
 }

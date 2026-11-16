@@ -5578,5 +5578,6 @@
   "deskSetSynSystemNotices": "powiadomienia, alert, komunikat, baner, wyskakujące, płatność otrzymana, pulpit",
   "deskSendDoneTo": "Wysłano do {name}",
   "deskSendDoneVia": "Wysłano {via}",
-  "deskE1PhSetLine": "Linki, kody do płatności osobistych i pliki"
+  "deskE1PhSetLine": "Linki, kody do płatności osobistych i pliki",
+  "deskE1PhOtherLine": "Linkiem epic1, osobiście lub plikiem"
 }

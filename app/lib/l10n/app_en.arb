@@ -29227,5 +29227,9 @@
   "deskE1PhSetLine": "Links, in-person codes and files",
   "@deskE1PhSetLine": {
     "description": "Phone Settings › Payments: the one line under the epic1 payment method, what it pays with (no full stop, like the other methods' lines)."
+  },
+  "deskE1PhOtherLine": "An epic1 link, in person, or with a file",
+  "@deskE1PhOtherLine": {
+    "description": "Phone Receive: the line under the Other ways to receive row while epic1 is on (the same line as without it, with the epic1 link named first)."
   }
 }

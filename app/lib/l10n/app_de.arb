@@ -5578,5 +5578,6 @@
   "deskSetSynSystemNotices": "benachrichtigung, mitteilung, hinweis, banner, popup, zahlung erhalten, desktop",
   "deskSendDoneTo": "Gesendet an {name}",
   "deskSendDoneVia": "Gesendet {via}",
-  "deskE1PhSetLine": "Links, Codes für persönliche Zahlungen und Dateien"
+  "deskE1PhSetLine": "Links, Codes für persönliche Zahlungen und Dateien",
+  "deskE1PhOtherLine": "Per epic1-Link, persönlich oder per Datei"
 }

@@ -1,5 +1,6 @@
 {
   "deskE1PhSetLine": "Ссылки, коды для личной оплаты и файлы",
+  "deskE1PhOtherLine": "По ссылке epic1, лично или файлом",
   "deskE1PhPrinted": "Печатные ссылки",
   "deskE1PhPrintedCount": "{n} из {max}",
   "deskE1PhPrintedEmpty": "Печатных ссылок нет.",

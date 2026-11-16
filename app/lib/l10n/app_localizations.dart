@@ -33546,6 +33546,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Links, in-person codes and files'**
   String get deskE1PhSetLine;
+
+  /// Phone Receive: the line under the Other ways to receive row while epic1 is on (the same line as without it, with the epic1 link named first).
+  ///
+  /// In en, this message translates to:
+  /// **'An epic1 link, in person, or with a file'**
+  String get deskE1PhOtherLine;
 }
 
 class _AppLocalizationsDelegate

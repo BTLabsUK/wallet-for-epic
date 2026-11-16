@@ -1,5 +1,6 @@
 {
   "deskE1PhSetLine": "ลิงก์ รหัสชำระแบบพบหน้า และไฟล์",
+  "deskE1PhOtherLine": "ลิงก์ epic1 ตัวต่อตัว หรือด้วยไฟล์",
   "deskE1PhPrinted": "ลิงก์สำหรับพิมพ์",
   "deskE1PhPrintedCount": "{n} จาก {max}",
   "deskE1PhPrintedEmpty": "ไม่มีลิงก์สำหรับพิมพ์",

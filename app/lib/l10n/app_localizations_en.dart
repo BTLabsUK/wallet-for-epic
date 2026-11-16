@@ -21451,4 +21451,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1PhSetLine => 'Links, in-person codes and files';
+
+  @override
+  String get deskE1PhOtherLine => 'An epic1 link, in person, or with a file';
 }

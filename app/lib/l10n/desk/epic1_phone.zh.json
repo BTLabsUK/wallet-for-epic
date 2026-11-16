@@ -1,5 +1,6 @@
 {
   "deskE1PhSetLine": "链接、面对面付款码和文件",
+  "deskE1PhOtherLine": "epic1 链接、当面，或用文件",
   "deskE1PhPrinted": "打印的链接",
   "deskE1PhPrintedCount": "{n} / {max}",
   "deskE1PhPrintedEmpty": "没有打印的链接。",

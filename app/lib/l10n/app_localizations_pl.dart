@@ -22060,4 +22060,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1PhSetLine => 'Linki, kody do płatności osobistych i pliki';
+
+  @override
+  String get deskE1PhOtherLine => 'Linkiem epic1, osobiście lub plikiem';
 }

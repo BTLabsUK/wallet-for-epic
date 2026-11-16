@@ -22055,4 +22055,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1PhSetLine => 'Ссылки, коды для личной оплаты и файлы';
+
+  @override
+  String get deskE1PhOtherLine => 'По ссылке epic1, лично или файлом';
 }

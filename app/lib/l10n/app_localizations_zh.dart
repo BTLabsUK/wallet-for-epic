@@ -20264,4 +20264,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1PhSetLine => '链接、面对面付款码和文件';
+
+  @override
+  String get deskE1PhOtherLine => 'epic1 链接、当面，或用文件';
 }

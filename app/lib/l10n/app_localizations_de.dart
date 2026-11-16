@@ -21684,4 +21684,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskE1PhSetLine =>
       'Links, Codes für persönliche Zahlungen und Dateien';
+
+  @override
+  String get deskE1PhOtherLine => 'Per epic1-Link, persönlich oder per Datei';
 }

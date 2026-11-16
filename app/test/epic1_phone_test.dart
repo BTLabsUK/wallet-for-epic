@@ -269,6 +269,8 @@ void main() {
       expect(_key(epic1LinkCardKey), findsNothing);
       // No link is made before the row is opened.
       expect(session.epic1Fake.calls, isNot(contains('makeLink')));
+      // The row of the other ways names the link.
+      expect(find.text(_l.deskE1PhOtherLine), findsOneWidget);
 
       await openOther(tester);
       expect(_key(epic1LinkWayKey), findsOneWidget);
@@ -301,6 +303,7 @@ void main() {
       final session = _session();
       await _pump(tester, session, receive, epic1: false);
       expect(_key(receiveAddressKey), findsOneWidget);
+      expect(find.text(_l.phoneRecvOtherLine), findsOneWidget);
       await openOther(tester);
       expect(_key(epic1LinkWayKey), findsNothing);
       expect(session.epic1Fake.calls, isNot(contains('makeLink')));

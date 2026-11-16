@@ -5578,5 +5578,6 @@
   "deskSetSynSystemNotices": "通知, 提醒, 横幅, 弹窗, 收到付款, 桌面通知",
   "deskSendDoneTo": "已发送给 {name}",
   "deskSendDoneVia": "已{via}发送",
-  "deskE1PhSetLine": "链接、面对面付款码和文件"
+  "deskE1PhSetLine": "链接、面对面付款码和文件",
+  "deskE1PhOtherLine": "epic1 链接、当面，或用文件"
 }

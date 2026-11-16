@@ -1,5 +1,6 @@
 {
   "deskE1PhSetLine": "Links, Codes für persönliche Zahlungen und Dateien",
+  "deskE1PhOtherLine": "Per epic1-Link, persönlich oder per Datei",
   "deskE1PhPrinted": "Gedruckte Links",
   "deskE1PhPrintedCount": "{n} von {max}",
   "deskE1PhPrintedEmpty": "Keine gedruckten Links.",

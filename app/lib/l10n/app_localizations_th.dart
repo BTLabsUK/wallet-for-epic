@@ -21024,4 +21024,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1PhSetLine => 'ลิงก์ รหัสชำระแบบพบหน้า และไฟล์';
+
+  @override
+  String get deskE1PhOtherLine => 'ลิงก์ epic1 ตัวต่อตัว หรือด้วยไฟล์';
 }

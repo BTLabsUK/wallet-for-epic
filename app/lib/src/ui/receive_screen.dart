@@ -224,7 +224,7 @@ class _ReceiveViewState extends ConsumerState<ReceiveView> {
         KitRow(
           leading: KitIconWell.child(KitQrGlyph(color: context.tokens.accentText)),
           title: l.phoneRecvOther,
-          subtitle: l.phoneRecvOtherLine,
+          subtitle: ways.epic1 ? l.deskE1PhOtherLine : l.phoneRecvOtherLine,
           chevron: true,
           semanticsId: TrustIds.receiveOther,
           onTap: () => showOtherWays(context, ways: ways),
