@@ -262,8 +262,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     try {
       await ref.read(deskApiProvider).setSetupPending(id, false);
     } on Object catch (e) {
-      logWarn('desk', 'setup mark not cleared: ${e.runtimeType}');
-      if (mounted) showEToast(context, context.l10n.deskSetupMarkNotCleared(_noStop(deskErrorText(e, context.l10n))), tone: ETone.warn);
+      // Nothing to do about it: Setup opens again at the next start, and Unlock follows.
+      logWarn('desk', 'setup mark not cleared: ${e.runtimeType}: ${deskErrorText(e)}');
     }
     return mounted;
   }

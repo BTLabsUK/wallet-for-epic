@@ -1672,10 +1672,6 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
           ),
           SizedBox(height: Sp.x4),
         ],
-        if (p.seal == SealMode.degraded && !changed) ...[
-          ENotice(title: l.contactSealDegradedTitle(name), text: l.contactSealDegradedBody(name), tone: ETone.info),
-          SizedBox(height: Sp.x4),
-        ],
         if (paused) ...[
           ENotice(title: l.contactPausedEpicboxOff, text: l.contactPausedEpicboxOffBody, tone: ETone.info, icon: Icons.pause_circle_outline),
           SizedBox(height: Sp.x4),

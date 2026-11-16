@@ -276,6 +276,8 @@ class _Updates extends ConsumerWidget {
     final (state, detail) = switch (u.phase) {
       DeskUpdatePhase.idle || DeskUpdatePhase.checking => (l.updateChecking, null),
       DeskUpdatePhase.latest => (l.deskSetAboutLatest(deskAppVersion), checked),
+      // Only a check the user asked for says it failed; an automatic one shows when it last worked.
+      DeskUpdatePhase.failed when !u.byHand => (checked ?? '', null),
       DeskUpdatePhase.failed => (l.deskSetAboutCouldNotCheck, [u.reason, checked].nonNulls.join(' ')),
       DeskUpdatePhase.downloading => (l.deskSetAboutAvailable(v), l.deskUpdDownloading(localInt(l, ((u.progress ?? 0) * 100).floor()))),
       DeskUpdatePhase.ready when u.problem == null => (l.deskUpdReady(v), byHand ? l.deskUpdDmgHint : l.deskUpdRestartHint),
@@ -302,7 +304,7 @@ class _Updates extends ConsumerWidget {
       icon: EIcons.refresh,
       size: EBtnSize.sm,
       busy: busy,
-      onPressed: busy || block != NetBlock.none ? null : () => ref.read(deskUpdateProvider.notifier).check(),
+      onPressed: busy || block != NetBlock.none ? null : () => ref.read(deskUpdateProvider.notifier).check(byHand: true),
     );
     // While an update is offered: the button for its step (it waits while the download runs).
     final step = u.offered
@@ -323,7 +325,7 @@ class _Updates extends ConsumerWidget {
     }
 
     // The state stands out while something is offered or wrong; the rest stays dim.
-    final stateStyle = u.offered || u.phase == DeskUpdatePhase.failed ? ts.small.copyWith(color: c.text) : ts.small;
+    final stateStyle = u.offered || (u.phase == DeskUpdatePhase.failed && u.byHand) ? ts.small.copyWith(color: c.text) : ts.small;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
       // The buttons beside the words while the words keep their room, else under them.

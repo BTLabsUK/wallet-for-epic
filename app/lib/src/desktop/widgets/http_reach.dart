@@ -104,9 +104,8 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
           ? ENotice(key: const ValueKey('http-reach'), title: l.deskKitReachChecking)
           : const SizedBox.shrink();
     }
-    if (r.needsTorOff) {
-      return ENotice(key: const ValueKey('http-reach'), title: l.deskKitReachTorOff, actions: [check]);
-    }
+    // The check cannot run while Tor is on, and the user cannot act on that: no row.
+    if (r.needsTorOff) return const SizedBox.shrink();
     final lan = r.lanAddress;
     // Not reachable, and the user dismissed that for this address and port: nothing more to say.
     final acked = ref.watch(deskProvider.select((s) => s.settings.httpReachAck)) == httpReachAckOf(r);

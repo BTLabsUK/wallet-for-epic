@@ -108,7 +108,6 @@
   "deskKitQrCode": "QR-Code",
   "deskKitQrHide": "Code ausblenden",
   "deskKitQrHideCode": "Code ausblenden",
-  "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor.",
   "deskKitNoAnswerSince": "Keine Antwort seit {time}",
   "deskKitMoreInHelp": "Mehr in der Hilfe",
   "deskHttpLocalTitle": "Lokales Netzwerk",

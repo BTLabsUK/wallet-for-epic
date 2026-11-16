@@ -108,7 +108,6 @@
   "deskKitQrCode": "QR-код",
   "deskKitQrHide": "Скрыть код",
   "deskKitQrHideCode": "Скрыть код",
-  "deskKitReachTorOff": "Проверка работает только с выключенным Tor.",
   "deskKitNoAnswerSince": "Нет ответа с {time}",
   "deskKitMoreInHelp": "Подробнее в справке",
   "deskHttpLocalTitle": "Локальная сеть",

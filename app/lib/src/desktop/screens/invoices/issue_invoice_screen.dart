@@ -22,6 +22,7 @@ import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../scan/desk_scan.dart' show DeskPasted, DeskScanned;
+import '../transfer/epicbox_notice.dart' show EpicboxDownNotice;
 import '../transfer/file_panels.dart' show FileChip, ResultPanel, ResultGlyph;
 import '../transfer/finalize_screen.dart' show FinalizeArgs;
 import '../transfer/qr_payment.dart';
@@ -249,7 +250,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     final ts = context.ts;
     final st = ref.watch(deskProvider);
     final book = ref.watch(deskInvoicesProvider);
-    final relayDown = st.status?.epicboxHealth == ServiceHealth.down || book?.check == InvoiceCheck.failed;
+    final relayDown = st.status?.epicboxHealth == ServiceHealth.down;
     final payers = deskRequestPayers(ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]);
     final amountErr = _submitted ? _amountError() : null;
     final bytes = _messageBytes;
@@ -286,7 +287,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
         Text(byFile ? l.reqNewLead : l.reqNewLeadContacts, style: ts.bodyDim),
         SizedBox(height: Sp.x5),
         if (relayDown && !toFile) ...[
-          ENotice(tone: ETone.risk, icon: EIcons.epicbox, title: l.deskInvIssuerRelayDown),
+          const EpicboxDownNotice(),
           SizedBox(height: Sp.x5),
         ],
         EField(

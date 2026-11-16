@@ -13989,11 +13989,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbSameNewPassword => 'ตั้งรหัสผ่านใหม่';
 
   @override
-  String deskSetupMarkNotCleared(String reason) {
-    return 'บันทึกว่าตั้งค่าเสร็จไม่ได้: $reason ครั้งหน้าอาจแสดงอีก กด ข้ามการตั้งค่า เพื่อออก';
-  }
-
-  @override
   String get deskOvRestoredImportTitle => 'กู้คืนกระเป๋าเงินแล้ว';
 
   @override
@@ -15464,9 +15459,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return 'อ่าน $file ไม่ได้ จึงใช้การตั้งค่าในตัวแอป';
   }
-
-  @override
-  String get deskKitReachTorOff => 'การตรวจนี้ต้องปิด Tor';
 
   @override
   String get deskSetBackupServersTitle => 'ใช้เซิร์ฟเวอร์จากไฟล์นี้?';

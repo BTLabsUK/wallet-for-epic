@@ -108,7 +108,6 @@
   "deskKitQrCode": "二维码",
   "deskKitQrHide": "隐藏二维码",
   "deskKitQrHideCode": "隐藏二维码",
-  "deskKitReachTorOff": "此检查需要关闭 Tor。",
   "deskKitNoAnswerSince": "自 {time} 起无响应",
   "deskKitMoreInHelp": "更多见帮助",
   "deskHttpLocalTitle": "本地网络",

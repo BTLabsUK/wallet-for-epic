@@ -78,13 +78,13 @@ void main() {
     await done(tester);
   });
 
-  testWidgets('a session on the plain records says so on Overview', (tester) async {
+  testWidgets('a session on the plain records shows nothing on Overview (it goes to the log)', (tester) async {
     final api = MockDeskWallet()..recordsPlain = true;
     await pump(tester, api);
     await typeAndUnlock(tester);
     await run(tester);
-    expect(find.byKey(const ValueKey('overview-records-plain')), findsOneWidget);
-    expect(find.text('Wallet records stay unencrypted for now. The app tries again next time.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('overview-records-plain')), findsNothing);
+    expect(find.text('Wallet records stay unencrypted for now. The app tries again next time.'), findsNothing);
     await done(tester);
   });
 

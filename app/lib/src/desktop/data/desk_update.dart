@@ -78,6 +78,7 @@ class DeskUpdateState {
     this.progress,
     this.problem,
     this.download,
+    this.byHand = false,
   });
 
   final DeskUpdatePhase phase;
@@ -107,6 +108,9 @@ class DeskUpdateState {
 
   /// The checked download, when [DeskUpdatePhase.ready].
   final File? download;
+
+  /// The user pressed Check: a failed check says so only then; a timed one goes to the log.
+  final bool byHand;
 
   /// Whether the update can be had at all (the slot's line shows).
   bool get offered =>
@@ -298,7 +302,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     }
   }
 
-  Future<void> check() async {
+  Future<void> check({bool byHand = false}) async {
     if (!deskUpdatesSupported) return;
     // A download under way or done stays as it is; one whose install failed is looked for again;
     // an update that did not finish waits for its Try again.
@@ -314,7 +318,9 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     final next = await _fetchAndRead();
     if (!ref.mounted) return;
     final now = ref.read(deskUpdateClockProvider)();
-    state = DeskUpdateState(next.phase, version: next.version, page: next.page, reason: next.reason, checkedAt: now, file: next.file);
+    final silent = next.phase == DeskUpdatePhase.failed && !byHand;
+    if (silent) logInfo('update', 'desktop: automatic check failed: ${next.reason}');
+    state = DeskUpdateState(next.phase, version: next.version, page: next.page, reason: next.reason, checkedAt: silent ? last : now, file: next.file, byHand: byHand);
     if (next.phase == DeskUpdatePhase.latest) unawaited(_dropDownloads());
   }
 

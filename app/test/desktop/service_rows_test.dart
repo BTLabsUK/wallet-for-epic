@@ -229,7 +229,11 @@ void main() {
       }
       expect(fixtures['remote at tip, version current']!.$1.host, 'epic.invalid');
       expect(fixtures['remote at tip, version current']!.$1.lines, ['node.epic.invalid\u00A0· 3,764,975\u00A0· synced', '722 ms\u00A0· v4.1.1']);
-      expect(fixtures['remote older version']!.$1.lines.last, '24 ms\u00A0· v4.1.0\u00A0· 4.1.1 is out');
+      // A public node's newer version is nothing the user can act on: not shown.
+      expect(fixtures['remote older version']!.$1.lines.last, '24 ms\u00A0· v4.1.0');
+      // Behind only for a moment is not shown as Behind; a slow answer is not "Not answering".
+      expect(remoteNodeView(englishStrings, url, mockNodeInfo(url, behind: 12), behindSettled: false).word, 'Checking');
+      expect(remoteNodeView(englishStrings, url, mockNodeInfo(url, state: NodeHealthState.down), health: ServiceHealth.slow).word, 'Slow');
       expect(fixtures['remote behind']!.$1.lines.first, 'node.epic.invalid\u00A0· 3,764,963 of 3,764,975');
       expect(fixtures['remote no answer']!.$1.lines, ['node.epic.invalid · since 14:02', 'The node is not answering.']);
       expect(fixtures['local syncing, fallback']!.$1.host, 'epic.invalid');

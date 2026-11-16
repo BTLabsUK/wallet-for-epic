@@ -14325,11 +14325,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbSameNewPassword => 'Set a new password';
 
   @override
-  String deskSetupMarkNotCleared(String reason) {
-    return 'Setup could not be marked as done: $reason. It may open again at the next start; Skip setup closes it.';
-  }
-
-  @override
   String get deskOvRestoredImportTitle => 'Wallet restored';
 
   @override
@@ -15829,9 +15824,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return '$file could not be read. The built-in settings are in use.';
   }
-
-  @override
-  String get deskKitReachTorOff => 'The check needs Tor off.';
 
   @override
   String get deskSetBackupServersTitle => 'Use the servers from this file?';

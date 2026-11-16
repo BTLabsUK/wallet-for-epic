@@ -90,15 +90,6 @@
   "@deskSetupSkip": {
     "description": "Footer button on every Setup step; leaves Setup without saving."
   },
-  "deskSetupMarkNotCleared": "Setup could not be marked as done: {reason}. It may open again at the next start; Skip setup closes it.",
-  "@deskSetupMarkNotCleared": {
-    "description": "Toast after Skip or Save when neither the store nor the wallet folder could note that Setup was done; {reason} is the error without a trailing stop.",
-    "placeholders": {
-      "reason": {
-        "type": "String"
-      }
-    }
-  },
   "deskOvRestoredImportTitle": "Wallet restored",
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."

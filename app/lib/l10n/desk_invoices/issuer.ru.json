@@ -9,7 +9,6 @@
   "deskInvIssuerMessage": "Сообщение плательщику",
   "deskInvIssuerMessageLong": "Сообщение слишком длинное.",
   "deskInvIssuerExpiry": "У плательщика есть {hours} ч на оплату.",
-  "deskInvIssuerRelayDown": "Сервер Epicbox не отвечает, поэтому счёт сейчас не отправить.",
   "deskInvIssuerNotDelivered": "Счёт не дошёл до сервера Epicbox. Ничего не отправлено. Попробуйте ещё раз.",
   "deskInvIssuerFailed": "Счёт не отправлен. Ничего не изменилось; попробуйте ещё раз.",
   "deskInvIssuerEmpty": "Счетов пока не выставлено. Счёт просит контакт или сервис заплатить вам; он ничего не тратит.",

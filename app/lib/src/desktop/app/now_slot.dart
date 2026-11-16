@@ -86,7 +86,10 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
         progress: scan.percent == null ? -1 : scan.percent! / 100,
         hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan),
       ),
-      RestoreScanState.waiting => NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.warn, title: l.deskSlotScanWaits, hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan)),
+      // Only waiting: neutral. A mode the user chose holds it: the way to change it is the action.
+      RestoreScanState.waiting => scan.offline
+          ? NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.info, title: l.deskSlotScanWaits, detail: l.netChangeLink, act: true, onTap: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))
+          : NowItem(id: 'scan', icon: EIcons.scan, tone: ETone.info, title: l.deskSlotScanWaits, hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan)),
       RestoreScanState.failed => NowItem(
         id: 'scan',
         icon: EIcons.scan,
@@ -210,7 +213,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   // 9. A notice from the wallet core (a database being rebuilt).
   final notice = status?.notice;
   if (notice != null && notice.isNotEmpty) {
-    items.add(NowItem(id: 'notice', icon: EIcons.info, tone: ETone.info, title: notice, hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode)));
+    items.add(NowItem(id: 'notice', icon: EIcons.info, tone: ETone.info, title: notice));
   }
   return items;
 }

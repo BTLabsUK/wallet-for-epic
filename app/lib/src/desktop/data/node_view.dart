@@ -105,11 +105,19 @@ String ownAddress(String url) {
   return u.hasPort ? '$host:${u.port}' : host;
 }
 
+/// Whether [info] reads the node as behind the network (the amber "N behind").
+bool nodeReadsBehind(String url, NodeInfo? info, {bool mine = false}) {
+  if (info == null) return false;
+  final behind = info.blocksBehind;
+  final own = shownClass(url, info, mine: mine).own;
+  return (behind != null && behind > syncedWithinBlocks) || (own && info.head == NodeHead.behind);
+}
+
 /// A remote node from its [NodeInfo] (null: nothing known yet). [health] is the wallet's own
 /// view when the info has not come in. A node the wallet itself reaches ([health] ok: its tip
 /// check or a sync answered) is never "Not answering" because the info probe failed, as one
 /// over Tor can while the wallet syncs through it.
-NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false}) {
+NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false, bool behindSettled = true}) {
   // An own node: "Your node" in the status bar, "Your node · 192.168.1.24:<port>" in the tooltip.
   final own = shownClass(url, info, mine: mine).own;
   final full = own ? metaLine([l.deskOwnYourNode, ownAddress(url)]) : nodeHost(url);
@@ -118,6 +126,8 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   if (probeFailed && health == ServiceHealth.ok) return NodeView.of(l, ShownState.synced, host: host, lines: [full]);
   // A blip (the wallet reads the node as checking) is not "Not answering" yet.
   if (probeFailed && health == ServiceHealth.checking) return NodeView.of(l, ShownState.checking, host: host, lines: [full]);
+  // A slow answer is an answer: the probe failing beside it does not make the node silent.
+  if (probeFailed && health == ServiceHealth.slow) return NodeView.of(l, ShownState.slow, host: host, lines: [full]);
   final down = health == ServiceHealth.down || probeFailed;
   if (down) {
     return NodeView.of(l, ShownState.notAnswering,
@@ -146,9 +156,11 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   final second = metaLine([
     if (latency != null) info.latencyOverTor ? l.deskNodeLatencyOverTor(digits(l, latency)) : l.deskNodeLatency(digits(l, latency)),
     if (info.version != null) 'v${info.version}',
-    if (old && info.releasedVersion != null) l.deskNodeNewerOut(info.releasedVersion!),
+    if (old && own && info.releasedVersion != null) l.deskNodeNewerOut(info.releasedVersion!),
   ]);
-  if ((behind != null && behind > syncedWithinBlocks) || (own && info.head == NodeHead.behind)) {
+  if (nodeReadsBehind(url, info, mine: mine)) {
+    // Behind for a moment is a node catching up: amber only once it has lasted.
+    if (!behindSettled) return NodeView.of(l, ShownState.checking, host: host, lines: [full]);
     return NodeView.of(l, ShownState.behind,
       host: host,
       marker: behind == null ? null : l.deskNodeMarkerBehind(digits(l, behind)),
