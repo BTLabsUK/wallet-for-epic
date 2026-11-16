@@ -556,9 +556,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
             decoration: BoxDecoration(color: c.okSoft, borderRadius: BorderRadius.circular(Rad.sm)),
             child: Row(
               children: [
-                Icon(EIcons.sealed, size: Ctl.iconSm, color: c.ok),
-                SizedBox(width: Sp.x2),
-                Epic1Text(l.deskE1Sealed, style: ts.body.copyWith(color: c.ok, fontWeight: FontWeight.w500)),
+                const SealedWithEpic1(),
                 SizedBox(width: Sp.x3),
                 Expanded(
                   child: Align(

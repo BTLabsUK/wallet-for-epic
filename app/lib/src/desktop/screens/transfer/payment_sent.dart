@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../trust_ids.dart';
-import '../../../ui/epic1/epic1_sealed.dart' show Epic1SealedBadge;
+import '../../../ui/epic1/epic1_sealed.dart' show epic1SealedKey;
 import '../../../ui/theme/brand.dart' show GlyphTile;
-import '../../../ui/theme/epic1_mark.dart' show Epic1Glyph;
+import '../../../ui/theme/epic1_mark.dart' show Epic1Glyph, Epic1Text;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart' show PayFacts;
@@ -139,7 +139,17 @@ class _PaymentSent extends ConsumerWidget {
           ),
           SizedBox(height: Sp.x4),
           _Now(tx: live, name: name),
-          if (live != null && deskShowsSealed(ref, live)) ...[SizedBox(height: Sp.x3), const Center(child: Epic1SealedBadge())],
+          if (live != null && deskShowsSealed(ref, live)) ...[
+            SizedBox(height: Sp.x3),
+            Center(
+              child: Container(
+                key: epic1SealedKey,
+                padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x1),
+                decoration: BoxDecoration(color: c.okSoft, borderRadius: BorderRadius.circular(Rad.sm)),
+                child: const SealedWithEpic1(),
+              ),
+            ),
+          ],
         ],
       ),
       actions: [
@@ -206,6 +216,25 @@ class _Now extends StatelessWidget {
           Flexible(child: Text(words, style: context.ts.body, textAlign: TextAlign.center)),
         ],
       ),
+    );
+  }
+}
+
+/// The seal glyph, then "Sealed with" and the epic1 logo, in the ok colour: the line on a
+/// link's Send form and the pill of the Payment sent modal.
+class SealedWithEpic1 extends StatelessWidget {
+  const SealedWithEpic1({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(EIcons.sealed, size: Ctl.iconSm, color: c.ok),
+        SizedBox(width: Sp.x2),
+        Epic1Text(context.l10n.deskE1Sealed, style: context.ts.body.copyWith(color: c.ok, fontWeight: FontWeight.w500)),
+      ],
     );
   }
 }
