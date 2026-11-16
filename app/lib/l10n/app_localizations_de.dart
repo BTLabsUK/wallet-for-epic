@@ -21687,4 +21687,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'Per epic1-Link, persönlich oder per Datei';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return '$domain wird geprüft …';
+  }
+
+  @override
+  String deskPairDomainCheckingBody(String name, String domain) {
+    return '$name gibt an, $domain zu betreiben. Bestätigt die Domain das, müssen Sie keine Wörter vergleichen.';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain bestätigt, dass dies die Wallet von $name ist. Kein Wortvergleich nötig.';
+  }
 }

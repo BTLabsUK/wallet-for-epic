@@ -21027,4 +21027,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'ลิงก์ epic1 ตัวต่อตัว หรือด้วยไฟล์';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return 'กำลังตรวจ $domain…';
+  }
+
+  @override
+  String deskPairDomainCheckingBody(String name, String domain) {
+    return '$name แจ้งว่าดูแล $domain หากโดเมนยืนยัน ไม่ต้องเทียบคำ';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain ยืนยันว่านี่คือกระเป๋าเงินของ $name ไม่ต้องเทียบคำ';
+  }
 }

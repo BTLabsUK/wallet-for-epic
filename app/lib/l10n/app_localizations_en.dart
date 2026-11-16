@@ -21454,4 +21454,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'An epic1 link, in person, or with a file';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return 'Checking $domain…';
+  }
+
+  @override
+  String deskPairDomainCheckingBody(String name, String domain) {
+    return '$name says it runs $domain. If the domain confirms it, there are no words to compare.';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain confirms this is $name’s wallet. No words to compare.';
+  }
 }

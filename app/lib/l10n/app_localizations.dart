@@ -33552,6 +33552,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An epic1 link, in person, or with a file'**
   String get deskE1PhOtherLine;
+
+  /// Pairing window, desktop and phone: the title while the wallet checks the domain the new contact claims (up to 8 seconds), before it shows Verified or the four words. {domain} is the domain, e.g. shop.example.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking {domain}…'**
+  String deskPairDomainChecking(String domain);
+
+  /// Pairing window: the line under that title. {name} is the contact's name, {domain} the domain it claims.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} says it runs {domain}. If the domain confirms it, there are no words to compare.'**
+  String deskPairDomainCheckingBody(String name, String domain);
+
+  /// Pairing window: the line under the Verified title when the contact's domain proved its wallet, so the four words were not needed.
+  ///
+  /// In en, this message translates to:
+  /// **'{domain} confirms this is {name}’s wallet. No words to compare.'**
+  String deskPairDomainVerifiedBody(String name, String domain);
 }
 
 class _AppLocalizationsDelegate

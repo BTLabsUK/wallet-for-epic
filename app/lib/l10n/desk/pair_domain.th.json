@@ -1,0 +1,5 @@
+{
+  "deskPairDomainChecking": "กำลังตรวจ {domain}…",
+  "deskPairDomainCheckingBody": "{name} แจ้งว่าดูแล {domain} หากโดเมนยืนยัน ไม่ต้องเทียบคำ",
+  "deskPairDomainVerifiedBody": "{domain} ยืนยันว่านี่คือกระเป๋าเงินของ {name} ไม่ต้องเทียบคำ"
+}

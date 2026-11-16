@@ -20267,4 +20267,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'epic1 链接、当面，或用文件';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return '正在检查 $domain…';
+  }
+
+  @override
+  String deskPairDomainCheckingBody(String name, String domain) {
+    return '$name 表示自己运营 $domain。如果该域名确认这一点，就无需比对词语。';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain 确认这是 $name 的钱包。无需比对词语。';
+  }
 }

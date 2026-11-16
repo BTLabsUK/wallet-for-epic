@@ -1,0 +1,5 @@
+{
+  "deskPairDomainChecking": "Sprawdzanie {domain}…",
+  "deskPairDomainCheckingBody": "{name} podaje, że prowadzi {domain}. Jeśli domena to potwierdzi, nie trzeba porównywać słów.",
+  "deskPairDomainVerifiedBody": "{domain} potwierdza, że to portfel {name}. Bez porównywania słów."
+}

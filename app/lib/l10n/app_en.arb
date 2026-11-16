@@ -29231,5 +29231,38 @@
   "deskE1PhOtherLine": "An epic1 link, in person, or with a file",
   "@deskE1PhOtherLine": {
     "description": "Phone Receive: the line under the Other ways to receive row while epic1 is on (the same line as without it, with the epic1 link named first)."
+  },
+  "deskPairDomainChecking": "Checking {domain}…",
+  "@deskPairDomainChecking": {
+    "description": "Pairing window, desktop and phone: the title while the wallet checks the domain the new contact claims (up to 8 seconds), before it shows Verified or the four words. {domain} is the domain, e.g. shop.example.",
+    "placeholders": {
+      "domain": {
+        "type": "String"
+      }
+    }
+  },
+  "deskPairDomainCheckingBody": "{name} says it runs {domain}. If the domain confirms it, there are no words to compare.",
+  "@deskPairDomainCheckingBody": {
+    "description": "Pairing window: the line under that title. {name} is the contact's name, {domain} the domain it claims.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "domain": {
+        "type": "String"
+      }
+    }
+  },
+  "deskPairDomainVerifiedBody": "{domain} confirms this is {name}’s wallet. No words to compare.",
+  "@deskPairDomainVerifiedBody": {
+    "description": "Pairing window: the line under the Verified title when the contact's domain proved its wallet, so the four words were not needed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "domain": {
+        "type": "String"
+      }
+    }
   }
 }

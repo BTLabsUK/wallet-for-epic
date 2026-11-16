@@ -5579,5 +5579,8 @@
   "deskSendDoneTo": "Wysłano do {name}",
   "deskSendDoneVia": "Wysłano {via}",
   "deskE1PhSetLine": "Linki, kody do płatności osobistych i pliki",
-  "deskE1PhOtherLine": "Linkiem epic1, osobiście lub plikiem"
+  "deskE1PhOtherLine": "Linkiem epic1, osobiście lub plikiem",
+  "deskPairDomainChecking": "Sprawdzanie {domain}…",
+  "deskPairDomainCheckingBody": "{name} podaje, że prowadzi {domain}. Jeśli domena to potwierdzi, nie trzeba porównywać słów.",
+  "deskPairDomainVerifiedBody": "{domain} potwierdza, że to portfel {name}. Bez porównywania słów."
 }

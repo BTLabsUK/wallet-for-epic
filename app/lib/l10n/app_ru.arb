@@ -5579,5 +5579,8 @@
   "deskSendDoneTo": "Отправлено: {name}",
   "deskSendDoneVia": "Отправлено {via}",
   "deskE1PhSetLine": "Ссылки, коды для личной оплаты и файлы",
-  "deskE1PhOtherLine": "По ссылке epic1, лично или файлом"
+  "deskE1PhOtherLine": "По ссылке epic1, лично или файлом",
+  "deskPairDomainChecking": "Проверка {domain}…",
+  "deskPairDomainCheckingBody": "{name} указывает, что владеет {domain}. Если домен это подтвердит, слова сравнивать не нужно.",
+  "deskPairDomainVerifiedBody": "{domain} подтверждает, что это кошелёк {name}. Сравнивать слова не нужно."
 }

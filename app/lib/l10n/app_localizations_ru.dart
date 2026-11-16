@@ -22058,4 +22058,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'По ссылке epic1, лично или файлом';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return 'Проверка $domain…';
+  }
+
+  @override
+  String deskPairDomainCheckingBody(String name, String domain) {
+    return '$name указывает, что владеет $domain. Если домен это подтвердит, слова сравнивать не нужно.';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain подтверждает, что это кошелёк $name. Сравнивать слова не нужно.';
+  }
 }

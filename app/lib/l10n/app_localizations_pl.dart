@@ -22063,4 +22063,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'Linkiem epic1, osobiście lub plikiem';
+
+  @override
+  String deskPairDomainChecking(String domain) {
+    return 'Sprawdzanie $domain…';
+  }
+
+  @override
+  String deskPairDomainCheckingBody(String name, String domain) {
+    return '$name podaje, że prowadzi $domain. Jeśli domena to potwierdzi, nie trzeba porównywać słów.';
+  }
+
+  @override
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain potwierdza, że to portfel $name. Bez porównywania słów.';
+  }
 }

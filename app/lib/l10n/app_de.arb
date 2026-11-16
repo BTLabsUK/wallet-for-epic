@@ -5579,5 +5579,8 @@
   "deskSendDoneTo": "Gesendet an {name}",
   "deskSendDoneVia": "Gesendet {via}",
   "deskE1PhSetLine": "Links, Codes für persönliche Zahlungen und Dateien",
-  "deskE1PhOtherLine": "Per epic1-Link, persönlich oder per Datei"
+  "deskE1PhOtherLine": "Per epic1-Link, persönlich oder per Datei",
+  "deskPairDomainChecking": "{domain} wird geprüft …",
+  "deskPairDomainCheckingBody": "{name} gibt an, {domain} zu betreiben. Bestätigt die Domain das, müssen Sie keine Wörter vergleichen.",
+  "deskPairDomainVerifiedBody": "{domain} bestätigt, dass dies die Wallet von {name} ist. Kein Wortvergleich nötig."
 }
