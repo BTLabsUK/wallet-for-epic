@@ -29223,5 +29223,9 @@
         "example": "via file"
       }
     }
+  },
+  "deskE1PhSetLine": "Links, in-person codes and files",
+  "@deskE1PhSetLine": {
+    "description": "Phone Settings › Payments: the one line under the epic1 payment method, what it pays with (no full stop, like the other methods' lines)."
   }
 }

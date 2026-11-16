@@ -5577,5 +5577,6 @@
   "deskSetSystemNotices": "การแจ้งเตือนของระบบ",
   "deskSetSynSystemNotices": "แจ้งเตือน, การแจ้งเตือน, แบนเนอร์, ป๊อปอัป, ได้รับการชำระเงิน, เดสก์ท็อป",
   "deskSendDoneTo": "ส่งถึง {name} แล้ว",
-  "deskSendDoneVia": "ส่งแล้ว {via}"
+  "deskSendDoneVia": "ส่งแล้ว {via}",
+  "deskE1PhSetLine": "ลิงก์ รหัสชำระแบบพบหน้า และไฟล์"
 }

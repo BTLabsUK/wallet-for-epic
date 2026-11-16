@@ -20261,4 +20261,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendDoneVia(String via) {
     return '已$via发送';
   }
+
+  @override
+  String get deskE1PhSetLine => '链接、面对面付款码和文件';
 }

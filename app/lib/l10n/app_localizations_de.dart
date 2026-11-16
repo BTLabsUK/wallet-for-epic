@@ -21680,4 +21680,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSendDoneVia(String via) {
     return 'Gesendet $via';
   }
+
+  @override
+  String get deskE1PhSetLine =>
+      'Links, Codes für persönliche Zahlungen und Dateien';
 }

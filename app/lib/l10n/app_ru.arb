@@ -5577,5 +5577,6 @@
   "deskSetSystemNotices": "Системные уведомления",
   "deskSetSynSystemNotices": "уведомления, оповещения, баннер, всплывающее, платёж получен, рабочий стол",
   "deskSendDoneTo": "Отправлено: {name}",
-  "deskSendDoneVia": "Отправлено {via}"
+  "deskSendDoneVia": "Отправлено {via}",
+  "deskE1PhSetLine": "Ссылки, коды для личной оплаты и файлы"
 }

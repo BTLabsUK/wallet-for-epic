@@ -5577,5 +5577,6 @@
   "deskSetSystemNotices": "Systembenachrichtigungen",
   "deskSetSynSystemNotices": "benachrichtigung, mitteilung, hinweis, banner, popup, zahlung erhalten, desktop",
   "deskSendDoneTo": "Gesendet an {name}",
-  "deskSendDoneVia": "Gesendet {via}"
+  "deskSendDoneVia": "Gesendet {via}",
+  "deskE1PhSetLine": "Links, Codes für persönliche Zahlungen und Dateien"
 }

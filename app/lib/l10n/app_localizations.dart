@@ -33540,6 +33540,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sent {via}'**
   String deskSendDoneVia(String via);
+
+  /// Phone Settings › Payments: the one line under the epic1 payment method, what it pays with (no full stop, like the other methods' lines).
+  ///
+  /// In en, this message translates to:
+  /// **'Links, in-person codes and files'**
+  String get deskE1PhSetLine;
 }
 
 class _AppLocalizationsDelegate

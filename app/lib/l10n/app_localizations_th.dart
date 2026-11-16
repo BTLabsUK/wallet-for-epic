@@ -21021,4 +21021,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendDoneVia(String via) {
     return 'ส่งแล้ว $via';
   }
+
+  @override
+  String get deskE1PhSetLine => 'ลิงก์ รหัสชำระแบบพบหน้า และไฟล์';
 }

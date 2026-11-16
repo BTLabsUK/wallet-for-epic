@@ -22057,4 +22057,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendDoneVia(String via) {
     return 'Wysłano $via';
   }
+
+  @override
+  String get deskE1PhSetLine => 'Linki, kody do płatności osobistych i pliki';
 }

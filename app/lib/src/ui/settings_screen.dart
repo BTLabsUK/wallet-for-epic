@@ -120,6 +120,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final payments = s.payments;
     final ways = [
       if (payments.offers(MethodKind.epicbox)) MethodIcons.groupName(l, MethodKind.epicbox),
+      if (ref.watch(epic1OnProvider)) l.deskE1SetSwitch,
       if (payments.offers(MethodKind.directQr)) l.phoneSettingsHubInPerson,
       if (payments.offers(MethodKind.directFile)) l.phoneSettingsHubFile,
       if (payments.offers(MethodKind.linkTor)) l.phoneSettingsHubTor,

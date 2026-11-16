@@ -21448,4 +21448,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendDoneVia(String via) {
     return 'Sent $via';
   }
+
+  @override
+  String get deskE1PhSetLine => 'Links, in-person codes and files';
 }

@@ -203,6 +203,19 @@ void main() {
       expect(epic1, lessThan(printed));
       // No mode rows, no pending line.
       expect(_e1(_l.deskE1SetSwitch), findsOneWidget);
+      // One line under the name, like the other methods.
+      expect(find.text(_l.deskE1PhSetLine), findsOneWidget);
+    });
+
+    testWidgets('the Settings row of Payments names epic1 while it is on', (tester) async {
+      String line(String epicbox) => '$epicbox, ${_l.deskE1SetSwitch}';
+      await _pump(tester, _session(), const SettingsScreen());
+      expect(find.textContaining(line('Epicbox')), findsOneWidget);
+    });
+
+    testWidgets('the Settings row of Payments leaves epic1 out while it is off', (tester) async {
+      await _pump(tester, _session(), const SettingsScreen(), epic1: false);
+      expect(find.textContaining(_l.deskE1SetSwitch), findsNothing);
     });
 
     testWidgets('turning it off applies at once: Printed links goes, the setting is kept', (tester) async {

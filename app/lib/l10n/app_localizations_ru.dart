@@ -22052,4 +22052,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendDoneVia(String via) {
     return 'Отправлено $via';
   }
+
+  @override
+  String get deskE1PhSetLine => 'Ссылки, коды для личной оплаты и файлы';
 }

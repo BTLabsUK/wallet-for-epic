@@ -5577,5 +5577,6 @@
   "deskSetSystemNotices": "Powiadomienia systemowe",
   "deskSetSynSystemNotices": "powiadomienia, alert, komunikat, baner, wyskakujące, płatność otrzymana, pulpit",
   "deskSendDoneTo": "Wysłano do {name}",
-  "deskSendDoneVia": "Wysłano {via}"
+  "deskSendDoneVia": "Wysłano {via}",
+  "deskE1PhSetLine": "Linki, kody do płatności osobistych i pliki"
 }
