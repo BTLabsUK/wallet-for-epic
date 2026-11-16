@@ -1717,6 +1717,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
       dismissible: false,
       builder: (_) => _ReviewDialog(
         draft: draft,
+        epicmail: draft.method == TxMethod.epicbox && relayListedAsEpicmail(ref.read(deskProvider).epicboxes, _relayOf(ref.read(deskProvider), draft.route)),
         startBusy: startBusy,
         checkPassword: api.checkPassword,
         // The core chooses the inputs again when it sends: an output that finished confirming
@@ -2601,6 +2602,7 @@ class _SendScreenState extends ConsumerState<_ClassicSend> {
     add(_RouteLine(
       key: ValueKey('send-route-${r.kind.name}'),
       to: r,
+      epicmail: relayListedAsEpicmail(st.epicboxes, _relayOf(st, r)),
       tag: sendRouteTag(l, r, phone: false, overTor: hold == null && sendOverTor(r, mode: mode, torOn: _torOn(st))),
       torStarts: hold == null && _torStarts(st),
       change: others.length < 2
@@ -3020,11 +3022,14 @@ class _MethodGlyph extends StatelessWidget {
 /// Over Tor), the host exactly as it will be contacted (the host in bold), "Tor starts when you
 /// send." for an onion while the Tor switch is off, and [change] for a contact's other addresses.
 class _RouteLine extends StatelessWidget {
-  const _RouteLine({super.key, required this.to, this.tag, this.torStarts = false, this.change});
+  const _RouteLine({super.key, required this.to, this.tag, this.torStarts = false, this.change, this.epicmail = false});
 
   final RecipientInput to;
   final String? tag;
   final bool torStarts;
+
+  /// The relay in the address is one the status site marks as Epicmail: the line says so.
+  final bool epicmail;
   final Widget? change;
 
   /// Where the line's text starts: the lines under it line up with it.
@@ -3041,7 +3046,7 @@ class _RouteLine extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final name = sendMethodName(l, to);
+    final name = epicmail && to.kind == RecipientInputKind.epicbox ? l.relayNameEpicmail : sendMethodName(l, to);
     final mono = ts.mono(size: Fs.xs, color: c.dim);
     final bold = mono.copyWith(color: c.text, fontWeight: FontWeight.w600);
     final where = switch (to.urlKind ?? to.kind) {
@@ -3403,9 +3408,12 @@ class _Suggestions extends StatelessWidget {
 }
 
 class _ReviewDialog extends StatefulWidget {
-  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false, this.checkPassword, this.recheck});
+  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false, this.checkPassword, this.recheck, this.epicmail = false});
 
   final _Draft draft;
+
+  /// An Epicbox send through a relay the status site marks as Epicmail: Via says Epicmail.
+  final bool epicmail;
   final Future<SendResult> Function(_Draft draft) onConfirm;
   final bool startBusy;
 
@@ -3625,7 +3633,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 key: const ValueKey('send-review-via'),
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(route != null && route.isAddress ? sendMethodName(l, route) : via, style: ts.body),
+                  Text(
+                    d.method == TxMethod.epicbox && widget.epicmail ? l.relayNameEpicmail : (route != null && route.isAddress ? sendMethodName(l, route) : via),
+                    style: ts.body,
+                  ),
                   if (d.method != TxMethod.file) Text(d.method == TxMethod.epicbox ? l.sendFactOffline : l.sendFactOnline, style: ts.small),
                 ],
               ),

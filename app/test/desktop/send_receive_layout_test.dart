@@ -85,12 +85,14 @@ Future<_Wallet> _pump(WidgetTester tester, Widget screen) async {
 }
 
 /// Review, then the password the send asks for, then the confirm.
-Future<void> _reviewAndSend(WidgetTester tester) async {
+/// Opens the review and sends; [atReview] checks the review dialog before the send.
+Future<void> _reviewAndSend(WidgetTester tester, {void Function()? atReview}) async {
   await tester.ensureVisible(find.widgetWithText(EButton, _l.deskSendReview));
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
   await tester.pumpAndSettle();
   expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
+  atReview?.call();
   await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
   await tester.pump();
   await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.semanticsId == TrustIds.sendConfirm));
@@ -140,8 +142,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.descendant(of: via, matching: find.text(_l.relayNameEpicmail)), findsOneWidget);
     expect(find.descendant(of: via, matching: find.byIcon(EIcons.epicbox)), findsOneWidget);
+    // The line under the address names it the same way.
+    final route = find.byKey(const ValueKey('send-route-epicbox'));
+    expect(find.descendant(of: route, matching: find.text(_l.relayNameEpicmail)), findsOneWidget);
+    expect(find.descendant(of: route, matching: find.text(_l.methodEpicbox)), findsNothing);
 
-    await _reviewAndSend(tester);
+    await _reviewAndSend(
+      tester,
+      atReview: () {
+        // Check and send's Via row too.
+        final reviewVia = find.byKey(const ValueKey('send-review-via'));
+        expect(find.descendant(of: reviewVia, matching: find.text(_l.relayNameEpicmail)), findsOneWidget);
+        expect(find.descendant(of: reviewVia, matching: find.text(_l.methodEpicbox)), findsNothing);
+      },
+    );
     expect(find.descendant(of: _sent, matching: find.text(_l.relayNameEpicmail)), findsOneWidget);
     expect(find.descendant(of: _sent, matching: find.text(_l.methodEpicbox)), findsNothing);
   });
