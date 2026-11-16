@@ -20,8 +20,10 @@ void mockLaneLog(String line) {
 
 var _busy = false;
 
-/// [app] in a boundary that can be pictured, when the lane asked for it.
+/// [app] in a boundary that can be pictured, when the lane asked for it; [app] alone in any build
+/// but the mock one.
 Widget mockShots(Widget app) {
+  if (!const bool.fromEnvironment('WFE_DESK_MOCK')) return app;
   final dir = Platform.environment['WFE_MOCK_SHOT_DIR'];
   if (dir == null || dir.isEmpty) return app;
   Timer.periodic(const Duration(milliseconds: 300), (_) => unawaited(_take(dir)));

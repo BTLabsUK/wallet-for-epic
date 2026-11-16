@@ -116,6 +116,10 @@ final deskWindowProvider = Provider<DeskWindow>((ref) => DeskWindow.none);
 class MacDeskWindow extends DeskWindow with WindowListener {
   MacDeskWindow._();
 
+  /// One not yet tied to window_manager: the tests call its listener methods.
+  @visibleForTesting
+  factory MacDeskWindow.detached() => MacDeskWindow._();
+
   /// Null on any other platform.
   static Future<MacDeskWindow?> init() async {
     if (kIsWeb || !Platform.isMacOS) return null;
