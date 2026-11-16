@@ -430,6 +430,9 @@ class FakeEpic1 implements Epic1Wallet {
   /// What [readLink] reports as the link's hosts; default one relay in the list.
   List<Epic1Host> linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true)];
 
+  /// What [readLink] reports as the link's message; none by default.
+  String? linkMessage;
+
   final List<Epic1LinkSlot> _links = [];
   final Map<String, InPersonStatus> _codes = {};
   final List<Epic1Answer> answerList = [];
@@ -477,7 +480,7 @@ class FakeEpic1 implements Epic1Wallet {
       throw const WalletError(kind: WalletErrorKind.epic1CannotPay, message: 'the link names no server');
     }
     final amount = RegExp(r'amount=(\d+)').firstMatch(link)?[1];
-    return Epic1LinkInfo(address: link.split('?').first.replaceFirst('epic:', ''), amount: amount == null ? null : BigInt.parse(amount), hosts: linkHosts);
+    return Epic1LinkInfo(address: link.split('?').first.replaceFirst('epic:', ''), amount: amount == null ? null : BigInt.parse(amount), message: linkMessage, hosts: linkHosts);
   }
 
   Epic1Payment _post(int txId, String slateId, String address, List<Epic1Attempt> before) {

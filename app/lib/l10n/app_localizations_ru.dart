@@ -20002,9 +20002,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskE1CancelUnlock => 'Отменить и разблокировать';
 
   @override
-  String get deskE1Sent => 'Отправлено';
-
-  @override
   String get deskE1Cancelled => 'Платёж отменён';
 
   @override
@@ -22058,4 +22055,26 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'По ссылке epic1, лично или файлом';
+
+  @override
+  String get deskE1PaymentLink => 'Платёжная ссылка';
+
+  @override
+  String get deskE1LinkNote => 'Заметка получателя';
+
+  @override
+  String get deskE1AmountFixed => 'Задано получателем';
+
+  @override
+  String get deskPaySentTitle => 'Платёж отправлен';
+
+  @override
+  String get deskPaySentBody =>
+      'Он виден на «Главной» и в «Активности», пока не завершится.';
+
+  @override
+  String get deskPaySentWaiting => 'Ждём кошелёк получателя';
+
+  @override
+  String get deskPaySentPosted => 'Отправлено в сеть, ждёт блок';
 }

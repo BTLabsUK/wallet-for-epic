@@ -66,6 +66,8 @@
 {"id": "g4.send.password", "screen": "send_review", "family": ["desktop"], "role": "text_field", "keys": ["deskSendPassword"], "names": ["Password"], "secret": true},
 {"id": "g4.send.confirm", "screen": "send_review", "keys": ["deskSendConfirm"], "names": ["re:send [\\d.,]+ epic"], "match": "exact", "android": {"names": ["re:send [\\d.,]+ ?epic"]}},
 {"id": "g4.send.another", "screen": "send_done", "family": ["desktop"], "keys": ["deskSendNewSend"], "names": ["Send another"]},
+{"id": "g4.send.sent.activity", "screen": "send_sent", "family": ["desktop"], "keys": ["deskSendViewTx"], "names": ["View in Activity"], "driver": false},
+{"id": "g4.send.sent.done", "screen": "send_sent", "family": ["desktop"], "keys": ["commonDone"], "names": ["Done"], "driver": false},
 {"id": "g4.send.route.paired", "screen": "send", "keys": ["sendRoutePaired"], "names": ["Paired address"], "match": "exact"},
 {"id": "g4.send.route.public", "screen": "send", "keys": ["sendRoutePublic"], "names": ["Public address"], "match": "exact", "many": true},
 {"id": "g4.overview.refresh", "screen": "overview", "family": ["desktop"], "keys": ["deskOvRefresh"], "driver": false},

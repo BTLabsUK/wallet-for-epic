@@ -18345,9 +18345,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskE1CancelUnlock => '取消并解锁';
 
   @override
-  String get deskE1Sent => '已发送';
-
-  @override
   String get deskE1Cancelled => '付款已取消';
 
   @override
@@ -20267,4 +20264,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'epic1 链接、当面，或用文件';
+
+  @override
+  String get deskE1PaymentLink => '付款链接';
+
+  @override
+  String get deskE1LinkNote => '收款方的备注';
+
+  @override
+  String get deskE1AmountFixed => '由收款方设定';
+
+  @override
+  String get deskPaySentTitle => '付款已发送';
+
+  @override
+  String get deskPaySentBody => '完成之前，它会显示在首页和“活动”中。';
+
+  @override
+  String get deskPaySentWaiting => '等待收款方的钱包';
+
+  @override
+  String get deskPaySentPosted => '已广播到网络，等待打包进区块';
 }

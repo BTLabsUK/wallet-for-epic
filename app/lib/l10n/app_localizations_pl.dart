@@ -20017,9 +20017,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskE1CancelUnlock => 'Anuluj i odblokuj';
 
   @override
-  String get deskE1Sent => 'Wysłano';
-
-  @override
   String get deskE1Cancelled => 'Płatność anulowana';
 
   @override
@@ -22063,4 +22060,26 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'Linkiem epic1, osobiście lub plikiem';
+
+  @override
+  String get deskE1PaymentLink => 'Link do płatności';
+
+  @override
+  String get deskE1LinkNote => 'Notatka od odbiorcy';
+
+  @override
+  String get deskE1AmountFixed => 'Ustalona przez odbiorcę';
+
+  @override
+  String get deskPaySentTitle => 'Płatność wysłana';
+
+  @override
+  String get deskPaySentBody =>
+      'Widać ją na ekranie Start i w Aktywności, aż się zakończy.';
+
+  @override
+  String get deskPaySentWaiting => 'Oczekiwanie na portfel odbiorcy';
+
+  @override
+  String get deskPaySentPosted => 'Opublikowana w sieci, czeka na blok';
 }

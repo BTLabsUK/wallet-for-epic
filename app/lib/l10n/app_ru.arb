@@ -4976,7 +4976,6 @@
   "deskE1NotPosted": "Ни один сервер ещё не принял платёж.",
   "deskE1TryNext": "Попробовать следующий сервер",
   "deskE1CancelUnlock": "Отменить и разблокировать",
-  "deskE1Sent": "Отправлено",
   "deskE1Cancelled": "Платёж отменён",
   "deskE1Done": "Готово",
   "deskE1PayInPerson": "Оплатить лично",
@@ -5579,5 +5578,12 @@
   "deskSendDoneTo": "Отправлено: {name}",
   "deskSendDoneVia": "Отправлено {via}",
   "deskE1PhSetLine": "Ссылки, коды для личной оплаты и файлы",
-  "deskE1PhOtherLine": "По ссылке epic1, лично или файлом"
+  "deskE1PhOtherLine": "По ссылке epic1, лично или файлом",
+  "deskE1PaymentLink": "Платёжная ссылка",
+  "deskE1LinkNote": "Заметка получателя",
+  "deskE1AmountFixed": "Задано получателем",
+  "deskPaySentTitle": "Платёж отправлен",
+  "deskPaySentBody": "Он виден на «Главной» и в «Активности», пока не завершится.",
+  "deskPaySentWaiting": "Ждём кошелёк получателя",
+  "deskPaySentPosted": "Отправлено в сеть, ждёт блок"
 }

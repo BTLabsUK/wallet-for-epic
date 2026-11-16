@@ -4976,7 +4976,6 @@
   "deskE1NotPosted": "ยังไม่มีเซิร์ฟเวอร์รับการชำระเงิน",
   "deskE1TryNext": "ลองเซิร์ฟเวอร์ถัดไป",
   "deskE1CancelUnlock": "ยกเลิกและปลดล็อก",
-  "deskE1Sent": "ส่งแล้ว",
   "deskE1Cancelled": "ยกเลิกการชำระเงินแล้ว",
   "deskE1Done": "เสร็จ",
   "deskE1PayInPerson": "จ่ายต่อหน้า",
@@ -5579,5 +5578,12 @@
   "deskSendDoneTo": "ส่งถึง {name} แล้ว",
   "deskSendDoneVia": "ส่งแล้ว {via}",
   "deskE1PhSetLine": "ลิงก์ รหัสชำระแบบพบหน้า และไฟล์",
-  "deskE1PhOtherLine": "ลิงก์ epic1 ตัวต่อตัว หรือด้วยไฟล์"
+  "deskE1PhOtherLine": "ลิงก์ epic1 ตัวต่อตัว หรือด้วยไฟล์",
+  "deskE1PaymentLink": "ลิงก์ชำระเงิน",
+  "deskE1LinkNote": "ข้อความจากผู้รับ",
+  "deskE1AmountFixed": "กำหนดโดยผู้รับ",
+  "deskPaySentTitle": "ส่งการชำระเงินแล้ว",
+  "deskPaySentBody": "แสดงที่หน้าแรกและในประวัติจนกว่าจะสำเร็จ",
+  "deskPaySentWaiting": "รอกระเป๋าของผู้รับ",
+  "deskPaySentPosted": "ส่งเข้าเครือข่ายแล้ว รอเข้าบล็อก"
 }

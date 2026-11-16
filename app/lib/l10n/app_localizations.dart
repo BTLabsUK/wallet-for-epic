@@ -30163,12 +30163,6 @@ abstract class AppLocalizations {
   /// **'Cancel and unlock'**
   String get deskE1CancelUnlock;
 
-  /// Send (epic1 mode): the payment is done.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent'**
-  String get deskE1Sent;
-
   /// Send (epic1 mode): the payment was cancelled.
   ///
   /// In en, this message translates to:
@@ -33552,6 +33546,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An epic1 link, in person, or with a file'**
   String get deskE1PhOtherLine;
+
+  /// Send (epic1 mode): under the recipient's address once an epic1 link was read, and the method's name in the Payment sent modal.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment link'**
+  String get deskE1PaymentLink;
+
+  /// Send (epic1 mode): small label over the note the recipient wrote into the payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'Note from the recipient'**
+  String get deskE1LinkNote;
+
+  /// Send (epic1 mode): badge beside an amount the payment link fixes; it cannot be changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Set by the recipient'**
+  String get deskE1AmountFixed;
+
+  /// Title of the modal after a payment went out, and of the toast when the payment was answered after the modal was closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment sent'**
+  String get deskPaySentTitle;
+
+  /// Sentence under the title of the Payment sent modal. Home and Activity are screens of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'It shows on Home and under Activity until it completes.'**
+  String get deskPaySentBody;
+
+  /// Status line of the Payment sent modal: the payment waits for the other wallet's answer, and no contact names it.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the recipient’s wallet'**
+  String get deskPaySentWaiting;
+
+  /// Status line of the Payment sent modal: both wallets signed, the network has the payment, no block holds it yet. No full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted to the network, waiting for a block'**
+  String get deskPaySentPosted;
 }
 
 class _AppLocalizationsDelegate

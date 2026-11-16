@@ -19014,9 +19014,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskE1CancelUnlock => 'ยกเลิกและปลดล็อก';
 
   @override
-  String get deskE1Sent => 'ส่งแล้ว';
-
-  @override
   String get deskE1Cancelled => 'ยกเลิกการชำระเงินแล้ว';
 
   @override
@@ -21027,4 +21024,25 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'ลิงก์ epic1 ตัวต่อตัว หรือด้วยไฟล์';
+
+  @override
+  String get deskE1PaymentLink => 'ลิงก์ชำระเงิน';
+
+  @override
+  String get deskE1LinkNote => 'ข้อความจากผู้รับ';
+
+  @override
+  String get deskE1AmountFixed => 'กำหนดโดยผู้รับ';
+
+  @override
+  String get deskPaySentTitle => 'ส่งการชำระเงินแล้ว';
+
+  @override
+  String get deskPaySentBody => 'แสดงที่หน้าแรกและในประวัติจนกว่าจะสำเร็จ';
+
+  @override
+  String get deskPaySentWaiting => 'รอกระเป๋าของผู้รับ';
+
+  @override
+  String get deskPaySentPosted => 'ส่งเข้าเครือข่ายแล้ว รอเข้าบล็อก';
 }

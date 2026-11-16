@@ -1,0 +1,18 @@
+{
+  "deskPaySentTitle": "Payment sent",
+  "@deskPaySentTitle": {
+    "description": "Title of the modal after a payment went out, and of the toast when the payment was answered after the modal was closed."
+  },
+  "deskPaySentBody": "It shows on Home and under Activity until it completes.",
+  "@deskPaySentBody": {
+    "description": "Sentence under the title of the Payment sent modal. Home and Activity are screens of the app."
+  },
+  "deskPaySentWaiting": "Waiting for the recipient’s wallet",
+  "@deskPaySentWaiting": {
+    "description": "Status line of the Payment sent modal: the payment waits for the other wallet's answer, and no contact names it."
+  },
+  "deskPaySentPosted": "Posted to the network, waiting for a block",
+  "@deskPaySentPosted": {
+    "description": "Status line of the Payment sent modal: both wallets signed, the network has the payment, no block holds it yet. No full stop."
+  }
+}

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // epic1 as a payment method on the desktop: its row in Settings › Payments (on by default, applied
 // at once); Receive's epic1 panel beside the classic address; Send and Home taking an epic1 link
-// and a classic address in one session; the off stop; contacts paid by an epic1 link.
+// and a classic address in one session, a read link's recipient row and the Payment sent modal
+// over the waiting page; the off stop; contacts paid by an epic1 link.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/epic1/send_link.dart' show Epic1SendPage;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show settingsPrefsProvider;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart' show SendArgs;
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart' show ContactsArgs;
@@ -24,7 +26,9 @@ final _l = englishStrings;
 /// The text [s] on stage: plain, or drawn with the epic1 wordmark in place of the word.
 Finder _say(String s) => find.byWidgetPredicate((w) => (w is Text && w.data == s) || (w is Epic1Text && w.text == s));
 
-const _link = 'epic:epic1qtestlink0000000000000000000000000000?amount=150000000';
+const _address = 'epic1qtestlink0000000000000000000000000000';
+const _link = 'epic:$_address?amount=150000000';
+const _openLink = 'epic:$_address?epicbox=relay.example.invalid';
 
 /// The mock wallet with one epic1 payment in the list once [e1State] is set (the fake's first
 /// payment is tx 1).
@@ -93,10 +97,45 @@ Future<void> _tap(WidgetTester tester, String key) async {
 
 /// Pastes the epic1 link into the classic Send form's To field (one change of 8 or more
 /// characters is a paste).
-Future<void> _pasteLink(WidgetTester tester) async {
-  await tester.enterText(find.byType(EditableText).first, _link);
+Future<void> _pasteLink(WidgetTester tester, [String link = _link]) async {
+  await tester.enterText(find.byType(EditableText).first, link);
   await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
   await _settle(tester);
+}
+
+/// The address in the recipient's row of the epic1 page, once the link is read.
+String _recipient(WidgetTester tester) =>
+    tester.widget<Epic1ShortAddress>(find.descendant(of: find.byKey(const ValueKey('e1-recipient')), matching: find.byType(Epic1ShortAddress))).address;
+
+/// Send with [_link] pasted, read, reviewed and paid: the payment waits for its answer.
+Future<void> _pay(WidgetTester tester) async {
+  await _open(tester, DeskRoute.send);
+  await _pasteLink(tester);
+  await _tap(tester, 'e1-review');
+  _wallet.e1State = TxState.waitingRecipient;
+  await _tap(tester, 'e1-send');
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+  await _settle(tester);
+}
+
+/// The payment's row becomes [state] and the wallet's list is read again.
+Future<void> _become(WidgetTester tester, TxState state) async {
+  _wallet.e1State = state;
+  await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
+  await _settle(tester);
+}
+
+final _sent = find.byKey(const ValueKey('payment-sent'));
+
+/// [text] on the modal's status line.
+Finder _now(String text) => find.descendant(of: find.byKey(const ValueKey('payment-sent-now')), matching: find.text(text));
+
+/// Send's start is on stage: the classic form, its To empty and focused.
+void _expectStart(WidgetTester tester) {
+  expect(find.byType(Epic1SendPage), findsNothing);
+  final to = tester.widget<EditableText>(find.byType(EditableText).first);
+  expect(to.controller.text, isEmpty);
+  expect(to.focusNode.hasFocus, isTrue);
 }
 
 Finder _field(String key) => find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(EditableText));
@@ -203,13 +242,13 @@ void main() {
   });
 
   group('Send', () {
-    testWidgets('an epic1 link pasted into the classic form asks first, then review, waiting, Sent', (tester) async {
+    testWidgets('an epic1 link pasted into the classic form asks first, then review, the modal over the waiting page', (tester) async {
       await _open(tester, DeskRoute.send);
       _wallet.epic1Fake.linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443)];
       // The classic form is the start.
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       await _pasteLink(tester);
-      expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsOneWidget);
       expect(find.byKey(const ValueKey('e1-unknown-server')), findsOneWidget);
       expect(find.text(_l.deskE1UnknownServerTitle), findsOneWidget);
       await _tap(tester, 'e1-use-server');
@@ -226,15 +265,25 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await _settle(tester);
       expect(_wallet.epic1Fake.calls, contains('payLink'));
+      expect(_sent, findsOneWidget);
+      expect(find.text(_l.deskPaySentTitle), findsOneWidget);
+      expect(find.descendant(of: _sent, matching: find.text(_l.deskE1PaymentLink)), findsOneWidget);
+      expect(_now(_l.deskPaySentWaiting), findsOneWidget);
+      // Under the modal the page waits, with its ways out.
       expect(find.byKey(const ValueKey('e1-waiting')), findsOneWidget);
       expect(find.text(_l.deskE1Waiting), findsWidgets);
       expect(find.byKey(const ValueKey('e1-try-next')), findsOneWidget);
       expect(find.byKey(const ValueKey('e1-cancel-unlock')), findsOneWidget);
 
-      _wallet.e1State = TxState.posted;
-      await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
-      await _settle(tester);
-      expect(find.byKey(const ValueKey('e1-sent')), findsOneWidget);
+      // Answered: the modal's line moves on and the page has nothing left to wait for.
+      await _become(tester, TxState.posted);
+      expect(_now(_l.deskPaySentPosted), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-waiting')), findsNothing);
+
+      // Done closes the modal and Send is at its start, the classic form.
+      await _tap(tester, 'payment-sent-done');
+      expect(_sent, findsNothing);
+      _expectStart(tester);
     });
 
     testWidgets('a link on a listed server reviews with no question and pays', (tester) async {
@@ -249,7 +298,120 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await _settle(tester);
       expect(_wallet.epic1Fake.calls, contains('payLink'));
+      expect(_sent, findsOneWidget);
       expect(find.byKey(const ValueKey('e1-waiting')), findsOneWidget);
+    });
+
+    testWidgets('the modal\'s line follows the payment to Completed', (tester) async {
+      await _pay(tester);
+      expect(_now(_l.deskPaySentWaiting), findsOneWidget);
+      expect(find.descendant(of: _sent, matching: find.byType(ESpinner)), findsOneWidget);
+
+      await _become(tester, TxState.confirming);
+      expect(_now(_l.deskPaySentPosted), findsOneWidget, reason: 'no block has it yet');
+
+      await _become(tester, TxState.confirmed);
+      expect(_now(_l.deskTxStepSpendable), findsOneWidget);
+      expect(find.descendant(of: _sent, matching: find.byType(ESpinner)), findsNothing);
+      expect(find.descendant(of: _sent, matching: find.byIcon(EIcons.check)), findsOneWidget);
+    });
+
+    testWidgets('the modal shows the seal only for a sealed payment', (tester) async {
+      await _pay(tester);
+      expect(find.descendant(of: _sent, matching: find.byKey(epic1SealedKey)), findsNothing);
+      _wallet.e1Sealed = true;
+      await _become(tester, TxState.waitingRecipient);
+      expect(find.descendant(of: _sent, matching: find.byKey(epic1SealedKey)), findsOneWidget);
+    });
+
+    testWidgets('View in Activity opens the payment there', (tester) async {
+      await _pay(tester);
+      await _tap(tester, 'payment-sent-activity');
+      expect(_sent, findsNothing);
+      final at = _container.read(deskNavProvider);
+      expect(at.route, DeskRoute.activity);
+      expect(at.arg, 1);
+    });
+
+    testWidgets('answered under the open modal, View in Activity still goes to Activity', (tester) async {
+      await _pay(tester);
+      await _become(tester, TxState.posted);
+      await _tap(tester, 'payment-sent-activity');
+      expect(_container.read(deskNavProvider).route, DeskRoute.activity);
+    });
+
+    testWidgets('with the modal closed the page waits, then a toast says Payment sent at Send\'s start', (tester) async {
+      await _pay(tester);
+      await _tap(tester, 'payment-sent-done');
+      expect(_sent, findsNothing);
+      expect(find.byKey(const ValueKey('e1-waiting')), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-try-next')), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-cancel-unlock')), findsOneWidget);
+
+      await _become(tester, TxState.posted);
+      expect(find.text(_l.deskPaySentTitle), findsOneWidget);
+      _expectStart(tester);
+    });
+
+    testWidgets('a cancelled payment keeps its card, and the modal says so', (tester) async {
+      await _pay(tester);
+      await _become(tester, TxState.cancelled);
+      expect(_now(_l.deskTxStatusCancelled), findsOneWidget);
+      await _tap(tester, 'payment-sent-done');
+      expect(find.byKey(const ValueKey('e1-cancelled')), findsOneWidget);
+      await _tap(tester, 'e1-done');
+      _expectStart(tester);
+    });
+
+    testWidgets('a payment no server took shows no modal until one takes it', (tester) async {
+      await _open(tester, DeskRoute.send);
+      _wallet.epic1Fake
+        ..linkHosts = const [Epic1Host(host: 'relay.example.invalid', port: 443, inRelayList: true), Epic1Host(host: 'next.example.invalid', port: 443, inRelayList: true)]
+        ..failPosts.add('relay.example.invalid');
+      await _pasteLink(tester);
+      await _tap(tester, 'e1-review');
+      _wallet.e1State = TxState.waitingRecipient;
+      await _tap(tester, 'e1-send');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
+      expect(_sent, findsNothing);
+      expect(find.byKey(const ValueKey('e1-not-posted')), findsOneWidget);
+
+      await _tap(tester, 'e1-try-next');
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
+      expect(_sent, findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-not-posted')), findsNothing);
+    });
+
+    testWidgets('a read link shows the recipient, its note, the seal line and the fixed amount', (tester) async {
+      await _open(tester, DeskRoute.send);
+      _wallet.epic1Fake.linkMessage = 'Quest';
+      await _pasteLink(tester);
+      // The recipient's row stands in the field's place.
+      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(_recipient(tester), _address);
+      expect(find.descendant(of: find.byKey(const ValueKey('e1-recipient')), matching: find.text(_l.deskE1PaymentLink)), findsOneWidget);
+      // The note is its own block: a label, then the text as written.
+      expect(find.text(_l.deskE1LinkNote), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(const ValueKey('e1-link-message'))).data, 'Quest');
+      expect(find.byKey(const ValueKey('e1-seal')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('e1-amount-set')), matching: find.text(_l.deskE1AmountFixed)), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-amount-fixed')), findsOneWidget);
+      // The summary names the route with no server under it.
+      final via = find.byKey(const ValueKey('send-summary-via'));
+      expect(find.descendant(of: via, matching: find.text(_l.methodEpicbox)), findsOneWidget);
+      expect(find.descendant(of: via, matching: find.textContaining('relay.example.invalid')), findsNothing);
+    });
+
+    testWidgets('a link with no amount and no note has no badge and no note block', (tester) async {
+      await _open(tester, DeskRoute.send);
+      await _pasteLink(tester, _openLink);
+      expect(find.byKey(const ValueKey('e1-recipient')), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-seal')), findsOneWidget);
+      expect(find.text(_l.deskE1LinkNote), findsNothing);
+      expect(find.byKey(const ValueKey('e1-amount-set')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-amount')), findsOneWidget);
     });
 
     testWidgets('a link through a listed server the wallet is not on reviews with no question', (tester) async {
@@ -303,11 +465,11 @@ void main() {
       expect(find.byKey(const ValueKey('e1-amount-fixed')), findsNothing);
     });
 
-    testWidgets('Send opened with a link shows it in the field, ready to review', (tester) async {
+    testWidgets('Send opened with a link shows its recipient, ready to review', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(code: _link));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
-      expect(tester.widget<EditableText>(_field('e1-send-to')).controller.text, _link);
+      expect(_recipient(tester), _address);
       expect(find.byKey(const ValueKey('e1-amount-fixed')), findsOneWidget);
       await _tap(tester, 'e1-review');
       expect(find.byKey(const ValueKey('e1-review-panel')), findsOneWidget);
@@ -317,7 +479,7 @@ void main() {
       await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'https://$_link'));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
-      expect(tester.widget<EditableText>(_field('e1-send-to')).controller.text, _link);
+      expect(_recipient(tester), _address);
     });
 
     testWidgets('To cleared goes back to the classic form; typed empty, the amount stays', (tester) async {
@@ -325,7 +487,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
       await _tap(tester, 'e1-clear');
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       expect(find.byKey(const ValueKey('e1-review')), findsNothing);
 
       const open = 'epic:epic1qtestlink0000000000000000000000000000';
@@ -335,13 +497,13 @@ void main() {
       await tester.enterText(_field('e1-amount'), '2,5');
       await tester.enterText(_field('e1-send-to'), '');
       await _settle(tester);
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       expect(find.byWidgetPredicate((w) => w is EditableText && w.controller.text == '2,5'), findsOneWidget);
     });
 
     testWidgets('an amount from Home opens the classic Send with it', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(amount: '12,5'));
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       expect(find.byWidgetPredicate((w) => w is EditableText && w.controller.text == '12,5'), findsOneWidget);
     });
 
@@ -351,18 +513,18 @@ void main() {
       await tester.enterText(find.byType(EditableText).first, anna.address);
       await _settle(tester);
       // The classic address stays in the classic form, with no mode line.
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       expect(find.byKey(const ValueKey('e1-mode-dialog')), findsNothing);
 
       _container.read(deskNavProvider.notifier).reset(DeskRoute.send, const SendArgs(code: _link));
       await _settle(tester);
-      expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsOneWidget);
     });
 
     testWidgets('epic1 off: a link stops with the off line and its Settings action', (tester) async {
       await _open(tester, DeskRoute.send, epic1: false);
       await _pasteLink(tester);
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       expect(find.byKey(const ValueKey('e1-mode-dialog')), findsOneWidget);
       expect(_say(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('e1-mode-settings')));
@@ -378,7 +540,7 @@ void main() {
         await tester.enterText(to, _link.substring(0, n > _link.length ? _link.length : n));
         await tester.pump();
       }
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await _settle(tester);
@@ -387,14 +549,14 @@ void main() {
     testWidgets('a link typed into the classic form is read once To is left', (tester) async {
       await _open(tester, DeskRoute.send);
       await typeAndLeave(tester);
-      expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsOneWidget);
     });
 
     testWidgets('the typed link cleared on the epic1 form: the classic form is empty, To focused', (tester) async {
       await _open(tester, DeskRoute.send);
       await typeAndLeave(tester);
       await _tap(tester, 'e1-clear');
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       final to = tester.widget<EditableText>(find.byType(EditableText).first);
       expect(to.controller.text, isEmpty);
       expect(to.focusNode.hasFocus, isTrue);
@@ -403,7 +565,7 @@ void main() {
     testWidgets('epic1 off: a typed link gets the off line under To', (tester) async {
       await _open(tester, DeskRoute.send, epic1: false);
       await typeAndLeave(tester);
-      expect(find.byKey(const ValueKey('e1-send-to')), findsNothing);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsNothing);
       expect(find.byKey(const ValueKey('e1-mode-dialog')), findsNothing);
       expect(_say(_l.netBlockMethodOff(_l.deskE1SetSwitch)), findsOneWidget);
     });
@@ -430,8 +592,8 @@ void main() {
       expect(find.byKey(const ValueKey('contact-no-address')), findsNothing);
       expect(tester.widget<EButton>(find.byKey(const ValueKey('contact-send'))).onPressed, isNotNull);
       await _tap(tester, 'contact-send');
-      expect(find.byKey(const ValueKey('e1-send-to')), findsOneWidget);
-      expect(tester.widget<EditableText>(_field('e1-send-to')).controller.text, _link);
+      expect(find.byKey(const ValueKey('e1-send-form')), findsOneWidget);
+      expect(_recipient(tester), _address);
 
       await tester.runAsync(() async {
         final n = _container.read(deskProvider.notifier);

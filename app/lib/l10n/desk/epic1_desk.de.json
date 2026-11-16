@@ -37,9 +37,11 @@
   "deskE1NotPosted": "Noch kein Server hat die Zahlung angenommen.",
   "deskE1TryNext": "Nächsten Server versuchen",
   "deskE1CancelUnlock": "Abbrechen und freigeben",
-  "deskE1Sent": "Gesendet",
   "deskE1Cancelled": "Zahlung abgebrochen",
   "deskE1Done": "Fertig",
   "deskE1PayInPerson": "Persönlich bezahlen",
-  "deskE1Back": "Zurück"
+  "deskE1Back": "Zurück",
+  "deskE1PaymentLink": "Zahlungslink",
+  "deskE1LinkNote": "Notiz des Empfängers",
+  "deskE1AmountFixed": "Vom Empfänger festgelegt"
 }

@@ -46,6 +46,54 @@ class EShortAddress extends StatelessWidget {
   }
 }
 
+/// An epic1 address cut in the middle, mono, its first seven and last six characters in the
+/// accent: the parts people compare. The long cut gives way to the short one when the row is
+/// narrow, or at once when [compact]. The whole address is the screen-reader label.
+class Epic1ShortAddress extends StatelessWidget {
+  const Epic1ShortAddress(this.address, {super.key, this.compact = false});
+
+  final String address;
+  final bool compact;
+
+  static const _head = 7;
+  static const _tail = 6;
+
+  /// [address] with its first [lead] and last [trail] characters around "…", the ends marked.
+  TextSpan _cut(TextStyle st, Color accent, {required int lead, required int trail}) {
+    final shown = lead + trail < address.length ? '${address.substring(0, lead)}…${address.substring(address.length - trail)}' : address;
+    if (shown.length < _head + _tail) return TextSpan(text: shown, style: st);
+    final mark = st.copyWith(color: accent, fontWeight: FontWeight.w600);
+    return TextSpan(
+      style: st,
+      children: [
+        TextSpan(text: shown.substring(0, _head), style: mark),
+        TextSpan(text: shown.substring(_head, shown.length - _tail)),
+        TextSpan(text: shown.substring(shown.length - _tail), style: mark),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final st = context.ts.mono(size: Fs.sm, color: c.text);
+    final short = _cut(st, c.accentText, lead: _head + 2, trail: _tail);
+    Widget text(TextSpan span) => Text.rich(span, maxLines: 1, softWrap: false, overflow: TextOverflow.clip, semanticsLabel: address);
+    if (compact) return text(short);
+    final long = _cut(st, c.accentText, lead: 27, trail: 12);
+    final scaler = MediaQuery.textScalerOf(context);
+    final dir = Directionality.of(context);
+    return LayoutBuilder(
+      builder: (context, box) {
+        final tp = TextPainter(text: long, textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+        final fits = tp.width + addressDrawSlack <= box.maxWidth;
+        tp.dispose();
+        return text(fits ? long : short);
+      },
+    );
+  }
+}
+
 /// An address in full where a detail view shows it (never cut): the checked part in chunks
 /// of as many characters as the column holds (measured from the mono style; [chunk] caps
 /// it), one per line, its first and last six in the accent as on Receive; a server part

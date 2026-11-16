@@ -4976,7 +4976,6 @@
   "deskE1NotPosted": "Noch kein Server hat die Zahlung angenommen.",
   "deskE1TryNext": "Nächsten Server versuchen",
   "deskE1CancelUnlock": "Abbrechen und freigeben",
-  "deskE1Sent": "Gesendet",
   "deskE1Cancelled": "Zahlung abgebrochen",
   "deskE1Done": "Fertig",
   "deskE1PayInPerson": "Persönlich bezahlen",
@@ -5579,5 +5578,12 @@
   "deskSendDoneTo": "Gesendet an {name}",
   "deskSendDoneVia": "Gesendet {via}",
   "deskE1PhSetLine": "Links, Codes für persönliche Zahlungen und Dateien",
-  "deskE1PhOtherLine": "Per epic1-Link, persönlich oder per Datei"
+  "deskE1PhOtherLine": "Per epic1-Link, persönlich oder per Datei",
+  "deskE1PaymentLink": "Zahlungslink",
+  "deskE1LinkNote": "Notiz des Empfängers",
+  "deskE1AmountFixed": "Vom Empfänger festgelegt",
+  "deskPaySentTitle": "Zahlung gesendet",
+  "deskPaySentBody": "Sie steht auf Start und unter Aktivität, bis sie abgeschlossen ist.",
+  "deskPaySentWaiting": "Warten auf die Wallet des Empfängers",
+  "deskPaySentPosted": "An das Netzwerk gesendet, wartet auf einen Block"
 }

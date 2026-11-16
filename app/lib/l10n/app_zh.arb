@@ -4976,7 +4976,6 @@
   "deskE1NotPosted": "还没有服务器接收这笔付款。",
   "deskE1TryNext": "尝试下一个服务器",
   "deskE1CancelUnlock": "取消并解锁",
-  "deskE1Sent": "已发送",
   "deskE1Cancelled": "付款已取消",
   "deskE1Done": "完成",
   "deskE1PayInPerson": "当面付款",
@@ -5579,5 +5578,12 @@
   "deskSendDoneTo": "已发送给 {name}",
   "deskSendDoneVia": "已{via}发送",
   "deskE1PhSetLine": "链接、面对面付款码和文件",
-  "deskE1PhOtherLine": "epic1 链接、当面，或用文件"
+  "deskE1PhOtherLine": "epic1 链接、当面，或用文件",
+  "deskE1PaymentLink": "付款链接",
+  "deskE1LinkNote": "收款方的备注",
+  "deskE1AmountFixed": "由收款方设定",
+  "deskPaySentTitle": "付款已发送",
+  "deskPaySentBody": "完成之前，它会显示在首页和“活动”中。",
+  "deskPaySentWaiting": "等待收款方的钱包",
+  "deskPaySentPosted": "已广播到网络，等待打包进区块"
 }

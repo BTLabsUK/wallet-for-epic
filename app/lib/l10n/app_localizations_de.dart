@@ -19625,9 +19625,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskE1CancelUnlock => 'Abbrechen und freigeben';
 
   @override
-  String get deskE1Sent => 'Gesendet';
-
-  @override
   String get deskE1Cancelled => 'Zahlung abgebrochen';
 
   @override
@@ -21687,4 +21684,27 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskE1PhOtherLine => 'Per epic1-Link, persönlich oder per Datei';
+
+  @override
+  String get deskE1PaymentLink => 'Zahlungslink';
+
+  @override
+  String get deskE1LinkNote => 'Notiz des Empfängers';
+
+  @override
+  String get deskE1AmountFixed => 'Vom Empfänger festgelegt';
+
+  @override
+  String get deskPaySentTitle => 'Zahlung gesendet';
+
+  @override
+  String get deskPaySentBody =>
+      'Sie steht auf Start und unter Aktivität, bis sie abgeschlossen ist.';
+
+  @override
+  String get deskPaySentWaiting => 'Warten auf die Wallet des Empfängers';
+
+  @override
+  String get deskPaySentPosted =>
+      'An das Netzwerk gesendet, wartet auf einen Block';
 }

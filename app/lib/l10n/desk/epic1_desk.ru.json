@@ -37,9 +37,11 @@
   "deskE1NotPosted": "Ни один сервер ещё не принял платёж.",
   "deskE1TryNext": "Попробовать следующий сервер",
   "deskE1CancelUnlock": "Отменить и разблокировать",
-  "deskE1Sent": "Отправлено",
   "deskE1Cancelled": "Платёж отменён",
   "deskE1Done": "Готово",
   "deskE1PayInPerson": "Оплатить лично",
-  "deskE1Back": "Назад"
+  "deskE1Back": "Назад",
+  "deskE1PaymentLink": "Платёжная ссылка",
+  "deskE1LinkNote": "Заметка получателя",
+  "deskE1AmountFixed": "Задано получателем"
 }

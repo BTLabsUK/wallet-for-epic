@@ -186,10 +186,6 @@
   "@deskE1CancelUnlock": {
     "description": "Send (epic1 mode): cancels the payment and frees the coins it held."
   },
-  "deskE1Sent": "Sent",
-  "@deskE1Sent": {
-    "description": "Send (epic1 mode): the payment is done."
-  },
   "deskE1Cancelled": "Payment cancelled",
   "@deskE1Cancelled": {
     "description": "Send (epic1 mode): the payment was cancelled."
@@ -205,5 +201,17 @@
   "deskE1Back": "Back",
   "@deskE1Back": {
     "description": "Send (epic1 mode): back from the review to the form."
+  },
+  "deskE1PaymentLink": "Payment link",
+  "@deskE1PaymentLink": {
+    "description": "Send (epic1 mode): under the recipient's address once an epic1 link was read, and the method's name in the Payment sent modal."
+  },
+  "deskE1LinkNote": "Note from the recipient",
+  "@deskE1LinkNote": {
+    "description": "Send (epic1 mode): small label over the note the recipient wrote into the payment link."
+  },
+  "deskE1AmountFixed": "Set by the recipient",
+  "@deskE1AmountFixed": {
+    "description": "Send (epic1 mode): badge beside an amount the payment link fixes; it cannot be changed."
   }
 }

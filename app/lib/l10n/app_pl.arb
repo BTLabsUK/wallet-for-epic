@@ -4976,7 +4976,6 @@
   "deskE1NotPosted": "Żaden serwer nie przyjął jeszcze płatności.",
   "deskE1TryNext": "Spróbuj następnego serwera",
   "deskE1CancelUnlock": "Anuluj i odblokuj",
-  "deskE1Sent": "Wysłano",
   "deskE1Cancelled": "Płatność anulowana",
   "deskE1Done": "Gotowe",
   "deskE1PayInPerson": "Zapłać osobiście",
@@ -5579,5 +5578,12 @@
   "deskSendDoneTo": "Wysłano do {name}",
   "deskSendDoneVia": "Wysłano {via}",
   "deskE1PhSetLine": "Linki, kody do płatności osobistych i pliki",
-  "deskE1PhOtherLine": "Linkiem epic1, osobiście lub plikiem"
+  "deskE1PhOtherLine": "Linkiem epic1, osobiście lub plikiem",
+  "deskE1PaymentLink": "Link do płatności",
+  "deskE1LinkNote": "Notatka od odbiorcy",
+  "deskE1AmountFixed": "Ustalona przez odbiorcę",
+  "deskPaySentTitle": "Płatność wysłana",
+  "deskPaySentBody": "Widać ją na ekranie Start i w Aktywności, aż się zakończy.",
+  "deskPaySentWaiting": "Oczekiwanie na portfel odbiorcy",
+  "deskPaySentPosted": "Opublikowana w sieci, czeka na blok"
 }

@@ -42,6 +42,7 @@ class EPanel extends StatelessWidget {
     super.key,
     required this.child,
     this.title,
+    this.titleTrailing,
     this.head,
     this.foot,
     this.padding,
@@ -52,6 +53,9 @@ class EPanel extends StatelessWidget {
 
   final Widget child;
   final String? title;
+
+  /// At the end of the [title]'s band (a logo).
+  final Widget? titleTrailing;
 
   /// In place of [title]: anything that fits a header band (tabs, a title and a close button).
   final Widget? head;
@@ -108,7 +112,11 @@ class EPanel extends StatelessWidget {
               constraints: BoxConstraints(minHeight: Ctl.header),
               alignment: AlignmentDirectional.centerStart,
               decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
-              child: head ?? Epic1Text(title!, style: context.ts.label),
+              child:
+                  head ??
+                  (titleTrailing == null
+                      ? Epic1Text(title!, style: context.ts.label)
+                      : Row(children: [Expanded(child: Epic1Text(title!, style: context.ts.label)), titleTrailing!])),
             ),
           body,
           if (foot != null)

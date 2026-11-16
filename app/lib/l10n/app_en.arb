@@ -26346,10 +26346,6 @@
   "@deskE1CancelUnlock": {
     "description": "Send (epic1 mode): cancels the payment and frees the coins it held."
   },
-  "deskE1Sent": "Sent",
-  "@deskE1Sent": {
-    "description": "Send (epic1 mode): the payment is done."
-  },
   "deskE1Cancelled": "Payment cancelled",
   "@deskE1Cancelled": {
     "description": "Send (epic1 mode): the payment was cancelled."
@@ -29231,5 +29227,33 @@
   "deskE1PhOtherLine": "An epic1 link, in person, or with a file",
   "@deskE1PhOtherLine": {
     "description": "Phone Receive: the line under the Other ways to receive row while epic1 is on (the same line as without it, with the epic1 link named first)."
+  },
+  "deskE1PaymentLink": "Payment link",
+  "@deskE1PaymentLink": {
+    "description": "Send (epic1 mode): under the recipient's address once an epic1 link was read, and the method's name in the Payment sent modal."
+  },
+  "deskE1LinkNote": "Note from the recipient",
+  "@deskE1LinkNote": {
+    "description": "Send (epic1 mode): small label over the note the recipient wrote into the payment link."
+  },
+  "deskE1AmountFixed": "Set by the recipient",
+  "@deskE1AmountFixed": {
+    "description": "Send (epic1 mode): badge beside an amount the payment link fixes; it cannot be changed."
+  },
+  "deskPaySentTitle": "Payment sent",
+  "@deskPaySentTitle": {
+    "description": "Title of the modal after a payment went out, and of the toast when the payment was answered after the modal was closed."
+  },
+  "deskPaySentBody": "It shows on Home and under Activity until it completes.",
+  "@deskPaySentBody": {
+    "description": "Sentence under the title of the Payment sent modal. Home and Activity are screens of the app."
+  },
+  "deskPaySentWaiting": "Waiting for the recipient’s wallet",
+  "@deskPaySentWaiting": {
+    "description": "Status line of the Payment sent modal: the payment waits for the other wallet's answer, and no contact names it."
+  },
+  "deskPaySentPosted": "Posted to the network, waiting for a block",
+  "@deskPaySentPosted": {
+    "description": "Status line of the Payment sent modal: both wallets signed, the network has the payment, no block holds it yet. No full stop."
   }
 }

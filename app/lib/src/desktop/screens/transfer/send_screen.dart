@@ -2877,7 +2877,9 @@ class SendSummaryPanel extends StatelessWidget {
     required this.onReview,
     required this.reviewLabel,
     this.reviewTip,
+    this.titleTrailing,
     this.via,
+    this.viaIcon,
     this.viaSub,
     this.to,
     this.summary,
@@ -2895,8 +2897,13 @@ class SendSummaryPanel extends StatelessWidget {
   final Key? reviewKey;
   final String reviewId;
 
-  /// The method this send goes by, and under it where it goes; null hides the row.
+  /// At the end of the title's band (the epic1 logo for a payment link).
+  final Widget? titleTrailing;
+
+  /// The method this send goes by, its glyph before the name, and under it where it goes;
+  /// null hides the row.
   final String? via;
+  final IconData? viaIcon;
   final String? viaSub;
 
   /// Whom it goes to, when a contact or a pairing names it: under the amount.
@@ -2957,6 +2964,7 @@ class SendSummaryPanel extends StatelessWidget {
       foregroundPainter: CornerTicksPainter(c.tick, length: 14.u, width: 1.5),
       child: EPanel(
         title: l.deskSendSummary,
+        titleTrailing: titleTrailing,
         padding: EdgeInsets.all(Sp.panel),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2989,7 +2997,13 @@ class SendSummaryPanel extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(via!, style: ts.body, textAlign: TextAlign.end),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (viaIcon != null) ...[Icon(viaIcon, size: Ctl.iconSm, color: c.dim), SizedBox(width: Sp.x1)],
+                              Flexible(child: Text(via!, style: ts.body, textAlign: TextAlign.end)),
+                            ],
+                          ),
                           if (viaSub != null && viaSub!.isNotEmpty)
                             Text(viaSub!, style: ts.mono(size: Fs.xs, color: c.dim), textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis),
                         ],

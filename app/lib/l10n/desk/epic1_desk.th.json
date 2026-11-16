@@ -37,9 +37,11 @@
   "deskE1NotPosted": "ยังไม่มีเซิร์ฟเวอร์รับการชำระเงิน",
   "deskE1TryNext": "ลองเซิร์ฟเวอร์ถัดไป",
   "deskE1CancelUnlock": "ยกเลิกและปลดล็อก",
-  "deskE1Sent": "ส่งแล้ว",
   "deskE1Cancelled": "ยกเลิกการชำระเงินแล้ว",
   "deskE1Done": "เสร็จ",
   "deskE1PayInPerson": "จ่ายต่อหน้า",
-  "deskE1Back": "ย้อนกลับ"
+  "deskE1Back": "ย้อนกลับ",
+  "deskE1PaymentLink": "ลิงก์ชำระเงิน",
+  "deskE1LinkNote": "ข้อความจากผู้รับ",
+  "deskE1AmountFixed": "กำหนดโดยผู้รับ"
 }

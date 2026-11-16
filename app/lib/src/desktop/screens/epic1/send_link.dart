@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Send for an epic1 link (spec D3): one field, "epic1 link or contact". A link is read, an
-/// unknown server asked about, reviewed with its server, paid, then waits for the recipient
-/// with "Try next server" and "Cancel and unlock". A contact goes to the paired send, and a
-/// classic address or transaction goes back to the classic form or Import.
+/// unknown server asked about, reviewed with its server and paid. The Payment sent modal
+/// follows; under it the page waits for the recipient with "Try next server" and "Cancel and
+/// unlock", and gives way to Send's start, the classic form, once the payment is answered. A
+/// contact goes to the paired send, and a classic address or transaction goes back to the
+/// classic form or Import.
 library;
 
 import 'dart:async';
@@ -19,6 +21,8 @@ import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../recipient.dart' show epic1AddressOnly, epic1Unwrap;
 import '../../../scan/scan_router.dart';
 import '../../../trust_ids.dart';
+import '../../../ui/theme/brand.dart' show GlyphTile;
+import '../../../ui/theme/epic1_mark.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/tour.dart' show TourTarget;
 import '../../desk_l10n.dart';
@@ -27,8 +31,9 @@ import '../scan/desk_scan.dart';
 import '../scan/desk_scan_text.dart';
 import '../in_person/in_person_entry.dart' show openDeskInPersonText, openDeskPayInPerson;
 import '../transfer/contact_picker.dart' show contactEpic1Link, showContactPicker;
-import '../../../models.dart' show Epic1Via;
+import '../transfer/file_panels.dart' show ResultGlyph, ResultPanel;
 import '../transfer/import_tx_screen.dart' show ImportArgs;
+import '../transfer/payment_sent.dart';
 import '../transfer/send_screen.dart' show SendArgs, SendSummaryPanel;
 import 'epic1_files.dart';
 
@@ -65,6 +70,15 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   int _feeAsked = 0;
   Epic1Payment? _pay;
   String? _payError;
+
+  /// The amount of [_pay], as sent.
+  int _paid = 0;
+
+  /// The Payment sent modal is on screen.
+  bool _sentShown = false;
+
+  /// The payment was answered while the modal was on screen: Send's start follows the modal.
+  bool _answered = false;
 
   @override
   void initState() {
@@ -345,6 +359,7 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     if (e1 == null || info == null || link == null) return;
     final nano = info.amount == null ? _nano() : null;
     if (info.amount == null && nano == null) return;
+    final amount = info.amount?.toInt() ?? nano!;
     setState(() => _busy = true);
     final conf = ref.read(deskProvider).balance?.minConfirmations ?? defaultMinimumConfirmations;
     try {
@@ -357,15 +372,27 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       if (!mounted) return;
       setState(() {
         _pay = p;
+        _paid = amount;
         _payError = null;
         _step = _Step.waiting;
       });
       unawaited(ref.read(deskProvider.notifier).refresh());
+      // A payment no server took is not sent yet: the page says so and offers the next server.
+      if (p.posted != null) unawaited(_showSent(p));
     } on Object catch (e) {
       if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// The Payment sent modal for [p], over the waiting page.
+  Future<void> _showSent(Epic1Payment p) async {
+    _sentShown = true;
+    await showPaymentSent(context, txId: p.txId, amount: _paid, address: p.address, method: context.l10n.deskE1PaymentLink, epic1Link: true);
+    _sentShown = false;
+    // Answered meanwhile: Send's start, unless the modal left for Activity.
+    if (mounted && _answered && ref.read(deskNavProvider).route == DeskRoute.send) _start();
   }
 
   Future<void> _next() async {
@@ -375,12 +402,13 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     setState(() => _busy = true);
     try {
       final again = await e1.postNext(slateId: p.slateId, hostsOk: _hostsOk);
-      if (mounted) {
-        setState(() {
-          _pay = again;
-          _payError = null;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _pay = again;
+        _payError = null;
+      });
+      // The first server that took it: now it is sent.
+      if (p.posted == null && again.posted != null) unawaited(_showSent(again));
     } on Object catch (e) {
       if (mounted) setState(() => _payError = deskErrorText(e, context.l10n));
     } finally {
@@ -411,13 +439,28 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     // The payment's row in the list says when it was answered or cancelled.
-    final txs = ref.watch(deskProvider.select((s) => s.txs));
-    final pay = _pay;
-    final tx = pay == null ? null : txs?.where((t) => t.id == pay.txId).firstOrNull;
+    Tx? rowOf(List<Tx>? txs) => _pay == null ? null : txs?.where((t) => t.id == _pay!.txId).firstOrNull;
+    final tx = rowOf(ref.watch(deskProvider.select((s) => s.txs)));
+    // Answered: back to Send's start, with a toast. While the modal is open it says how far the
+    // payment is, and the start waits until it closes: the classic form takes the focus.
+    ref.listen(deskProvider.select((s) => s.txs), (_, txs) {
+      final row = rowOf(txs);
+      if (_answered || row == null || row.state == TxState.waitingRecipient || row.state == TxState.cancelled) return;
+      if (_sentShown) return setState(() => _answered = true);
+      showEToast(context, context.l10n.deskPaySentTitle, tone: ETone.ok);
+      _start();
+    });
     final Widget body = switch (_step) {
-      _Step.waiting when tx?.state == TxState.cancelled => _result(EIcons.close, l.deskE1Cancelled, 'e1-cancelled'),
-      _Step.waiting when tx != null && tx.state != TxState.waitingRecipient => _result(EIcons.check, l.deskE1Sent, 'e1-sent'),
-      _Step.waiting => _waiting(pay!),
+      _Step.waiting when tx?.state == TxState.cancelled => ResultPanel(
+        key: const ValueKey('e1-cancelled'),
+        glyph: const ResultGlyph(icon: EIcons.cancel, tone: ETone.neutral),
+        title: l.deskE1Cancelled,
+        text: epicTextL(l, tx!.amount),
+        actions: [EButton.primary(key: const ValueKey('e1-done'), label: l.deskE1Done, onPressed: _start)],
+      ),
+      // Answered under the open modal: nothing left to wait for here.
+      _Step.waiting when _answered => const SizedBox.shrink(),
+      _Step.waiting => _waiting(_pay!),
       _Step.form => _form(),
     };
     return EPage(
@@ -428,9 +471,13 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
   }
 
   /// Send's form with an epic1 link in To: the To card (Pay in person under it), the Amount
-  /// card, and Send's summary beside them with Review; under each other when narrow.
+  /// card, and Send's summary beside them with Review; under each other when narrow. Once the
+  /// link is read the To field gives way to the recipient's row, the link's note and the seal
+  /// line.
   Widget _form() {
     final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
     final info = _info;
     final error = _error?.call(l);
     final empty = _to.text.trim().isEmpty;
@@ -444,43 +491,82 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
     final toCard = TourTarget(
       id: 'e1-send-form',
       child: card(const ValueKey('e1-send-form'), [
-        EField(
-          label: l.deskSendTo,
-          error: error,
-          help: error == null && empty ? l.deskE1SendField : null,
-          child: EInput(
-            key: const ValueKey('e1-send-to'),
-            semanticsId: TrustIds.e1SendTo,
-            controller: _to,
-            mono: true,
-            fadeEnd: true,
-            autofocus: true,
-            invalid: error != null,
-            hint: l.deskE1SendFieldHint,
-            semanticLabel: l.deskE1SendFieldSem,
-            onChanged: _changed,
-            onSubmitted: (t) => unawaited(_open(t)),
-            trailingTabStop: true,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (_reading)
-                  Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x2), child: ESpinner(size: 16.u))
-                else if (empty)
-                  EIconButton(key: const ValueKey('e1-paste'), icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste)
-                else
-                  EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _start),
-                if (empty && !_reading) ...[SizedBox(width: Sp.x1), DeskScanButton(key: const ValueKey('e1-scan'), onScan: _scan, size: EBtnSize.inline)],
-                SizedBox(width: Sp.x1),
-                EButton(key: const ValueKey('e1-contacts'), label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
-              ],
+        if (info != null)
+          EField(
+            label: l.deskSendTo,
+            child: _Recipient(address: info.address, onClear: _start),
+          )
+        else
+          EField(
+            label: l.deskSendTo,
+            error: error,
+            help: error == null && empty ? l.deskE1SendField : null,
+            child: EInput(
+              key: const ValueKey('e1-send-to'),
+              semanticsId: TrustIds.e1SendTo,
+              controller: _to,
+              mono: true,
+              fadeEnd: true,
+              autofocus: true,
+              invalid: error != null,
+              hint: l.deskE1SendFieldHint,
+              semanticLabel: l.deskE1SendFieldSem,
+              onChanged: _changed,
+              onSubmitted: (t) => unawaited(_open(t)),
+              trailingTabStop: true,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_reading)
+                    Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x2), child: ESpinner(size: 16.u))
+                  else if (empty)
+                    EIconButton(key: const ValueKey('e1-paste'), icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste)
+                  else
+                    EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _start),
+                  if (empty && !_reading) ...[SizedBox(width: Sp.x1), DeskScanButton(key: const ValueKey('e1-scan'), onScan: _scan, size: EBtnSize.inline)],
+                  SizedBox(width: Sp.x1),
+                  EButton(key: const ValueKey('e1-contacts'), label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
+                ],
+              ),
             ),
           ),
-        ),
         if (empty && !_reading) const DeskNoCameraLine(),
         if (info?.message case final m? when m.isNotEmpty) ...[
           SizedBox(height: Sp.x3),
-          Text('"$m"', key: const ValueKey('e1-link-message'), style: context.ts.body.copyWith(fontStyle: FontStyle.italic)),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+            decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l.deskE1LinkNote, style: ts.caption),
+                Text(m, key: const ValueKey('e1-link-message'), style: ts.body.copyWith(fontStyle: FontStyle.italic)),
+              ],
+            ),
+          ),
+        ],
+        // LEPIC seals every payment to a link, so the line holds before it is sent.
+        if (info != null) ...[
+          SizedBox(height: Sp.x3),
+          Container(
+            key: const ValueKey('e1-seal'),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+            decoration: BoxDecoration(color: c.okSoft, borderRadius: BorderRadius.circular(Rad.sm)),
+            child: Row(
+              children: [
+                Icon(EIcons.sealed, size: Ctl.iconSm, color: c.ok),
+                SizedBox(width: Sp.x2),
+                Epic1Text(l.deskE1Sealed, style: ts.body.copyWith(color: c.ok, fontWeight: FontWeight.w500)),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: _SealSweep(words: metaLine([if (n > 0) epicTextL(l, n), info.message])),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
         SizedBox(height: Sp.x2),
         // Flush with the field's edge, as Send's Pay with a file.
@@ -505,7 +591,15 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
         label: l.deskSendAmount,
         error: _amountError,
         child: info?.amount != null
-            ? Text(epicTextL(l, info!.amount!.toInt()), key: const ValueKey('e1-amount-fixed'), style: context.ts.mono(size: Fs.sm))
+            ? Wrap(
+                spacing: Sp.x3,
+                runSpacing: Sp.x1,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(epicTextL(l, info!.amount!.toInt()), key: const ValueKey('e1-amount-fixed'), style: ts.mono(size: Fs.sm)),
+                  EBadge(l.deskE1AmountFixed, key: const ValueKey('e1-amount-set')),
+                ],
+              )
             : EInput(
                 key: const ValueKey('e1-amount'),
                 semanticsId: TrustIds.e1Amount,
@@ -523,11 +617,11 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
               ),
       ),
     ]);
-    final server = info?.hosts.firstOrNull?.label;
     final summary = SendSummaryPanel(
-      via: info == null ? null : MethodIcons.epic1Name(l, Epic1Via.link),
-      viaSub: server,
-      to: info == null ? null : shortMiddle(info.address),
+      titleTrailing: info == null ? null : Epic1Mark(fontSize: Fs.md, color: c.text),
+      via: info == null ? null : l.methodEpicbox,
+      viaIcon: EIcons.epicbox,
+      to: info == null ? null : shortMiddle(info.address, keep: 18),
       amount: n,
       fee: n > 0 ? _fee : null,
       feeLoading: n > 0 && _fee == null,
@@ -613,14 +707,117 @@ class _Epic1SendPageState extends ConsumerState<Epic1SendPage> {
       ),
     );
   }
+}
 
-  Widget _result(IconData icon, String title, String key) => EPanel(
-    key: ValueKey(key),
-    padding: EdgeInsets.all(Sp.panel),
-    child: EEmpty(
-      icon: icon,
-      title: title,
-      actions: [EButton.primary(key: const ValueKey('e1-done'), label: context.l10n.deskE1Done, onPressed: _start)],
-    ),
+/// The link's recipient in the To field's place, as tall and edged as the input: the epic1
+/// glyph on a ticked tile, the address short with its ends in the accent, what it is, and Clear.
+class _Recipient extends StatelessWidget {
+  const _Recipient({required this.address, required this.onClear});
+
+  final String address;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final l = context.l10n;
+    return Container(
+      key: const ValueKey('e1-recipient'),
+      constraints: BoxConstraints(minHeight: Ctl.md),
+      padding: EdgeInsetsDirectional.only(start: Sp.x2, end: Sp.x1),
+      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.lineField)),
+      child: Row(
+        children: [
+          GlyphTile(size: 28.u, child: Epic1Glyph(size: Ctl.iconSm, color: c.text)),
+          SizedBox(width: Sp.x3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [Epic1ShortAddress(address), Text(l.deskE1PaymentLink, style: context.ts.caption)],
+            ),
+          ),
+          SizedBox(width: Sp.x2),
+          EIconButton(key: const ValueKey('e1-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: onClear),
+        ],
+      ),
+    );
+  }
+}
+
+/// The payment's [words] turning into blocks at the end of the seal line: once, after a short
+/// pause, and the blocks at once when animations are off. Decoration, not read out.
+class _SealSweep extends StatefulWidget {
+  const _SealSweep({required this.words});
+
+  final String words;
+
+  @override
+  State<_SealSweep> createState() => _SealSweepState();
+}
+
+class _SealSweepState extends State<_SealSweep> with SingleTickerProviderStateMixin {
+  static const _pause = Duration(milliseconds: 240);
+  late final AnimationController _run = AnimationController(vsync: this, duration: _pause + Dur.slow);
+  late final Animation<double> _sweep = CurvedAnimation(
+    parent: _run,
+    curve: Interval(_pause.inMilliseconds / (_pause + Dur.slow).inMilliseconds, 1, curve: Motion.easeOut),
   );
+  bool _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _run.value = 1;
+    } else {
+      _run.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _run.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return ExcludeSemantics(
+      child: AnimatedBuilder(
+        animation: _sweep,
+        builder: (context, words) => CustomPaint(
+          foregroundPainter: _BlocksPainter(c.ok.withValues(alpha: 0.5), _sweep.value, block: 5.u, gap: 2.u),
+          child: Opacity(opacity: 1 - _sweep.value, child: words),
+        ),
+        child: Text(widget.words, style: context.ts.mono(size: Fs.xs, color: c.dim), maxLines: 1, softWrap: false, overflow: TextOverflow.clip),
+      ),
+    );
+  }
+}
+
+/// A row of small blocks over the first [shown] share of the width.
+class _BlocksPainter extends CustomPainter {
+  const _BlocksPainter(this.color, this.shown, {required this.block, required this.gap});
+
+  final Color color;
+  final double shown;
+  final double block;
+  final double gap;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    final end = size.width * shown;
+    for (var x = 0.0; x < end; x += block + gap) {
+      final right = x + block;
+      canvas.drawRect(Rect.fromLTRB(x, gap, right < end ? right : end, size.height - gap), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BlocksPainter old) => old.color != color || old.shown != shown || old.block != block || old.gap != gap;
 }

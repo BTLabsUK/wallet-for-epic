@@ -1,0 +1,6 @@
+{
+  "deskPaySentTitle": "Zahlung gesendet",
+  "deskPaySentBody": "Sie steht auf Start und unter Aktivität, bis sie abgeschlossen ist.",
+  "deskPaySentWaiting": "Warten auf die Wallet des Empfängers",
+  "deskPaySentPosted": "An das Netzwerk gesendet, wartet auf einen Block"
+}

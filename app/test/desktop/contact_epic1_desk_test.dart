@@ -145,20 +145,20 @@ void main() {
       return api;
     }
 
-    Finder to() => find.descendant(of: find.byKey(const ValueKey('e1-send-to')), matching: find.byType(EditableText));
-
     testWidgets('a contact with only an epic1 link opens the epic1 page with its link, ready to review', (tester) async {
       await open(tester, SendArgs(contact: Contact(id: 'eve', name: 'Eve', epic1: _link)));
-      expect(tester.widget<EditableText>(to()).controller.text, _link);
+      // The link is read: its address stands in To's place as the recipient's row.
+      expect(tester.widget<Epic1ShortAddress>(find.byType(Epic1ShortAddress)).address, _bare);
       expect(find.byKey(const ValueKey('e1-review')), findsOneWidget);
       expect(find.text(_l.deskE1ErrNotLink), findsNothing);
     });
 
     testWidgets('a pasted bare epic1 address gets its line', (tester) async {
       await open(tester, SendArgs(contact: Contact(id: 'eve', name: 'Eve', epic1: _link)));
-      await tester.enterText(to(), '');
+      // Clear goes back to the classic form; the address pasted there opens the epic1 page again.
+      await tester.tap(find.byKey(const ValueKey('e1-clear')));
       await _settle(tester);
-      await tester.enterText(to(), _bare);
+      await tester.enterText(find.byType(EditableText).first, _bare);
       await _settle(tester);
       expect(find.byWidgetPredicate((w) => (w is Text && w.data == _l.epic1AddressAlone) || (w is Epic1Text && w.text == _l.epic1AddressAlone)), findsOneWidget);
     });
