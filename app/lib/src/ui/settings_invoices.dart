@@ -43,17 +43,6 @@ class InvoiceSettingsScreen extends ConsumerStatefulWidget {
 class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
   final Set<String> _busy = {};
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && ref.read(pairNetProvider) == PairNet.epicboxOff && ref.read(pairedProvider).isNotEmpty) {
-        final l = context.l10n;
-        ref.read(noticeProvider.notifier).show('${l.contactPausedEpicboxOff}. ${l.invSetPausedBody}', level: NoticeLevel.info);
-      }
-    });
-  }
-
   void _pair() => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PairScreen()));
 
   Future<void> _set(PairingRecord r, String name, bool on) async {

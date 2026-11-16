@@ -1046,9 +1046,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticeDelayed => '无法连接节点。付款等待中。';
 
   @override
-  String get homeNoticeRelayProblem => 'Epicbox 服务器报告了问题，正在重试。';
-
-  @override
   String get homeNoticePaymentFailed => '有一笔付款失败。';
 
   @override
@@ -11829,9 +11826,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get noticeEventsMissed => '部分更新已错过。列表已重新读取。';
-
-  @override
   String get msgChecking => '正在检查消息';
 
   @override
@@ -12752,11 +12746,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String noticeKeyCheckRefused(String name) {
-    return '$name 已用新密钥配对。无法核对旧密钥：每天只能核对一次，今天已核对过。';
-  }
-
-  @override
   String noticeRelayDown(String name) {
     return '$name 的 Epicbox 服务器没有响应。';
   }
@@ -12891,11 +12880,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reqFileTitle => '账单';
-
-  @override
-  String noticeOutboxStuck(String name) {
-    return '暂时无法联系 $name。正在重试。';
-  }
 
   @override
   String noticeTooMany(String name) {

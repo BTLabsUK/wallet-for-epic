@@ -558,6 +558,7 @@ ListenerEvent? lepicListenerEvent(lepic.ListenerEvent e) {
       ? null
       : ListenerEvent(
           kind: kind,
+          slateId: e.slateId,
           txId: e.txId,
           message: e.message,
           reason: e.reason,

@@ -385,6 +385,15 @@ void main() {
       expect(find.text('under'), findsOneWidget);
     });
 
+    testWidgets('a superseded receive raises no notice', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const InvoicesScreen());
+      h.session.invoiceEventsController.add(const InvoiceEvent(kind: InvoiceEventKind.receiveSuperseded, slateId: 'x'));
+      await tester.pumpAndSettle();
+      expect(h.notices, isEmpty);
+      expect(h.container(tester).read(noticeProvider), isNull);
+    });
+
     testWidgets('shows an empty state per segment, each with its next step', (
       tester,
     ) async {

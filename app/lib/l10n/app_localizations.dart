@@ -1819,12 +1819,6 @@ abstract class AppLocalizations {
   /// **'Cannot reach the node. The payment waits.'**
   String get homeNoticeDelayed;
 
-  /// Notice: the epicbox relay (a proper name; it carries payments) reported an error not tied to a payment.
-  ///
-  /// In en, this message translates to:
-  /// **'The Epicbox server reported a problem. Retrying.'**
-  String get homeNoticeRelayProblem;
-
   /// Notice: something went wrong with one payment.
   ///
   /// In en, this message translates to:
@@ -19705,12 +19699,6 @@ abstract class AppLocalizations {
   /// **'{name}’s wallet did not finish the pairing in time. Nothing was kept. Try again.'**
   String pairNotCompletedBody(String name);
 
-  /// Notice when the wallet's event stream dropped some events: payments and requests were read again from the wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Some updates were missed. The lists were read again.'**
-  String get noticeEventsMissed;
-
   /// Status line while the wallet reads its messages (payments address and contacts) and the check takes a moment.
   ///
   /// In en, this message translates to:
@@ -21109,12 +21097,6 @@ abstract class AppLocalizations {
   /// **'{name}’s keys changed. Verify again.'**
   String noticeKeysChanged(String name);
 
-  /// Docked notice when a re-pair is added to a contact but LEPIC refuses the key check (RFC 0002 7.8: one check per slot a day); the new pairing is used.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} is paired with new keys. The old keys could not be checked: there is one check a day, and it already ran.'**
-  String noticeKeyCheckRefused(String name);
-
   /// Docked notice for HomeRelayUnreachable.
   ///
   /// In en, this message translates to:
@@ -21336,12 +21318,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invoice'**
   String get reqFileTitle;
-
-  /// Docked warning for OutboxStuck.
-  ///
-  /// In en, this message translates to:
-  /// **'Cannot reach {name} yet. Retrying.'**
-  String noticeOutboxStuck(String name);
 
   /// Docked warning when a contact went over the request cap.
   ///

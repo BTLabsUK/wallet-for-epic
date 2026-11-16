@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
+import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/pairing/contact_pairing_block.dart';
 import 'package:epic_wallet/src/ui/pairing/relay_move_sheet.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -224,6 +225,26 @@ void main() {
       await _openAddresses(tester);
       expect(find.text(_l.contactNoAddresses), findsOneWidget);
       expect(find.byKey(contactPageViaPairingKey), findsNothing);
+    });
+  });
+
+  group('Epicbox off pauses a paired contact without a notice', () {
+    testWidgets('the contact page shows the paused readout inline and raises no notice', (tester) async {
+      final h = _Harness();
+      // No proven address keeps the pairing block on the page; a settled one sits behind the menu.
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', unproven: true);
+      await h.pump(tester, const ContactPage(contactId: 'c1'), net: PairNet.epicboxOff);
+      expect(h.container(tester).read(noticeProvider), isNull);
+      expect(find.text(_l.contactPausedEpicboxOff), findsOneWidget);
+    });
+
+    testWidgets('Settings > Invoices raises no notice and its switch is off', (tester) async {
+      final h = _Harness();
+      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', state: PairingState.verified);
+      await h.pump(tester, const InvoiceSettingsScreen(), net: PairNet.epicboxOff);
+      expect(h.container(tester).read(noticeProvider), isNull);
+      // No text: the switch itself is off while Epicbox is off.
+      expect(tester.widget<Switch>(find.byKey(invoiceSettingsSwitchKey('p1'))).onChanged, isNull);
     });
   });
 

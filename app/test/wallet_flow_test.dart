@@ -1325,12 +1325,12 @@ void main() {
       expect(find.textContaining('unencrypted'), findsNothing);
     });
 
-    testWidgets('a copy that fell back to the plain records says so once after unlock', (tester) async {
+    testWidgets('a copy that fell back to the plain records shows no notice after unlock', (tester) async {
       final service = _existing(session: _fundedSession())..storeOutcome = StoreOpenOutcome.plainFallback;
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester, keepNotices: true);
       expect(find.byKey(homeFigureKey), findsOneWidget);
-      expect(find.text(_l.storeRecordsPlain), findsOneWidget);
+      expect(find.text(_l.storeRecordsPlain), findsNothing);
     });
 
     testWidgets('records that do not open with the key say so on the unlock screen, which stays', (tester) async {
