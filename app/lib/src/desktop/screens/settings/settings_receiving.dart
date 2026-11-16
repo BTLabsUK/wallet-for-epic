@@ -388,7 +388,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             body,
-            if (rows.isNotEmpty) _MethodDetails(method: m, rows: rows),
+            if (rows.isNotEmpty) _MethodDetails(name: m.name, rows: rows),
           ],
         ),
       );
@@ -400,8 +400,14 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         row(MethodKind.epicbox, anchor: SetId.epicbox),
         // epic1 is no route of a classic payment: its switch is no MethodKind, does not count for
         // the last method on and is not offered in Send starts on. Applies at once.
-        Epic1MethodRow(on: p.epic1, onChanged: (v) => _savePayments((x) => x.copyWith(epic1: v))),
-        const Epic1PrintedRow(),
+        // Its printed links are its details: under the row, set in like a method's own rows.
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Epic1MethodRow(on: p.epic1, onChanged: (v) => _savePayments((x) => x.copyWith(epic1: v))),
+            if (p.epic1 && ref.watch(deskApiProvider).epic1 != null) const _MethodDetails(name: 'epic1', rows: [Epic1PrintedRow()]),
+          ],
+        ),
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(MethodFamily.link), row(MethodKind.linkHttp, anchor: SetId.http)]),
         if (DeskFeatures.tor) row(MethodKind.linkTor, anchor: SetId.torPay),
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(MethodFamily.direct), row(MethodKind.directFile, anchor: SetId.file)]),
@@ -594,16 +600,17 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 /// full-width hairlines between rows, none before a [_DetailsNote]; the rows are indented to
 /// the method's title (ESetRow's leading, 18 px and a gap), with no rail.
 class _MethodDetails extends StatelessWidget {
-  const _MethodDetails({required this.method, required this.rows});
+  const _MethodDetails({required this.name, required this.rows});
 
-  final MethodKind method;
+  /// The method's name in the key: a [MethodKind] name, or `epic1`.
+  final String name;
   final List<Widget> rows;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     return Container(
-      key: ValueKey('st-details-${method.name}'),
+      key: ValueKey('st-details-$name'),
       decoration: BoxDecoration(color: c.s2, border: Border(top: BorderSide(color: c.line))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
