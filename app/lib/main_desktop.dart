@@ -27,6 +27,7 @@ import 'src/data_folder.dart';
 import 'src/desktop/app/close_guard.dart' show deskHideToTray, deskHoldExit;
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/desk_window.dart';
+import 'src/desktop/app/mock_shots.dart';
 import 'src/desktop/app/system_notice.dart';
 import 'src/desktop/app/window_placement.dart';
 import 'src/desktop/app/tray/tray_host.dart';
@@ -110,7 +111,7 @@ Future<void> main(List<String> args) async {
     await startServices();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
-    runApp(ProviderScope(overrides: [launch, announcementsPlatformProvider.overrideWithValue('desktop'), announcementsFeedProvider.overrideWithValue(null), nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (deskSystemNoticesSupported) deskSystemNotifierProvider.overrideWithValue(PluginSystemNotifier()), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
+    runApp(ProviderScope(overrides: [launch, announcementsPlatformProvider.overrideWithValue('desktop'), announcementsFeedProvider.overrideWithValue(null), nameServiceMembershipProvider.overrideWith((ref) => ref.watch(deskNameServices.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskPairingRefusalsProvider)), nameServiceReceiptsProvider.overrideWith((ref) => ref.watch(deskNameServices.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (deskSystemNoticesSupported) deskSystemNotifierProvider.overrideWithValue(PluginSystemNotifier()), if (window != null) deskWindowProvider.overrideWithValue(window)], child: mockShots(const DeskApp())));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
   }
