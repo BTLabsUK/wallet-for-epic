@@ -3326,6 +3326,7 @@ class _SendViewState extends ConsumerState<SendView> {
                     title: l.phoneSendInPerson,
                     // Beside the epic1 row, each says its method.
                     subtitle: ref.read(epic1OnProvider) ? '${l.methodQr} · ${l.phoneSendInPersonSub}' : l.phoneSendInPersonSub,
+                    subtitleLines: 2,
                     chevron: true,
                     onTap: () {
                       Navigator.of(sheet).pop();
@@ -3340,6 +3341,7 @@ class _SendViewState extends ConsumerState<SendView> {
                     minHeight: 72,
                     title: l.deskE1PhPayInPerson,
                     subtitle: _qrOffered ? '${l.deskE1SetSwitch} · ${l.phoneSendInPersonSub}' : l.phoneSendInPersonSub,
+                    subtitleLines: 2,
                     chevron: true,
                     onTap: () {
                       Navigator.of(sheet).pop();
