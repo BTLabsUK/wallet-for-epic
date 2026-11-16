@@ -342,7 +342,10 @@ class ContactPairingBlock extends ConsumerWidget {
                 ? l.pairIsService
                 : (verified && p.peerVerifiedAt != null)
                     ? l.pairConfirmedToo(name)
-                    : l.pairNotChecked(name);
+                    // Verified by the domain: no words were compared, so no "has not checked".
+                    : (verified && p.verifiedByDomain && p.peerDomain != null)
+                        ? l.deskPairVerifiedByDomain(p.peerDomain!)
+                        : l.pairNotChecked(name);
     final status = Padding(
       padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
       child: Row(

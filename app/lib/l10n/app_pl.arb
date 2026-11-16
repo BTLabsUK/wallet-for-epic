@@ -4719,7 +4719,6 @@
   "linkChangedConfirmTitle": "Sprawdź przed zapłatą",
   "linkTrustChangedNoName": "Odbiorca otrzymuje teraz płatności na inny portfel niż w dniu płatności {date}. Zapłać tylko wtedy, gdy ktoś ci o tym powiedział.",
   "linkCodeLabelPlain": "Obrazki",
-  "nsWaitingFor": "Oczekiwanie na {label}…",
   "nsCodeTitle": "Sprawdź kod",
   "nsCodeLead": "{label} pokazuje cztery obrazki. Porównaj je z tymi.",
   "nsCodeLabel": "Cztery obrazki",
@@ -5581,6 +5580,6 @@
   "deskE1PhSetLine": "Linki, kody do płatności osobistych i pliki",
   "deskE1PhOtherLine": "Linkiem epic1, osobiście lub plikiem",
   "deskPairDomainChecking": "Sprawdzanie {domain}…",
-  "deskPairDomainCheckingBody": "{name} podaje, że prowadzi {domain}. Jeśli domena to potwierdzi, nie trzeba porównywać słów.",
-  "deskPairDomainVerifiedBody": "{domain} potwierdza, że to portfel {name}. Bez porównywania słów."
+  "deskPairDomainVerifiedBody": "{domain} potwierdza, że to portfel {name}. Bez porównywania słów.",
+  "deskPairVerifiedByDomain": "Zweryfikowano przez {domain}"
 }

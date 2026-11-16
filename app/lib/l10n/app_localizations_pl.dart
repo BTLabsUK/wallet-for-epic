@@ -19217,11 +19217,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get linkChangedConfirmTitle => 'Sprawdź przed zapłatą';
 
   @override
-  String nsWaitingFor(String label) {
-    return 'Oczekiwanie na $label…';
-  }
-
-  @override
   String get nsCodeTitle => 'Sprawdź kod';
 
   @override
@@ -22070,12 +22065,12 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String deskPairDomainCheckingBody(String name, String domain) {
-    return '$name podaje, że prowadzi $domain. Jeśli domena to potwierdzi, nie trzeba porównywać słów.';
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain potwierdza, że to portfel $name. Bez porównywania słów.';
   }
 
   @override
-  String deskPairDomainVerifiedBody(String name, String domain) {
-    return '$domain potwierdza, że to portfel $name. Bez porównywania słów.';
+  String deskPairVerifiedByDomain(String domain) {
+    return 'Zweryfikowano przez $domain';
   }
 }

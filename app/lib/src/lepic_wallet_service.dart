@@ -4635,6 +4635,7 @@ class _LepicPairing implements PairingApi {
     domainStatus: _domain.statusOf(c.contactId, c.peerDomain),
     domainProvable: _domainProvable(c),
     domainChecking: _proving.containsKey(c.contactId) && _domainProvable(c),
+    verifiedByDomain: c.verifiedAtMs != null && _domain.log.book.verified.containsKey(c.contactId),
   ), _moves.book, DateTime.now());
 
   /// The contacts whose code this wallet answered in this run of the app ([acceptInvite]): the
@@ -4691,6 +4692,11 @@ class _LepicPairing implements PairingApi {
     if (!_domainProvable(now) || _domain.statusOf(id, now.peerDomain) != DomainStatus.proven) return false;
     await _w.pairingSas(contactId: id, decision: lepic.SasDecision.match, relayMode: lepicRelayMode());
     _answeredHere.remove(id);
+    try {
+      await _domain.log.markVerified(id, DateTime.now().millisecondsSinceEpoch);
+    } on Object catch (error) {
+      logWarn('pairing', 'verified by domain not kept: ${error.runtimeType}');
+    }
     logInfo('pairing', 'verified by domain');
     _contactsChanged(id);
     return true;
@@ -5020,6 +5026,8 @@ class _LepicPairing implements PairingApi {
       },
       relayMode: lepicRelayMode(),
     );
+    // Words checked now: the pairing no longer stands on its domain proof.
+    if (check != PairingCheck.skip && _domain.log.book.verified.containsKey(id)) await _domain.log.markVerified(id, null);
     // A mismatch ends the record and keeps it: the ended record comes back.
     if (check == PairingCheck.mismatch) {
       if (_privateLinks.containsKey(id) || (await _w.privatePairings()).any((c) => c.contactId == id)) return _privateOf(id);

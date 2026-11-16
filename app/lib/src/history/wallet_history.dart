@@ -1019,6 +1019,9 @@ class MetaDomainCheckLog implements DomainCheckLog {
 
   @override
   Future<void> record(String id, DomainCheckRec rec) => store.update((m) => m.domainChecks.checks[id] = rec);
+
+  @override
+  Future<void> markVerified(String id, int? at) => store.update((m) => at == null ? m.domainChecks.verified.remove(id) : m.domainChecks.verified[id] = at);
 }
 
 /// [MoveLog] over the meta file of the open wallet.

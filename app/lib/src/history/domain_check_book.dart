@@ -52,11 +52,12 @@ class DomainCheckRec {
   int get hashCode => Object.hash(status, checkedAt, reason, attestation);
 }
 
-/// The last check of each contact, by pairing id. The meta file holds it under one key,
-/// `domain_checks`, with its version; a file without the key has nothing recorded. Written only
-/// when not empty, and not part of a history file.
+/// The last check of each contact, by pairing id, and the pairings a domain proof ended
+/// Verified. The meta file holds it under one key, `domain_checks`, with its version; a file
+/// without the key has nothing recorded. Written only when not empty, and not part of a history
+/// file.
 class DomainCheckBook {
-  DomainCheckBook({Map<String, DomainCheckRec>? checks}) : checks = {...?checks};
+  DomainCheckBook({Map<String, DomainCheckRec>? checks, Map<String, int>? verified}) : checks = {...?checks}, verified = {...?verified};
 
   /// The version [toJson] writes. A later one is read as far as it goes.
   static const int version = 1;
@@ -69,9 +70,18 @@ class DomainCheckBook {
       final Map<Object?, Object?> m => m,
       _ => throw const FormatException('domain_checks checks'),
     };
+    final verified = switch (json['verified']) {
+      null => const <String, Object?>{},
+      final Map<Object?, Object?> m => m,
+      _ => throw const FormatException('domain_checks verified'),
+    };
     return DomainCheckBook(
       checks: {
         for (final e in list.entries) e.key is String ? e.key as String : throw const FormatException('domain_checks id'): DomainCheckRec.fromJson(e.value),
+      },
+      verified: {
+        for (final e in verified.entries)
+          (e.key is String ? e.key as String : throw const FormatException('domain_checks verified')): e.value is int ? e.value as int : throw const FormatException('domain_checks verified'),
       },
     );
   }
@@ -79,17 +89,25 @@ class DomainCheckBook {
   /// The last check, by pairing id.
   final Map<String, DomainCheckRec> checks;
 
-  bool get isEmpty => checks.isEmpty;
+  /// The pairings this wallet ended Verified by the contact's domain proof instead of the
+  /// words, by pairing id: when (Unix ms). Words checked later take a pairing out.
+  final Map<String, int> verified;
+
+  bool get isEmpty => checks.isEmpty && verified.isEmpty;
 
   Map<String, Object?> toJson() => {
     'v': version,
     if (checks.isNotEmpty) 'checks': {for (final e in checks.entries) e.key: e.value.toJson()},
+    if (verified.isNotEmpty) 'verified': {...verified},
   };
 
   /// Adds what [other] holds and this lacks.
   void addAll(DomainCheckBook other) {
     for (final e in other.checks.entries) {
       checks.putIfAbsent(e.key, () => e.value);
+    }
+    for (final e in other.verified.entries) {
+      verified.putIfAbsent(e.key, () => e.value);
     }
   }
 }
@@ -101,6 +119,9 @@ abstract class DomainCheckLog {
 
   /// Keeps [rec] as contact [id]'s last check.
   Future<void> record(String id, DomainCheckRec rec);
+
+  /// Keeps that a domain proof ended [id]'s pairing Verified at [at] (Unix ms); null forgets it.
+  Future<void> markVerified(String id, int? at);
 }
 
 class MemoryDomainCheckLog implements DomainCheckLog {
@@ -111,4 +132,7 @@ class MemoryDomainCheckLog implements DomainCheckLog {
 
   @override
   Future<void> record(String id, DomainCheckRec rec) async => book.checks[id] = rec;
+
+  @override
+  Future<void> markVerified(String id, int? at) async => at == null ? book.verified.remove(id) : book.verified[id] = at;
 }

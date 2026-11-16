@@ -184,6 +184,7 @@ class FakePairing implements PairingApi {
           domainStatus: DomainStatus.proven,
           domainProvable: false,
           domainChecking: false,
+          verifiedByDomain: true,
         ));
         emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
         return true;
@@ -447,6 +448,7 @@ class FakePairing implements PairingApi {
     String? requestedRelay,
     String? peerDomain,
     DomainStatus? domainStatus,
+    bool verifiedByDomain = false,
   }) {
     final rid = id ?? _id('pairing');
     final now = clock();
@@ -480,6 +482,7 @@ class FakePairing implements PairingApi {
       requestedRelay: requestedRelay,
       peerDomain: peerDomain,
       domainStatus: peerDomain == null ? null : domainStatus ?? DomainStatus.claimed,
+      verifiedByDomain: verifiedByDomain && state == PairingState.verified,
     );
     seed(record);
     return record;
@@ -1102,13 +1105,14 @@ class FakePairing implements PairingApi {
           peerHeardAt: r.peerHeardAt ?? clock(),
           domainProvable: false,
           domainChecking: false,
+          verifiedByDomain: false,
         );
         _put(verified);
         return verified;
       case PairingCheck.mismatch:
         // Ended, not deleted: the verdict goes to the other side, and a sealed send waiting in
         // this mailbox is never finalized (its row offers Cancel).
-        final ended = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.mismatch, endedAt: clock(), allowInvoices: false, domainProvable: false, domainChecking: false);
+        final ended = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.mismatch, endedAt: clock(), allowInvoices: false, domainProvable: false, domainChecking: false, verifiedByDomain: false);
         _put(ended);
         _dropInvoicesOf(ended);
         return ended;

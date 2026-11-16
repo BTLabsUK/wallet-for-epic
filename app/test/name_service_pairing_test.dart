@@ -467,7 +467,6 @@ void main() {
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
       // No waiting view: the ordinary words, while the service still listens.
-      expect(find.text(_l.nsWaitingFor('Anna')), findsNothing);
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);
       expect(find.byKey(checkMatchKey), findsOneWidget);
       expect(rig.service.stepOf(r.id), HelloStep.waiting);
@@ -512,7 +511,6 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       // The words are there at once and stay while no hello comes.
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);
-      expect(find.text(_l.nsWaitingFor('Anna')), findsNothing);
       expect(rig.service.stepOf(answered.id), HelloStep.waiting);
       await tester.pump(const Duration(seconds: 2));
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);

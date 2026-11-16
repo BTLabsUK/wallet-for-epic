@@ -226,6 +226,18 @@ void main() {
     );
   });
 
+  testWidgets('verified by its domain: the row names the domain, no words checked, no "has not checked yet"', (tester) async {
+    await _contact(tester, 'c6');
+    final at = DateTime(2026, 11, 16);
+    _fake.seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', verifiedAt: at, peerDomain: 'harbor-books.example', domainStatus: DomainStatus.proven, verifiedByDomain: true);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    expect(find.text(_l.trustVerified), findsWidgets);
+    expect(find.textContaining(_l.deskPairVerifiedByDomain('harbor-books.example')), findsOneWidget);
+    expect(find.textContaining(_l.contactWordsChecked(localDayMonth(_l, at))), findsNothing);
+    expect(find.textContaining(_l.pairNotChecked('Piotr')), findsNothing);
+  });
+
   for (final verified in [false, true]) {
     testWidgets('Save as new contact: the proven address is written ${verified ? 'at once, Verified' : 'only once Verified'}', (tester) async {
       await _open(tester, const ContactsScreen());

@@ -28867,12 +28867,6 @@ abstract class AppLocalizations {
   /// **'Check before paying'**
   String get linkChangedConfirmTitle;
 
-  /// Static line on the Check step while a name service’s message is awaited (no spinner). {label} is the name the pairing shows.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for {label}…'**
-  String nsWaitingFor(String label);
-
   /// Title of the step that replaces Check the words for a name service pairing.
   ///
   /// In en, this message translates to:
@@ -33553,23 +33547,23 @@ abstract class AppLocalizations {
   /// **'An epic1 link, in person, or with a file'**
   String get deskE1PhOtherLine;
 
-  /// Pairing window, desktop and phone: the title while the wallet checks the domain the new contact claims (up to 8 seconds), before it shows Verified or the four words. {domain} is the domain, e.g. shop.example.
+  /// Pairing window, desktop and phone: a muted line under the four words while the wallet checks the domain the new contact claims. If the domain proves the contact's key, the window turns Verified. {domain} is the domain, e.g. shop.example.
   ///
   /// In en, this message translates to:
   /// **'Checking {domain}…'**
   String deskPairDomainChecking(String domain);
-
-  /// Pairing window: the line under that title. {name} is the contact's name, {domain} the domain it claims.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} says it runs {domain}. If the domain confirms it, there are no words to compare.'**
-  String deskPairDomainCheckingBody(String name, String domain);
 
   /// Pairing window: the line under the Verified title when the contact's domain proved its wallet, so the four words were not needed.
   ///
   /// In en, this message translates to:
   /// **'{domain} confirms this is {name}’s wallet. No words to compare.'**
   String deskPairDomainVerifiedBody(String name, String domain);
+
+  /// Contact page, desktop and phone, and the invoice review: how a Verified contact was verified when its domain proved its key and the four words were not compared. {domain} is the domain, e.g. shop.example.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified by {domain}'**
+  String deskPairVerifiedByDomain(String domain);
 }
 
 class _AppLocalizationsDelegate

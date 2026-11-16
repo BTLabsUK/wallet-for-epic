@@ -523,8 +523,11 @@ void main() {
       expect(rec(id).domainStatus, DomainStatus.proven);
       expect(rec(id).domainProvable, isFalse);
       expect(rec(id).domainChecking, isFalse);
+      expect(rec(id).verifiedByDomain, isTrue);
       expect(api.calls.where((c) => c == 'proveByDomain'), hasLength(1));
       expect(api.calls.where((c) => c.startsWith('check:')), isEmpty, reason: 'no words were answered');
+      await api.checkWords(id, PairingCheck.match);
+      expect(rec(id).verifiedByDomain, isFalse, reason: 'words checked later make it a words check');
     });
 
     test('a wrong file or an unreachable domain leaves the pairing Paired for the words', () async {
@@ -554,6 +557,7 @@ void main() {
       expect(await api.proveByDomain(id), isFalse);
       expect(rec(id).verifiedAt, words!.verifiedAt);
       expect(rec(id).domainStatus, DomainStatus.claimed);
+      expect(rec(id).verifiedByDomain, isFalse);
     });
 
     test('before the confirm there is nothing to prove', () async {

@@ -17571,11 +17571,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkChangedConfirmTitle => '付款前请核对';
 
   @override
-  String nsWaitingFor(String label) {
-    return '正在等待 $label…';
-  }
-
-  @override
   String get nsCodeTitle => '核对代码';
 
   @override
@@ -20274,12 +20269,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String deskPairDomainCheckingBody(String name, String domain) {
-    return '$name 表示自己运营 $domain。如果该域名确认这一点，就无需比对词语。';
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain 确认这是 $name 的钱包。无需比对词语。';
   }
 
   @override
-  String deskPairDomainVerifiedBody(String name, String domain) {
-    return '$domain 确认这是 $name 的钱包。无需比对词语。';
+  String deskPairVerifiedByDomain(String domain) {
+    return '已通过 $domain 验证';
   }
 }

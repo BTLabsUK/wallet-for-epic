@@ -4719,7 +4719,6 @@
   "linkChangedConfirmTitle": "Проверьте перед оплатой",
   "linkTrustChangedNoName": "Получатель теперь получает платежи на другой кошелёк, чем при вашем платеже {date}. Платите, только если вам об этом сказали.",
   "linkCodeLabelPlain": "Картинки",
-  "nsWaitingFor": "Ожидание {label}…",
   "nsCodeTitle": "Проверьте код",
   "nsCodeLead": "{label} показывает четыре картинки. Сравните их с этими.",
   "nsCodeLabel": "Четыре картинки",
@@ -5581,6 +5580,6 @@
   "deskE1PhSetLine": "Ссылки, коды для личной оплаты и файлы",
   "deskE1PhOtherLine": "По ссылке epic1, лично или файлом",
   "deskPairDomainChecking": "Проверка {domain}…",
-  "deskPairDomainCheckingBody": "{name} указывает, что владеет {domain}. Если домен это подтвердит, слова сравнивать не нужно.",
-  "deskPairDomainVerifiedBody": "{domain} подтверждает, что это кошелёк {name}. Сравнивать слова не нужно."
+  "deskPairDomainVerifiedBody": "{domain} подтверждает, что это кошелёк {name}. Сравнивать слова не нужно.",
+  "deskPairVerifiedByDomain": "Проверено через {domain}"
 }

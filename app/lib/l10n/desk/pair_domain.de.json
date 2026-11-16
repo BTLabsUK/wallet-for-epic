@@ -1,5 +1,5 @@
 {
   "deskPairDomainChecking": "{domain} wird geprüft …",
-  "deskPairDomainCheckingBody": "{name} gibt an, {domain} zu betreiben. Bestätigt die Domain das, müssen Sie keine Wörter vergleichen.",
-  "deskPairDomainVerifiedBody": "{domain} bestätigt, dass dies die Wallet von {name} ist. Kein Wortvergleich nötig."
+  "deskPairDomainVerifiedBody": "{domain} bestätigt, dass dies die Wallet von {name} ist. Kein Wortvergleich nötig.",
+  "deskPairVerifiedByDomain": "Verifiziert über {domain}"
 }

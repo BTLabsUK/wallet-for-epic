@@ -476,8 +476,6 @@ abstract final class TrustIds {
   static const pairflowSendCheck = 'g4.pairflow.send_check';
   static const pairflowNsJoin = 'g4.pairflow.ns_join';
   static const pairflowNsNotNow = 'g4.pairflow.ns_not_now';
-  static const pairflowNsWaitClose = 'g4.pairflow.ns_wait_close';
-  static const pairflowNsWaitCancel = 'g4.pairflow.ns_wait_cancel';
   static const pairflowNsCheckClose = 'g4.pairflow.ns_check_close';
   static const pairflowNsMatch = 'g4.pairflow.ns_match';
   static const pairflowNsNoMatch = 'g4.pairflow.ns_no_match';
@@ -1057,8 +1055,6 @@ abstract final class TrustIds {
     'g4.pairflow.send_check',
     'g4.pairflow.ns_join',
     'g4.pairflow.ns_not_now',
-    'g4.pairflow.ns_wait_close',
-    'g4.pairflow.ns_wait_cancel',
     'g4.pairflow.ns_check_close',
     'g4.pairflow.ns_match',
     'g4.pairflow.ns_no_match',

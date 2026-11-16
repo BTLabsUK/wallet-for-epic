@@ -211,7 +211,19 @@ void main() {
       );
       final back = DomainCheckBook.fromJson(book.toJson());
       expect(back.checks['p1'], book.checks['p1']);
+      expect(back.verified, isEmpty);
       expect(DomainCheckBook.fromJson(null).isEmpty, isTrue);
+    });
+
+    test('keeps the pairings a domain proof verified until the words are checked', () async {
+      final log = MemoryDomainCheckLog();
+      await log.markVerified('p1', 1792900000000);
+      expect(log.book.isEmpty, isFalse);
+      final back = DomainCheckBook.fromJson(log.book.toJson());
+      expect(back.verified, {'p1': 1792900000000});
+      await log.markVerified('p1', null);
+      expect(log.book.verified, isEmpty);
+      expect(() => DomainCheckBook.fromJson({'verified': {'p1': 'x'}}), throwsFormatException);
     });
   });
 }

@@ -18821,11 +18821,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get linkChangedConfirmTitle => 'Vor dem Bezahlen prüfen';
 
   @override
-  String nsWaitingFor(String label) {
-    return 'Warten auf $label…';
-  }
-
-  @override
   String get nsCodeTitle => 'Code prüfen';
 
   @override
@@ -21694,12 +21689,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String deskPairDomainCheckingBody(String name, String domain) {
-    return '$name gibt an, $domain zu betreiben. Bestätigt die Domain das, müssen Sie keine Wörter vergleichen.';
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain bestätigt, dass dies die Wallet von $name ist. Kein Wortvergleich nötig.';
   }
 
   @override
-  String deskPairDomainVerifiedBody(String name, String domain) {
-    return '$domain bestätigt, dass dies die Wallet von $name ist. Kein Wortvergleich nötig.';
+  String deskPairVerifiedByDomain(String domain) {
+    return 'Verifiziert über $domain';
   }
 }

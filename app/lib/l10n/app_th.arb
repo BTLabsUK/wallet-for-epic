@@ -4719,7 +4719,6 @@
   "linkChangedConfirmTitle": "ตรวจสอบก่อนจ่าย",
   "linkTrustChangedNoName": "ตอนนี้ผู้รับรับเงินเข้ากระเป๋าเงินใบอื่น ไม่ใช่ใบที่คุณจ่ายเมื่อ {date} จ่ายเฉพาะเมื่อมีคนบอกคุณ",
   "linkCodeLabelPlain": "รูปภาพ",
-  "nsWaitingFor": "กำลังรอ {label}…",
   "nsCodeTitle": "ตรวจรหัส",
   "nsCodeLead": "{label} แสดงรูปภาพสี่รูป เทียบกับรูปเหล่านี้",
   "nsCodeLabel": "รูปภาพสี่รูป",
@@ -5581,6 +5580,6 @@
   "deskE1PhSetLine": "ลิงก์ รหัสชำระแบบพบหน้า และไฟล์",
   "deskE1PhOtherLine": "ลิงก์ epic1 ตัวต่อตัว หรือด้วยไฟล์",
   "deskPairDomainChecking": "กำลังตรวจ {domain}…",
-  "deskPairDomainCheckingBody": "{name} แจ้งว่าดูแล {domain} หากโดเมนยืนยัน ไม่ต้องเทียบคำ",
-  "deskPairDomainVerifiedBody": "{domain} ยืนยันว่านี่คือกระเป๋าเงินของ {name} ไม่ต้องเทียบคำ"
+  "deskPairDomainVerifiedBody": "{domain} ยืนยันว่านี่คือกระเป๋าเงินของ {name} ไม่ต้องเทียบคำ",
+  "deskPairVerifiedByDomain": "ยืนยันผ่าน {domain}"
 }

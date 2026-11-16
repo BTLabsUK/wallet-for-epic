@@ -1567,8 +1567,9 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
     // A pairing made before addresses were proven: nothing confirms the contact's address.
     final unproven = (verified || p.state == PairingState.paired) && p.paymentsAddress == null;
     final statusTitle = changed ? l.trustKeysChanged : waiting ? l.pairWaitingFor(name) : verified ? l.trustVerified : l.trustPaired;
-    // Verified by the domain: the other wallet never compares words, so no "has not checked".
-    final byDomain = verified && p.domainStatus == DomainStatus.proven && p.peerVerifiedAt == null;
+    // Verified by the domain: no words were compared, so the row names the domain and no
+    // "has not checked" follows.
+    final byDomain = verified && p.verifiedByDomain && p.peerDomain != null;
     final String? statusLine = changed
         ? l.contactKeysChangedStatus
         : waiting
@@ -1686,7 +1687,12 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> with _BusyR
           rows: [
             ESetRow(
               title: statusTitle,
-              text: verified && p.verifiedAt != null ? metaLine([l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)), statusLine]) : statusLine,
+              text: verified && p.verifiedAt != null
+                  ? metaLine([
+                      if (byDomain) ...[l.deskPairVerifiedByDomain(p.peerDomain!), localDayMonth(l, p.verifiedAt!)] else l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)),
+                      statusLine,
+                    ])
+                  : statusLine,
               control: !changed && p.sas.isNotEmpty && (waiting || p.state == PairingState.paired)
                   ? EButton(key: deskContactCheckKey, semanticsId: TrustIds.pairContactCheck, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: !waiting))
                   : null,

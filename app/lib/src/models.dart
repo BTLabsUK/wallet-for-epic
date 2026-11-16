@@ -3348,6 +3348,7 @@ class PairingRecord {
     this.domainStatus,
     this.domainProvable = false,
     this.domainChecking = false,
+    this.verifiedByDomain = false,
     this.relayMove = RelayMoveState.none,
     this.movedAt,
     this.awaiting = false,
@@ -3474,6 +3475,10 @@ class PairingRecord {
   /// fetched now. A screen shows that it checks; it waits for nothing.
   final bool domainChecking;
 
+  /// The pairing is Verified because the contact's domain proved its key, not by the words
+  /// (kept in the wallet's meta file). Words checked later make it a words check.
+  final bool verifiedByDomain;
+
   /// Where [requestedRelay] stands under the move rules (`relay_moves.dart`).
   final RelayMoveState relayMove;
 
@@ -3557,6 +3562,7 @@ class PairingRecord {
     DomainStatus? domainStatus,
     bool? domainProvable,
     bool? domainChecking,
+    bool? verifiedByDomain,
     RelayMoveState? relayMove,
     DateTime? movedAt,
     bool? awaiting,
@@ -3599,6 +3605,7 @@ class PairingRecord {
     domainStatus: domainStatus ?? this.domainStatus,
     domainProvable: domainProvable ?? this.domainProvable,
     domainChecking: domainChecking ?? this.domainChecking,
+    verifiedByDomain: verifiedByDomain ?? this.verifiedByDomain,
     relayMove: relayMove ?? this.relayMove,
     movedAt: movedAt ?? this.movedAt,
     awaiting: awaiting ?? this.awaiting,

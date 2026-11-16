@@ -426,7 +426,6 @@ void main() {
     await _settle(tester);
     expect(find.byKey(deskCheckMatchKey), findsOneWidget, reason: 'the words, not a wait');
     expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
-    expect(find.text(_l.nsWaitingFor('Anna')), findsNothing);
     expect(find.byKey(deskDomainCheckingKey), findsNothing);
     expect(find.byType(EDialog), findsOneWidget);
     await tester.pump(const Duration(hours: 2));

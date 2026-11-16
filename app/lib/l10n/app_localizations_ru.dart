@@ -19202,11 +19202,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get linkChangedConfirmTitle => 'Проверьте перед оплатой';
 
   @override
-  String nsWaitingFor(String label) {
-    return 'Ожидание $label…';
-  }
-
-  @override
   String get nsCodeTitle => 'Проверьте код';
 
   @override
@@ -22065,12 +22060,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String deskPairDomainCheckingBody(String name, String domain) {
-    return '$name указывает, что владеет $domain. Если домен это подтвердит, слова сравнивать не нужно.';
+  String deskPairDomainVerifiedBody(String name, String domain) {
+    return '$domain подтверждает, что это кошелёк $name. Сравнивать слова не нужно.';
   }
 
   @override
-  String deskPairDomainVerifiedBody(String name, String domain) {
-    return '$domain подтверждает, что это кошелёк $name. Сравнивать слова не нужно.';
+  String deskPairVerifiedByDomain(String domain) {
+    return 'Проверено через $domain';
   }
 }

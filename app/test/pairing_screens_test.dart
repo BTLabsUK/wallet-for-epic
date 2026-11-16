@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/connection_state.dart' show WalletStatusNotifier
 import 'package:epic_wallet/src/ui/status.dart' show EpicboxState, NodeState, NodeStatus, WalletStatus;
 
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
+import 'package:epic_wallet/src/history/domain_check_book.dart' show DomainStatus;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -602,6 +603,16 @@ void main() {
       expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
     });
 
+    testWidgets('verified by its domain: the domain in place of "has not checked yet"', (tester) async {
+      await page(
+        tester,
+        (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna, peerDomain: 'harbor-books.example', domainStatus: DomainStatus.proven, verifiedByDomain: true),
+      );
+      await openContactPairing(tester);
+      expect(find.text(_l.deskPairVerifiedByDomain('harbor-books.example')), findsOneWidget);
+      expect(find.text(_l.pairNotChecked('Anna')), findsNothing);
+    });
+
     testWidgets('verified: the date, "confirmed too" once the verdict came, both switches', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
       await openContactPairing(tester);
@@ -1067,7 +1078,6 @@ void main() {
       expect(find.byKey(checkMatchKey), findsOneWidget);
       expect(find.text(_l.sasLead('Harbor Books')), findsOneWidget);
       expect(find.text(_l.deskPairDomainChecking(domain)), findsOneWidget);
-      expect(find.text(_l.deskPairDomainCheckingBody('Harbor Books', domain)), findsNothing, reason: 'no checking stage');
       expectOneRoute(tester);
       await tester.pump(const Duration(seconds: 2));
       await _frames(tester);
