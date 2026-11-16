@@ -223,8 +223,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     ref.listenManual<AsyncValue<PairingEvent>>(pairingEventsProvider, (_, next) {
       final e = next.value;
       if (e == null || !mounted) return;
-      // A pairing moved: the next check of every contact is the first wait away, or runs at
-      // once while the push sessions are live.
+      // A pairing moved: the check of every contact runs at once (it claims a new contact's
+      // mailbox).
       _check?.pairingEvent();
       unawaited(_show(e));
     });
